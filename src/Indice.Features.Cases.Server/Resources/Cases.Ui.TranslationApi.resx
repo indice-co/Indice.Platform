@@ -1269,6 +1269,30 @@
   <data name="jsonforms.selectItem" xml:space="preserve">
     <value>Select an item to see its details.</value>
   </data>
+  <data name="jsonforms.imageUri.file" xml:space="preserve">
+    <value>Upload file</value>
+  </data>
+  <data name="jsonforms.imageUri.url" xml:space="preserve">
+    <value>External URL</value>
+  </data>
+  <data name="jsonforms.imageUri.remove" xml:space="preserve">
+    <value>Remove image</value>
+  </data>
+  <data name="jsonforms.imageUri.invalidType" xml:space="preserve">
+    <value>Choose an image file.</value>
+  </data>
+  <data name="jsonforms.imageUri.tooLarge" xml:space="preserve">
+    <value>The image must be up to {{size}}.</value>
+  </data>
+  <data name="jsonforms.imageUri.readError" xml:space="preserve">
+    <value>The file could not be read.</value>
+  </data>
+  <data name="jsonforms.imageUri.invalidUrl" xml:space="preserve">
+    <value>Enter a valid https:// address.</value>
+  </data>
+  <data name="jsonforms.imageUri.loadError" xml:space="preserve">
+    <value>The image could not be loaded.</value>
+  </data>
   <data name="cases.cannotCreate.title" xml:space="preserve">
     <value>You cannot open cases here</value>
   </data>

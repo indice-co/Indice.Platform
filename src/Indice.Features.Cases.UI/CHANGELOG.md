@@ -14,7 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `options.multi` (textarea), `options.toggle`, `options.slider`, `format: date-time` / `time`, arrays of enum values (checkboxes),
   `oneOf` / `anyOf` / `allOf`, the `ListWithDetail` element, and `options.table: true` (with optional `options.columns`) for arrays.
   Elements no renderer accepts show their value as JSON instead of "No applicable renderer found".
-- Read-only cases render as a two-column list of labels and values instead of a form of read-only fields.
+- `imageUri` widget (`options.widget: "imageUri"`) for string fields: the image is picked from a file (`image/*`, stored as a
+  `data:` uri, up to `options.maxSize` bytes, 1 MB by default) or given as an external `https://` url, with a preview;
+  read-only views show the image. Translation keys: `jsonforms.imageUri.*`.
+- Read-only cases
 - When the user cannot open cases, the cases list shows an info button where the "New case" button would be, explaining why.
 - `CasesUIOptions.DashboardChannels`: the dashboard shows a "by case type" and a "by status" report for each listed case
   channel, a row per channel. Defaults to `Managed` and `External`; an empty list shows none. These reports follow

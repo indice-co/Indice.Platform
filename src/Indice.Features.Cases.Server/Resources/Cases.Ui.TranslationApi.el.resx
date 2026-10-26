@@ -1269,6 +1269,30 @@
   <data name="jsonforms.selectItem" xml:space="preserve">
     <value>Επιλέξτε μια εγγραφή για να δείτε τα στοιχεία της.</value>
   </data>
+  <data name="jsonforms.imageUri.file" xml:space="preserve">
+    <value>Μεταφόρτωση αρχείου</value>
+  </data>
+  <data name="jsonforms.imageUri.url" xml:space="preserve">
+    <value>Εξωτερικός σύνδεσμος</value>
+  </data>
+  <data name="jsonforms.imageUri.remove" xml:space="preserve">
+    <value>Αφαίρεση εικόνας</value>
+  </data>
+  <data name="jsonforms.imageUri.invalidType" xml:space="preserve">
+    <value>Επιλέξτε αρχείο εικόνας.</value>
+  </data>
+  <data name="jsonforms.imageUri.tooLarge" xml:space="preserve">
+    <value>Η εικόνα πρέπει να είναι έως {{size}}.</value>
+  </data>
+  <data name="jsonforms.imageUri.readError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η ανάγνωση του αρχείου.</value>
+  </data>
+  <data name="jsonforms.imageUri.invalidUrl" xml:space="preserve">
+    <value>Εισαγάγετε έγκυρη διεύθυνση https://.</value>
+  </data>
+  <data name="jsonforms.imageUri.loadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση της εικόνας.</value>
+  </data>
   <data name="cases.cannotCreate.title" xml:space="preserve">
     <value>Δεν μπορείτε να ανοίξετε υποθέσεις εδώ</value>
   </data>
