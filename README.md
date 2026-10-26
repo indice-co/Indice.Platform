@@ -90,6 +90,14 @@ Multi-tenant application support and tenant management
 | Indice.Features.Multitenancy.AspNetCore | ASP.NET Core multitenancy integration | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Multitenancy.AspNetCore?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Multitenancy.AspNetCore/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Multitenancy.AspNetCore)](https://www.nuget.org/packages/Indice.Features.Multitenancy.AspNetCore/) | n/a |
 | Indice.Features.Multitenancy.Worker.Azure | Azure-specific tenant workers | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Multitenancy.Worker.Azure?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Multitenancy.Worker.Azure/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Multitenancy.Worker.Azure)](https://www.nuget.org/packages/Indice.Features.Multitenancy.Worker.Azure/) | n/a |
 
+### ⚙️ Workers Dashboard
+Dashboard for monitoring and managing `Indice.Hosting` background work (queues, scheduled tasks, servers & locks). See the [Workers UI README](src/Indice.Features.Workers.UI/README.md) for setup.
+
+| Package | Description | Version | Downloads | CHANGELOG |
+|---------|-------------|---------|-----------|-----------|
+| Indice.Features.Workers.Server | Workers dashboard minimal APIs (`/api/workers`) | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Workers.Server?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Workers.Server/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Workers.Server)](https://www.nuget.org/packages/Indice.Features.Workers.Server/) | n/a |
+| Indice.Features.Workers.UI | Workers dashboard user interface (`/workers`) | [![Nuget](https://img.shields.io/nuget/vpre/Indice.Features.Workers.UI?logo=nuget)](https://www.nuget.org/packages/Indice.Features.Workers.UI/) | [![Nuget](https://img.shields.io/nuget/dt/Indice.Features.Workers.UI)](https://www.nuget.org/packages/Indice.Features.Workers.UI/) | n/a |
+
 ### 💎 Specialized Features
 Additional specialized functionality and integrations
 

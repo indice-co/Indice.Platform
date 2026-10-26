@@ -74,6 +74,12 @@
     <Project Path="src/Indice.Features.Risk.Core/Indice.Features.Risk.Core.csproj" />
     <Project Path="src/Indice.Features.Risk.Server/Indice.Features.Risk.Server.csproj" />
     <Project Path="src/Indice.Features.Risk.UI/Indice.Features.Risk.UI.csproj" />
+    <Project Path="src/Indice.Features.Workers.App/Indice.Features.Workers.App.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+    <Project Path="src/Indice.Features.Workers.Server/Indice.Features.Workers.Server.csproj" Id="a3ad572c-5a7c-4414-80dc-eef2a184ca06" />
+    <Project Path="src/Indice.Features.Workers.UI/Indice.Features.Workers.UI.csproj" />
     <Project Path="src/Indice.Functions.Builder/Indice.Functions.Builder.csproj" />
     <Project Path="src/Indice.Hosting/Indice.Hosting.csproj" />
     <Project Path="src/Indice.Services/Indice.Services.csproj" />

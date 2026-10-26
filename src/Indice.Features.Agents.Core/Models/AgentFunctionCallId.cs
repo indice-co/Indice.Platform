@@ -4,9 +4,9 @@ namespace Indice.Features.Agents.Core.Models;
 
 
 /// <summary>
-/// This record represents a unique identifier for an agent session, consisting of a conversation ID and an optional agent name.
+/// This record represents the call id of a workflow port request, consisting of the request ID and the checkpoint the run can be resumed from.
 /// </summary>
-/// <param name="RequestId">The unique identifier for the conversation.</param>
+/// <param name="RequestId">The unique identifier for the port request.</param>
 /// <param name="CheckpointId">The optional identifier for the checkpoint.</param>
 [DebuggerDisplay("{ToString(),nq}")]
 public record AgentFunctionCallId(string RequestId, string? CheckpointId = null)

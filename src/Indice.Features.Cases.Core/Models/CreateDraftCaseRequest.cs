@@ -15,7 +15,7 @@ public class CreateDraftCaseRequest
     /// <summary>A list of case metadata in key value pairs</summary>
     public Dictionary<string, string> Metadata { get; set; } = [];
 
-    /// <summary>The channel that created the draft case</summary>
+    /// <summary>The channel that created the draft case. Defaults to <strong>Managed</strong> for the manage API and <strong>External</strong> for the my API.</summary>
     public string? Channel { get; set; }
     /// <summary>The reference number of the request that created the draft case</summary>
     public string? ReferenceNumber { get; set; }

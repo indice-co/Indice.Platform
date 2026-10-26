@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ToastType } from '@indice/ng-components';
 import { tap } from 'rxjs/operators';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
-import { TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LucideDownload, LucidePaperclip, LucideTrash } from '@lucide/angular';
+import { TranslatedToasterService, ToastType } from 'src/app/shared/services/translated-toaster.service';
+import { FieldWrapperComponent } from './field-wrapper.component';
 import { TailwindControl } from './tailwind-control';
 
 /**
@@ -12,6 +14,7 @@ import { TailwindControl } from './tailwind-control';
  */
 @Component({
     selector: 'app-jf-file',
+    imports: [FieldWrapperComponent, TranslatePipe, LucideDownload, LucidePaperclip, LucideTrash],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
@@ -20,37 +23,37 @@ import { TailwindControl } from './tailwind-control';
             <input
               type="file"
               [accept]="accept"
-              [class]="fieldClass"
+              [class]="fieldClass + ' max-w-md'"
               [attr.required]="options.required"
               [id]="id"
               (change)="onFileSelect($event)">
+          } @else {
+            <p class="text-sm text-base-content/60">{{ 'common.noDocumentSubmitted' | translate }}</p>
           }
-          <p class="text-sm text-gray-900">{{ 'common.noDocumentSubmitted' | translate }}</p>
         } @else {
-          <div class="flex align-items-center justify-content-center align-middle">
-            <button type="button" (click)="onDownload()" class="btn-default">
-              <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-              </svg>
-              <span>{{ 'common.download' | translate }}</span>
+          <div class="flex flex-wrap items-center gap-2 rounded-field border border-base-300 bg-base-200/50 px-3 py-2">
+            <svg lucidePaperclip class="size-4 text-base-content/60"></svg>
+            <span class="min-w-0 flex-1 truncate text-sm">{{ 'jsonforms.attachedFile' | translate }}</span>
+            <button type="button" class="btn btn-sm" (click)="onDownload()">
+              <svg lucideDownload class="size-4"></svg>
+              {{ 'common.download' | translate }}
             </button>
             @if (!readonly) {
-              <button (click)="setValue(undefined)" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                <svg class="w-6 h-6 text-gray-800 text-black" style="color: rgb(31 41 55 / 1) !important" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-                </svg>
-                <span class="sr-only">{{ 'common.removeAttachment' | translate }}</span>
+              <button type="button" class="btn btn-ghost btn-sm btn-square text-error" (click)="setValue(undefined)"
+                [attr.aria-label]="'common.removeAttachment' | translate" [title]="'common.removeAttachment' | translate">
+                <svg lucideTrash class="size-4"></svg>
               </button>
             }
           </div>
         }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class FileControlComponent extends TailwindControl {
     protected widget = 'file';
+    protected override fieldBase = 'file-input';
+    override readonlyAsText = false;
     private toaster = inject(TranslatedToasterService);
     private api = inject(CasesApiService);
     private fileUploadService = inject(FileUploadService);

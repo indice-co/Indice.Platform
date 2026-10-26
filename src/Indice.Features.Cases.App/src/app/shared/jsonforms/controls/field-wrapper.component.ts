@@ -1,42 +1,54 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TailwindControl } from './tailwind-control';
 
-/** Label, field addons and help block around a control, as the ajsf Tailwind framework drew them. */
+/**
+ * Label, field addons, read-only value, error and help text around a control.
+ * Eager change detection: the control's fields are mutated by JSON Forms outside of signals.
+ */
 @Component({
     selector: 'app-jf-field',
+    imports: [NgTemplateOutlet],
     template: `
-    <div [class]="control.wrapperClass">
-      @if (control.showLabel && control.title) {
-        <label
-          [attr.for]="control.id"
-          [class]="control.labelClass"
-          [class.sr-only]="control.notitle"
-          [innerHTML]="control.title"></label>
+    <!-- Single projection slot: Angular binds projected content to one <ng-content> at compile time -->
+    <ng-template #editor><ng-content /></ng-template>
+    @let c = control();
+    <div [class]="c.wrapperClass">
+      @if (c.showLabel && c.title) {
+        <label [attr.for]="c.id" [class]="c.labelClass" [class.sr-only]="c.notitle" [innerHTML]="c.title"></label>
       }
-      <div [class.input-group]="addonLeft || addonRight">
-        @if (addonLeft) {
-          <span class="input-group-addon" [innerHTML]="addonLeft"></span>
-        }
-        <ng-content />
-        @if (addonRight) {
-          <span class="input-group-addon" [innerHTML]="addonRight"></span>
-        }
-      </div>
-      @if (control.helpBlock) {
-        <p class="text-red-500 text-xs italic" [innerHTML]="control.helpBlock"></p>
+      @if (!c.showEditor) {
+        <p class="min-h-10 rounded-field border border-base-300 bg-base-200/50 px-3 py-2 text-sm break-words whitespace-pre-line"
+          [class]="c.readonlyText ? '' : 'text-base-content/50'">{{ c.readonlyText || '—' }}</p>
+      } @else if (addonLeft() || addonRight()) {
+        <div class="join w-full">
+          @if (addonLeft()) {
+            <span class="join-item flex items-center border border-base-300 bg-base-200 px-3 text-sm" [innerHTML]="addonLeft()"></span>
+          }
+          <div class="join-item flex-1"><ng-container [ngTemplateOutlet]="editor" /></div>
+          @if (addonRight()) {
+            <span class="join-item flex items-center border border-base-300 bg-base-200 px-3 text-sm" [innerHTML]="addonRight()"></span>
+          }
+        </div>
+      } @else {
+        <ng-container [ngTemplateOutlet]="editor" />
+      }
+      @if (c.errorText) {
+        <p class="text-xs text-error" role="alert" [innerHTML]="c.errorText"></p>
+      } @else if (c.helpText) {
+        <p class="text-xs text-base-content/60" [innerHTML]="c.helpText"></p>
       }
     </div>`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class FieldWrapperComponent {
-    @Input({ required: true }) control!: TailwindControl;
+    readonly control = input.required<TailwindControl>();
 
-    get addonLeft(): string | undefined {
-        return this.control.options.fieldAddonLeft || this.control.options.prepend;
+    protected addonLeft(): string | undefined {
+        return this.control().options.fieldAddonLeft || this.control().options.prepend;
     }
 
-    get addonRight(): string | undefined {
-        return this.control.options.fieldAddonRight || this.control.options.append;
+    protected addonRight(): string | undefined {
+        return this.control().options.fieldAddonRight || this.control().options.append;
     }
 }

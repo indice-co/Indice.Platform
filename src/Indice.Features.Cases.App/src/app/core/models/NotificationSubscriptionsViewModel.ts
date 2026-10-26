@@ -1,22 +1,12 @@
-import { NotificationSubscription } from "../services/cases-api.service";
-
-export class NotificationSubscriptionViewModel {
-    public notificationSubscription: NotificationSubscription | undefined;
-    public subscribed: boolean | undefined;
-    public title: string | undefined;
-
-    constructor(notificationSubscription: NotificationSubscription, subscribed: boolean, title: string) {
-        this.notificationSubscription = notificationSubscription;
-        this.subscribed = subscribed;
-        this.title = title;
-    }
+/** A case type the user can subscribe to for notifications. */
+export interface NotificationSubscriptionViewModel {
+    caseTypeId: string;
+    title: string;
+    subscribed: boolean;
 }
 
-export class NotificationSubscriptionCategoryViewModel {
-    public name: string | undefined;
-    public notificationSubscriptions: NotificationSubscriptionViewModel[] | undefined;
-  }
-
-export class DisplayNotificationSubscriptionsViewModel {
-    public categories: NotificationSubscriptionCategoryViewModel[] | undefined;
-  }
+/** Case types grouped under their case type category. */
+export interface NotificationSubscriptionCategoryViewModel {
+    name: string;
+    notificationSubscriptions: NotificationSubscriptionViewModel[];
+}

@@ -17,6 +17,10 @@ public class CasesUIOptions : SpaUIOptions
     /// <remarks>If left null or empty all canvases are displayed.</remarks>
     public List<string>? DashboardTags { get; set; }
 
+    /// <summary>A list containing the case channels that get their own canvases in the dashboard (cases by case type and by status).</summary>
+    /// <remarks>If left null the <strong>Managed</strong> and <strong>External</strong> channels are displayed; if empty none. The canvases also follow <see cref="DashboardTags"/>.</remarks>
+    public List<string>? DashboardChannels { get; set; }
+
     /// <summary>A list containing the property names that should be filterable in the cases table.</summary>
     public HashSet<CaseListFilter>? CaseListFilters { get; set; }
 
@@ -32,6 +36,7 @@ public class CasesUIOptions : SpaUIOptions
             args[$"%({nameof(Lang)})"] = Lang;
             args[$"%({nameof(I18nAssets)})"] = I18nAssets;
             args[$"%({nameof(DashboardTags)})"] = DashboardTags?.Count > 0 ? string.Join(',', DashboardTags) : null;
+            args[$"%({nameof(DashboardChannels)})"] = string.Join(',', DashboardChannels ?? ["Managed", "External"]);
             args[$"%({nameof(CaseListColumns)})"] = CaseListColumns?.Count > 0 ? string.Join(',', CaseListColumns) : null;
             args[$"%({nameof(CaseListFilters)})"] = CaseListFilters?.Count > 0 ? string.Join(',', CaseListFilters) : null;
         };

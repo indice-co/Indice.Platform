@@ -1,33 +1,36 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { LookupItemResultSet } from 'src/app/core/services/cases-api.service';
 import { LookupsService } from 'src/app/core/services/lookups.service';
+import { FormsModule } from '@angular/forms';
+import { FieldWrapperComponent } from './field-wrapper.component';
 import { TailwindControl } from './tailwind-control';
 
 /** ajsf `lookup` widget: a text input with the lookup items ("value - name") as suggestions; the field holds the value. */
 @Component({
     selector: 'app-jf-lookup',
+    imports: [FieldWrapperComponent, FormsModule],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
-        <input
-          type="text"
-          [class]="fieldClass"
-          [attr.list]="id + 'Autocomplete'"
-          [attr.placeholder]="options.placeholder"
-          [attr.required]="options.required"
-          [id]="id"
-          [readonly]="readonly"
-          [(ngModel)]="searchTerm"
-          (change)="commit()">
-        <datalist [id]="id + 'Autocomplete'">
-          @for (word of source; track word) {
-            <option [value]="word"></option>
-          }
-        </datalist>
+        @if (showEditor) {
+          <input
+            type="text"
+            [class]="fieldClass"
+            [attr.list]="id + 'Autocomplete'"
+            [attr.placeholder]="options.placeholder"
+            [attr.required]="options.required"
+            [id]="id"
+            [(ngModel)]="searchTerm"
+            (change)="commit()">
+          <datalist [id]="id + 'Autocomplete'">
+            @for (word of source; track word) {
+              <option [value]="word"></option>
+            }
+          </datalist>
+        }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class LookupControlComponent extends TailwindControl implements OnInit {
     protected widget = 'lookup';
@@ -37,6 +40,10 @@ export class LookupControlComponent extends TailwindControl implements OnInit {
     private lastData: any;
     source: string[] = [];
     searchTerm: string | undefined;
+
+    override get readonlyText(): string {
+        return this.searchTerm ?? super.readonlyText;
+    }
 
     override ngOnInit(): void {
         super.ngOnInit();
