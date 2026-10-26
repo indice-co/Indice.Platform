@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.AspNetCore.Tests;
 
@@ -15,33 +16,42 @@ public class MagicBytesUploadTests : IAsyncLifetime
 
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private IServiceProvider _serviceProvider;
 
     public MagicBytesUploadTests(ITestOutputHelper output)
     {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureServices((context, services) =>
+        var host = new HostBuilder().ConfigureWebHost(builder =>
         {
-            services.AddRouting();
-            services.AddMagicBytesValidator();
-            services.Configure<LimitUploadOptions>(o =>
+            builder.UseTestServer();
+            builder.ConfigureServices((context, services) =>
             {
-                o.EnableMagicByteValidation = true;
-                o.AllowUnknownExtensions = false;
+                services.AddRouting();
+                services.AddMagicBytesValidator();
+                services.Configure<LimitUploadOptions>(o =>
+                {
+                    o.EnableMagicByteValidation = true;
+                    o.AllowUnknownExtensions = false;
+                });
             });
-        });
-        builder.Configure(app =>
-        {
-            app.UseRouting();
-            app.UseEndpoints(e => e.MapMagicBytesUploadTestEndpoints());
-        });
-        var server = new TestServer(builder);
+            builder.Configure(app =>
+            {
+                app.UseRouting();
+                app.UseEndpoints(e => e.MapMagicBytesUploadTestEndpoints());
+            });
+        }).Start();
+        var server = host.GetTestServer();
         _httpClient = new HttpClient(server.CreateHandler()) { BaseAddress = new Uri(BASE_URL) };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
-    public async ValueTask DisposeAsync() => await _serviceProvider.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await _host.StopAsync();
+        _host.Dispose();
+    }
     public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
     [Theory]

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.Hosting.Tests;
 
@@ -10,46 +11,46 @@ public class ScheduledTaskStoreInMemoryServiceTests
     private const int TestTaskExecutionCount = 3;
     private const string TestTaskCronExpression = "* * * ? * * *";
     private const string TestTask2CronExpression = "* * * ? * * *";
-    private readonly WebHostBuilder _builder;
+    private readonly IHostBuilder _builder;
     private static int _counter = 0; // We have to initialize this at -1 since the first run is immediate.
     private static int _countdownCounter = TestTaskExecutionCount; // We have to initialize this at TEST_TASK_EXECUTION_COUNT + 1 since the first run is immediate.
 
     public ScheduledTaskStoreInMemoryServiceTests() {
-        var builder = new WebHostBuilder();
-        builder.ConfigureServices(services => {
-            services.AddWorkerHost(options => {
-                options.WaitJobsToCompleteOnShutdown = true;
-                options.UseScheduledTaskStoreInMemory();
+        _builder = new HostBuilder().ConfigureWebHost(builder => {
+            builder.UseTestServer();
+            builder.ConfigureServices(services => {
+                services.AddWorkerHost(options => {
+                    options.WaitJobsToCompleteOnShutdown = true;
+                    options.UseScheduledTaskStoreInMemory();
+                    })
+                .AddJob<TestTask>()
+                .WithScheduleTrigger(TestTaskCronExpression, options => {
+                    options.Singleton = true;
+                    options.Name = nameof(TestTask);
+                    options.Group = nameof(TestTask);
+                    options.Description = "Asserts true. Is a singleton";
                 })
-            .AddJob<TestTask>()
-            .WithScheduleTrigger(TestTaskCronExpression, options => {
-                options.Singleton = true;
-                options.Name = nameof(TestTask);
-                options.Group = nameof(TestTask);
-                options.Description = "Asserts true. Is a singleton";
-            })
-            .AddJob<TestTask2>()
-            .WithScheduleTrigger(TestTask2CronExpression, options => {
-                options.Name = nameof(TestTask2);
-                options.Group = nameof(TestTask2);
-                options.Description = "Asserts true. Is not a singleton";
-            });
+                .AddJob<TestTask2>()
+                .WithScheduleTrigger(TestTask2CronExpression, options => {
+                    options.Name = nameof(TestTask2);
+                    options.Group = nameof(TestTask2);
+                    options.Description = "Asserts true. Is not a singleton";
+                });
 
-            services.AddRouting();
+                services.AddRouting();
+            });
+            builder.Configure(app => {
+                app.UseRouting();
+                app.UseEndpoints(e => e.MapGet("/health", async context => {
+                    await Task.CompletedTask;
+                }));
+            });
         });
-        builder.Configure(app => {
-            app.UseRouting();
-            app.UseEndpoints(e => e.MapGet("/health", async context => {
-                await Task.CompletedTask;
-            }));
-        });
-        _builder = builder;
     }
 
     [Fact]
     public async Task ScheduledTaskStoreInMemory_Runs_ReadyForExecutionTasks() {
-        using var testServer = new TestServer(_builder);
-        var host = testServer.Host;
+        using var host = await _builder.StartAsync(TestContext.Current.CancellationToken);
         var delayTimeInMiliseconds = Math.Max(0, TestTaskExecutionCount - 1) * 1000;
         await Task.Delay(delayTimeInMiliseconds, TestContext.Current.CancellationToken);
         await host.StopAsync(TestContext.Current.CancellationToken);

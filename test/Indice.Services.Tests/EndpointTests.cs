@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Routing;
 using System.Text.Json.Nodes;
 using Indice.AspNetCore.Views;
@@ -15,40 +16,43 @@ public class EndpointTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private readonly IServiceProvider _serviceProvider;
 
     public EndpointTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["MySection:MyKey"] = "TestValue"
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+            builder.UseTestServer();
+            builder.ConfigureAppConfiguration(builder => {
+                builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                    ["MySection:MyKey"] = "TestValue"
+                });
             });
-        });
-        builder.ConfigureServices(services => {
-            
-            services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-            services.AddRouting();
+            builder.ConfigureServices(services => {
+                services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+                services.AddRouting();
 
-            services.AddTranslationGraph((o) => {
-                o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
-                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
-                o.AddResource("Resources.Alternate.TranslationsAlternateSource"); // same assemby different resex. same path
-                o.AddResource("Resources.Alternate.TranslationsAlternateSource", "/translations-alternate.{lang:culture}.json"); // same assemby different resex. different path
-                o.AddResource("Resources.TranslationsApi", "/translations-original.{lang:culture}.json"); // same assemby different resex. different path
-                o.AddResource("TranslationsAlternateSource2", "/translations-alternate.{lang:culture}.json", translationsLocation: typeof(ViewsMarker).Assembly.GetName().Name); // alternate assemby different resex. different path
+                services.AddTranslationGraph((o) => {
+                    o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
+                    o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
+                    o.AddResource("Resources.Alternate.TranslationsAlternateSource"); // same assemby different resex. same path
+                    o.AddResource("Resources.Alternate.TranslationsAlternateSource", "/translations-alternate.{lang:culture}.json"); // same assemby different resex. different path
+                    o.AddResource("Resources.TranslationsApi", "/translations-original.{lang:culture}.json"); // same assemby different resex. different path
+                    o.AddResource("TranslationsAlternateSource2", "/translations-alternate.{lang:culture}.json", translationsLocation: typeof(ViewsMarker).Assembly.GetName().Name); // alternate assemby different resex. different path
+                });
             });
-        });
-        builder.Configure(app => {
-            app.UseRouting();
-            app.UseEndpoints(e => e.MapTranslationGraph());
-        });
-        var server = new TestServer(builder);
+            builder.Configure(app => {
+                app.UseRouting();
+                app.UseEndpoints(e => e.MapTranslationGraph());
+            });
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     #region Facts
@@ -128,6 +132,7 @@ public class EndpointTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
     public async ValueTask DisposeAsync() {
-        await _serviceProvider.DisposeAsync();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 }
