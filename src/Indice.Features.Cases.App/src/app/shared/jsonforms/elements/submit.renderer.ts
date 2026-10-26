@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { JsonFormsAngularService, JsonFormsBaseRenderer } from '@jsonforms/angular';
 import { getConfig, getData, JsonFormsState, UISchemaElement } from '@jsonforms/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LucideSave, LucideSend } from '@lucide/angular';
 import { addClasses, arrayIndicesOf, CasesJsonFormsConfig, evaluateCondition, isTrue } from '../jsonforms-utilities';
 
 /**
@@ -9,24 +11,27 @@ import { addClasses, arrayIndicesOf, CasesJsonFormsConfig, evaluateCondition, is
  */
 @Component({
     selector: 'app-jf-submit',
+    imports: [TranslatePipe, LucideSave, LucideSend],
     template: `
     @if (shown) {
       <div [class]="wrapperClass">
         <button
           type="button"
-          class="btn-submit-form"
+          class="btn btn-primary"
           [class]="options.fieldHtmlClass || ''"
-          [ngClass]="{ 'opacity-50 cursor-not-allowed': disabled }"
           [disabled]="disabled"
           (click)="submit()">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-          </svg>&nbsp;{{ draft ? 'Δημιουργία Νέας Υπόθεσης' : 'Αποθήκευση' }}
+          @if (draft) {
+            <svg lucideSend class="size-4"></svg>
+            {{ 'jsonforms.createCase' | translate }}
+          } @else {
+            <svg lucideSave class="size-4"></svg>
+            {{ 'common.save' | translate }}
+          }
         </button>
       </div>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class SubmitRendererComponent extends JsonFormsBaseRenderer<UISchemaElement> implements OnInit {
     private jsonFormsService = inject(JsonFormsAngularService);
@@ -40,7 +45,7 @@ export class SubmitRendererComponent extends JsonFormsBaseRenderer<UISchemaEleme
 
     ngOnInit(): void {
         this.options = this.uischema.options ?? {};
-        this.wrapperClass = addClasses(this.options.htmlClass, 'schema-form-submit', 'form-group');
+        this.wrapperClass = addClasses(this.options.htmlClass, 'schema-form-submit', 'pt-4');
         this.addSubscription(this.jsonFormsService.$state.subscribe((state: JsonFormsState) => {
             this.data = getData(state);
             this.config = getConfig(state) ?? {};

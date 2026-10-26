@@ -106,7 +106,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         JsonNode? payload;
         try {
             payload = await JsonNode.ParseAsync(requestBody, cancellationToken: cancellationToken);
-        } catch (Exception) {
+        } catch (JsonException) {
             return WebhookHttpResult.BadRequest("Invalid JSON payload");
         }
 
@@ -126,13 +126,24 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         };
 
         foreach (var item in items) {
-            var messageId = GetString(item, "message-id") ?? GetString(item, "messageId") ?? GetString(item, "id");
+            var messageId = GetMessageId(item);
             if (string.IsNullOrWhiteSpace(messageId)) {
                 continue;
             }
 
-            var eventType = GetString(item, "event") ?? "unknown";
-            var eventId = GetString(item, "id") ?? $"{messageId}:{eventType}:{GetString(item, "date")}";
+            var eventType = GetString(item, "event")
+                            ?? GetString(item, "msg_status")
+                            ?? GetString(item, "status")
+                            ?? "unknown";
+
+            var eventMoment = GetString(item, "ts_event")
+                              ?? GetString(item, "ts_epoch")
+                              ?? GetString(item, "ts")
+                              ?? GetString(item, "date")
+                              ?? string.Empty;
+            var recipient = GetString(item, "email") ?? GetString(item, "to") ?? string.Empty;
+
+            var eventId = $"{messageId}:{eventType}:{eventMoment}:{recipient}";
 
             yield return new WebhookEvent {
                 Provider = EmailServiceBrevo.ServiceName,
@@ -140,15 +151,34 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
                 EventId = eventId,
                 MessageId = messageId,
                 Timestamp = GetTimestamp(item),
-                Recipient = GetString(item, "email") ?? string.Empty,
+                Recipient = recipient,
                 Subject = GetString(item, "subject"),
                 Payload = item
             };
         }
     }
 
+    private static string? GetMessageId(JsonObject item) {
+        return GetString(item, "message-id")
+               ?? GetString(item, "messageId")
+               ?? GetString(item, "reference")
+               ?? GetString(item, "id");
+    }
+
     private static string? GetString(JsonObject data, string propertyName) {
         var value = data[propertyName];
+
+        if (value is JsonObject jsonObject) {
+            var firstValue = jsonObject
+                .Select(x => x.Value)
+                .FirstOrDefault(x => x is not null);
+
+            if (firstValue is JsonValue nestedJsonValue && nestedJsonValue.TryGetValue<string>(out var nestedText)) {
+                return nestedText;
+            }
+
+            return firstValue?.ToString();
+        }
 
         return value is JsonValue jsonValue &&
                jsonValue.TryGetValue<string>(out var text)
@@ -157,13 +187,20 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
     }
 
     private static DateTimeOffset GetTimestamp(JsonObject data) {
-        var timestampSeconds = GetString(data, "ts_epoch");
+        var timestampMs = GetString(data, "ts_epoch");
+        if (long.TryParse(timestampMs, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0) {
+            return epoch > 9_999_999_999
+                ? DateTimeOffset.FromUnixTimeMilliseconds(epoch)
+                : DateTimeOffset.FromUnixTimeSeconds(epoch);
+        }
+
+        var timestampSeconds = GetString(data, "ts_event") ?? GetString(data, "ts");
         if (long.TryParse(timestampSeconds, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds) && seconds > 0) {
             return DateTimeOffset.FromUnixTimeSeconds(seconds);
         }
 
         var date = GetString(data, "date");
-        if (DateTimeOffset.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)) {
+        if (DateTimeOffset.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var parsed)) {
             return parsed;
         }
 
@@ -195,7 +232,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
 
         try {
             credentials = Convert.FromBase64String(headerValue.Parameter);
-        } catch (Exception) {
+        } catch (FormatException) {
             return false;
         }
 

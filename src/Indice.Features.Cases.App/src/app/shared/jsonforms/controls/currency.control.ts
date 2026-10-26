@@ -1,29 +1,33 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FieldWrapperComponent } from './field-wrapper.component';
+import { formatCurrency } from '../jsonforms-utilities';
 import { TailwindControl } from './tailwind-control';
 
 /** ajsf `currency` widget: a number typed and shown in the Greek format (`1.234,56`). */
 @Component({
     selector: 'app-jf-currency',
+    imports: [FieldWrapperComponent],
     template: `
     @if (shown) {
       <app-jf-field [control]="this">
-        <input
-          type="text"
-          [class]="fieldClass"
-          [attr.maxlength]="options.maxLength"
-          [attr.minlength]="options.minLength"
-          [attr.placeholder]="options.placeholder"
-          [attr.required]="options.required"
-          [id]="id"
-          [readonly]="readonly"
-          [value]="displayValue"
-          (focus)="editing = true"
-          (input)="onInput($event)"
-          (blur)="onBlur($event)">
+        @if (showEditor) {
+          <input
+            type="text"
+            inputmode="decimal"
+            [class]="fieldClass + ' docket text-right'"
+            [attr.maxlength]="options.maxLength"
+            [attr.minlength]="options.minLength"
+            [attr.placeholder]="options.placeholder"
+            [attr.required]="options.required"
+            [id]="id"
+            [value]="displayValue"
+            (focus)="editing = true"
+            (input)="onInput($event)"
+            (blur)="onBlur($event)">
+        }
       </app-jf-field>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class CurrencyControlComponent extends TailwindControl {
     protected widget = 'currency';
@@ -33,9 +37,13 @@ export class CurrencyControlComponent extends TailwindControl {
     displayValue = '';
     editing = false;
 
+    override get readonlyText(): string {
+        return this.displayValue;
+    }
+
     protected override onStateChange(): void {
         if (!this.editing) {
-            this.displayValue = CurrencyControlComponent.toLocaleString(this.locale, this.data, this.decimalPlaces);
+            this.displayValue = formatCurrency(this.data, this.decimalPlaces, this.locale);
         }
     }
 
@@ -58,18 +66,8 @@ export class CurrencyControlComponent extends TailwindControl {
 
     onBlur(event: FocusEvent): void {
         this.editing = false;
-        this.displayValue = CurrencyControlComponent.toLocaleString(this.locale, this.data, this.decimalPlaces);
+        this.displayValue = formatCurrency(this.data, this.decimalPlaces, this.locale);
         (event.target as HTMLInputElement).value = this.displayValue;
-    }
-
-    private static toLocaleString(locale: string, value: number | string, decimalPlaces: number): string {
-        if (typeof value === 'string') {
-            value = value.trim() === '' || isNaN(Number(value)) ? value as any : Number(value);
-        }
-        return value?.toLocaleString(locale, {
-            minimumFractionDigits: decimalPlaces,
-            maximumFractionDigits: decimalPlaces
-        }) || '';
     }
 
     private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true): number | undefined {

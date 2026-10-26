@@ -4,17 +4,14 @@ import { getData, JsonFormsState, UISchemaElement } from '@jsonforms/core';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { addClasses, arrayIndicesOf, evaluateCondition, isShownForChannel } from '../jsonforms-utilities';
 
-/** `Html` element (ajsf `html` / `help`): the `helpvalue` markup. */
+/** `Html` element (ajsf `html` / `help`): the `helpvalue` markup, typeset with `prose`. */
 @Component({
     selector: 'app-jf-html',
     template: `
     @if (shown) {
-      <div [class]="wrapperClass">
-        <div [innerHTML]="options.helpvalue ?? options.description"></div>
-      </div>
+      <div [class]="wrapperClass" [innerHTML]="options.helpvalue ?? options.description"></div>
     }`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.Eager
 })
 export class HtmlRendererComponent extends JsonFormsBaseRenderer<UISchemaElement> implements OnInit {
     private jsonFormsService = inject(JsonFormsAngularService);
@@ -25,7 +22,7 @@ export class HtmlRendererComponent extends JsonFormsBaseRenderer<UISchemaElement
 
     ngOnInit(): void {
         this.options = this.uischema.options ?? {};
-        this.wrapperClass = addClasses(this.options.htmlClass, 'schema-form-html', 'form-group');
+        this.wrapperClass = addClasses(this.options.htmlClass, 'schema-form-html', 'prose prose-sm max-w-none py-1.5 text-base-content');
         this.addSubscription(this.jsonFormsService.$state.subscribe((state: JsonFormsState) => {
             this.shown = isShownForChannel(this.options, this.caseDetailsService.caseDetails?.channel)
                 && evaluateCondition(this.options.condition, getData(state), arrayIndicesOf(this.path));

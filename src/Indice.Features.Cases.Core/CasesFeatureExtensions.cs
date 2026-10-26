@@ -103,6 +103,7 @@ public static class CasesFeatureExtensions
         // Register custom services.
         services.TryAddTransient<IAdminCaseService, AdminCaseService>();
         services.TryAddTransient<IAdminReportService, AdminReportService>();
+        services.TryAddTransient<IAdminDashboardService, AdminDashboardService>();
         services.TryAddTransient<IQueryService, QueryService>();
         services.TryAddTransient<ICaseAuthorizationService, MemberAuthorizationService>();
         services.TryAddTransient<ICaseActionsService, CaseActionsService>();

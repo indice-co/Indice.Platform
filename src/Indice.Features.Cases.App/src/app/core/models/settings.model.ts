@@ -7,6 +7,8 @@ export interface IAppSettings {
     production: boolean;
     version: string;
     dashboardTags: string;
+    /** Comma separated case channels that get their own dashboard reports; empty for none. */
+    dashboardChannels: string;
     caseListColumns: string;
     caseListFilters: string;
 }

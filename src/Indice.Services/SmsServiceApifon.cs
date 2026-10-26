@@ -364,55 +364,55 @@ internal class ApifonRequest
 internal sealed class ApifonWebhookResponse
 {
     [JsonPropertyName("url")]
-    public string Url { get; set; }
+    public string Url { get; set; } = null!;
 
     [JsonPropertyName("request_id")]
-    public string RequestId { get; set; }
+    public string RequestId { get; set; } = null!;
 
     [JsonPropertyName("reference_id")]
-    public string ReferenceId { get; set; }
+    public string ReferenceId { get; set; } = null!;
 
     [JsonPropertyName("data")]
-    public List<ApifonWebhookItem> Data { get; set; }
+    public List<ApifonWebhookItem> Data { get; set; } = [];
 
     [JsonPropertyName("account_id")]
     public int AccountId { get; set; }
 
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = null!;
 }
 
 internal sealed class ApifonWebhookItem
 {
     [JsonPropertyName("from")]
-    public string From { get; set; }
+    public string From { get; set; } = null!;
 
     [JsonPropertyName("to")]
-    public string To { get; set; }
+    public string To { get; set; } = null!;
 
     [JsonPropertyName("message_id")]
-    public string MessageId { get; set; }
+    public string MessageId { get; set; } = null!;
 
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public string CustomId { get; set; } = null!;
 
     [JsonPropertyName("status")]
-    public ApifonWebhookStatus Status { get; set; }
+    public ApifonWebhookStatus Status { get; set; } = null!;
 
     [JsonPropertyName("error_code")]
-    public string ErrorCode { get; set; }
+    public string? ErrorCode { get; set; }
 
     [JsonPropertyName("timestamp")]
     public long Timestamp { get; set; }
 
     [JsonPropertyName("price")]
-    public string Price { get; set; }
+    public string? Price { get; set; }
 
     [JsonPropertyName("vat")]
-    public string Vat { get; set; }
+    public string? Vat { get; set; }
 
     [JsonPropertyName("mccmnc")]
-    public string Mccmnc { get; set; }
+    public string? Mccmnc { get; set; }
 }
 
 internal sealed class ApifonWebhookStatus
@@ -421,7 +421,7 @@ internal sealed class ApifonWebhookStatus
     public int Code { get; set; }
 
     [JsonPropertyName("text")]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 }
 
 internal static class ApifonSmsServiceExtensions {
