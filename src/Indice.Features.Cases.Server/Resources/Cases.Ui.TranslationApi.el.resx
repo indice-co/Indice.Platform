@@ -402,12 +402,6 @@
   <data name="caseTypes.form.descriptionPlaceholder" xml:space="preserve">
     <value>Περιγραφή...</value>
   </data>
-  <data name="caseTypes.form.translations" xml:space="preserve">
-    <value>Μετάφραση</value>
-  </data>
-  <data name="caseTypes.form.layoutTranslations" xml:space="preserve">
-    <value>Μετάφραση Layout</value>
-  </data>
   <data name="caseTypes.form.tags" xml:space="preserve">
     <value>Ετικέτες</value>
   </data>
@@ -753,9 +747,6 @@
   <data name="caseTypes.form.isMenuItemHint" xml:space="preserve">
     <value>Προσθέτει συντόμευση προς τις υποθέσεις αυτού του τύπου στις Ουρές υποθέσεων.</value>
   </data>
-  <data name="caseTypes.form.sectionData" xml:space="preserve">
-    <value>Δεδομένα και διάταξη</value>
-  </data>
   <data name="caseTypes.form.schema" xml:space="preserve">
     <value>Σχήμα δεδομένων (JSON)</value>
   </data>
@@ -779,9 +770,6 @@
   </data>
   <data name="caseTypes.form.invalidJson" xml:space="preserve">
     <value>Το περιεχόμενο δεν είναι έγκυρο JSON.</value>
-  </data>
-  <data name="caseTypes.form.fixJson" xml:space="preserve">
-    <value>Διορθώστε τα επισημασμένα πεδία JSON για να αποθηκεύσετε.</value>
   </data>
   <data name="checkpointTypes.subtitle" xml:space="preserve">
     <value>Τα βήματα από τα οποία περνά μια υπόθεση και η κατάσταση που δηλώνει το καθένα.</value>
@@ -858,11 +846,83 @@
   <data name="caseDetails.related.current" xml:space="preserve">
     <value>Τρέχουσα</value>
   </data>
+  <data name="caseDetails.attachments.title" xml:space="preserve">
+    <value>Συνημμένα</value>
+  </data>
+  <data name="caseDetails.attachments.fileName" xml:space="preserve">
+    <value>Όνομα αρχείου</value>
+  </data>
+  <data name="caseDetails.attachments.type" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="caseDetails.attachments.empty" xml:space="preserve">
+    <value>Δεν υπάρχουν συνημμένα</value>
+  </data>
+  <data name="caseDetails.attachments.emptyMessage" xml:space="preserve">
+    <value>Εδώ εμφανίζονται τα αρχεία που ανέβηκαν με τα στοιχεία της υπόθεσης ή με τα σχόλια.</value>
+  </data>
+  <data name="caseDetails.attachments.loadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση των συνημμένων.</value>
+  </data>
+  <data name="caseDetails.versions.title" xml:space="preserve">
+    <value>Εκδόσεις στοιχείων</value>
+  </data>
+  <data name="caseDetails.versions.current" xml:space="preserve">
+    <value>Τρέχουσα</value>
+  </data>
+  <data name="caseDetails.versions.public" xml:space="preserve">
+    <value>Δημόσια</value>
+  </data>
+  <data name="caseDetails.versions.publicHint" xml:space="preserve">
+    <value>Η έκδοση που είναι ορατή στον πελάτη</value>
+  </data>
+  <data name="caseDetails.versions.createdBy" xml:space="preserve">
+    <value>Αποθηκεύτηκε από {{name}}</value>
+  </data>
+  <data name="caseDetails.versions.empty" xml:space="preserve">
+    <value>Δεν υπάρχουν εκδόσεις στοιχείων</value>
+  </data>
+  <data name="caseDetails.versions.loadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση των εκδόσεων.</value>
+  </data>
+  <data name="caseDetails.versions.search" xml:space="preserve">
+    <value>Αναζήτηση με όνομα ή email χρήστη</value>
+  </data>
+  <data name="caseDetails.versions.clearSearch" xml:space="preserve">
+    <value>Καθαρισμός αναζήτησης</value>
+  </data>
   <data name="caseDetails.timeline.private" xml:space="preserve">
     <value>Ιδιωτικό</value>
   </data>
   <data name="caseDetails.timeline.empty" xml:space="preserve">
     <value>Δεν υπάρχει δραστηριότητα ακόμη.</value>
+  </data>
+  <data name="caseDetails.comments.placeholder" xml:space="preserve">
+    <value>Γράψτε ένα σχόλιο…</value>
+  </data>
+  <data name="caseDetails.comments.post" xml:space="preserve">
+    <value>Δημοσίευση</value>
+  </data>
+  <data name="caseDetails.comments.visibility" xml:space="preserve">
+    <value>Ορατότητα σχολίου</value>
+  </data>
+  <data name="caseDetails.comments.private" xml:space="preserve">
+    <value>Εσωτερικό</value>
+  </data>
+  <data name="caseDetails.comments.public" xml:space="preserve">
+    <value>Δημόσιο</value>
+  </data>
+  <data name="caseDetails.comments.privateHint" xml:space="preserve">
+    <value>Ορατό μόνο στους χρήστες του back-office.</value>
+  </data>
+  <data name="caseDetails.comments.publicHint" xml:space="preserve">
+    <value>Ορατό και στον πελάτη.</value>
+  </data>
+  <data name="caseDetails.comments.shortcut" xml:space="preserve">
+    <value>Δημοσίευση σχολίου (Ctrl + Enter)</value>
+  </data>
+  <data name="toasts.commentAdded.body" xml:space="preserve">
+    <value>Το σχόλιό σας προστέθηκε.</value>
   </data>
   <data name="caseStatus.Submitted" xml:space="preserve">
     <value>Υποβλήθηκε</value>
@@ -1041,6 +1101,18 @@
   <data name="common.close" xml:space="preserve">
     <value>Κλείσιμο</value>
   </data>
+  <data name="common.selectTab" xml:space="preserve">
+    <value>Επιλέξτε καρτέλα</value>
+  </data>
+  <data name="common.open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="common.retry" xml:space="preserve">
+    <value>Δοκιμάστε ξανά</value>
+  </data>
+  <data name="common.actions" xml:space="preserve">
+    <value>Ενέργειες</value>
+  </data>
   <data name="list.range" xml:space="preserve">
     <value>{{from}}–{{to}} από {{count}}</value>
   </data>
@@ -1197,6 +1269,30 @@
   <data name="jsonforms.selectItem" xml:space="preserve">
     <value>Επιλέξτε μια εγγραφή για να δείτε τα στοιχεία της.</value>
   </data>
+  <data name="jsonforms.imageUri.file" xml:space="preserve">
+    <value>Μεταφόρτωση αρχείου</value>
+  </data>
+  <data name="jsonforms.imageUri.url" xml:space="preserve">
+    <value>Εξωτερικός σύνδεσμος</value>
+  </data>
+  <data name="jsonforms.imageUri.remove" xml:space="preserve">
+    <value>Αφαίρεση εικόνας</value>
+  </data>
+  <data name="jsonforms.imageUri.invalidType" xml:space="preserve">
+    <value>Επιλέξτε αρχείο εικόνας.</value>
+  </data>
+  <data name="jsonforms.imageUri.tooLarge" xml:space="preserve">
+    <value>Η εικόνα πρέπει να είναι έως {{size}}.</value>
+  </data>
+  <data name="jsonforms.imageUri.readError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η ανάγνωση του αρχείου.</value>
+  </data>
+  <data name="jsonforms.imageUri.invalidUrl" xml:space="preserve">
+    <value>Εισαγάγετε έγκυρη διεύθυνση https://.</value>
+  </data>
+  <data name="jsonforms.imageUri.loadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση της εικόνας.</value>
+  </data>
   <data name="cases.cannotCreate.title" xml:space="preserve">
     <value>Δεν μπορείτε να ανοίξετε υποθέσεις εδώ</value>
   </data>
@@ -1223,5 +1319,146 @@
   </data>
   <data name="toasts.offline.body" xml:space="preserve">
     <value>Δεν ήταν δυνατή η σύνδεση με τον διακομιστή. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</value>
+  </data>
+  <data name="common.steps" xml:space="preserve">
+    <value>Βήματα</value>
+  </data>
+  <data name="common.stepState.active" xml:space="preserve">
+    <value>τρέχον βήμα</value>
+  </data>
+  <data name="common.stepState.done" xml:space="preserve">
+    <value>ολοκληρώθηκε</value>
+  </data>
+  <data name="common.stepState.error" xml:space="preserve">
+    <value>έχει σφάλματα</value>
+  </data>
+  <data name="common.stepState.pending" xml:space="preserve">
+    <value>δεν έχει ξεκινήσει</value>
+  </data>
+  <data name="common.stepOf" xml:space="preserve">
+    <value>Βήμα {{step}} από {{count}}</value>
+  </data>
+  <data name="common.hasErrors" xml:space="preserve">
+    <value>Έχει σφάλματα</value>
+  </data>
+  <data name="common.next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="common.done" xml:space="preserve">
+    <value>Τέλος</value>
+  </data>
+  <data name="caseTypes.steps.general" xml:space="preserve">
+    <value>Γενικά</value>
+  </data>
+  <data name="caseTypes.steps.generalHint" xml:space="preserve">
+    <value>Κωδικός, τίτλος και πρόσβαση</value>
+  </data>
+  <data name="caseTypes.steps.definition" xml:space="preserve">
+    <value>Σχήμα, διάταξη και μεταφράσεις</value>
+  </data>
+  <data name="caseTypes.steps.definitionHint" xml:space="preserve">
+    <value>Τι περιέχει μια υπόθεση και πώς εμφανίζεται</value>
+  </data>
+  <data name="caseTypes.steps.configuration" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
+  </data>
+  <data name="caseTypes.steps.configurationHint" xml:space="preserve">
+    <value>Παράμετροι, φίλτρα και στήλες λίστας</value>
+  </data>
+  <data name="caseTypes.steps.checkpointsHint" xml:space="preserve">
+    <value>Τα βήματα από τα οποία περνούν οι υποθέσεις του</value>
+  </data>
+  <data name="caseTypes.steps.checkpointsIntro" xml:space="preserve">
+    <value>Ο τύπος υπόθεσης αποθηκεύτηκε. Προσθέστε τους τύπους σημείων ελέγχου από τους οποίους περνούν οι υποθέσεις του, τώρα ή αργότερα από τη σελίδα του τύπου υπόθεσης.</value>
+  </data>
+  <data name="caseTypes.steps.saveAndContinue" xml:space="preserve">
+    <value>Αποθήκευση και συνέχεια</value>
+  </data>
+  <data name="caseTypes.steps.fillRequired" xml:space="preserve">
+    <value>Συμπληρώστε τα υποχρεωτικά πεδία (*) για να συνεχίσετε.</value>
+  </data>
+  <data name="caseTypes.steps.schemaRequired" xml:space="preserve">
+    <value>Προσθέστε ένα έγκυρο σχήμα δεδομένων για να συνεχίσετε.</value>
+  </data>
+  <data name="caseTypes.steps.fixJson" xml:space="preserve">
+    <value>Διορθώστε το επισημασμένο JSON για να συνεχίσετε.</value>
+  </data>
+  <data name="caseTypes.edit.fixTabs" xml:space="preserve">
+    <value>Διορθώστε τις καρτέλες με κόκκινη σήμανση για να αποθηκεύσετε.</value>
+  </data>
+  <data name="caseTypes.form.schemaHint" xml:space="preserve">
+    <value>Το JSON Schema (draft-07) των δεδομένων της υπόθεσης.</value>
+  </data>
+  <data name="caseTypes.form.layoutHint" xml:space="preserve">
+    <value>Πώς διατάσσεται η φόρμα: διάταξη ajsf (πίνακας) ή JSON Forms UI schema. Προαιρετικό.</value>
+  </data>
+  <data name="caseTypes.translations.titleHeading" xml:space="preserve">
+    <value>Τίτλος και περιγραφή</value>
+  </data>
+  <data name="caseTypes.translations.titleHint" xml:space="preserve">
+    <value>Εμφανίζονται αντί για τον τίτλο και την περιγραφή στους χρήστες της αντίστοιχης γλώσσας. Μια γλώσσα που μένει κενή τα κρατά όπως καταχωρήθηκαν· μια συμπληρωμένη αντικαθιστά και τα δύο, γι’ αυτό δώστε της τίτλο.</value>
+  </data>
+  <data name="caseTypes.translations.language" xml:space="preserve">
+    <value>Γλώσσα</value>
+  </data>
+  <data name="caseTypes.translations.asEntered" xml:space="preserve">
+    <value>Όπως καταχωρήθηκε</value>
+  </data>
+  <data name="caseTypes.translations.missingTitle" xml:space="preserve">
+    <value>Προσθέστε τίτλο: χωρίς αυτόν η γλώσσα εμφανίζει κενό τίτλο.</value>
+  </data>
+  <data name="caseTypes.translations.fixTitles" xml:space="preserve">
+    <value>Προσθέστε τίτλο σε κάθε μεταφρασμένη γλώσσα για να συνεχίσετε.</value>
+  </data>
+  <data name="caseTypes.translations.textsHeading" xml:space="preserve">
+    <value>Κείμενα φόρμας</value>
+  </data>
+  <data name="caseTypes.translations.textsHint" xml:space="preserve">
+    <value>Οι τίτλοι, τα placeholders, τα ονόματα επιλογών και τα κείμενα βοήθειας του σχήματος και της διάταξης, μεταφρασμένα για κάθε γλώσσα εκτός από την κύρια (ρύθμιση PrimaryTranslationLanguage, εξ ορισμού ελληνικά). Εφαρμόζονται στις υποθέσεις που βλέπουν οι πελάτες· το back office δείχνει τα κείμενα όπως γράφτηκαν.</value>
+  </data>
+  <data name="caseTypes.translations.progress" xml:space="preserve">
+    <value>{{done}} από {{count}} μεταφρασμένα</value>
+  </data>
+  <data name="caseTypes.translations.labelsNotTranslated" xml:space="preserve">
+    <value>{{count}} ετικέτες (label) της διάταξης μένουν όπως γράφτηκαν: ο server μεταφράζει title, placeholder, enumNames και helpvalue, όχι label.</value>
+  </data>
+  <data name="caseTypes.translations.showLabels" xml:space="preserve">
+    <value>Εμφάνιση ετικετών</value>
+  </data>
+  <data name="caseTypes.translations.noSchema" xml:space="preserve">
+    <value>Προσθέστε ένα έγκυρο σχήμα δεδομένων (και διορθώστε το JSON της διάταξης, αν υπάρχει) για να εμφανιστούν τα κείμενα προς μετάφραση.</value>
+  </data>
+  <data name="caseTypes.translations.filter" xml:space="preserve">
+    <value>Φιλτράρισμα κειμένων</value>
+  </data>
+  <data name="caseTypes.translations.filter_all" xml:space="preserve">
+    <value>Όλα</value>
+  </data>
+  <data name="caseTypes.translations.filter_untranslated" xml:space="preserve">
+    <value>Αμετάφραστα</value>
+  </data>
+  <data name="caseTypes.translations.filter_unused" xml:space="preserve">
+    <value>Αχρησιμοποίητα</value>
+  </data>
+  <data name="caseTypes.translations.source_schema" xml:space="preserve">
+    <value>Σχήμα</value>
+  </data>
+  <data name="caseTypes.translations.source_layout" xml:space="preserve">
+    <value>Διάταξη</value>
+  </data>
+  <data name="caseTypes.translations.unusedText" xml:space="preserve">
+    <value>Δεν υπάρχει πια στο σχήμα ή στη διάταξη</value>
+  </data>
+  <data name="caseTypes.translations.translationOf" xml:space="preserve">
+    <value>Μετάφραση του «{{text}}»</value>
+  </data>
+  <data name="caseTypes.translations.noMatches" xml:space="preserve">
+    <value>Κανένα κείμενο δεν ταιριάζει.</value>
+  </data>
+  <data name="caseTypes.translations.noTexts" xml:space="preserve">
+    <value>Το σχήμα και η διάταξη δεν έχουν κείμενα προς μετάφραση.</value>
+  </data>
+  <data name="caseTypes.translations.removeUnused" xml:space="preserve">
+    <value>Αφαίρεση αχρησιμοποίητων μεταφράσεων</value>
   </data>
 </root>

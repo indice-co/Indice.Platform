@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { tap } from 'rxjs/operators';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
+import { previewBlob, saveBlob } from 'src/app/shared/services/attachment-preview';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideDownload, LucidePaperclip, LucideTrash } from '@lucide/angular';
 import { TranslatedToasterService, ToastType } from 'src/app/shared/services/translated-toaster.service';
@@ -85,18 +86,10 @@ export class FileControlComponent extends TailwindControl {
         this.api.downloadAttachment(this.data)
             .pipe(
                 tap(results => {
-                    const fileURL = window.URL.createObjectURL(results.data);
-                    if (this.options.downloadToDisk) {
-                        const a = document.createElement('a');
-                        a.href = fileURL;
-                        // we get the file name from the content-disposition header, so make sure its exposed
-                        a.download = results.fileName ?? `${this.controlName}-${this.data}`;
-                        a.click();
-                        window.URL.revokeObjectURL(fileURL);
-                    } else {
-                        // open file in new tab to show the content
-                        window.open(fileURL, '_blank');
-                    }
+                    // we get the file name from the content-disposition header, so make sure its exposed
+                    const fileName = results.fileName ?? `${this.controlName}-${this.data}`;
+                    // open the file in a new tab to show the content, unless asked to save it or its type could run script
+                    (this.options.downloadToDisk ? saveBlob : previewBlob)(results.data, fileName);
                 })
             )
             .subscribe();

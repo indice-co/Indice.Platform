@@ -34,6 +34,8 @@ export interface ListStateOptions<T> {
  *
  * Must be created in an injection context (a component field initializer or constructor). Call {@link start}
  * once everything `load` depends on is ready; from then on every query param change reloads the list.
+ * Writes (`setPage`, `setSearch`, ...) only navigate; the list follows the URL, so links, refreshes and back / forward
+ * all restore the same state.
  */
 export class ListState<T> {
   private readonly _route = inject(ActivatedRoute);
@@ -55,7 +57,8 @@ export class ListState<T> {
   public readonly failed = signal(false);
 
   public readonly pageCount = computed(() => Math.max(1, Math.ceil(this.count() / this.pageSize())));
-  public readonly isEmpty = computed(() => !this.loading() && (this.items()?.length ?? 0) === 0);
+  /** Loaded and empty; false before the first load (`items` is null) and while reloading. */
+  public readonly isEmpty = computed(() => this.items() !== null && !this.loading() && this.items()!.length === 0);
   public readonly hasFilters = computed(() => this.filters().length > 0 || this.search().length > 0);
 
   constructor(private readonly _options: ListStateOptions<T>) {
@@ -126,10 +129,14 @@ export class ListState<T> {
   }
 
   public setSearch(search: string): void {
-    if ((search ?? '') === this.search()) {
+    const next = search ?? '';
+    const current = this.search();
+    if (next === current) {
       return;
     }
-    this.navigate({ page: 1, search: search || null });
+    // refining the same term (typing on or backspacing) replaces the history entry; a new term adds one
+    const refining = !!next && !!current && (next.startsWith(current) || current.startsWith(next));
+    this.navigate({ page: 1, search: next || null }, refining);
   }
 
   public setFilters(filters: FilterClause[]): void {
@@ -160,8 +167,12 @@ export class ListState<T> {
     };
   }
 
-  private navigate(queryParams: Params): void {
-    this._router.navigate([], { relativeTo: this._route, queryParams, queryParamsHandling: 'merge' });
+  /**
+   * Query param only navigations reuse the routed component, so they are in-page updates: keep the scroll position
+   * (the router would otherwise scroll to the top) while still adding a history entry unless `replaceUrl`.
+   */
+  private navigate(queryParams: Params, replaceUrl = false): void {
+    this._router.navigate([], { relativeTo: this._route, queryParams, queryParamsHandling: 'merge', replaceUrl, scroll: 'manual' });
   }
 
   private readParams(params: ParamMap): ListQuery {
