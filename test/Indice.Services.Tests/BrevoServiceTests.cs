@@ -52,7 +52,7 @@ public class BrevoServiceTests
             WebhookUsername = "user",
             WebhookPassword = "pass"
         });
-        var sut = new BrevoWebhookHttpHandler(settings);
+        var handler = new BrevoWebhookHttpHandler(settings);
 
         var payload = """
         [
@@ -109,8 +109,8 @@ public class BrevoServiceTests
         using var body = new MemoryStream(Encoding.UTF8.GetBytes(payload));
 
         // Act
-        var result = await sut.ParseAsync(
-            CreateHeaders("user", "pass"),
+        var result = await handler.ParseAsync(
+            GetHeaders("user", "pass"),
             Enumerable.Empty<KeyValuePair<string, StringValues>>(),
             body,
             CancellationToken.None);
@@ -142,7 +142,40 @@ public class BrevoServiceTests
         Assert.Equal(3, result.Events.Select(x => x.EventId).Distinct().Count());
     }
 
-    private static IDictionary<string, StringValues> CreateHeaders(string username, string password) {
+    [Theory]
+    [InlineData("Basic dXNlcjp3cm9uZw==")]       // user:wrong
+    [InlineData("Basic d3Jvbmc6cGFzcw==")]       // wrong:pass
+    [InlineData("Basic dXNlcjpwYXNzWA==")]       // user:passX
+    [InlineData("Basic dXNlcnBhc3M=")]           // userpass (no separator)
+    [InlineData("Basic not-base64!")]
+    [InlineData("Bearer dXNlcjpwYXNz")]          // user:pass with wrong scheme
+    [InlineData("")]
+    public async Task WebhookHandler_Rejects_InvalidCredentials(string authorization) {
+        // Arrange
+        var settings = Options.Create(new EmailServiceBrevoSettings {
+            WebhookUsername = "user",
+            WebhookPassword = "pass"
+        });
+        var sut = new BrevoWebhookHttpHandler(settings);
+        var headers = new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase);
+        if (authorization.Length > 0) {
+            headers["Authorization"] = authorization;
+        }
+
+        using var body = new MemoryStream(Encoding.UTF8.GetBytes("[]"));
+
+        // Act
+        var result = await sut.ParseAsync(
+            headers,
+            Enumerable.Empty<KeyValuePair<string, StringValues>>(),
+            body,
+            CancellationToken.None);
+
+        // Assert
+        Assert.False(result.Success);
+    }
+
+    private static IDictionary<string, StringValues> GetHeaders(string username, string password) {
         var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
         return new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase) {
             ["Authorization"] = $"Basic {token}"
