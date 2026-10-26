@@ -278,10 +278,14 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
         var term = options.Search?.Trim().ToLower();
         if (!string.IsNullOrWhiteSpace(term) && term.Length > 2) {
-            query = query.Where(x => (x.OwnerName != null && EF.Functions.Like(x.OwnerName.ToLower(), $"%{term}%")) ||
-                                     (x.OwnerId != null && EF.Functions.Like(x.OwnerId.ToLower(), $"%{term}%")) ||
-                                     (x.OwnerTin != null && EF.Functions.Like(x.OwnerTin.ToLower(), $"%{term}%")) ||
-                                     (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
+            if (Guid.TryParse(term, out var guidTerm)) {
+                query = query.Where(x => x.Id == guidTerm);
+            } else {
+                query = query.Where(x => (x.OwnerName != null && EF.Functions.Like(x.OwnerName.ToLower(), $"%{term}%")) ||
+                                         (x.OwnerId != null && EF.Functions.Like(x.OwnerId.ToLower(), $"%{term}%")) ||
+                                         (x.OwnerTin != null && EF.Functions.Like(x.OwnerTin.ToLower(), $"%{term}%")) ||
+                                         (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
+            }
         }
         // filter ReferenceNumbers
         if (options.Filter.ReferenceNumbers?.Length > 0) {
