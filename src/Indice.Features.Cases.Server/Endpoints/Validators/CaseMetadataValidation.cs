@@ -15,7 +15,7 @@ internal static class CaseMetadataValidation
 
     /// <summary>Whether the <c>ExternalCorrelationKey</c> entry of the metadata, if any, fits the case table.</summary>
     public static bool IsValid(Dictionary<string, string>? metadata) =>
-        !(metadata?.GetValueOrDefault(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey)?.Length > RelationKeyMaxLength);
+        metadata?.GetValueOrDefault(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey)?.Length <= RelationKeyMaxLength;
 
     /// <summary>The validation errors of the metadata, or <see langword="null"/> when it is valid.</summary>
     public static IDictionary<string, string[]>? Validate(Dictionary<string, string>? metadata) =>

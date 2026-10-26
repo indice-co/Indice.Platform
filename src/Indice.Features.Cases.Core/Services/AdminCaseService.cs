@@ -559,13 +559,14 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (dbCase == null) {
             return false;
         }
-        if (metadata != null && metadata.Count > 0 && dbCase.Metadata == null) {
+        var safeMetadata = metadata ?? new Dictionary<string, string>();
+        if (safeMetadata.Count > 0 && dbCase.Metadata == null) {
             dbCase.Metadata = [];
         }
-        foreach (var keyValuePair in metadata!) {
+        foreach (var keyValuePair in safeMetadata) {
             dbCase.Metadata![keyValuePair.Key] = keyValuePair.Value;
         }
-        if (metadata.TryGetValue(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey, out var relationKey)) {
+        if (safeMetadata.TryGetValue(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey, out var relationKey)) {
             SetRelationKey(dbCase, relationKey);
         }
         await DbContext.SaveChangesAsync();
