@@ -67,7 +67,7 @@ export class ListContactCreateComponent {
   protected readonly canCreate = computed(() => !this.loading() && this.results().length === 0 && this.term().trim().length > 0);
   protected readonly optionCount = computed(() => this.canCreate() ? 1 : this.results().length + (this.hasMore() ? 1 : 0));
   protected readonly activeId = computed(() => this.open() && this.activeIndex() >= 0 ? this.optionId(this.activeIndex()) : null);
-  protected readonly selectedIds = computed(() => new Set(this._selected().map(item => item.contact.id).filter(Boolean)));
+  protected readonly selectedKeys = computed(() => new Set(this._selected().map(item => this.contactKey(item.contact)).filter(Boolean)));
 
   private readonly _term$ = new Subject<string>();
   private readonly _more$ = new Subject<void>();
@@ -210,8 +210,19 @@ export class ListContactCreateComponent {
     }
   }
 
+  /** Identifies a contact across searches; resolved contacts may not have an id yet. */
+  protected contactKey(contact: Contact): string | undefined {
+    return contact.id || contact.recipientId || contact.email || contact.phoneNumber || contact.fullName || undefined;
+  }
+
+  protected isSelected(contact: Contact): boolean {
+    const key = this.contactKey(contact);
+    return !!key && this.selectedKeys().has(key);
+  }
+
   protected pick(contact: Contact): void {
-    if (contact.id && this.selectedIds().has(contact.id)) {
+    this.open.set(false);
+    if (this.isSelected(contact)) {
       return;
     }
     this._selected.update(items => [...items, { key: this._nextKey++, contact: new Contact({ ...contact }), editing: false, isNew: false }]);

@@ -68,22 +68,23 @@ import { TemplateEditSection } from './rightpane/template-edit-details-rightpane
               {{ (template.ignoreUserPreferences ? 'Templates.Yes' : 'Templates.No') | translate }}
             </dd>
           </div>
-          <div class="hidden sm:block"></div>
+        </dl>
+        <dl class="mx-5 grid gap-x-6 gap-y-4 border-t border-base-300 pt-5 pb-5 text-sm sm:mx-6 sm:grid-cols-2 sm:pb-6 lg:grid-cols-4">
           <div>
             <dt class="text-xs text-base-content/60">{{ 'Templates.CreatedByLabel' | translate }}</dt>
-            <dd class="font-medium">{{ template.createdBy || '—' }}</dd>
+            <dd class="font-medium break-all">{{ template.createdBy || '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-base-content/60">{{ 'Templates.CreatedAtLabel' | translate }}</dt>
-            <dd class="font-medium">{{ template.createdAt ? (template.createdAt | date: 'medium') : '—' }}</dd>
+            <dd class="font-medium tabular">{{ template.createdAt ? (template.createdAt | date: 'medium') : '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-base-content/60">{{ 'Templates.UpdatedByLabel' | translate }}</dt>
-            <dd class="font-medium">{{ template.updatedBy || '—' }}</dd>
+            <dd class="font-medium break-all">{{ template.updatedBy || '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-base-content/60">{{ 'Templates.UpdatedAtLabel' | translate }}</dt>
-            <dd class="font-medium">{{ template.updatedAt ? (template.updatedAt | date: 'medium') : '—' }}</dd>
+            <dd class="font-medium tabular">{{ template.updatedAt ? (template.updatedAt | date: 'medium') : '—' }}</dd>
           </div>
         </dl>
       } @else {

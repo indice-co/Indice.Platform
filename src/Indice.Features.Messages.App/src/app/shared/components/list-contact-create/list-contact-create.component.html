@@ -28,7 +28,7 @@
         } @else {
           @for (contact of results(); track $index; let i = $index) {
             <li role="option" [id]="optionId(i)" [attr.aria-selected]="activeIndex() === i"
-              [attr.aria-disabled]="selectedIds().has(contact.id!) || null"
+              [attr.aria-disabled]="isSelected(contact) || null"
               class="flex cursor-pointer items-center gap-3 rounded-field px-3 py-2 text-sm" [class.bg-base-200]="activeIndex() === i"
               (mousedown)="$event.preventDefault()" (mouseenter)="activeIndex.set(i)" (click)="pick(contact)">
               <app-contact-avatar [name]="displayName(contact)" size="sm" />
@@ -43,7 +43,7 @@
                 <span [attr.title]="contact.email" [class.invisible]="!contact.email"><svg lucideMail class="size-3.5"></svg></span>
                 <span [attr.title]="'Shared.CanReceiveInboxTooltip' | translate" [class.invisible]="!contact.recipientId"><svg lucideInbox class="size-3.5"></svg></span>
               </span>
-              @if (selectedIds().has(contact.id!)) {
+              @if (isSelected(contact)) {
                 <svg lucideCheck class="size-4 shrink-0 text-success"></svg>
               } @else {
                 <span class="size-4 shrink-0"></span>

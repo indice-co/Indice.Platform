@@ -35,21 +35,23 @@ import { DistributionListEditStore } from '../distribution-list-edit-store.servi
               @if (list.alias) { <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ list.alias }}</code> } @else { — }
             </dd>
           </div>
+        </dl>
+        <dl class="mt-6 grid gap-x-6 gap-y-4 border-t border-base-300 pt-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <dt class="text-xs text-base-content/60">{{ 'DistributionLists.CreatedBy' | translate }}</dt>
-            <dd class="mt-1 font-medium">{{ list.createdBy || '—' }}</dd>
+            <dd class="font-medium break-all">{{ list.createdBy || '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-base-content/60">{{ 'DistributionLists.CreatedAt' | translate }}</dt>
-            <dd class="mt-1 font-medium">{{ list.createdAt ? (list.createdAt | date: 'medium') : '—' }}</dd>
+            <dd class="font-medium tabular">{{ list.createdAt ? (list.createdAt | date: 'medium') : '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-base-content/60">{{ 'DistributionLists.UpdatedBy' | translate }}</dt>
-            <dd class="mt-1 font-medium">{{ list.updatedBy || '—' }}</dd>
+            <dd class="font-medium break-all">{{ list.updatedBy || '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-base-content/60">{{ 'DistributionLists.UpdatedAt' | translate }}</dt>
-            <dd class="mt-1 font-medium">{{ list.updatedAt ? (list.updatedAt | date: 'medium') : '—' }}</dd>
+            <dd class="font-medium tabular">{{ list.updatedAt ? (list.updatedAt | date: 'medium') : '—' }}</dd>
           </div>
         </dl>
       } @else {

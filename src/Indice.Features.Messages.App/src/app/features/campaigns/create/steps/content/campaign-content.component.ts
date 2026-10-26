@@ -59,6 +59,8 @@ export class CampaignContentComponent {
   public readonly content = input<{ [key: string]: MessageContent } | undefined>(undefined);
   /** Initial JSON data (object or JSON text). */
   public readonly data = input<any>(undefined);
+  /** Locks the channel selection (e.g. for a published campaign). */
+  public readonly readonly = input(false);
 
   public readonly form = this._fb.group({
     data: new FormControl<string | null>(null, inject(ValidationService).invalidJsonValidator()),

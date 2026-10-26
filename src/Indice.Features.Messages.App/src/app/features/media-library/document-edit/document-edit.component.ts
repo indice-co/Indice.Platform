@@ -125,6 +125,8 @@ import { MEDIA_SCOPE, MediaLibraryStore } from '../media-library-store.service';
               <dt class="text-xs text-base-content/60">{{ 'MediaLibrary.SizeLabel' | translate }}</dt>
               <dd class="font-medium tabular">{{ current.contentSize || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
             </div>
+          </dl>
+          <dl class="mt-6 grid grid-cols-1 gap-x-6 gap-y-4 border-t border-base-300 pt-5 text-sm sm:grid-cols-2">
             <div>
               <dt class="text-xs text-base-content/60">{{ 'MediaLibrary.CreatedByLabel' | translate }}</dt>
               <dd class="font-medium break-words">{{ current.createdBy || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>

@@ -20,7 +20,7 @@
       <div class="grid gap-3 sm:grid-cols-2">
         @for (channel of channels; track channel.key) {
           @let checked = isChecked(channel);
-          @let locked = checked && channelsContent.length <= 1;
+          @let locked = readonly() || (checked && channelsContent.length <= 1);
           <label class="flex items-start gap-3 rounded-box border border-base-300 p-4 transition-colors has-checked:border-primary has-checked:bg-primary/5"
             [class.cursor-pointer]="!locked">
             <app-channel-icon class="mt-0.5" [kind]="channel.kind" [muted]="!checked" />

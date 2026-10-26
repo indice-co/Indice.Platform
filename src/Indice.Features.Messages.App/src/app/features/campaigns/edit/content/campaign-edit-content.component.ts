@@ -31,7 +31,7 @@ import { CampaignEditStore } from '../campaign-edit-store.service';
       </div>
       <div class="p-5 sm:p-6">
         @if (campaign) {
-          <app-campaign-content [additionalData]="sampleData()" [content]="campaign.content" [data]="campaign.data" />
+          <app-campaign-content [additionalData]="sampleData()" [content]="campaign.content" [data]="campaign.data" [readonly]="!!campaign.published" />
         } @else {
           <div class="space-y-4">
             <div class="skeleton h-10 w-full"></div>
