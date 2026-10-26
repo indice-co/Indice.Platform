@@ -1302,4 +1302,16 @@
   <data name="MfaOnBoardingComplete_AuthenticatorHint" xml:space="preserve">
     <value>Χρησιμοποιήστε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας όταν συνδέεστε.</value>
   </data>
+  <data name="Profile_Edit" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="Profile_Cancel" xml:space="preserve">
+    <value>Ακύρωση</value>
+  </data>
+  <data name="Profile_AccountCreated" xml:space="preserve">
+    <value>Ο λογαριασμός δημιουργήθηκε {0}</value>
+  </data>
+  <data name="Profile_LastLogin" xml:space="preserve">
+    <value>Τελευταία σύνδεση {0}</value>
+  </data>
 </root>

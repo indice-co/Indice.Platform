@@ -14,6 +14,10 @@
     @apply bg-transparent border-tenant-900 text-tenant-900 hover:bg-tenant-400 focus:active:bg-tenant-600 focus:active:border-tenant-600 disabled:bg-greys-500 disabled:border-greys-500 disabled:text-greys-500;
 }
 
+.account-row__toggle {
+    @apply inline-flex items-center justify-center h-8 w-8 rounded-full bg-transparent text-tenant-900 hover:bg-tenant-400;
+}
+
 .btn-danger {
     @apply bg-transparent border-red-700 text-red-700 hover:bg-red-600 focus:active:text-white hover:text-white focus:active:bg-red-600 focus:active:border-red-600 disabled:bg-greys-500 disabled:border-greys-500 disabled:text-greys-500;
 }

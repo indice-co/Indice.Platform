@@ -1303,4 +1303,16 @@
   <data name="MfaOnBoardingComplete_AuthenticatorHint" xml:space="preserve">
     <value>Usa il codice della tua app di autenticazione quando accedi.</value>
   </data>
+  <data name="Profile_Edit" xml:space="preserve">
+    <value>Modifica</value>
+  </data>
+  <data name="Profile_Cancel" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="Profile_AccountCreated" xml:space="preserve">
+    <value>Account creato {0}</value>
+  </data>
+  <data name="Profile_LastLogin" xml:space="preserve">
+    <value>Ultimo accesso {0}</value>
+  </data>
 </root>

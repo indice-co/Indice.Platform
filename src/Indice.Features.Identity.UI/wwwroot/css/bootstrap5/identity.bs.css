@@ -1657,6 +1657,70 @@ body {
   background: center/contain no-repeat;
 }
 
+.account-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.account-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  -moz-column-gap: 0.75rem;
+       column-gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--idui-color-border);
+}
+.account-row__label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--idui-color-ink);
+}
+.account-row__value {
+  color: var(--idui-color-ink);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.account-row__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--idui-color-surface-muted);
+  color: var(--idui-color-ink);
+  cursor: pointer;
+}
+.account-row__toggle:hover, .account-row__toggle:focus-visible {
+  background: var(--idui-color-border);
+}
+.account-row__edit {
+  display: none;
+  grid-column: 1/-1;
+  margin-top: 0.75rem;
+}
+.account-row__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.account-row--editing .account-row__value,
+.account-row--editing .account-row__toggle {
+  display: none;
+}
+.account-row--editing .account-row__edit {
+  display: block;
+}
+
+.data-card__meta-separator {
+  margin: 0 0.5rem;
+}
+
 .data-card--empty {
   display: flex;
   align-items: center;

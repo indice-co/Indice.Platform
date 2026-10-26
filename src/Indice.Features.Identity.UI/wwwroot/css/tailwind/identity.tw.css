@@ -254,6 +254,21 @@
   color: rgb(187 187 186 / var(--tw-text-opacity, 1));
 }
 
+.account-row__toggle{
+  display: inline-flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: transparent;
+  color: var(--tenant900);
+}
+
+.account-row__toggle:hover{
+  background-color: var(--tenant400);
+}
+
 .btn-danger{
   --tw-border-opacity: 1;
   border-color: rgb(185 28 28 / var(--tw-border-opacity, 1));
@@ -3033,6 +3048,10 @@ input:checked + .toggle-bg{
   margin-left: 0.25rem;
   margin-right: 0.25rem;
 }
+.mx-2{
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
 .mx-2\.5{
   margin-left: 0.625rem;
   margin-right: 0.625rem;
@@ -3450,6 +3469,9 @@ input:checked + .toggle-bg{
 }
 .items-center{
   align-items: center;
+}
+.items-baseline{
+  align-items: baseline;
 }
 .justify-start{
   justify-content: flex-start;

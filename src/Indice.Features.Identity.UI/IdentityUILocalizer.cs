@@ -1480,6 +1480,14 @@ public class IdentityUILocalizer
     public virtual HtmlString Profile_PhotoConstraints(double maxSizeMb, int maxSidePx) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_PhotoConstraints, maxSizeMb, maxSidePx));
     /// <summary>Title of the account details card on the profile page.</summary>
     public virtual HtmlString Profile_AccountDetails => new HtmlString(IdentityLabels.Profile_AccountDetails);
+    /// <summary>Label for the edit action of an account detail on the Profile page.</summary>
+    public virtual HtmlString Profile_Edit => new HtmlString(IdentityLabels.Profile_Edit);
+    /// <summary>Label for the cancel action of an account detail inline editor on the Profile page.</summary>
+    public virtual HtmlString Profile_Cancel => new HtmlString(IdentityLabels.Profile_Cancel);
+    /// <summary>Text showing when the account was created.</summary>
+    public virtual HtmlString Profile_AccountCreated(string date) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_AccountCreated, System.Net.WebUtility.HtmlEncode(date)));
+    /// <summary>Text showing when the user last signed in.</summary>
+    public virtual HtmlString Profile_LastLogin(string date) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_LastLogin, System.Net.WebUtility.HtmlEncode(date)));
     /// <summary>Title of the profile details card on the profile page.</summary>
     public virtual HtmlString Profile_DetailsSection => new HtmlString(IdentityLabels.Profile_DetailsSection);
     #endregion

@@ -1302,4 +1302,16 @@
   <data name="MfaOnBoardingComplete_AuthenticatorHint" xml:space="preserve">
     <value>サインイン時に認証アプリのコードを使用してください。</value>
   </data>
+  <data name="Profile_Edit" xml:space="preserve">
+    <value>編集</value>
+  </data>
+  <data name="Profile_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Profile_AccountCreated" xml:space="preserve">
+    <value>アカウント作成日 {0}</value>
+  </data>
+  <data name="Profile_LastLogin" xml:space="preserve">
+    <value>最終ログイン {0}</value>
+  </data>
 </root>

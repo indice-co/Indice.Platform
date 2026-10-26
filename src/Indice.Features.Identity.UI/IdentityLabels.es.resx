@@ -1303,4 +1303,16 @@
   <data name="MfaOnBoardingComplete_AuthenticatorHint" xml:space="preserve">
     <value>Use el código de su aplicación de autenticación cuando inicie sesión.</value>
   </data>
+  <data name="Profile_Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Profile_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Profile_AccountCreated" xml:space="preserve">
+    <value>Cuenta creada {0}</value>
+  </data>
+  <data name="Profile_LastLogin" xml:space="preserve">
+    <value>Último inicio de sesión {0}</value>
+  </data>
 </root>

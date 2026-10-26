@@ -219,6 +219,81 @@
     background: center / contain no-repeat;
 }
 
+// Account details rows: label + value + edit toggle, expanding to an inline editor.
+.account-rows {
+    display: flex;
+    flex-direction: column;
+    gap: t.$space-2;
+}
+
+.account-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    column-gap: t.$space-3;
+    padding: t.$space-2 0;
+    border-bottom: 1px solid var(--idui-color-border);
+
+    &__label {
+        margin: 0;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-ink);
+    }
+
+    &__value {
+        color: var(--idui-color-ink);
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    &__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: 0;
+        border-radius: t.$radius-sm;
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-ink);
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--idui-color-border);
+        }
+    }
+
+    &__edit {
+        display: none;
+        grid-column: 1 / -1;
+        margin-top: t.$space-3;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: t.$space-3;
+        margin-top: t.$space-3;
+    }
+
+    &--editing {
+        .account-row__value,
+        .account-row__toggle {
+            display: none;
+        }
+
+        .account-row__edit {
+            display: block;
+        }
+    }
+}
+
+.data-card__meta-separator {
+    margin: 0 t.$space-2;
+}
+
 .data-card--empty {
     display: flex;
     align-items: center;

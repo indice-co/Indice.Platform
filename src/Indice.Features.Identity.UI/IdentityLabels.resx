@@ -1303,4 +1303,16 @@
   <data name="Email_ConfirmYourEmail_OtpCode" xml:space="preserve">
     <value>Use the following code to verify your email address:</value>
   </data>
+  <data name="Profile_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Profile_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Profile_AccountCreated" xml:space="preserve">
+    <value>Account created {0}</value>
+  </data>
+  <data name="Profile_LastLogin" xml:space="preserve">
+    <value>Last login {0}</value>
+  </data>
 </root>

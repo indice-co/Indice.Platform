@@ -2867,6 +2867,42 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Profile_PhotoConstraints", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        public static string Profile_Edit {
+            get {
+                return ResourceManager.GetString("Profile_Edit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Profile_Cancel {
+            get {
+                return ResourceManager.GetString("Profile_Cancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account created {0}.
+        /// </summary>
+        public static string Profile_AccountCreated {
+            get {
+                return ResourceManager.GetString("Profile_AccountCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Last login {0}.
+        /// </summary>
+        public static string Profile_LastLogin {
+            get {
+                return ResourceManager.GetString("Profile_LastLogin", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Personalize your profile with a photo. It will be shown wherever you sign in..
