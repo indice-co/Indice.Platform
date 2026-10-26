@@ -289,8 +289,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 query = query.Where(x => (x.OwnerName != null && EF.Functions.Like(x.OwnerName.ToLower(), $"%{term}%")) ||
                                          (x.OwnerId != null && EF.Functions.Like(x.OwnerId.ToLower(), $"%{term}%")) ||
                                          (x.OwnerTin != null && EF.Functions.Like(x.OwnerTin.ToLower(), $"%{term}%")) ||
-                                         (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")) ||
-                                         (x.RelationKey != null && EF.Functions.Like(x.RelationKey.ToLower(), $"%{term}%")));
+                                         (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
             }
         }
         // filter ReferenceNumbers

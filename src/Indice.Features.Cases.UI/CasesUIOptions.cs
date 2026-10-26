@@ -112,8 +112,5 @@ public enum CaseListColumn
     AssignedTo,
 
     /// <summary>The date this case was submitted.</summary>
-    SubmitDate,
-
-    /// <summary>The key that correlates the case with other cases.</summary>
-    RelationKey
+    SubmitDate
 }

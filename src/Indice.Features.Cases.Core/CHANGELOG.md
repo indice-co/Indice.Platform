@@ -46,7 +46,7 @@ WHERE LEN(m.[Value]) > 256;
     The two are kept equal: the value lands in both, and `relationKey` wins when a request sends different values.
   - `PATCH /manage/cases/{caseId}/metadata` and `PATCH /manage/workflow-integration/{caseId}/metadata` with an `ExternalCorrelationKey`
     entry set it too (an empty value clears it). A key longer than 256 characters is rejected with a validation problem.
-  - `GET /manage/cases` filters it with `relationKeys` (`eq`, `neq`, `contains`) and matches it with `search`. The
+  - `GET /manage/cases` filters it with `relationKeys` (`eq`, `neq`, `contains`). The
     `metadata.ExternalCorrelationKey` filter clauses of `GET /manage/cases` and `GET /my/cases` are answered from the column too.
   - `CasePartial`, `Case` and `MyCasePartial` return it as `relationKey`, next to the unchanged `metadata`.
   - `IAdminCaseService.CreateDraft` and `IMyCaseService.CreateDraft` take an optional `relationKey`.

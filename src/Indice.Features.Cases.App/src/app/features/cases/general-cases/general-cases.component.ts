@@ -53,7 +53,6 @@ const DEFAULT_FILTERS: Record<string, boolean> = {
 
 const DEFAULT_COLUMNS: CaseColumnConfig[] = [
   { title: 'ReferenceNumber' },
-  { title: 'RelationKey', itemProperty: 'relationKey' },
   { title: 'CustomerId', itemProperty: 'ownerId' },
   { title: 'CustomerName', itemProperty: 'ownerName' },
   { title: 'TaxId', itemProperty: 'ownerTin' },
