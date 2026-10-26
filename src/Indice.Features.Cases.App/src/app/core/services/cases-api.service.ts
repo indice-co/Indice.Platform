@@ -227,6 +227,15 @@ export interface ICasesApiService {
      */
     getCaseTimeline(caseId: string): Observable<TimelineEntry[]>;
     /**
+     * Gets the versions of the data of a case, newest first. The search term matches the name or email of the user that saved a version.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getCaseDataVersions(caseId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CaseDataVersionResultSet>;
+    /**
      * Invoke the action activity to trigger a business action for the case.
      * @return No Content
      */
@@ -3585,6 +3594,113 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Gets the versions of the data of a case, newest first. The search term matches the name or email of the user that saved a version.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getCaseDataVersions(caseId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CaseDataVersionResultSet> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/data/versions?";
+        if (caseId === undefined || caseId === null)
+            throw new globalThis.Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new globalThis.Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCaseDataVersions(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCaseDataVersions(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CaseDataVersionResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CaseDataVersionResultSet>;
+        }));
+    }
+
+    protected processGetCaseDataVersions(response: HttpResponseBase): Observable<CaseDataVersionResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CaseDataVersionResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Invoke the action activity to trigger a business action for the case.
      * @return No Content
      */
@@ -5659,6 +5775,118 @@ export class CaseAttachmentResultSet implements ICaseAttachmentResultSet {
 export interface ICaseAttachmentResultSet {
     count?: number;
     items?: CaseAttachment[];
+}
+
+/** A version of the data of a case. Every time the case data change a new version is stored. */
+export class CaseDataVersion implements ICaseDataVersion {
+    /** The id of the version. */
+    id?: string;
+    /** The user that created the version and when. */
+    createdBy?: AuditMeta;
+    /** The json data of the version. */
+    data?: any | undefined;
+    /** Whether this is the current (latest private) data of the case. */
+    isCurrent?: boolean;
+    /** Whether this is the data published to the customer. */
+    isPublic?: boolean;
+
+    constructor(data?: ICaseDataVersion) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.createdBy = _data["createdBy"] ? AuditMeta.fromJS(_data["createdBy"]) : undefined as any;
+            this.data = _data["data"];
+            this.isCurrent = _data["isCurrent"];
+            this.isPublic = _data["isPublic"];
+        }
+    }
+
+    static fromJS(data: any): CaseDataVersion {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseDataVersion();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["createdBy"] = this.createdBy ? this.createdBy.toJSON() : undefined as any;
+        data["data"] = this.data;
+        data["isCurrent"] = this.isCurrent;
+        data["isPublic"] = this.isPublic;
+        return data;
+    }
+}
+
+/** A version of the data of a case. Every time the case data change a new version is stored. */
+export interface ICaseDataVersion {
+    /** The id of the version. */
+    id?: string;
+    /** The user that created the version and when. */
+    createdBy?: AuditMeta;
+    /** The json data of the version. */
+    data?: any | undefined;
+    /** Whether this is the current (latest private) data of the case. */
+    isCurrent?: boolean;
+    /** Whether this is the data published to the customer. */
+    isPublic?: boolean;
+}
+
+export class CaseDataVersionResultSet implements ICaseDataVersionResultSet {
+    count?: number;
+    items?: CaseDataVersion[];
+
+    constructor(data?: ICaseDataVersionResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CaseDataVersion.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CaseDataVersionResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseDataVersionResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ICaseDataVersionResultSet {
+    count?: number;
+    items?: CaseDataVersion[];
 }
 
 export class CasePartial implements ICasePartial {
