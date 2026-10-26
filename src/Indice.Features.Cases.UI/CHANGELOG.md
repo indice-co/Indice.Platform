@@ -51,6 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Editable checkboxes in the case data form could not be ticked.
 - Side panes (new case, saved queries) did not scroll, so the new-case pane cut off the case type list when there were many.
   The pane body now scrolls under a fixed header and footer, with a thin scrollbar.
+- Opening an attachment (attachments tab, timeline comments, form file fields) no longer runs uploaded script: only PDF and
+  PNG / JPEG / GIF / WebP / BMP images open in a new tab, every other type (SVG, HTML, ...) is downloaded. Opened files, and
+  the case PDF, no longer stay in memory until the page reloads, and a blocked popup now downloads the file instead of doing nothing.
 
 ## [8.50.0] - 2026-06-16
 

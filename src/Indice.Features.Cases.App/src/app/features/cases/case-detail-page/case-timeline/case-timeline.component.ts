@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideDownload, LucideGlobe, LucideMessageSquare, LucideMilestone, LucidePaperclip } from '@lucide/angular';
 import { CaseStatus, CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
+import { previewBlob } from 'src/app/shared/services/attachment-preview';
 
 /**
  * The case history: checkpoints reached, comments and attachments, as a vertical rail.
@@ -97,9 +98,6 @@ export class CaseTimelineComponent {
   }
 
   protected onAttachmentClick(attachmentId: string): void {
-    this._api.downloadAttachment(attachmentId).subscribe(result => {
-      const fileURL = window.URL.createObjectURL(result.data);
-      window.open(fileURL, '_blank');
-    });
+    this._api.downloadAttachment(attachmentId).subscribe(result => previewBlob(result.data, result.fileName ?? attachmentId));
   }
 }

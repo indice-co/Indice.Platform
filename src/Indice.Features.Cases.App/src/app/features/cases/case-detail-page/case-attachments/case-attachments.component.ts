@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs/operators';
 import { LucideDownload, LucideExternalLink, LucideFileText, LucidePaperclip, LucideTriangleAlert } from '@lucide/angular';
 import { Case, CaseAttachment, CasesApiService } from 'src/app/core/services/cases-api.service';
+import { canPreview, previewBlob, saveBlob } from 'src/app/shared/services/attachment-preview';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
 
 /** Flat list of every file attached to the case, through the form or the comments. Reloads whenever the case is refreshed. */
@@ -48,10 +49,12 @@ import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
                 </td>
                 <td class="whitespace-nowrap text-right">
                   <div class="join">
-                    <button type="button" class="btn btn-ghost btn-xs join-item" [disabled]="busy" (click)="open(attachment)"
-                      [title]="'common.open' | translate" [attr.aria-label]="('common.open' | translate) + ' ' + attachment.fileName">
-                      <svg lucideExternalLink class="size-4"></svg>
-                    </button>
+                    @if (previewable(attachment)) {
+                      <button type="button" class="btn btn-ghost btn-xs join-item" [disabled]="busy" (click)="open(attachment)"
+                        [title]="'common.open' | translate" [attr.aria-label]="('common.open' | translate) + ' ' + attachment.fileName">
+                        <svg lucideExternalLink class="size-4"></svg>
+                      </button>
+                    }
                     <button type="button" class="btn btn-ghost btn-xs join-item" [disabled]="busy" (click)="download(attachment)"
                       [title]="'common.download' | translate" [attr.aria-label]="('common.download' | translate) + ' ' + attachment.fileName">
                       @if (busy) { <span class="loading loading-spinner loading-xs"></span> } @else { <svg lucideDownload class="size-4"></svg> }
@@ -86,24 +89,22 @@ export class CaseAttachmentsComponent {
     return (attachment.fileExtension ?? '').replace(/^\./, '').toUpperCase() || '-';
   }
 
+  protected previewable(attachment: CaseAttachment): boolean {
+    return canPreview(attachment.contentType);
+  }
+
   protected open(attachment: CaseAttachment): void {
-    this.fetch(attachment, url => window.open(url, '_blank'));
+    this.fetch(attachment, previewBlob);
   }
 
   protected download(attachment: CaseAttachment): void {
-    this.fetch(attachment, url => {
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = attachment.fileName ?? attachment.id!;
-      anchor.click();
-      window.URL.revokeObjectURL(url);
-    });
+    this.fetch(attachment, saveBlob);
   }
 
-  private fetch(attachment: CaseAttachment, use: (url: string) => void): void {
+  private fetch(attachment: CaseAttachment, use: (blob: Blob, fileName: string) => void): void {
     this.pending.set(attachment.id);
     this._api.downloadAttachment(attachment.id!)
       .pipe(finalize(() => this.pending.set(undefined)))
-      .subscribe(result => use(window.URL.createObjectURL(result.data)));
+      .subscribe(result => use(result.data, attachment.fileName ?? attachment.id!));
   }
 }
