@@ -1,324 +1,172 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
-import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { Component, inject, output } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MessagesApiClient, MessageType, TemplateListItem, TemplateType } from 'src/app/core/services/messages-api.service';
+import { ChannelIconComponent } from 'src/app/ui/badges/badges';
+import { URL_PATTERN, toLocalInput } from '../../../campaign-utils';
+import { PagedLookup } from '../../../shared/paged-lookup';
+import { SearchSelectComponent, SearchSelectItem } from '../../../shared/search-select.component';
 
-import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
-import { lastValueFrom, combineLatest, Subscription } from 'rxjs';
-import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet, TemplateType } from 'src/app/core/services/messages-api.service';
-import { EnhancedComboboxComponent } from '@indice/ng-components';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization service
-
+/** Wizard step 1: title, message type, active period, call to action and optional template. */
 @Component({
   selector: 'app-campaign-basic-info',
-  templateUrl: './campaign-basic-info.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [ReactiveFormsModule, TranslatePipe, SearchSelectComponent, ChannelIconComponent],
+  template: `
+    <form class="grid gap-x-6 gap-y-2 md:grid-cols-2" [formGroup]="form">
+      <fieldset class="fieldset md:col-span-2">
+        <legend class="fieldset-legend">{{ 'Campaigns.TitleLabelRequired' | translate }}</legend>
+        <input class="input w-full" formControlName="title" maxlength="128" [placeholder]="'Campaigns.TitlePlaceholder' | translate"
+          [class.input-error]="form.controls.title.invalid && form.controls.title.touched" />
+        @if (form.controls.title.touched && form.controls.title.hasError('required')) {
+          <p class="label text-error">{{ 'Campaigns.TitleRequiredError' | translate }}</p>
+        } @else if (form.controls.title.hasError('maxlength')) {
+          <p class="label text-error">{{ 'Campaigns.TitleMaxLengthError' | translate }}</p>
+        } @else {
+          <p class="label whitespace-normal">{{ 'Campaigns.TitleInfo' | translate }}</p>
+        }
+      </fieldset>
+
+      <fieldset class="fieldset md:col-span-2">
+        <legend class="fieldset-legend">{{ 'Campaigns.TypeLabel' | translate }}</legend>
+        <app-search-select [items]="types.items()" [loading]="types.loading()" [hasMore]="types.hasMore()"
+          [placeholder]="'Campaigns.TypePlaceholder' | translate" [selected]="form.controls.type.value"
+          (selectedChange)="onTypeChanged($event)" (search)="types.search($event)" (showMore)="types.more()">
+          <ng-template let-item>
+            <span class="flex items-center gap-2" [attr.data-class]="item.data?.classification">
+              <span class="class-dot"></span>{{ item.label }}
+            </span>
+          </ng-template>
+        </app-search-select>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">{{ 'Campaigns.StartDateLabel' | translate }}</legend>
+        <input type="datetime-local" class="input w-full" formControlName="from" [min]="now" [max]="form.controls.to.value || null" />
+        <p class="label whitespace-normal">{{ 'Campaigns.StartDateInfo' | translate }}</p>
+      </fieldset>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">{{ 'Campaigns.EndDateLabel' | translate }}</legend>
+        <input type="datetime-local" class="input w-full" formControlName="to" [min]="form.controls.from.value || null"
+          [readonly]="!form.controls.from.value" />
+        <p class="label whitespace-normal">{{ 'Campaigns.EndDateInfo' | translate }}</p>
+      </fieldset>
+
+      <h3 class="mt-4 text-sm font-semibold md:col-span-2">{{ 'Campaigns.CallToActionSectionLabel' | translate }}</h3>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">{{ 'Campaigns.CallToActionTextLabel' | translate }}</legend>
+        <input class="input w-full" formControlName="actionLinkText" maxlength="128" [placeholder]="'Campaigns.CallToActionTextPlaceholder' | translate" />
+        <p class="label whitespace-normal">{{ 'Campaigns.CallToActionTextInfo' | translate }}</p>
+      </fieldset>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">{{ 'Campaigns.CallToActionLinkLabel' | translate }}</legend>
+        <input type="url" class="input w-full" formControlName="actionLinkHref" maxlength="2048" [placeholder]="'Campaigns.CallToActionLinkPlaceholder' | translate"
+          [class.input-error]="form.controls.actionLinkHref.invalid && form.controls.actionLinkHref.touched" />
+        @if (form.controls.actionLinkHref.touched && form.controls.actionLinkHref.hasError('pattern')) {
+          <p class="label text-error">{{ 'Campaigns.CallToActionLinkInvalidError' | translate }}</p>
+        } @else {
+          <p class="label whitespace-normal">{{ 'Campaigns.CallToActionLinkInfo' | translate }}</p>
+        }
+      </fieldset>
+
+      <fieldset class="fieldset mt-4 md:col-span-2">
+        <legend class="fieldset-legend">{{ 'Campaigns.TemplateUsageLabel' | translate }}</legend>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="join">
+            <input type="radio" class="join-item btn btn-sm" formControlName="needsTemplate" value="no"
+              [attr.aria-label]="'Campaigns.TemplateUsageNoOption' | translate" (change)="onNeedsTemplateChanged()" />
+            <input type="radio" class="join-item btn btn-sm" formControlName="needsTemplate" value="yes"
+              [attr.aria-label]="'Campaigns.TemplateUsageYesOption' | translate" (change)="onNeedsTemplateChanged()" />
+          </div>
+          @if (form.controls.needsTemplate.value === 'yes') {
+            <div>
+              <app-search-select [items]="templates.items()" [loading]="templates.loading()" [hasMore]="templates.hasMore()"
+                [placeholder]="'Campaigns.TemplatePlaceholder' | translate" [selected]="form.controls.template.value"
+                [invalid]="form.controls.template.invalid && form.controls.template.touched"
+                (selectedChange)="onTemplateChanged($event)" (search)="templates.search($event)" (showMore)="templates.more()">
+                <ng-template let-item>
+                  <span class="flex w-full items-center gap-2">
+                    <span class="grow truncate">{{ item.label }}</span>
+                    @for (channel of item.data?.channels ?? []; track channel) {
+                      <app-channel-icon [kind]="channel" />
+                    }
+                  </span>
+                </ng-template>
+              </app-search-select>
+              @if (form.controls.template.touched && form.controls.template.hasError('required')) {
+                <p class="label mt-1 text-error">{{ 'Campaigns.TemplateRequiredError' | translate }}</p>
+              }
+            </div>
+          }
+        </div>
+      </fieldset>
+    </form>
+  `
 })
-export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
-  constructor(
-    private _api: MessagesApiClient,
-    private _datePipe: DatePipe,
-    private _changeDetector: ChangeDetectorRef,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
-  ) { }
+export class CampaignBasicInfoComponent {
+  private readonly _api = inject(MessagesApiClient);
+  private readonly _translate = inject(TranslateService);
 
-  // Input & Output parameters
-  @Input() public hasTemplateLoaded: any = {};
-  @Output() public templateSelected: EventEmitter<string | undefined> = new EventEmitter<string | undefined>();
+  /** Emits the id of the selected template (or `undefined` when cleared). */
+  public readonly templateSelected = output<string | undefined>();
 
-  // Form Controls
-  @ViewChild('typeCombobox') typeCombobox!: EnhancedComboboxComponent;
-  @ViewChild('templateCombobox') templateCombobox!: EnhancedComboboxComponent;
+  protected readonly now = toLocalInput(new Date());
+  public readonly form = inject(NonNullableFormBuilder).group({
+    title: ['', [Validators.required, Validators.maxLength(128)]],
+    from: [toLocalInput(new Date())],
+    to: [''],
+    actionLinkText: ['', Validators.maxLength(128)],
+    actionLinkHref: ['', [Validators.pattern(URL_PATTERN), Validators.maxLength(2048)]],
+    type: [null as SearchSelectItem<MessageType> | null],
+    needsTemplate: ['no' as 'no' | 'yes'],
+    template: [null as SearchSelectItem<TemplateListItem> | null]
+  });
 
-  public get title(): AbstractControl { return this.form.get('title')!; }
-  public get from(): AbstractControl { return this.form.get('from')!; }
-  public get to(): AbstractControl { return this.form.get('to')!; }
-  public get actionLinkText(): AbstractControl { return this.form.get('actionLinkText')!; }
-  public get actionLinkHref(): AbstractControl { return this.form.get('actionLinkHref')!; }
-  public get type(): AbstractControl { return this.form.get('type')!; }
-  public get template(): AbstractControl { return this.form.get('template')!; }
-  public get needsTemplate(): AbstractControl { return this.form.get('needsTemplate')!; }
-  public get channels(): AbstractControl { return this.form.get('channels')!; }
+  protected readonly types = new PagedLookup<MessageType>(
+    (page, size, term) => this._api.getMessageTypes(page, size, 'name+', term),
+    type => ({ id: type.id!, label: type.name ?? '', data: type })
+  );
 
-  // Properties
-  public form!: FormGroup;
-  // Fallback initial values = key names (translated via service & | translate in HTML)
-  public messageTypes: MenuOption[] = [new MenuOption('Campaigns.SelectPlaceholder', null)];
-  public messageTypesForCombobox: any[] = [];
-  public messageTypesLoading: boolean = false;
-  public displayMessageTypesShowMoreOption: boolean = false;
+  protected readonly templates = new PagedLookup<TemplateListItem>(
+    (page, size, term) => this._api.getTemplates(page, size, 'name+', term, this.form.controls.type.value?.id, true, TemplateType.Full),
+    template => ({ id: template.id!, label: template.name ?? '', data: template })
+  );
 
-  public templates: MenuOption[] = [new MenuOption('Campaigns.SelectPlaceholder', null)];
-  public templatesForCombobox: any[] = [];
-  public templatesLoading: boolean = false;
-  public displayTemplatesShowMoreOption: boolean = false;
-
-  public now: Date = new Date();
-  public messageType?: string;
-
-  // Paging properties
-  private _messageTypesPage: number = 1;
-  private _templatesPage: number = 1;
-  private _pageSize: number = 10;
-  private _lastMessageTypeSearchTerm: string | undefined = undefined;
-  private _lastTemplateSearchTerm: string | undefined = undefined;
-
-  private _subs: Subscription[] = [];
-
-  public equalityPredicate = (x: any, y: any) => x && y && x.id === y.id;
-
-  public messageTypesFilter = (item: any) => {
-    if (!this.typeCombobox || !this.typeCombobox.selectedItems) return true;
-    const selectedItem = this.typeCombobox.selectedItems.find((x: any) => this.equalityPredicate(x, item));
-    return selectedItem == null;
-  };
-
-  public templatesFilter = (item: any) => {
-    if (!this.templateCombobox || !this.templateCombobox.selectedItems) return true;
-    const selectedItem = this.templateCombobox.selectedItems.find((x: any) => this.equalityPredicate(x, item));
-    return selectedItem == null;
-  };
-
-  public ngOnInit(): void {
-    this._initForm();
-    // Localize placeholders (one-off, fallback = key)
-    const placeholdersSub = combineLatest([
-      this._lang.translateKey('Campaigns.SelectPlaceholder')
-    ]).subscribe(([selectPlaceholder]) => {
-      const translated = selectPlaceholder || 'Campaigns.SelectPlaceholder';
-      if (this.messageTypes.length > 0) {
-        this.messageTypes[0] = new MenuOption(translated, null);
-      }
-      if (this.templates.length > 0) {
-        this.templates[0] = new MenuOption(translated, null);
-      }
-    });
-    this._subs.push(placeholdersSub);
-  }
-
-  public ngAfterViewInit(): void {
-    this._changeDetector.detectChanges();
-  }
-
-  public ngOnDestroy(): void {
-    this._subs.forEach(s => s.unsubscribe());
-  }
-
-  public onCampaignStartInput(event: any): void {
-    this.from.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddTHH:mm'));
-  }
-
-  public onCampaignEndInput(event: any): void {
-    this.to.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddTHH:mm'));
-  }
-
-  public async onMessageTypeSearch(searchTerm: string | undefined): Promise<void> {
-    this._messageTypesPage = 1;
-    this._lastMessageTypeSearchTerm = searchTerm;
-    this.messageTypesLoading = true;
-
-    try {
-      const fetchedMessageTypes = await this._fetchMessageTypes(this._lastMessageTypeSearchTerm);
-
-      if (fetchedMessageTypes.items) {
-        this.messageTypesForCombobox = fetchedMessageTypes.items.map(type => ({
-          name: type.name || '',
-          id: type.id,
-          icon: type.classification,
-          toString: function () { return this.name; }
-        }));
-
-        this.displayMessageTypesShowMoreOption = fetchedMessageTypes.items.length === this._pageSize;
-      }
-    } catch (error) {
-      console.error('Error fetching message types:', error);
-    } finally {
-      this.messageTypesLoading = false;
+  protected onTypeChanged(type: SearchSelectItem<MessageType> | null): void {
+    this.form.controls.type.setValue(type);
+    if (this.form.controls.needsTemplate.value === 'yes') {
+      this.templates.search('');
     }
   }
 
-  public async onMessageTypesShowMore(): Promise<void> {
-    this._messageTypesPage++;
-    this.messageTypesLoading = true;
-
-    try {
-      const fetchedMessageTypes = await this._fetchMessageTypes(this._lastMessageTypeSearchTerm);
-
-      if (fetchedMessageTypes.items) {
-        const newItems = fetchedMessageTypes.items.map(type => ({
-          name: type.name || '',
-          id: type.id,
-          icon: type.classification,
-          toString: function () { return this.name; }
-        }));
-
-        this.messageTypesForCombobox = [...this.messageTypesForCombobox, ...newItems];
-
-        this.displayMessageTypesShowMoreOption = fetchedMessageTypes.items.length === this._pageSize;
-      }
-    } catch (error) {
-      console.error('Error fetching more message types:', error);
-    } finally {
-      this.messageTypesLoading = false;
-    }
-  }
-
-  public onMessageTypeSelectionChanged(event: any): void {
-    if (event && event.id) {
-      this.messageType = event.id;
-      this.type.setValue(event);
+  protected onNeedsTemplateChanged(): void {
+    const template = this.form.controls.template;
+    if (this.form.controls.needsTemplate.value === 'yes') {
+      template.setValidators(Validators.required);
+      template.markAsTouched();
     } else {
-      this.messageType = undefined;
-      this.type.setValue(null);
+      template.clearValidators();
     }
-
-    if (this.needsTemplate.value === 'yes') {
-      this.onTemplateSearch('');
-    }
-  }
-
-  public async onTemplateSearch(searchTerm: string | undefined): Promise<void> {
-    this._templatesPage = 1;
-    this._lastTemplateSearchTerm = searchTerm;
-    this.templatesLoading = true;
-
-    try {
-      const fetchedTemplates = await this._fetchTemplates(this._lastTemplateSearchTerm);
-
-      if (fetchedTemplates.items) {
-        this.templatesForCombobox = fetchedTemplates.items.map(template => ({
-          name: template.name || '',
-          id: template.id,
-          channels: template.channels,
-          toString: function () { return this.name; }
-        }));
-
-        this.displayTemplatesShowMoreOption = fetchedTemplates.items.length === this._pageSize;
-      }
-    } catch (error) {
-      console.error('Error fetching templates:', error);
-    } finally {
-      this.templatesLoading = false;
-    }
-  }
-
-  public async onTemplatesShowMore(): Promise<void> {
-    this._templatesPage++;
-    this.templatesLoading = true;
-
-    try {
-      const fetchedTemplates = await this._fetchTemplates(this._lastTemplateSearchTerm);
-
-      if (fetchedTemplates.items) {
-        const newItems = fetchedTemplates.items.map(template => ({
-          name: template.name || '',
-          id: template.id,
-          channels: template.channels,
-          toString: function () { return this.name; }
-        }));
-
-        this.templatesForCombobox = [...this.templatesForCombobox, ...newItems];
-        this.displayTemplatesShowMoreOption = fetchedTemplates.items.length === this._pageSize;
-      }
-    } catch (error) {
-      console.error('Error fetching more templates:', error);
-    } finally {
-      this.templatesLoading = false;
-    }
-  }
-
-  public onTemplateSelectionChanged(event: any): void {
-    if (event && event.id) {
-      this.template.setValue(event);
-
-      const channelsFormArray: FormArray = this.channels as FormArray;
-      channelsFormArray.clear();
-
-      if (!this.actionLinkText.value) {
-        this.actionLinkText.setValue('Campaigns.ActionLinkDefaultText'); // key placeholder
-      }
-
-      if (!this.actionLinkHref.value) {
-        this.actionLinkHref.setValue('https://www.indice.gr');
-      }
-
-      if (event.channels) {
-        event.channels.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
-      }
-
-      this.templateSelected.emit(event.id);
-    } else {
-      this.template.setValue(null);
+    if (template.value) {
       this.templateSelected.emit(undefined);
     }
+    template.setValue(null);
+    template.updateValueAndValidity();
   }
 
-  public onNeedsTemplateChanged(event: any): void {
-    const value = event.target.value;
-
-    if (value === 'yes') {
-      this.template.setValidators(Validators.required);
-      this.template.setValue(null);
-      this.template.markAsTouched();
-      this.onTemplateSearch('');
-    } else {
-      this.template.removeValidators(Validators.required);
-      this.template.setValue(null);
+  protected onTemplateChanged(template: SearchSelectItem<TemplateListItem> | null): void {
+    this.form.controls.template.setValue(template);
+    this.form.controls.template.markAsTouched();
+    if (!template) {
+      this.templateSelected.emit(undefined);
+      return;
     }
-
-    this.templateCombobox.selectedItems = [];
-    this.templateCombobox.value = undefined;
-    this.template.updateValueAndValidity();
-    this.needsTemplate.setValue(value);
-  }
-
-  private async _fetchMessageTypes(searchTerm: string | undefined): Promise<MessageTypeResultSet> {
-    return lastValueFrom(
-      this._api.getMessageTypes(
-        this._messageTypesPage,
-        this._pageSize,
-        'name+',
-        searchTerm || ''
-      )
-    );
-  }
-
-  private async _fetchTemplates(searchTerm: string | undefined): Promise<TemplateListItemResultSet> {
-    try {
-      return lastValueFrom(
-        this._api.getTemplates(
-          this._templatesPage,
-          this._pageSize,
-          'name+',
-          searchTerm || '',
-          this.messageType,
-          true,
-          TemplateType.Full
-        )
-      );
-    } catch (error) {
-      console.error('Error in _fetchTemplates:', error);
-      throw error;
+    const { actionLinkText, actionLinkHref } = this.form.controls;
+    if (!actionLinkText.value) {
+      actionLinkText.setValue(this._translate.instant('Campaigns.ActionLinkDefaultText'));
     }
-  }
-
-  private _initForm(): void {
-    this.form = new FormGroup({
-      title: new FormControl(undefined, [
-        Validators.required,
-        Validators.maxLength(128)
-      ]),
-      from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddTHH:mm')),
-      to: new FormControl(),
-      actionLinkText: new FormControl(undefined, [Validators.maxLength(128)]),
-      actionLinkHref: new FormControl(undefined, [
-        Validators.pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)(\/?)*$/),
-        Validators.maxLength(2048)
-      ]),
-      type: new FormControl(),
-      template: new FormControl(),
-      needsTemplate: new FormControl('no'),
-      channels: new FormArray([new FormControl('Inbox')], [Validators.required])
-    });
+    if (!actionLinkHref.value) {
+      actionLinkHref.setValue('https://www.indice.gr');
+    }
+    this.templateSelected.emit(template.id);
   }
 }

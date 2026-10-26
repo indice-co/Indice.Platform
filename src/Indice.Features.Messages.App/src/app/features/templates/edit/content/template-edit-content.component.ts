@@ -1,75 +1,88 @@
-import { Component, HostListener, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
-import { ToastType } from '@indice/ng-components';
-import { CampaignContentComponent } from 'src/app/features/campaigns/create/steps/content/campaign-content.component';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LucideSave } from '@lucide/angular';
 import { MessageContent, Template } from 'src/app/core/services/messages-api.service';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
+import { TemplateContentEditorComponent } from '../../content-editor/template-content-editor.component';
 import { TemplateEditStore } from '../template-edit-store.service';
-import { catchError } from 'rxjs/operators';
-import { EMPTY } from 'rxjs';
-import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-    selector: 'app-template-content-edit',
-    templateUrl: './template-edit-content.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-template-content-edit',
+  imports: [TranslatePipe, TemplateContentEditorComponent, LucideSave],
+  host: { '(document:keydown.control.s)': 'onSaveShortcut($event)' },
+  template: `
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="font-semibold">{{ 'Templates.ContentLabel' | translate }}</h2>
+        <p class="text-sm text-base-content/70">{{ 'Templates.ContentDescription' | translate }}</p>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" [disabled]="!template() || saving() || editor()?.form?.invalid" (click)="save()">
+        @if (saving()) { <span class="loading loading-spinner loading-xs"></span> } @else { <svg lucideSave class="size-4"></svg> }
+        {{ 'Templates.Save' | translate }}
+        <kbd class="kbd kbd-xs hidden opacity-70 sm:inline-flex">Ctrl S</kbd>
+      </button>
+    </div>
+
+    @if (template()) {
+      <app-template-content-editor [content]="content()" [data]="data()" />
+    } @else {
+      <div class="space-y-4">
+        <div class="skeleton h-20 w-full"></div>
+        <div class="skeleton h-96 w-full"></div>
+      </div>
+    }
+  `
 })
 export class TemplateContentEditComponent implements OnInit {
-  @ViewChild('contentStep', { static: false }) public _contentComponent: CampaignContentComponent | undefined;
-  private _templateId: string = '';
+  private readonly _store = inject(TemplateEditStore);
+  private readonly _toaster = inject(AppTranslatedToaster);
+  private readonly _route = inject(ActivatedRoute);
 
-  constructor(
-    private _templateStore: TemplateEditStore,
-    private _activatedRoute: ActivatedRoute,
-    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
-  ) { }
-
-  public basicInfoData: any = {};
-  public template = new Template();
-  public content: { [key: string]: MessageContent; } | undefined = undefined;
-  public updateInProgress = false;
+  protected readonly editor = viewChild(TemplateContentEditorComponent);
+  protected readonly saving = signal(false);
+  // A snapshot of the template, taken once: saving reloads the store, which must not reset the editor.
+  protected readonly template = signal<Template | undefined>(undefined);
+  protected readonly content = signal<{ [key: string]: MessageContent } | undefined>(undefined);
+  protected readonly data = signal<any>({});
 
   public ngOnInit(): void {
-    this._templateId = this._activatedRoute.parent?.snapshot.params['templateId'];
-    if (this._templateId) {
-      this._templateStore.getTemplate(this._templateId!).subscribe((template: Template) => {
-        this.template = template;
-        this.content = template.content;
-        this.basicInfoData = template.data ?? {};
-      });
+    const id = this._route.parent?.snapshot.paramMap.get('templateId');
+    if (!id) {
+      return;
     }
+    this._store.getTemplate(id).subscribe(template => {
+      this.content.set(template.content);
+      this.data.set(template.data ?? {});
+      this.template.set(template);
+    });
   }
 
-  @HostListener('document:keydown.control.s', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+  protected onSaveShortcut(event: Event): void {
     event.preventDefault();
-    this.updateContent();
+    this.save();
   }
 
-  public updateContent(): void {
-    this.updateInProgress = true;
-    const formContents = this._contentComponent?.form.controls.content.value;
-    const dataContents = this._contentComponent?.form.controls.data.value ?? "{}";
-    let content: { [key: string]: MessageContent; } = {};
-    for (const item of formContents) {
-      content[item.channel] = new MessageContent({
-        title: item.subject,
-        sender: item.sender,
-        body: item.body
-      })
+  protected save(): void {
+    const editor = this.editor();
+    const template = this.template();
+    if (!editor || !template || this.saving()) {
+      return;
     }
-    this.template.content = content;
-    this.template.data = JSON.parse(dataContents);
-    this._templateStore
-      .updateTemplate(this._templateId, this.template)
-      .pipe(
-        catchError((error: any) => {
-          this.updateInProgress = false;
-          return EMPTY;
-        }))
-      .subscribe(_ => {
-        this.updateInProgress = false;
-        this._toaster.show(ToastType.Success, 'Templates.ContentUpdateSuccessTitle', 'Templates.ContentUpdateSuccessMessage', undefined, { title: this.template.name });
-      });
+    if (editor.form.invalid) {
+      editor.markAllAsTouched();
+      return;
+    }
+    const { content, data } = editor.getValue();
+    this.saving.set(true);
+    this._store.updateTemplate(template.id!, new Template({ ...template, content, data })).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.template.set(new Template({ ...template, content, data }));
+        editor.form.markAsPristine();
+        this._toaster.show(ToastType.Success, 'Templates.ContentUpdateSuccessTitle', 'Templates.ContentUpdateSuccessMessage', undefined, { title: template.name });
+      },
+      error: () => this.saving.set(false)
+    });
   }
 }
