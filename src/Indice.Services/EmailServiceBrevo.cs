@@ -205,11 +205,13 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
             return false;
         }
 
-        var username = Encoding.UTF8.GetBytes(_options.WebhookUsername);
-        var password = Encoding.UTF8.GetBytes(_options.WebhookPassword);
+        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookUsername));
+        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookPassword));
+        var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
+        var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
 
-        var usernameMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(0, separator), username);
-        var passwordMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(separator + 1), password);
+        var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
+        var passwordMatches = CryptographicOperations.FixedTimeEquals(passwordHash, expectedPasswordHash);
 
         return usernameMatches & passwordMatches;
     }
