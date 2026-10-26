@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -26,8 +27,9 @@ public class GuestGrantIntegrationTests
     private const string CLIENT_ID = "guest-client";
     private const string CLIENT_SECRET = "GbjHTsbpsVcJQZE3";
 
-    private static HttpClient CreateServer(Action<IIdentityServerBuilder>? configureIdentityServer = null) {
-        var builder = new WebHostBuilder();
+    private static TestServerFixture CreateServer(Action<IIdentityServerBuilder>? configureIdentityServer = null) {
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureServices(services => {
             var identityServerBuilder = services.AddIdentityServer()
             .AddInMemoryApiScopes([new ApiScope("chat", "Chat API") { UserClaims = { "guest_channel", "given_name", "family_name", "email", "phone_number" } }])
@@ -53,10 +55,26 @@ public class GuestGrantIntegrationTests
             //services.AddPushNotificationServiceNoop();
         });
         builder.Configure(app => app.UseIdentityServer());
-        var server = new TestServer(builder);
-        return new HttpClient(server.CreateHandler()) {
+        }).Start();
+        var server = host.GetTestServer();
+        var httpClient = new HttpClient(server.CreateHandler()) {
             BaseAddress = new Uri(BASE_URL)
         };
+        return new TestServerFixture(host, httpClient);
+    }
+
+    private sealed class TestServerFixture(IHost host, HttpClient httpClient) : IAsyncDisposable
+    {
+        public HttpClient HttpClient { get; } = httpClient;
+
+        public async ValueTask DisposeAsync() {
+            HttpClient.Dispose();
+            try {
+                await host.StopAsync();
+            } finally {
+                host.Dispose();
+            }
+        }
     }
 
     private static Task<TokenResponse> RequestGuestTokenAsync(HttpClient httpClient, IDictionary<string, string>? extraParameters = null) {
@@ -85,7 +103,8 @@ public class GuestGrantIntegrationTests
 
     [Fact]
     public async Task Guest_Grant_Without_Sub_Generates_New_Guid_Subject() {
-        using var httpClient = CreateServer();
+        await using var server = CreateServer();
+        var httpClient = server.HttpClient;
         var response = await RequestGuestTokenAsync(httpClient);
         Assert.False(response.IsError, response.Error);
         var subject = response.Json?.TryGetString("sub");
@@ -99,7 +118,8 @@ public class GuestGrantIntegrationTests
 
     [Fact]
     public async Task Guest_Grant_Subclass_Validator_Adds_Custom_Claims() {
-        using var httpClient = CreateServer(identityServerBuilder => identityServerBuilder.AddGuestGrantValidator<IIdentityServerBuilder, OpinionatedGuestGrantValidator>());
+        await using var server = CreateServer(identityServerBuilder => identityServerBuilder.AddGuestGrantValidator<IIdentityServerBuilder, OpinionatedGuestGrantValidator>());
+        var httpClient = server.HttpClient;
         var response = await RequestGuestTokenAsync(httpClient);
         Assert.False(response.IsError, response.Error);
         var token = new JwtSecurityTokenHandler().ReadJwtToken(response.AccessToken);
@@ -108,7 +128,8 @@ public class GuestGrantIntegrationTests
 
     [Fact]
     public async Task Guest_Grant_Parses_Profile_Parameters() {
-        using var httpClient = CreateServer();
+        await using var server = CreateServer();
+        var httpClient = server.HttpClient;
         var response = await RequestGuestTokenAsync(httpClient, extraParameters: new Dictionary<string, string> {
             ["given_name"] = "John",
             ["family_name"] = "Doe",

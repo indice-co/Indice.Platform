@@ -1,56 +1,89 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ToastType } from '@indice/ng-components';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
+import { UpdateMediaSettingRequest } from 'src/app/core/services/media-api.service';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
+import { RefreshBus } from 'src/app/ui/list/refresh-bus';
+import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { SettingsStore } from '../../settings-store.service';
-import { MediaSetting, UpdateMediaSettingRequest } from 'src/app/core/services/media-api.service';
-import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
+const URL_PATTERN = /^((http|https):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&/=]*)$/;
+
+/** Side pane that edits the value of the media setting in the `mediaSettingKey` route param. */
 @Component({
-    selector: 'app-media-setting-edit',
-    templateUrl: './media-setting-edit.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-media-setting-edit',
+  imports: [ReactiveFormsModule, TranslatePipe, SidePaneLayoutComponent],
+  template: `
+    <app-side-pane-layout [title]="'Settings.EditMediaSettingDialogTitle' | translate" [subtitle]="mediaSettingKey()">
+      @if (loading()) {
+        <div class="skeleton h-10 w-full"></div>
+      } @else {
+        <form id="media-setting-form" class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+          @if (description()) {
+            <p class="text-sm text-base-content/70">{{ description() }}</p>
+          }
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">{{ 'Settings.SettingValueLabelRequired' | translate }}</legend>
+            <input class="input w-full font-mono" type="url" formControlName="value" [placeholder]="'Settings.SettingValuePlaceholder' | translate"
+              [class.input-error]="form.controls.value.invalid && form.controls.value.touched" />
+            @if (form.controls.value.touched && form.controls.value.hasError('pattern')) {
+              <p class="label text-error">{{ 'Settings.SettingValuePatternError' | translate }}</p>
+            } @else {
+              <p class="label whitespace-normal">{{ 'Settings.SettingValueInfo' | translate }}</p>
+            }
+          </fieldset>
+        </form>
+      }
+      <div footer class="flex justify-end gap-2 border-t border-base-300 px-6 py-4">
+        <button type="button" class="btn btn-ghost" (click)="pane.close()">{{ 'Settings.Close' | translate }}</button>
+        <button type="submit" form="media-setting-form" class="btn btn-primary" [disabled]="form.invalid || saving() || loading()">
+          @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
+          {{ 'Settings.Save' | translate }}
+        </button>
+      </div>
+    </app-side-pane-layout>
+  `
 })
-export class MediaSettingEditComponent implements OnInit, AfterViewInit {
-  private _mediaSettingKey: string = '';
+export class MediaSettingEditComponent implements OnInit {
+  private readonly _store = inject(SettingsStore);
+  private readonly _toaster = inject(AppTranslatedToaster);
+  private readonly _refresh = inject(RefreshBus);
+  protected readonly pane = inject(SidePaneService);
 
-  constructor(
-    private _changeDetector: ChangeDetectorRef,
-    private _router: Router,
-    private _activatedRoute: ActivatedRoute,
-    private _settingsStore: SettingsStore,
-    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
-  ) { }
+  /** Bound from the `edit-media-setting/:mediaSettingKey` route. */
+  public readonly mediaSettingKey = input.required<string>();
 
-  @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
-  public submitInProgress = false;
-  public model = new UpdateMediaSettingRequest({
-    value: ''
+  protected readonly loading = signal(true);
+  protected readonly saving = signal(false);
+  protected readonly description = signal<string | undefined>(undefined);
+  protected readonly form = inject(NonNullableFormBuilder).group({
+    value: ['', Validators.pattern(URL_PATTERN)]
   });
 
   public ngOnInit(): void {
-    this._mediaSettingKey = this._activatedRoute.snapshot.params['mediaSettingKey'];
-    this._settingsStore
-      .getMediaSetting(this._mediaSettingKey)
-      .subscribe((setting: MediaSetting | undefined) => {
-        this.model.value = setting?.value || ''
-      });
+    this._store.getMediaSetting(this.mediaSettingKey()).subscribe({
+      next: setting => {
+        this.form.setValue({ value: setting?.value || '' });
+        this.description.set(setting?.description);
+        this.loading.set(false);
+      },
+      error: () => this.pane.close()
+    });
   }
 
-  public ngAfterViewInit(): void {
-    this._changeDetector.detectChanges();
-  }
-
-  public onSubmit(): void {
-    this.submitInProgress = true;
-    this._settingsStore
-      .updateMediaSettings(this._mediaSettingKey, this.model)
-      .subscribe({
-        next: () => {
-          this.submitInProgress = false;
-          this._toaster.show(ToastType.Success, 'Settings.MediaSettingUpdateSuccessTitle', 'Settings.MediaSettingUpdateSuccessMessage', undefined, { key: this._mediaSettingKey });
-          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
-        }
-      });
+  protected submit(): void {
+    if (this.form.invalid) {
+      return;
+    }
+    const key = this.mediaSettingKey();
+    this.saving.set(true);
+    this._store.updateMediaSettings(key, new UpdateMediaSettingRequest({ value: this.form.getRawValue().value })).subscribe({
+      next: () => {
+        this._toaster.show(ToastType.Success, 'Settings.MediaSettingUpdateSuccessTitle', 'Settings.MediaSettingUpdateSuccessMessage', undefined, { key });
+        this._refresh.notify('media-settings');
+        this.pane.close();
+      },
+      error: () => this.saving.set(false)
+    });
   }
 }

@@ -1,98 +1,103 @@
-import { Component, ElementRef, OnInit, ViewChild, OnDestroy, Inject, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
-import { APP_LANGUAGES, ToastType } from '@indice/ng-components';
-import { finalize } from 'rxjs/operators';
-import { FileParameter, CampaignDetails } from 'src/app/core/services/messages-api.service';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
+import { LucideInfo } from '@lucide/angular';
+import { FileParameter } from 'src/app/core/services/messages-api.service';
 import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
+import { RefreshBus } from 'src/app/ui/list/refresh-bus';
+import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { CampaignEditStore } from '../../campaign-edit-store.service';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization
-import { Subscription } from 'rxjs';
-import { AppTranslatedToaster } from '../../../../../shared/services/app-translated-toaster';
 
+/** Side pane that replaces or removes the attachment of a draft campaign. */
 @Component({
-    selector: 'app-campaign-edit-attachments-rightpane',
-    templateUrl: './campaign-edit-attachments-rightpane.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-campaign-edit-attachments-rightpane',
+  imports: [TranslatePipe, SidePaneLayoutComponent, FileUploadComponent, LucideInfo],
+  template: `
+    <app-side-pane-layout [title]="'Campaigns.EditAttachmentsTitle' | translate">
+      <div class="space-y-5">
+        <div role="alert" class="alert alert-soft alert-info text-sm">
+          <svg lucideInfo class="size-4"></svg>
+          <span>
+            {{ 'Campaigns.AttachmentsUsagePrefix' | translate }}
+            <strong>{{ 'Campaigns.ChannelInbox' | translate }}</strong>
+            {{ 'Campaigns.AttachmentsUsageConnectorOr' | translate }}
+            <strong>{{ 'Campaigns.ChannelEmail' | translate }}</strong>
+            {{ 'Campaigns.AttachmentsUsageSuffix' | translate }}
+          </span>
+        </div>
+        @if (loading()) {
+          <div class="skeleton h-14 w-full"></div>
+        } @else {
+          <app-file-upload [extendedView]="true" [existingFile]="existing()" [maxSize]="maxSize" (fileChange)="onFileChange($event)" />
+        }
+      </div>
+      <div footer class="flex justify-end gap-2 border-t border-base-300 px-6 py-4">
+        <button type="button" class="btn btn-ghost" (click)="pane.close()">{{ 'Campaigns.Close' | translate }}</button>
+        <button type="button" class="btn btn-primary" [disabled]="loading() || saving() || !changed()" (click)="submit()">
+          @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
+          {{ 'Campaigns.Save' | translate }}
+        </button>
+      </div>
+    </app-side-pane-layout>
+  `
 })
-export class CampaignAttachmentsEditRightpaneComponent implements OnInit, OnDestroy {
+export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
+  private readonly _store = inject(CampaignEditStore);
+  private readonly _toaster = inject(AppTranslatedToaster);
+  private readonly _refresh = inject(RefreshBus);
+  protected readonly pane = inject(SidePaneService);
 
-  @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
-  @ViewChild('fileUploadComponent') public fileUploadComponent!: FileUploadComponent;
+  /** Matrix param of the `edit-campaign-attachments` pane route. */
+  public readonly campaignId = input.required<string>();
 
-  public isLoading = false;
-  public file: IAttachment | undefined;
-  public campaignAttachment?: IAttachment;
-  public attachmentChanged = false;
+  protected readonly maxSize = 6 * 1024 * 1024;
+  protected readonly loading = signal(true);
+  protected readonly saving = signal(false);
+  protected readonly changed = signal(false);
+  protected readonly existing = signal<IAttachment | undefined>(undefined);
+  private _file?: IAttachment;
 
-  private _campaignId: string = '';
-  private _subs: Subscription[] = []; // track transient subscriptions
-
-  constructor(
-    private _campaignStore: CampaignEditStore,
-    private _toaster: AppTranslatedToaster,
-    private _router: Router,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
-  ) { }
-
-  ngOnInit(): void {
-    this._campaignId = this._router.url.split('/')[2];
-    if (this._campaignId) {
-      this._campaignStore.getCampaign(this._campaignId!)
-        .pipe(finalize(() => {
-          this.isLoading = false;
-        }))
-        .subscribe((campaign: CampaignDetails) => {
-          if (!campaign.attachment) {
-            this.campaignAttachment = undefined;
-            return;
-          }
-          this.campaignAttachment = <IAttachment>{
-            id: campaign.attachment.id,
-            title: campaign.attachment.label,
-            contentType: campaign.attachment.contentType,
-            size: campaign.attachment.size,
-            sizeText: campaign.attachment.sizeText
-          }
-        });
-    }
+  public ngOnInit(): void {
+    this._store.getCampaign(this.campaignId()).subscribe({
+      next: campaign => {
+        const attachment = campaign.attachment;
+        this.existing.set(attachment
+          ? { id: attachment.id, title: attachment.label, contentType: attachment.contentType, size: attachment.size, sizeText: attachment.sizeText }
+          : undefined);
+        this.loading.set(false);
+      },
+      error: () => this.pane.close()
+    });
   }
 
-  public onFileChange(file: IAttachment | undefined): void {
-    this.file = file;
-    this.attachmentChanged = (this.campaignAttachment == undefined && this.file !== undefined) || this.file?.id !== this.campaignAttachment?.id;
+  protected onFileChange(file: IAttachment | undefined): void {
+    this._file = file;
+    const existing = this.existing();
+    this.changed.set((!existing && !!file) || file?.id !== existing?.id);
   }
 
-  public onSubmit(): void {
-    if (this.file) {
-      const attachment = <FileParameter>{
-        fileName: this.file.title,
-        data: this.file.data
-      };
-      this._campaignStore.uploadCampaignAttachment(this._campaignId, attachment)
-        .subscribe(() => {
-
-          this._toaster.show(ToastType.Success, 'Campaigns.AttachmentUpdateSuccessTitle', 'Campaigns.AttachmentUpdateSuccessMessage', undefined);
-
-          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        }, (error) => {
-          this._toaster.show(ToastType.Error, 'Campaigns.AttachmentUpdateErrorTitle', 'Campaigns.AttachmentUpdateErrorMessage', undefined);
-          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        });
+  protected submit(): void {
+    const existingId = this.existing()?.id;
+    let request$: Observable<void>;
+    let message: string;
+    if (this._file) {
+      request$ = this._store.uploadCampaignAttachment(this.campaignId(), { fileName: this._file.title, data: this._file.data } as FileParameter);
+      message = 'Campaigns.AttachmentUpdateSuccessMessage';
+    } else if (existingId) {
+      request$ = this._store.deleteCampaignAttachment(this.campaignId(), existingId);
+      message = 'Campaigns.AttachmentDeleteSuccessMessage';
+    } else {
+      return;
     }
-    else if (this.campaignAttachment?.id) {
-      this._campaignStore.deleteCampaignAttachment(this._campaignId, this.campaignAttachment.id)
-        .subscribe(() => {
-          this._toaster.show(ToastType.Success, 'Campaigns.AttachmentUpdateSuccessTitle', 'Campaigns.AttachmentDeleteSuccessMessage', undefined);
-          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        }, (error) => {
-          this._toaster.show(ToastType.Error, 'Campaigns.AttachmentUpdateSuccessTitle', 'Campaigns.AttachmentUpdateErrorMessage', undefined);
-          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        });
-    }
-  }
-
-  public ngOnDestroy(): void {
-    this._subs.forEach(s => s.unsubscribe());
+    this.saving.set(true);
+    request$.subscribe({
+      next: () => {
+        this._toaster.show(ToastType.Success, 'Campaigns.AttachmentUpdateSuccessTitle', message);
+        this._refresh.notify('campaign');
+        this.pane.close();
+      },
+      error: () => this.saving.set(false)
+    });
   }
 }
