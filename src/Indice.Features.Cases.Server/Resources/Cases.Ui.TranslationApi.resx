@@ -402,12 +402,6 @@
   <data name="caseTypes.form.descriptionPlaceholder" xml:space="preserve">
     <value>Description...</value>
   </data>
-  <data name="caseTypes.form.translations" xml:space="preserve">
-    <value>Translation</value>
-  </data>
-  <data name="caseTypes.form.layoutTranslations" xml:space="preserve">
-    <value>Layout Translation</value>
-  </data>
   <data name="caseTypes.form.tags" xml:space="preserve">
     <value>Tags</value>
   </data>
@@ -753,9 +747,6 @@
   <data name="caseTypes.form.isMenuItemHint" xml:space="preserve">
     <value>Adds a shortcut to this case type's cases under Case queues.</value>
   </data>
-  <data name="caseTypes.form.sectionData" xml:space="preserve">
-    <value>Data and layout</value>
-  </data>
   <data name="caseTypes.form.schema" xml:space="preserve">
     <value>Data schema (JSON)</value>
   </data>
@@ -779,9 +770,6 @@
   </data>
   <data name="caseTypes.form.invalidJson" xml:space="preserve">
     <value>This isn't valid JSON.</value>
-  </data>
-  <data name="caseTypes.form.fixJson" xml:space="preserve">
-    <value>Fix the highlighted JSON fields to save.</value>
   </data>
   <data name="checkpointTypes.subtitle" xml:space="preserve">
     <value>The steps a case moves through, and the status each step reports.</value>
@@ -1331,5 +1319,146 @@
   </data>
   <data name="toasts.offline.body" xml:space="preserve">
     <value>Could not reach the server. Check your connection and try again.</value>
+  </data>
+  <data name="common.steps" xml:space="preserve">
+    <value>Steps</value>
+  </data>
+  <data name="common.stepState.active" xml:space="preserve">
+    <value>current step</value>
+  </data>
+  <data name="common.stepState.done" xml:space="preserve">
+    <value>completed</value>
+  </data>
+  <data name="common.stepState.error" xml:space="preserve">
+    <value>has errors</value>
+  </data>
+  <data name="common.stepState.pending" xml:space="preserve">
+    <value>not started</value>
+  </data>
+  <data name="common.stepOf" xml:space="preserve">
+    <value>Step {{step}} of {{count}}</value>
+  </data>
+  <data name="common.hasErrors" xml:space="preserve">
+    <value>Has errors</value>
+  </data>
+  <data name="common.next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="common.done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="caseTypes.steps.general" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="caseTypes.steps.generalHint" xml:space="preserve">
+    <value>Code, title and access</value>
+  </data>
+  <data name="caseTypes.steps.definition" xml:space="preserve">
+    <value>Schema, layout &amp; translations</value>
+  </data>
+  <data name="caseTypes.steps.definitionHint" xml:space="preserve">
+    <value>What a case holds and how it reads</value>
+  </data>
+  <data name="caseTypes.steps.configuration" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
+  <data name="caseTypes.steps.configurationHint" xml:space="preserve">
+    <value>Settings, list filters and columns</value>
+  </data>
+  <data name="caseTypes.steps.checkpointsHint" xml:space="preserve">
+    <value>The steps its cases move through</value>
+  </data>
+  <data name="caseTypes.steps.checkpointsIntro" xml:space="preserve">
+    <value>The case type is saved. Add the checkpoint types its cases move through, now or later from the case type's page.</value>
+  </data>
+  <data name="caseTypes.steps.saveAndContinue" xml:space="preserve">
+    <value>Save and continue</value>
+  </data>
+  <data name="caseTypes.steps.fillRequired" xml:space="preserve">
+    <value>Fill in the required fields (*) to continue.</value>
+  </data>
+  <data name="caseTypes.steps.schemaRequired" xml:space="preserve">
+    <value>Add a valid data schema to continue.</value>
+  </data>
+  <data name="caseTypes.steps.fixJson" xml:space="preserve">
+    <value>Fix the highlighted JSON to continue.</value>
+  </data>
+  <data name="caseTypes.edit.fixTabs" xml:space="preserve">
+    <value>Fix the tabs marked in red to save.</value>
+  </data>
+  <data name="caseTypes.form.schemaHint" xml:space="preserve">
+    <value>The JSON Schema (draft-07) of the case data.</value>
+  </data>
+  <data name="caseTypes.form.layoutHint" xml:space="preserve">
+    <value>How the form is laid out: an ajsf layout (array) or a JSON Forms UI schema. Optional.</value>
+  </data>
+  <data name="caseTypes.translations.titleHeading" xml:space="preserve">
+    <value>Title and description</value>
+  </data>
+  <data name="caseTypes.translations.titleHint" xml:space="preserve">
+    <value>Shown instead of the title and description to users of that language. A language left empty keeps them as entered; a filled-in one replaces both, so give it a title.</value>
+  </data>
+  <data name="caseTypes.translations.language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="caseTypes.translations.asEntered" xml:space="preserve">
+    <value>As entered</value>
+  </data>
+  <data name="caseTypes.translations.missingTitle" xml:space="preserve">
+    <value>Add a title: without one this language shows an empty title.</value>
+  </data>
+  <data name="caseTypes.translations.fixTitles" xml:space="preserve">
+    <value>Add a title to every translated language to continue.</value>
+  </data>
+  <data name="caseTypes.translations.textsHeading" xml:space="preserve">
+    <value>Form texts</value>
+  </data>
+  <data name="caseTypes.translations.textsHint" xml:space="preserve">
+    <value>The titles, placeholders, option names and help texts of the schema and layout, translated for every language other than the primary one (the PrimaryTranslationLanguage setting, Greek by default). Applied to the cases customers see; the back office shows the texts as written.</value>
+  </data>
+  <data name="caseTypes.translations.progress" xml:space="preserve">
+    <value>{{done}} of {{count}} translated</value>
+  </data>
+  <data name="caseTypes.translations.labelsNotTranslated" xml:space="preserve">
+    <value>{{count}} layout labels stay as written: the server translates title, placeholder, enumNames and helpvalue, not label.</value>
+  </data>
+  <data name="caseTypes.translations.showLabels" xml:space="preserve">
+    <value>Show labels</value>
+  </data>
+  <data name="caseTypes.translations.noSchema" xml:space="preserve">
+    <value>Add a valid data schema (and fix the layout JSON, if any) to list the texts to translate.</value>
+  </data>
+  <data name="caseTypes.translations.filter" xml:space="preserve">
+    <value>Filter texts</value>
+  </data>
+  <data name="caseTypes.translations.filter_all" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="caseTypes.translations.filter_untranslated" xml:space="preserve">
+    <value>Untranslated</value>
+  </data>
+  <data name="caseTypes.translations.filter_unused" xml:space="preserve">
+    <value>Unused</value>
+  </data>
+  <data name="caseTypes.translations.source_schema" xml:space="preserve">
+    <value>Schema</value>
+  </data>
+  <data name="caseTypes.translations.source_layout" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="caseTypes.translations.unusedText" xml:space="preserve">
+    <value>No longer in the schema or layout</value>
+  </data>
+  <data name="caseTypes.translations.translationOf" xml:space="preserve">
+    <value>Translation of “{{text}}”</value>
+  </data>
+  <data name="caseTypes.translations.noMatches" xml:space="preserve">
+    <value>No texts match.</value>
+  </data>
+  <data name="caseTypes.translations.noTexts" xml:space="preserve">
+    <value>The schema and layout have no texts to translate.</value>
+  </data>
+  <data name="caseTypes.translations.removeUnused" xml:space="preserve">
+    <value>Remove unused translations</value>
   </data>
 </root>

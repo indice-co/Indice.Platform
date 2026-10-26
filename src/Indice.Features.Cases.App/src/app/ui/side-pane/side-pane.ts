@@ -49,7 +49,7 @@ export class SidePaneService {
         <svg lucideX class="size-5"></svg>
       </button>
     </header>
-    <div class="flex-1 overflow-y-auto px-6 py-5">
+    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5 [scrollbar-width:thin]">
       <ng-content />
     </div>
     <ng-content select="[footer]" />
