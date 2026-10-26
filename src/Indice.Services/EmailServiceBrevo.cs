@@ -106,7 +106,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         JsonNode? payload;
         try {
             payload = await JsonNode.ParseAsync(requestBody, cancellationToken: cancellationToken);
-        } catch (Exception) {
+        } catch (JsonException) {
             return WebhookHttpResult.BadRequest("Invalid JSON payload");
         }
 
@@ -232,7 +232,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
 
         try {
             credentials = Convert.FromBase64String(headerValue.Parameter);
-        } catch (Exception) {
+        } catch (FormatException) {
             return false;
         }
 
