@@ -177,7 +177,7 @@ export class ShellComponent {
 
   private readonly _user = toSignal(this._auth.user$, { initialValue: this._auth.getCurrentUser() });
   protected readonly userId = () => this._user()?.profile?.sub;
-  protected readonly userName = () => this._user()?.profile?.given_name ? `${this._user()?.profile?.given_name} ${this._user()?.profile?.family_name}`.trim() :
+  protected readonly userName = () => this._user()?.profile?.given_name ? `${this._user()?.profile?.given_name} ${this._user()?.profile?.family_name ?? ''}`.trim() :
                                         this._user()?.profile?.name ?? this._user()?.profile?.email ?? '';
   protected readonly userEmail = () => this._user()?.profile?.email ?? '';
 
