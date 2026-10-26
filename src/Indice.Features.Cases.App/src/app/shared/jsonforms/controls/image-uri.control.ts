@@ -9,6 +9,17 @@ type ImageSource = 'file' | 'url';
 /** Default of `options.maxSize`: the largest image file (in bytes) stored inline as a `data:` uri. */
 export const defaultImageMaxSize = 1024 * 1024;
 
+/** Removes HTML-like tags in a repeat-until-stable way to avoid incomplete multi-character sanitization. */
+function stripHtmlTags(input: string): string {
+    let previous: string;
+    let current = input;
+    do {
+        previous = current;
+        current = current.replace(/<[^>]*>/g, '');
+    } while (current !== previous);
+    return current;
+}
+
 /** Whether the value is an absolute `https://` url. */
 export function isHttpsUrl(value: unknown): value is string {
     if (typeof value !== 'string') {
@@ -119,7 +130,7 @@ export class ImageUriControlComponent extends TailwindControl {
     }
 
     get altText(): string {
-        return this.options.alt || (this.title ?? '').replace(/<[^>]*>/g, '').trim();
+        return this.options.alt || stripHtmlTags(this.title ?? '').trim();
     }
 
     get maxSize(): number {
