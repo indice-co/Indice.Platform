@@ -72,7 +72,7 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
                 <td class="whitespace-nowrap text-base-content/70">{{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}</td>
                 <td class="text-right">
                   <span class="tooltip tooltip-left" [attr.data-tip]="'DistributionLists.Delete' | translate">
-                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)"
+                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="remove(item)"
                       [attr.aria-label]="'DistributionLists.Delete' | translate">
                       <svg lucideTrash class="size-4"></svg>
                     </button>
@@ -123,7 +123,7 @@ export class DistributionListsComponent implements OnInit {
     this.list.start();
   }
 
-  protected delete(list: DistributionList): void {
+  protected remove(list: DistributionList): void {
     this._dialog
       .confirm({ title: 'DistributionLists.Delete', message: 'DistributionLists.DeleteConfirmMessage', messageParams: { name: list.name }, confirmLabel: 'Common.Delete', tone: 'danger' })
       .pipe(

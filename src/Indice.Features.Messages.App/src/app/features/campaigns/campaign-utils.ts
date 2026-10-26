@@ -1,7 +1,7 @@
 import { ChannelKind } from 'src/app/ui/badges/badges';
 
 /** Call to action link validation, as used by the API era UI. */
-export const URL_PATTERN = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)(\/?)*$/;
+export const URL_PATTERN = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)(\/?)*$/;
 
 /** Formats a date for a `datetime-local` input (`yyyy-MM-ddTHH:mm`, local time). */
 export function toLocalInput(value: Date | string | null | undefined): string {

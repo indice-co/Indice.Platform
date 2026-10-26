@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, UrlTree } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
 import { LucidePencil, LucideTrash } from '@lucide/angular';
@@ -112,7 +112,7 @@ export class TemplateDetailsEditComponent {
   protected readonly typeLabel = templateTypeLabel;
   protected readonly typeBadge = templateTypeBadge;
 
-  protected editLink(section: TemplateEditSection): any[] {
+  protected editLink(section: TemplateEditSection): UrlTree {
     return this._pane.link(['edit-template', this.store.template()?.id ?? ''], { section });
   }
 

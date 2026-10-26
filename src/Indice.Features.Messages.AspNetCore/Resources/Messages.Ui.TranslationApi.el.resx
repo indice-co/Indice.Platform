@@ -2306,6 +2306,12 @@
   <data name="Home.SigningOut" xml:space="preserve">
     <value>Γίνεται αποσύνδεση…</value>
   </data>
+  <data name="Logout.Success.Title" xml:space="preserve">
+    <value>Έχετε αποσυνδεθεί</value>
+  </data>
+  <data name="Logout.Success.Message" xml:space="preserve">
+    <value>Έχετε αποσυνδεθεί από τον λογαριασμό σας.</value>
+  </data>
   <data name="Status.BackToDashboard" xml:space="preserve">
     <value>Επιστροφή στον πίνακα ελέγχου</value>
   </data>

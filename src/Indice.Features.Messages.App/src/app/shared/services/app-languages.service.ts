@@ -46,6 +46,7 @@ export class AppLanguagesService {
 
   public setSelected(lang: string): void {
     this.selected.set(lang.toUpperCase());
+    document.documentElement.lang = lang.toLowerCase();
     this._translate.use(lang.toLowerCase());
   }
 

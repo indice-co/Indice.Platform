@@ -72,7 +72,7 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
                     </a>
                   </span>
                   <span class="tooltip tooltip-left" [attr.data-tip]="'MessageTypes.DeleteTypeTitle' | translate">
-                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)"
+                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="remove(item)"
                       [attr.aria-label]="'MessageTypes.DeleteTypeTitle' | translate">
                       <svg lucideTrash class="size-4"></svg>
                     </button>
@@ -122,7 +122,7 @@ export class MessageTypesComponent implements OnInit {
     this.list.start();
   }
 
-  protected delete(type: MessageType): void {
+  protected remove(type: MessageType): void {
     this._dialog
       .confirm({ title: 'MessageTypes.DeleteTypeTitle', message: 'MessageTypes.DeleteConfirmMessage', messageParams: { name: type.name }, confirmLabel: 'Common.Delete', tone: 'danger' })
       .pipe(

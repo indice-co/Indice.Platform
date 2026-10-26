@@ -1,6 +1,7 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { SIDE_PANE_OUTLET, SidePaneService, SidePaneSize } from '../ui/side-pane/side-pane';
+import { ToasterComponent } from '../ui/toast/toaster.component';
 
 /**
  * Slide-over panel hosting the `rightpane` named router outlet. Route `data.paneSize` picks the width.
@@ -8,7 +9,7 @@ import { SIDE_PANE_OUTLET, SidePaneService, SidePaneSize } from '../ui/side-pane
  */
 @Component({
   selector: 'app-side-pane-host',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToasterComponent],
   template: `
     <dialog #panel
       class="fixed inset-y-0 right-0 left-auto m-0 h-full max-h-none w-full max-w-full overflow-hidden bg-base-100 p-0 shadow-2xl backdrop:bg-neutral/40"
@@ -16,6 +17,7 @@ import { SIDE_PANE_OUTLET, SidePaneService, SidePaneSize } from '../ui/side-pane
       <div class="flex h-full flex-col">
         <router-outlet [name]="outlet" (activate)="onActivate()" (deactivate)="onDeactivate()" />
       </div>
+      <app-toaster />
     </dialog>
   `
 })

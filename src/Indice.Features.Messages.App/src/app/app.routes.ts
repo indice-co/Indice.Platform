@@ -18,6 +18,10 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'logout', component: LogoutComponent },
   {
+    path: 'logged-out', component: StatusPageComponent,
+    data: { code: '200', title: 'Logout.Success.Title', message: 'Logout.Success.Message' }
+  },
+  {
     path: 'forbidden', component: StatusPageComponent,
     data: { code: '403', title: 'Status.Forbidden.Title', message: 'Status.Forbidden.Message' }
   },

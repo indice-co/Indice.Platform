@@ -7,7 +7,7 @@ import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { SettingsStore } from '../../settings-store.service';
 
-const URL_PATTERN = /^((http|https):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
+const URL_PATTERN = /^((http|https):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&/=]*)$/;
 
 /** Side pane that edits the value of the media setting in the `mediaSettingKey` route param. */
 @Component({

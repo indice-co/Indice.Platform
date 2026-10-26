@@ -93,7 +93,7 @@ import { SettingsStore } from '../settings-store.service';
                     </span>
                     @if (!item.isDefault) {
                       <span class="tooltip tooltip-left" [attr.data-tip]="'Settings.DeleteSenderTitle' | translate">
-                        <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)"
+                        <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="remove(item)"
                           [attr.aria-label]="'Settings.DeleteSenderTitle' | translate">
                           <svg lucideTrash class="size-4"></svg>
                         </button>
@@ -154,7 +154,7 @@ export class EmailSettingsComponent implements OnInit {
     this.list.start();
   }
 
-  protected delete(sender: MessageSender): void {
+  protected remove(sender: MessageSender): void {
     this._dialog
       .confirm({ title: 'Settings.DeleteSenderTitle', message: 'Settings.DeleteSenderConfirmMessage', messageParams: { sender: sender.displayName }, confirmLabel: 'Common.Delete', tone: 'danger' })
       .pipe(

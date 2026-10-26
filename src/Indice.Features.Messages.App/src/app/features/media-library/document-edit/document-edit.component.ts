@@ -48,7 +48,7 @@ import { MEDIA_SCOPE, MediaLibraryStore } from '../media-library-store.service';
             <svg lucidePencil class="size-4"></svg>{{ 'MediaLibrary.EditFileTitle' | translate }}
           </a>
           <span class="tooltip tooltip-left" [attr.data-tip]="'MediaLibrary.DeleteFileTitle' | translate">
-            <button type="button" class="btn btn-ghost btn-sm btn-square text-error" (click)="delete(current)" [attr.aria-label]="'MediaLibrary.DeleteFileTitle' | translate">
+            <button type="button" class="btn btn-ghost btn-sm btn-square text-error" (click)="remove(current)" [attr.aria-label]="'MediaLibrary.DeleteFileTitle' | translate">
               <svg lucideTrash class="size-4"></svg>
             </button>
           </span>
@@ -195,7 +195,7 @@ export class DocumentEditComponent implements OnInit {
       .finally(() => this.downloading.set(false));
   }
 
-  protected delete(file: MediaFile): void {
+  protected remove(file: MediaFile): void {
     const back = this.backLink();
     this.store.deleteFile(file).subscribe(() => this._router.navigate(back));
   }

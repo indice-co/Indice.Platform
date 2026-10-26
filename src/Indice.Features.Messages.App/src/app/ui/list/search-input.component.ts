@@ -37,7 +37,7 @@ export class SearchInputComponent {
         // Debounce first so that every keystroke, including too-short ones, cancels a pending obsolete search
         debounceTime(this.debounce()),
         filter(value => value.length === 0 || value.length >= this.minLength()),
-        distinctUntilChanged(),
+        distinctUntilChanged((previous, current) => previous === current && this.value().trim() === current),
         takeUntilDestroyed(inject(DestroyRef))
       )
       .subscribe(value => this.search.emit(value));

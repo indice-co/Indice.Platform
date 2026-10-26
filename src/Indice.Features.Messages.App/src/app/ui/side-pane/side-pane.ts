@@ -1,5 +1,5 @@
 import { Component, Injectable, inject, input } from '@angular/core';
-import { Route, Router } from '@angular/router';
+import { Route, Router, UrlTree } from '@angular/router';
 import { AuthGuardService } from '@indice/ng-auth';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideX } from '@lucide/angular';
@@ -18,13 +18,13 @@ export class SidePaneService {
    * `pane.link(['edit-folder', folder.id])`. `params` become matrix params of the pane route (`upload-file;folderId=X`),
    * bound to the pane component's inputs.
    */
-  public link(path: string | (string | number)[], params?: Record<string, string>): any[] {
+  public link(path: string | (string | number)[], params?: Record<string, string>): UrlTree {
     const segments = Array.isArray(path) ? path.map(String) : [path];
-    return ['/', { outlets: { [SIDE_PANE_OUTLET]: params ? [...segments, params] : segments } }];
+    return this._router.createUrlTree(['/', { outlets: { [SIDE_PANE_OUTLET]: params ? [...segments, params] : segments } }], { queryParamsHandling: 'preserve' });
   }
 
   public open(path: string | (string | number)[], params?: Record<string, string>): Promise<boolean> {
-    return this._router.navigate(this.link(path, params), { queryParamsHandling: 'preserve' });
+    return this._router.navigateByUrl(this.link(path, params));
   }
 
   public close(): Promise<boolean> {

@@ -38,7 +38,12 @@ export class PagedLookup<T> {
         this.hasMore.set(page.length === this._pageSize);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        if (append) {
+          this._page--;
+        }
+        this.loading.set(false);
+      }
     });
   }
 }
