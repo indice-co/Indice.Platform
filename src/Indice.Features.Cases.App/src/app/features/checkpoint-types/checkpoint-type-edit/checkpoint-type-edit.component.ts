@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, UrlTree } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EMPTY, Observable, catchError, finalize, take } from 'rxjs';
 import { LucideSave } from '@lucide/angular';
@@ -62,7 +62,7 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
           </label>
         </fieldset>
         <div class="flex justify-end gap-2 border-t border-base-300 px-5 py-3 sm:px-6">
-          <a class="btn btn-ghost" [routerLink]="['/checkpoint-types']" [queryParams]="backQueryParams()">{{ 'common.cancel' | translate }}</a>
+          <a class="btn btn-ghost" [routerLink]="backLink()">{{ 'common.cancel' | translate }}</a>
           <button type="submit" class="btn btn-primary" [disabled]="!canSave()">
             @if (busy()) { <span class="loading loading-spinner loading-sm"></span> } @else { <svg lucideSave class="size-4"></svg> }
             {{ 'common.save' | translate }}
@@ -82,6 +82,8 @@ export class CheckpointTypeEditComponent implements OnInit {
   public readonly checkpointTypeId = input<string | undefined>(undefined);
   /** Bound from the `caseTypeId` query param (create mode pre-selection). */
   public readonly caseTypeId = input<string | undefined>(undefined);
+  /** Bound from the `returnUrl` query param: the app URL to go back to (e.g. the case type's checkpoints), instead of the list. */
+  public readonly returnUrl = input<string | undefined>(undefined);
 
   protected readonly statuses = Object.values(CaseStatus);
   protected readonly caseTypes = signal<CaseTypePartial[]>([]);
@@ -90,6 +92,13 @@ export class CheckpointTypeEditComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly isEdit = computed(() => !!this.checkpointTypeId());
   protected readonly canSave = computed(() => !this.busy() && !!this.model().caseTypeId && !!this.model().code?.trim());
+  /** Only app-relative return URLs are followed. */
+  protected readonly backLink = computed<UrlTree>(() => {
+    const returnUrl = this.returnUrl();
+    return returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
+      ? this._router.parseUrl(returnUrl)
+      : this._router.createUrlTree(['/checkpoint-types'], { queryParams: this.backQueryParams() });
+  });
 
   public ngOnInit(): void {
     this._caseTypeService.getCaseTypes().pipe(take(1)).subscribe(result => this.caseTypes.set(result.items ?? []));
@@ -151,6 +160,6 @@ export class CheckpointTypeEditComponent implements OnInit {
   }
 
   private goBack(): void {
-    this._router.navigate(['/checkpoint-types'], { queryParams: this.backQueryParams() });
+    this._router.navigateByUrl(this.backLink());
   }
 }

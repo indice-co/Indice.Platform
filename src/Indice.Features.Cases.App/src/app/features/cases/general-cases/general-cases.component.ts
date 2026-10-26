@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -199,6 +199,9 @@ export class GeneralCasesComponent {
 
   protected readonly skeletonRows = [1, 2, 3, 4, 5, 6, 7, 8];
 
+  /** The grid's own scroll container; list navigations keep the window scroll, so paging resets this one instead. */
+  private readonly _grid = viewChild<ElementRef<HTMLElement>>('grid');
+
   constructor() {
     forkJoin({
       caseTypes: this._api.getCaseTypesList(),
@@ -232,6 +235,16 @@ export class GeneralCasesComponent {
 
   protected sortBySubmitDate(): void {
     this.list.setSort('createdByWhen');
+  }
+
+  protected changePage(page: number): void {
+    this._grid()?.nativeElement.scrollTo({ top: 0 });
+    this.list.setPage(page);
+  }
+
+  protected changePageSize(pageSize: number): void {
+    this._grid()?.nativeElement.scrollTo({ top: 0 });
+    this.list.setPageSize(pageSize);
   }
 
   protected openCase(item: CasePartial): void {
