@@ -276,7 +276,17 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         } catch (ResourceUnauthorizedException) {
             return new List<CasePartial>().ToResultSet();
         }
-
+        var term = options.Search?.Trim().ToLower();
+        if (!string.IsNullOrWhiteSpace(term) && term.Length > 2) {
+            if (Guid.TryParse(term, out var guidTerm)) {
+                query = query.Where(x => x.Id == guidTerm);
+            } else {
+                query = query.Where(x => (x.OwnerName != null && EF.Functions.Like(x.OwnerName.ToLower(), $"%{term}%")) ||
+                                         (x.OwnerId != null && EF.Functions.Like(x.OwnerId.ToLower(), $"%{term}%")) ||
+                                         (x.OwnerTin != null && EF.Functions.Like(x.OwnerTin.ToLower(), $"%{term}%")) ||
+                                         (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
+            }
+        }
         // filter ReferenceNumbers
         if (options.Filter.ReferenceNumbers?.Length > 0) {
             foreach (var refNumber in options.Filter.ReferenceNumbers) {
@@ -579,6 +589,34 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         @case.AssignedTo = null;
         await DbContext.SaveChangesAsync();
+    }
+
+    public async Task<ResultSet<CaseDataVersion>> GetDataVersions(Guid caseId, ListOptions options) {
+        if (!options.GetSortings().Any()) {
+            options.Sort = $"{nameof(CaseDataVersion.CreatedBy)}.{nameof(CaseDataVersion.CreatedBy.When)}-";
+        }
+        var query = DbContext.CaseData
+            .AsNoTracking()
+            .Where(d => d.CaseId == caseId);
+        if (!string.IsNullOrWhiteSpace(options.Search)) {
+            var search = options.Search.Trim();
+            query = query.Where(d => (d.CreatedBy.Name != null && d.CreatedBy.Name.Contains(search)) || (d.CreatedBy.Email != null && d.CreatedBy.Email.Contains(search)));
+        }
+        return await query
+           
+            .Select(d => new CaseDataVersion {
+                Id = d.Id,
+                CreatedBy = new AuditMeta {
+                    Id = d.CreatedBy.Id,
+                    Name = d.CreatedBy.Name,
+                    Email = d.CreatedBy.Email,
+                    When = d.CreatedBy.When
+                },
+                Data = d.Data,
+                IsCurrent = d.Id == d.Case.DataId,
+                IsPublic = d.Id == d.Case.PublicDataId
+            })
+            .ToResultSetAsync(options);
     }
 
     public async Task<List<TimelineEntry>> GetTimeline(Guid caseId) {

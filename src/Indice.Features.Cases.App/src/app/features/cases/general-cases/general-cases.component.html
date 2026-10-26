@@ -1,5 +1,5 @@
 <app-page-header [title]="title()"
-  [subtitle]="list.loading() ? '' : ('cases.resultCount' | translate: { count: list.count() })">
+  [subtitle]="list.items() === null ? '' : ('cases.resultCount' | translate: { count: list.count() })">
   <div actions>
     <a class="btn btn-ghost btn-sm" [routerLink]="pane.link('queries')" queryParamsHandling="preserve">
       <svg lucideBookmark class="size-4"></svg>
@@ -59,88 +59,99 @@
       <svg icon lucideCircleAlert class="size-5"></svg>
       <button actions type="button" class="btn btn-sm" (click)="list.refresh()">{{ 'cases.retry' | translate }}</button>
     </app-empty-state>
-  } @else if (list.isEmpty()) {
-    @if (list.hasFilters()) {
-      <app-empty-state [title]="'cases.emptyFiltered.title' | translate" [message]="'cases.emptyFiltered.message' | translate">
-        <svg icon lucideSearchX class="size-5"></svg>
-        <button actions type="button" class="btn btn-sm" (click)="clearFilters()">{{ 'cases.emptyFiltered.clear' | translate }}</button>
-      </app-empty-state>
-    } @else {
-      <app-empty-state [title]="'cases.empty.title' | translate" [message]="'cases.empty.message' | translate">
-        <svg icon lucideFolderSearch class="size-5"></svg>
-      </app-empty-state>
-    }
   } @else {
-    <div class="max-h-[calc(100dvh-17rem)] min-h-64 overflow-auto">
-      <table class="table table-sm table-pin-rows">
-        <thead>
-          <tr class="bg-base-100 text-base-content/70">
-            @for (column of columns(); track column.title) {
-              <th class="font-medium whitespace-nowrap">
-                @if (column.kind === 'date') {
-                  <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="sortBySubmitDate()">
+    <!-- the grid stays mounted across loads: rows are patched in place (tracked by id) and only dimmed while reloading -->
+    <div class="relative">
+      @if (list.loading() && list.items() !== null) {
+        <progress class="progress progress-primary absolute inset-x-0 top-0 z-20 h-0.5 rounded-none"
+          [attr.aria-label]="'cases.refresh' | translate"></progress>
+      }
+      <div #grid class="max-h-[calc(100dvh-17rem)] overflow-auto" [class.min-h-64]="list.items()?.length !== 0">
+        <table class="table table-sm table-pin-rows" [attr.aria-busy]="list.loading()">
+          <thead>
+            <tr class="bg-base-100 text-base-content/70">
+              @for (column of columns(); track column.title) {
+                <th class="font-medium whitespace-nowrap">
+                  @if (column.kind === 'date') {
+                    <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="sortBySubmitDate()">
+                      {{ column.label }}
+                      @if (list.sort() === 'createdByWhen') {
+                        @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                      }
+                    </button>
+                  } @else {
                     {{ column.label }}
-                    @if (list.sort() === 'createdByWhen') {
-                      @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
-                    }
-                  </button>
-                } @else {
-                  {{ column.label }}
-                }
-              </th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading()) {
-            @for (row of skeletonRows; track row) {
-              <tr>
-                @for (column of columns(); track column.title) {
-                  <td><div class="skeleton h-4 w-24"></div></td>
-                }
-              </tr>
-            }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="cursor-pointer hover:bg-base-200" (click)="openCase(item)">
-                @for (column of columns(); track column.title; let first = $first) {
-                  <td class="whitespace-nowrap">
-                    @switch (column.kind) {
-                      @case ('reference') {
-                        <a class="docket font-semibold text-primary hover:underline" [routerLink]="['/cases', item.id, 'details']"
-                          (click)="$event.stopPropagation()">{{ item.referenceNumber ?? '-' }}</a>
-                      }
-                      @case ('checkpoint') {
-                        @if (item.checkpointType) {
-                          <span [class]="statusClass(item)">{{ item.checkpointType.title ?? item.checkpointType.code }}</span>
-                        } @else { - }
-                      }
-                      @case ('date') {
-                        <span class="docket text-base-content/80">{{ item.createdByWhen ? (item.createdByWhen | date: 'dd/MM/yyyy HH:mm') : '-' }}</span>
-                      }
-                      @default {
-                        @if (first) {
-                          <a class="font-medium hover:underline" [routerLink]="['/cases', item.id, 'details']"
-                            (click)="$event.stopPropagation()">{{ item | valueFromPath: column }}</a>
-                        } @else {
-                          {{ item | valueFromPath: column }}
+                  }
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody class="transition-opacity duration-150" [class.opacity-60]="list.loading()">
+            @if (list.items() === null) {
+              @for (row of skeletonRows; track row) {
+                <tr>
+                  @for (column of columns(); track column.title) {
+                    <td><div class="skeleton h-4 w-24"></div></td>
+                  }
+                </tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="cursor-pointer hover:bg-base-200" (click)="openCase(item)">
+                  @for (column of columns(); track column.title; let first = $first) {
+                    <td class="whitespace-nowrap">
+                      @switch (column.kind) {
+                        @case ('reference') {
+                          <a class="docket font-semibold text-primary hover:underline" [routerLink]="['/cases', item.id, 'details']"
+                            (click)="$event.stopPropagation()">{{ item.referenceNumber ?? '-' }}</a>
+                        }
+                        @case ('checkpoint') {
+                          @if (item.checkpointType) {
+                            <span [class]="statusClass(item)">{{ item.checkpointType.title ?? item.checkpointType.code }}</span>
+                          } @else { - }
+                        }
+                        @case ('date') {
+                          <span class="docket text-base-content/80">{{ item.createdByWhen ? (item.createdByWhen | date: 'dd/MM/yyyy HH:mm') : '-' }}</span>
+                        }
+                        @default {
+                          @if (first) {
+                            <a class="font-medium hover:underline" [routerLink]="['/cases', item.id, 'details']"
+                              (click)="$event.stopPropagation()">{{ item | valueFromPath: column }}</a>
+                          } @else {
+                            {{ item | valueFromPath: column }}
+                          }
                         }
                       }
-                    }
-                  </td>
-                }
-              </tr>
+                    </td>
+                  }
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
+    <!-- a loaded empty result; kept (dimmed) while the next result loads so the layout does not jump -->
+    @if (list.items()?.length === 0) {
+      <div class="transition-opacity duration-150" [class.opacity-60]="list.loading()">
+        @if (list.hasFilters()) {
+          <app-empty-state [title]="'cases.emptyFiltered.title' | translate" [message]="'cases.emptyFiltered.message' | translate">
+            <svg icon lucideSearchX class="size-5"></svg>
+            <button actions type="button" class="btn btn-sm" (click)="clearFilters()">{{ 'cases.emptyFiltered.clear' | translate }}</button>
+          </app-empty-state>
+        } @else {
+          <app-empty-state [title]="'cases.empty.title' | translate" [message]="'cases.empty.message' | translate">
+            <svg icon lucideFolderSearch class="size-5"></svg>
+          </app-empty-state>
+        }
+      </div>
+    }
   }
 
   @if (!list.failed() && list.count() > 0) {
     <div class="border-t border-base-300 p-4">
       <app-pagination [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
-        (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
+        (pageChange)="changePage($event)" (pageSizeChange)="changePageSize($event)" />
     </div>
   }
 </section>

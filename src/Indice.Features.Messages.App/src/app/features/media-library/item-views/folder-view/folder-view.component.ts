@@ -1,146 +1,70 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
-import { ModalService, ToastType } from '@indice/ng-components';
-import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
+import { Component, inject, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LucideCornerLeftUp, LucideFolder } from '@lucide/angular';
+import { FolderContent } from 'src/app/core/services/media-api.service';
 import { MediaLibraryStore } from '../../media-library-store.service';
-import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
-import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { MediaFileMenuComponent, MediaFileThumbComponent, MediaFolderMenuComponent } from '../media-item-parts';
 
+/** Grid ("file manager") view of a folder's content: folder cards followed by file cards with thumbnails. */
 @Component({
-    selector: 'app-folder-view',
-    templateUrl: './folder-view.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-folder-view',
+  imports: [RouterLink, TranslatePipe, MediaFileMenuComponent, MediaFileThumbComponent, MediaFolderMenuComponent, LucideCornerLeftUp, LucideFolder],
+  host: { class: 'block space-y-6' },
+  template: `
+    @if (content().id || content().folders?.length) {
+      <section>
+        <h3 class="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">{{ 'MediaLibrary.FoldersSection' | translate }}</h3>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          @if (content().id) {
+            <a class="flex items-center gap-3 rounded-box border border-dashed border-base-300 p-3 text-base-content/70 transition-colors hover:border-primary hover:bg-primary/5 hover:text-base-content"
+              [routerLink]="store.folderLink(content().parentId)" [title]="'MediaLibrary.ParentFolderTitle' | translate">
+              <span class="grid size-10 shrink-0 place-items-center rounded-field bg-base-200"><svg lucideCornerLeftUp class="size-5"></svg></span>
+              <span class="font-medium">{{ 'MediaLibrary.ParentFolderTitle' | translate }}</span>
+            </a>
+          }
+          @for (folder of content().folders; track folder.id) {
+            <div class="group relative flex items-center rounded-box focus-within:z-30 border border-base-300 bg-base-100 transition hover:border-primary/50 hover:shadow-sm">
+              <a class="flex min-w-0 flex-1 items-center gap-3 p-3 pr-10" [routerLink]="store.folderLink(folder.id)" [title]="folder.name">
+                <span class="grid size-10 shrink-0 place-items-center rounded-field bg-warning/15 text-warning"><svg lucideFolder class="size-5"></svg></span>
+                <span class="min-w-0">
+                  <span class="block truncate font-medium">{{ folder.name || ('MediaLibrary.EmptyValueIndicator' | translate) }}</span>
+                  <span class="block text-xs text-base-content/60 tabular">
+                    {{ 'MediaLibrary.FolderCounts' | translate: { folders: folder.subFoldersCount ?? 0, files: folder.filesCount ?? 0 } }}
+                  </span>
+                </span>
+              </a>
+              <app-media-folder-menu class="absolute top-1/2 right-2 -translate-y-1/2" [folder]="folder" />
+            </div>
+          }
+        </div>
+      </section>
+    }
+    @if (content().files?.length) {
+      <section>
+        <h3 class="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">{{ 'MediaLibrary.FilesSection' | translate }}</h3>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
+          @for (file of content().files; track file.id) {
+            <div class="group relative rounded-box focus-within:z-30 border border-base-300 bg-base-100 transition hover:border-primary/50 hover:shadow-sm">
+              <a class="block" [routerLink]="store.fileLink(file)" [title]="file.name">
+                <app-media-file-thumb class="aspect-[4/3] rounded-t-box" [file]="file" />
+                <div class="px-3 py-2">
+                  <p class="truncate pr-6 text-sm font-medium">{{ file.name }}</p>
+                  <p class="truncate text-xs text-base-content/60">
+                    <span class="uppercase">{{ file.fileExtension?.replace('.', '') }}</span>
+                    @if (file.contentSize) { · {{ file.contentSize }} }
+                  </p>
+                </div>
+              </a>
+              <app-media-file-menu class="absolute right-1.5 bottom-2" [file]="file" />
+            </div>
+          }
+        </div>
+      </section>
+    }
+  `
 })
-export class FolderViewComponent implements OnInit, OnDestroy {
-
-  public page: number = 1;
-  public size: number = 20;
-
-  private _folderContent?: FolderContent;
-  private _destroy$ = new Subject<void>();
-
-  @Input() set folderContent(value: FolderContent | undefined) {
-    this._folderContent = value;
-  }
-
-  public get folderContent(): FolderContent | undefined {
-    return this._folderContent;
-  }
-
-  @Output() itemDeleted: EventEmitter<void> = new EventEmitter<void>();
-  @Output() pageChanged: EventEmitter<number> = new EventEmitter<number>();
-  @Output() pageSizeChanged: EventEmitter<number> = new EventEmitter<number>();
-
-  constructor(
-    private _router: Router,
-    private _route: ActivatedRoute,
-    private _mediaStore: MediaLibraryStore,
-    private _modalService: ModalService,
-    private _toaster: AppTranslatedToaster,
-    private _fileUtilitiesService: FileUtilitiesService,
-    private _translate: TranslateService
-  ) { }
-
-  ngOnInit(): void {
-    this._route.queryParams.subscribe((params) => {
-      this.page = params.page ? +params.page : this.page;
-      this.size = params.pageSize ? +params.pageSize : this.size;
-    });
-  }
-
-  ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
-  }
-
-  public getImageUrl(file: MediaFile, size?: number) {
-    return this._fileUtilitiesService.getCoverImageUrl(file, size);
-  }
-
-  public deleteFolder(folder: MediaFolder) {
-    combineLatest([
-      this._translate.get('MediaLibrary.Delete'),
-      this._translate.get('MediaLibrary.DeleteFolderConfirmMessage', { name: folder?.name })
-    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
-      const modal = this._modalService.show(BasicModalComponent, {
-        animated: true,
-        initialState: {
-          title: title || 'MediaLibrary.Delete',
-          message: message || 'MediaLibrary.DeleteFolderConfirmMessage',
-          data: folder
-        },
-        keyboard: true
-      });
-      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
-        if (response.result?.answer) {
-          this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
-            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFolderSuccessTitle', 'MediaLibrary.DeleteFolderSuccessMessage', undefined, { name: response.result.data.name }); // toaster single line
-            this.itemDeleted.emit();
-          });
-        }
-      });
-    });
-  }
-
-  public deleteFile(file: MediaFile) {
-    combineLatest([
-      this._translate.get('MediaLibrary.Delete'),
-      this._translate.get('MediaLibrary.DeleteFileConfirmMessage', { name: file?.name })
-    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
-      const modal = this._modalService.show(BasicModalComponent, {
-        animated: true,
-        initialState: {
-          title: title || 'MediaLibrary.Delete',
-          message: message || 'MediaLibrary.DeleteFileConfirmMessage',
-          data: file
-        },
-        keyboard: true
-      });
-      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
-        if (response.result?.answer) {
-          this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
-            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFileSuccessTitle', 'MediaLibrary.DeleteFileSuccessMessage', undefined, { name: response.result.data.name }); // toaster single line
-            this.itemDeleted.emit();
-          });
-        }
-      });
-    });
-  }
-
-  public editFile(file: MediaFile) {
-    this._router.navigate(['media', file.folderId ? file.folderId : 'root', file.id]);
-  }
-  public editFolder(folder: MediaFolder) {
-    this._router.navigate(['', { outlets: { rightpane: ['edit-folder', folder.id] } }]);
-  }
-  public goToFolder(id: string | undefined) {
-    id ? this._router.navigate(['media', id]) : this._router.navigate(['media'])
-  }
-  public loadContent(page?: number, size?: number) {
-    this.page = page ?? 1;
-    this.size = size ?? 20;
-    this._router.navigate([], {
-      relativeTo: this._route,
-      queryParams: {
-        page: this.page,
-        pageSize: this.size
-      },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  public copyToClipboard(file: MediaFile): void {
-    this._fileUtilitiesService.copyPathToClipboard(file.permaLink)
-      .then(() => {
-        this._toaster.show(ToastType.Success, 'MediaLibrary.CopyLinkTitle', 'MediaLibrary.CopyLinkSuccessMessage', undefined,{ name: file.name }); // toaster single line
-      })
-      .catch(() => {
-        this._toaster.show(ToastType.Error, 'MediaLibrary.CopyLinkErrorTitle', 'MediaLibrary.CopyLinkErrorMessage'); // toaster single line
-      });
-  }
+export class FolderViewComponent {
+  protected readonly store = inject(MediaLibraryStore);
+  public readonly content = input.required<FolderContent>();
 }

@@ -11,6 +11,7 @@ using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Indice.Features.Cases.Core.Services;
 
@@ -202,6 +203,17 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         // filter CaseTypeCodes
         if (filter?.CaseTypeCodes is { Length: > 0 } caseTypeCodes) {
             dbCaseQueryable = dbCaseQueryable.Where(c => caseTypeCodes.Contains(c.CaseType.Code));
+        }
+        var term = options.Search?.Trim().ToLower();
+        if (!string.IsNullOrWhiteSpace(term) && term.Length > 2) {
+            if (Guid.TryParse(term, out var guidTerm)) {
+                dbCaseQueryable = dbCaseQueryable.Where(x => x.Id == guidTerm);
+            } else {
+                dbCaseQueryable = dbCaseQueryable.Where(x => (x.Owner.FullName != null && EF.Functions.Like(x.Owner.FullName.ToLower(), $"%{term}%")) ||
+                                         (x.Owner.UserId != null && EF.Functions.Like(x.Owner.UserId.ToLower(), $"%{term}%")) ||
+                                         (x.Owner.Tin != null && EF.Functions.Like(x.Owner.Tin.ToLower(), $"%{term}%")) ||
+                                         (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
+            }
         }
 
         var myCasePartialQueryable = from c in dbCaseQueryable

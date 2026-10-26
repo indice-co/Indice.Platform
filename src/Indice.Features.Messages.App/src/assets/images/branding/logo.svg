@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 32">
+  <path d="M7 4h16a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5h-8.5L8 29v-5H7a5 5 0 0 1-5-5V9a5 5 0 0 1 5-5Z" fill="#5b4fe0"/>
+  <path d="M8.5 13.6 21.8 8.4l-4.1 12.3-3.4-4.5Z" fill="#ffffff"/>
+  <path d="m14.3 16.2 7.5-7.8" stroke="#5b4fe0" stroke-width="1.3" stroke-linecap="round"/>
+  <circle cx="26" cy="6" r="4.5" fill="#ff7a59" stroke="#ffffff" stroke-width="2"/>
+  <text x="38" y="22" font-family="Manrope, 'Segoe UI', sans-serif" font-size="18" font-weight="800" fill="#1c1a33" letter-spacing="-0.4">Messages</text>
+  <rect x="131" y="8.5" width="24" height="15" rx="4" fill="#ff7a59"/>
+  <text x="143" y="20" text-anchor="middle" font-family="Manrope, 'Segoe UI', sans-serif" font-size="10" font-weight="800" fill="#3a0f02">UI</text>
+</svg>

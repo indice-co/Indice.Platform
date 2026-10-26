@@ -13,7 +13,8 @@ import { SIDE_PANE_OUTLET, SidePaneService, SidePaneSize } from '../ui/side-pane
     <dialog #panel
       class="fixed inset-y-0 right-0 left-auto m-0 h-full max-h-none w-full max-w-full overflow-hidden bg-base-100 p-0 shadow-2xl backdrop:bg-neutral/40"
       [class]="widthClass()" (cancel)="onCancel($event)" (click)="onClick($event)">
-      <div class="flex h-full flex-col">
+      <!-- the routed component is rendered next to the outlet: stretch it to the pane height so its body can scroll -->
+      <div class="flex h-full flex-col *:min-h-0 *:flex-1 [&>router-outlet]:hidden">
         <router-outlet [name]="outlet" (activate)="onActivate()" (deactivate)="onDeactivate()" />
       </div>
     </dialog>

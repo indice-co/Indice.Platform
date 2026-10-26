@@ -167,6 +167,18 @@
   .panel {
     @apply rounded-box border border-base-300 bg-base-100;
   }
+
+  /* Gentle reveal for content that unfolds in place (used with Angular's `animate.enter`). */
+  .animate-rise {
+    animation: app-rise 180ms ease-out;
+  }
+}
+
+@keyframes app-rise {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

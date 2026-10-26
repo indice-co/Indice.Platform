@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucidePaperclip } from '@lucide/angular';
 import { FileControlComponent } from '../controls/file.control';
+import { ImageUriControlComponent } from '../controls/image-uri.control';
 import { LookupSelectorControlComponent } from '../controls/lookup-selector.control';
 import { LookupControlComponent } from '../controls/lookup.control';
 import { DisplayFieldComponent } from './display-field.component';
@@ -57,5 +58,22 @@ export class DisplayLookupSelectorControlComponent extends LookupSelectorControl
     changeDetection: ChangeDetectionStrategy.Eager
 })
 export class DisplayFileControlComponent extends FileControlComponent {
+    override showLabel = false;
+}
+
+/** `imageUri` widget, read-only: the image (`data:image/...` or `https://` uri), or its url when it cannot be loaded. */
+@Component({
+    selector: 'app-jf-display-image-uri',
+    imports: [DisplayFieldComponent],
+    template: `
+    @if (shown) {
+      <app-jf-display-field [label]="notitle ? null : title" [text]="brokenSrc === data ? data : ''" [custom]="hasImage && brokenSrc !== data">
+        <img [src]="data" [alt]="altText" class="mt-0.5 max-h-48 max-w-full rounded-box border border-base-300 bg-base-200/50 object-contain"
+          (error)="brokenSrc = data">
+      </app-jf-display-field>
+    }`,
+    changeDetection: ChangeDetectionStrategy.Eager
+})
+export class DisplayImageUriControlComponent extends ImageUriControlComponent {
     override showLabel = false;
 }
