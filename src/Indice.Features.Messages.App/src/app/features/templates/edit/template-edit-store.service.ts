@@ -14,9 +14,7 @@ export class TemplateEditStore {
 
   /** (Re)loads the template; clears the current one first when switching to another template. */
   public load(templateId: string): void {
-    if (this.template()?.id !== templateId) {
-      this.template.set(undefined);
-    }
+    this.template.set(undefined);
     this._api.getTemplateById(templateId).subscribe(template => this.template.set(template));
   }
 
