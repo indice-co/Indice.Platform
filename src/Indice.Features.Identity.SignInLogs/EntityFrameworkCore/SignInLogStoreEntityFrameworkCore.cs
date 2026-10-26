@@ -115,4 +115,34 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
                                      .ToList();
         return set;
     }
+
+    /// <inheritdoc />
+    public async Task<ResultSet<SignInDailyCount>> GetSignInSeriesAsync(SignInSeriesFilter filter, CancellationToken cancellationToken = default) {
+        var today = DateTimeOffset.UtcNow.UtcDateTime.Date;
+        var days = filter.TimeFrame switch {
+            SeriesTimeFrame.Last24Hours => 2,
+            SeriesTimeFrame.Last7Days => 7,
+            SeriesTimeFrame.Last90Days => 90,
+            SeriesTimeFrame.Last12Months => 365,
+            _ => 30
+        };
+        var rangeStart = new DateTimeOffset(today.AddDays(1 - days), TimeSpan.Zero);
+        var counts = await _dbContext.SignInLogs
+            .Where(x => x.CreatedAt >= rangeStart)
+            .GroupBy(x => x.CreatedAt.Date)
+            .Select(group => new {
+                Date = group.Key,
+                Succeeded = group.Count(x => x.Succeeded),
+                Failed = group.Count(x => !x.Succeeded),
+                UniqueUsers = group.Where(x => x.SubjectId != null).Select(x => x.SubjectId).Distinct().Count()
+            })
+            .ToDictionaryAsync(x => x.Date, cancellationToken);
+        var items = Enumerable.Range(0, days)
+            .Select(offset => rangeStart.UtcDateTime.Date.AddDays(offset))
+            .Select(date => counts.TryGetValue(date, out var count)
+                ? new SignInDailyCount(date, count.Succeeded, count.Failed, count.UniqueUsers)
+                : new SignInDailyCount(date, 0, 0, 0))
+            .ToList();
+        return new ResultSet<SignInDailyCount>(items, items.Count);
+    }
 }

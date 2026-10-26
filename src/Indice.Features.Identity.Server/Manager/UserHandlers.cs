@@ -49,6 +49,24 @@ internal static class UserHandlers
         var query = dbContext.Users.AsNoTracking();
         if (filter != null) {
             query = query.Where(x => filter.ClaimType == null || x.Claims.Any(x => x.ClaimType == filter.ClaimType && x.ClaimValue == filter.ClaimValue));
+            if (filter.Blocked.HasValue) {
+                query = query.Where(x => x.Blocked == filter.Blocked.Value);
+            }
+            if (filter.LockedOut.HasValue) {
+                var now = DateTimeOffset.UtcNow;
+                query = filter.LockedOut.Value
+                    ? query.Where(x => x.LockoutEnabled && x.LockoutEnd != null && x.LockoutEnd >= now)
+                    : query.Where(x => !x.LockoutEnabled || x.LockoutEnd == null || x.LockoutEnd < now);
+            }
+            if (filter.EmailConfirmed.HasValue) {
+                query = query.Where(x => x.EmailConfirmed == filter.EmailConfirmed.Value);
+            }
+            if (filter.PhoneNumberConfirmed.HasValue) {
+                query = query.Where(x => x.PhoneNumberConfirmed == filter.PhoneNumberConfirmed.Value);
+            }
+            if (filter.TwoFactorEnabled.HasValue) {
+                query = query.Where(x => x.TwoFactorEnabled == filter.TwoFactorEnabled.Value);
+            }
         }
         // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
         var usersQuery =

@@ -63,6 +63,13 @@ public static class SignInLogApi
              .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader)
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30)).SetAuthorized());
 
+        // GET: /api/sign-in-logs/series
+        group.MapGet("sign-in-logs/series", SignInLogHandlers.GetSignInSeries)
+             .WithName(nameof(SignInLogHandlers.GetSignInSeries))
+             .WithSummary("Gets the number of successful and failed sign ins per day.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader)
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10)).SetAuthorized());
+
         return group;
     }
 }

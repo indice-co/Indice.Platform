@@ -87,6 +87,46 @@ internal static class DashboardHandlers
         return TypedResults.Ok(metrics);
     }
 
+    internal static async Task<Ok<DashboardMetricsInfo>> GetDashboardMetrics(
+        ExtendedConfigurationDbContext configurationDbContext,
+        ExtendedUserManager<User> userManager,
+        RoleManager<Role> roleManager,
+        ClaimsPrincipal currentUser) {
+        var now = DateTimeOffset.UtcNow;
+        var today = new DateTimeOffset(now.UtcDateTime.Date, TimeSpan.Zero);
+        var metrics = new DashboardMetricsInfo { CalculatedAt = now };
+        if (currentUser.CanReadUsers()) {
+            var users = userManager.Users;
+            metrics.Users = new UserMetricsInfo {
+                Total = await users.CountAsync(),
+                Roles = await roleManager.Roles.CountAsync(),
+                NewLast7Days = await users.CountAsync(x => x.CreateDate >= today.AddDays(-7)),
+                NewLast30Days = await users.CountAsync(x => x.CreateDate >= today.AddDays(-30)),
+                ActiveToday = await users.CountAsync(x => x.LastSignInDate >= today),
+                ActiveYesterday = await users.CountAsync(x => x.LastSignInDate >= today.AddDays(-1) && x.LastSignInDate < today),
+                ActiveLast7Days = await users.CountAsync(x => x.LastSignInDate >= today.AddDays(-7)),
+                ActiveLast30Days = await users.CountAsync(x => x.LastSignInDate >= today.AddDays(-30)),
+                NeverSignedIn = await users.CountAsync(x => x.LastSignInDate == null),
+                Blocked = await users.CountAsync(x => x.Blocked),
+                LockedOut = await users.CountAsync(x => x.LockoutEnabled && x.LockoutEnd != null && x.LockoutEnd >= now),
+                TwoFactorEnabled = await users.CountAsync(x => x.TwoFactorEnabled),
+                EmailConfirmed = await users.CountAsync(x => x.EmailConfirmed),
+                PhoneNumberConfirmed = await users.CountAsync(x => x.PhoneNumberConfirmed),
+                PasswordExpired = await users.CountAsync(x => x.PasswordExpired || x.PasswordExpirationDate < now)
+            };
+        }
+        if (currentUser.CanReadClients()) {
+            metrics.Clients = new ClientMetricsInfo {
+                Total = await configurationDbContext.Clients.CountAsync(),
+                Enabled = await configurationDbContext.Clients.CountAsync(x => x.Enabled),
+                IdentityResources = await configurationDbContext.IdentityResources.CountAsync(),
+                ApiResources = await configurationDbContext.ApiResources.CountAsync(),
+                ApiScopes = await configurationDbContext.ApiScopes.CountAsync()
+            };
+        }
+        return TypedResults.Ok(metrics);
+    }
+
     internal static async Task<Ok<UiFeaturesInfo>> GetUiFeatures(IFeatureManager featureManager, IConfiguration configuration) =>
         TypedResults.Ok(new UiFeaturesInfo {
             MetricsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.DashboardMetrics),
