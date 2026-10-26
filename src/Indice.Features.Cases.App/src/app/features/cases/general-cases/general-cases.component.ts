@@ -48,7 +48,7 @@ const DEFAULT_FILTERS: Record<string, boolean> = {
   DateRange: true,
   CaseTypeCodes: true,
   CheckpointTypeCodes: true,
-  RelationKey: false
+  RelationKey: true
 };
 
 const DEFAULT_COLUMNS: CaseColumnConfig[] = [

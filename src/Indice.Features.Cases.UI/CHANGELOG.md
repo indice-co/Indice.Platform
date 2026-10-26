@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - The case relation key: in the case details "Basic info" panel, as a `RelationKey` cases list column
-  (shown by default) and filter (`CaseListFilter.RelationKey`, off by default like `ReferenceNumber`), and in the cases
+  (shown by default) and filter (`CaseListFilter.RelationKey`, shown by default), and in the cases
   list search. The related cases tab follows the key instead of the `ExternalCorrelationKey` metadata entry.
   Translation keys: `cases.relationKey`, `caseDetails.relationKey`.
 - The case details page shows its content in tabs: the case data form, the case attachments as a flat list (open / download),
