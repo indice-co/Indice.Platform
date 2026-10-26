@@ -96,12 +96,13 @@ export interface ICasesApiService {
      * @param groupIds (optional) 
      * @param metadata (optional) 
      * @param referenceNumbers (optional) 
+     * @param relationKeys (optional) 
      * @param data (optional) 
      * @param includeData (optional) 
      * @param assignedTo (optional) 
      * @return OK
      */
-    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet>;
+    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, relationKeys?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet>;
     /**
      * Create a new case in draft mode.
      * @return OK
@@ -1317,12 +1318,13 @@ export class CasesApiService implements ICasesApiService {
      * @param groupIds (optional) 
      * @param metadata (optional) 
      * @param referenceNumbers (optional) 
+     * @param relationKeys (optional) 
      * @param data (optional) 
      * @param includeData (optional) 
      * @param assignedTo (optional) 
      * @return OK
      */
-    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet> {
+    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, relationKeys?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/manage/cases?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -1374,6 +1376,10 @@ export class CasesApiService implements ICasesApiService {
             throw new globalThis.Error("The parameter 'referenceNumbers' cannot be null.");
         else if (referenceNumbers !== undefined)
             referenceNumbers && referenceNumbers.forEach(item => { url_ += "ReferenceNumbers=" + encodeURIComponent("" + item) + "&"; });
+        if (relationKeys === null)
+            throw new globalThis.Error("The parameter 'relationKeys' cannot be null.");
+        else if (relationKeys !== undefined)
+            relationKeys && relationKeys.forEach(item => { url_ += "RelationKeys=" + encodeURIComponent("" + item) + "&"; });
         if (data === null)
             throw new globalThis.Error("The parameter 'data' cannot be null.");
         else if (data !== undefined)
@@ -5478,6 +5484,7 @@ export class Case implements ICase {
     approvers?: AuditMeta[];
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -5519,6 +5526,7 @@ export class Case implements ICase {
             }
             this.id = _data["id"];
             this.referenceNumber = _data["referenceNumber"];
+            this.relationKey = _data["relationKey"];
             this.ownerId = _data["ownerId"];
             this.ownerName = _data["ownerName"];
             this.ownerTin = _data["ownerTin"];
@@ -5566,6 +5574,7 @@ export class Case implements ICase {
         }
         data["id"] = this.id;
         data["referenceNumber"] = this.referenceNumber;
+        data["relationKey"] = this.relationKey;
         data["ownerId"] = this.ownerId;
         data["ownerName"] = this.ownerName;
         data["ownerTin"] = this.ownerTin;
@@ -5598,6 +5607,7 @@ export interface ICase {
     approvers?: AuditMeta[];
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -5892,6 +5902,7 @@ export interface ICaseDataVersionResultSet {
 export class CasePartial implements ICasePartial {
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -5923,6 +5934,7 @@ export class CasePartial implements ICasePartial {
         if (_data) {
             this.id = _data["id"];
             this.referenceNumber = _data["referenceNumber"];
+            this.relationKey = _data["relationKey"];
             this.ownerId = _data["ownerId"];
             this.ownerName = _data["ownerName"];
             this.ownerTin = _data["ownerTin"];
@@ -5960,6 +5972,7 @@ export class CasePartial implements ICasePartial {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["referenceNumber"] = this.referenceNumber;
+        data["relationKey"] = this.relationKey;
         data["ownerId"] = this.ownerId;
         data["ownerName"] = this.ownerName;
         data["ownerTin"] = this.ownerTin;
@@ -5990,6 +6003,7 @@ export class CasePartial implements ICasePartial {
 export interface ICasePartial {
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -7335,6 +7349,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
     metadata?: { [key: string]: string; };
     channel?: string | undefined;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
 
     constructor(data?: ICreateDraftCaseRequest) {
         if (data) {
@@ -7359,6 +7374,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
             }
             this.channel = _data["channel"];
             this.referenceNumber = _data["referenceNumber"];
+            this.relationKey = _data["relationKey"];
         }
     }
 
@@ -7383,6 +7399,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
         }
         data["channel"] = this.channel;
         data["referenceNumber"] = this.referenceNumber;
+        data["relationKey"] = this.relationKey;
         return data;
     }
 }
@@ -7394,6 +7411,7 @@ export interface ICreateDraftCaseRequest {
     metadata?: { [key: string]: string; };
     channel?: string | undefined;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
 }
 
 export class CustomCaseAction implements ICustomCaseAction {

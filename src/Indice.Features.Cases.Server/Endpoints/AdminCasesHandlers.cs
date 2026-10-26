@@ -9,6 +9,7 @@ using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Endpoints.Validators;
 using Indice.Features.Cases.Server.Integration;
 using Indice.Security;
 using Indice.Types;
@@ -28,7 +29,7 @@ internal static class AdminCasesHandlers
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService) =>
-        TypedResults.Ok(await adminCaseService.CreateDraft(currentUser.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.ReferenceNumber, request.Channel));
+        TypedResults.Ok(await adminCaseService.CreateDraft(currentUser.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.ReferenceNumber, request.Channel, request.RelationKey));
 
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetCaseAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
@@ -89,10 +90,13 @@ internal static class AdminCasesHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> PatchCaseMetadata(Guid caseId,
+    public static async Task<Results<NoContent, NotFound, ValidationProblem>> PatchCaseMetadata(Guid caseId,
         Dictionary<string, string> metadata,
         IAdminCaseService adminCaseService
         ) {
+        if (CaseMetadataValidation.Validate(metadata) is { } errors) {
+            return TypedResults.ValidationProblem(errors);
+        }
         var result = await adminCaseService.PatchCaseMetadata(caseId, metadata);
         if (!result) {
             return TypedResults.NotFound();

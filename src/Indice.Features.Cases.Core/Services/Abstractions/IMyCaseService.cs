@@ -19,7 +19,8 @@ public interface IMyCaseService
     /// <param name="metadata">The metadata the case might have.</param>
     /// <param name="channel">The channel the case was created from.</param>
     /// <param name="referenceNumber">The reference number the case might have.</param>
-    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? channel, string? referenceNumber);
+    /// <param name="relationKey">The key that correlates the case with other cases. Falls back to the <c>ExternalCorrelationKey</c> metadata entry and is stored there too.</param>
+    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? channel, string? referenceNumber, string? relationKey = null);
 
     /// <summary>Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="CaseType.DataSchema"/>).</summary>
     /// <param name="user">The user that will update the case.</param>
