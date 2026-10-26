@@ -42,7 +42,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string? channel,
-        string? referenceNumber = null) {
+        string? referenceNumber = null,
+        string? relationKey = null) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(caseTypeCode);
 
@@ -55,7 +56,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             customer,
             metadata,
             string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.External : channel,
-            referenceNumber: referenceNumber);
+            referenceNumber: referenceNumber,
+            relationKey: relationKey);
 
         return new CreateCaseResponse {
             Id = entity.Id,
@@ -130,9 +132,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
             .Where(p => (p.CreatedBy.Id == user.Id || p.Owner.UserId == user.Id) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted);
-        if (filter?.Metadata is not null) {
-            dbCaseQueryable = dbCaseQueryable.Where(filter.Metadata);
-        }
+        dbCaseQueryable = WhereMetadata(dbCaseQueryable, filter?.Metadata);
 
         // IncludeDrafts does not have value or IncludeDrafts is false.
         // If IncludeDrafts is true we return both draft and non draft cases
@@ -224,6 +224,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                      select new MyCasePartial {
                                          Id = c.Id,
                                          ReferenceNumber = c.ReferenceNumber,
+                                         RelationKey = c.RelationKey,
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
                                          CheckpointType = new CheckpointType {

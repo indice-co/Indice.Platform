@@ -86,7 +86,12 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
             .Property(p => p.ReferenceNumber)
             .HasMaxLength(TextSizePresets.M128);
         builder
+            .Property(p => p.RelationKey)
+            .HasMaxLength(TextSizePresets.M256);
+        builder
             .HasIndex(p => p.GroupId);
+        builder
+            .HasIndex(p => p.RelationKey);
         builder
             .HasIndex(p => new { p.ReferenceNumber, p.CaseTypeId });
     }

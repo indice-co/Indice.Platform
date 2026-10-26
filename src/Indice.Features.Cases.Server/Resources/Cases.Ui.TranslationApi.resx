@@ -147,6 +147,9 @@
   <data name="cases.referenceNumber" xml:space="preserve">
     <value>Case Number</value>
   </data>
+  <data name="cases.relationKey" xml:space="preserve">
+    <value>Relation key</value>
+  </data>
   <data name="cases.taxId" xml:space="preserve">
     <value>Tax Id</value>
   </data>
@@ -182,6 +185,9 @@
   </data>
   <data name="caseDetails.channel" xml:space="preserve">
     <value>Channel</value>
+  </data>
+  <data name="caseDetails.relationKey" xml:space="preserve">
+    <value>Relation key</value>
   </data>
   <data name="caseDetails.checkpoint" xml:space="preserve">
     <value>Current Checkpoint</value>

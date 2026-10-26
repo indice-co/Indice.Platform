@@ -66,7 +66,7 @@ export class DashboardMetricsService {
     }
     return this._api
       .getCases(1, 5, 'createdByWhen-', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
-        toCheckpointTerms(openCodes ?? undefined), undefined, undefined, undefined, undefined, undefined, assignedTo)
+        toCheckpointTerms(openCodes ?? undefined), undefined, undefined, undefined, undefined, undefined, undefined, assignedTo)
       .pipe(map(result => result.items ?? []));
   }
 
