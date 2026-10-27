@@ -299,7 +299,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersReader, policy => {
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers());
+                      .RequireAssertion(x => (x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers()) || (x.User.HasScope(IdentityEndpoints.SubScopes.UsersRead) && x.User.IsMachine()));
             });
             authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersWriter, policy => {
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
@@ -339,7 +339,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             authOptions.AddPolicy(IdentityEndpoints.Policies.BeLogsReader, policy => {
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Logs) && x.User.CanReadUsers());
+                      .RequireAssertion(x => (x.User.HasScope(IdentityEndpoints.SubScopes.Logs) && x.User.CanReadUsers()) || (x.User.HasScope(IdentityEndpoints.SubScopes.Logs) && x.User.IsMachine()));
             });
             authOptions.AddPolicy(IdentityEndpoints.Policies.BeLogsWriter, policy => {
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
