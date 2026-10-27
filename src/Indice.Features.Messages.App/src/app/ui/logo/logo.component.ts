@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 
 /**
- * "Messages UI" brand: a speech bubble carrying a paper plane, with an unread-badge dot. Colors come from theme
+ * "Messaging UI" brand: a speech bubble carrying a paper plane, with an unread-badge dot. Colors come from theme
  * tokens (`--color-primary`, `--color-accent`, `--color-base-100`), so the mark follows the active theme.
  */
 @Component({
@@ -17,7 +17,7 @@ import { Component, input } from '@angular/core';
     </svg>
     @if (wordmark()) {
       <span class="flex items-baseline gap-1.5 leading-none">
-        <span class="text-lg font-extrabold tracking-tight">Messages</span>
+        <span class="text-lg font-extrabold tracking-tight">Messaging</span>
         <span class="rounded-md bg-accent px-1.5 py-0.5 text-[0.65rem] font-extrabold text-accent-content">UI</span>
       </span>
     }
