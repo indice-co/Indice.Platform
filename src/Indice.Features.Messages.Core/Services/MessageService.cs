@@ -296,6 +296,7 @@ public class MessageService : IMessageService
 
     private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, ResultSet<Message> userMessages, MessageChannelKind channelKind) {
         var handlebars = Handlebars.Create();
+        handlebars.RegisterMessageHelpers();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(channelKind.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
@@ -316,6 +317,7 @@ public class MessageService : IMessageService
 
     private async Task ApplyHandlebarsSubstitutions(string userIdentitfier, Message userMessage, MessageChannelKind channelKind) {
         var handlebars = Handlebars.Create();
+        handlebars.RegisterMessageHelpers();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(channelKind.ToString());
         var contact = await ContactResolver.Resolve(userIdentitfier);
@@ -334,6 +336,7 @@ public class MessageService : IMessageService
     private MessageContentDictionary GetMessageContent(DbCampaign dbCampaign, Contact? contact) {
         if (dbCampaign.MessageChannelKind.HasFlag(MessageChannelKind.Inbox) && dbCampaign.Content.ContainsKey(MessageChannelKind.Inbox.ToString())) {
             var handlebars = Handlebars.Create();
+            handlebars.RegisterMessageHelpers();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
             handlebars.Configuration.PartialTemplateResolver = PartialTemplateResolverFactory.Create(MessageChannelKind.Inbox.ToString());
             dynamic templateData = new {
