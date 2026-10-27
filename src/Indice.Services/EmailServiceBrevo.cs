@@ -126,24 +126,25 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         };
 
         foreach (var item in items) {
-            var messageId = GetMessageId(item);
+            var messageId = GetString(item, "uuid");
             if (string.IsNullOrWhiteSpace(messageId)) {
                 continue;
             }
+            var id = GetString(item, "id");
 
             var eventType = GetString(item, "event")
                             ?? GetString(item, "msg_status")
                             ?? GetString(item, "status")
                             ?? "unknown";
 
-            var eventMoment = GetString(item, "ts_event")
-                              ?? GetString(item, "ts_epoch")
+            var eventMoment = GetString(item, "ts_epoch")
+                              ?? GetString(item, "ts_event")
                               ?? GetString(item, "ts")
                               ?? GetString(item, "date")
                               ?? string.Empty;
             var recipient = GetString(item, "email") ?? GetString(item, "to") ?? string.Empty;
 
-            var eventId = $"{messageId}:{eventType}:{eventMoment}:{recipient}";
+            var eventId = $"{id}:{eventType}:{eventMoment}";
 
             yield return new WebhookEvent {
                 Provider = EmailServiceBrevo.ServiceName,
@@ -156,13 +157,6 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
                 Payload = item
             };
         }
-    }
-
-    private static string? GetMessageId(JsonObject item) {
-        return GetString(item, "message-id")
-               ?? GetString(item, "messageId")
-               ?? GetString(item, "reference")
-               ?? GetString(item, "id");
     }
 
     private static string? GetString(JsonObject data, string propertyName) {
