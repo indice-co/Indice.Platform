@@ -575,8 +575,10 @@ public static class IndiceServicesServiceCollectionExtensions
         var provider = configuration.GetDefaultSmsProvider();
         switch (provider) {
             case "apifon":
+            case "ApiFon":
                 services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
                 break;
+            case "Yuboto":
             case "yuboto":
             case "yuboto_omni":
             case "yuboto_viber":

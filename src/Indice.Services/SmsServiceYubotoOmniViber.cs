@@ -22,7 +22,9 @@ public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         var messageId = Guid.NewGuid().ToString();
         var phoneNumbers = GetRecipientsFromDestination(destination);
-        var requestBody = SendRequest.CreateViber(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.ViberFallbackEnabled, Settings.Validity);
+        var requestBody = SendRequest
+            .CreateViber(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.ViberFallbackEnabled, Settings.Validity)
+            .WithDeliveryReport(Settings.Dlr);
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         Logger.LogDebug("The following payload was sent to Yuboto: {requestBody}", jsonData);
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");

@@ -69,7 +69,7 @@ public static class WebhooksEndpointExtensions
     internal static async Task<Results<ValidationProblem, NotFound, NoContent>> HandleWebhook( 
         string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
         var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
-
+        
         if (httpHandler is null) {
             return TypedResults.NotFound();
         }

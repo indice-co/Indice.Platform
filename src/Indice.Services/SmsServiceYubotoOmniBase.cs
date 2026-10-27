@@ -137,6 +137,11 @@ public abstract class SmsServiceYubotoOmniBase
             } : default
         };
 
+        public SendRequest WithDeliveryReport(bool dlr) {
+            Dlr = dlr;
+            return this;
+        }
+
         /// <summary>
         /// Refers to the phone number of the recipient or recipients of the text message (use array for multiple recipients).
         /// Required 
