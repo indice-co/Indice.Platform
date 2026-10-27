@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `GET /manage/reports` takes an optional `channel` that limits any report to the cases of that channel.
+- `GET /manage/cases/{caseId}/data/versions` returns the stored versions of the case data as a paged `ResultSet`, newest first, with who saved it
+  and when, and whether it is the current (`isCurrent`) and the customer-visible (`isPublic`) data. It takes the plain `ListOptions`
+  (`page`, `size`, and `search`, which matches the name or email of the user who saved a version). An unknown case returns an empty set.
+  Needs read access to the case. `IAdminCaseService.GetDataVersions(caseId, options)` backs it.
+- `GET /manage/reports` takes an optional `channel`
   The `Agent*` / `Customer*` report tags remain, as the `Managed` / `External` channel reports.
 ### Changed
 - The default case channels are renamed: `Agent` is now `Managed` (cases created through the manage API) and `Customer`

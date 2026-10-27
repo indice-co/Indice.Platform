@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { EMPTY, Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { EMPTY, Observable, of } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasesApiService, CaseTypeRequest, CaseTypeTranslation, ICaseTypeRequest } from 'src/app/core/services/cases-api.service';
 import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
@@ -11,18 +10,22 @@ import { ToastType, TranslatedToasterService } from 'src/app/shared/services/tra
 export class CaseTypeUpdateService {
   private readonly _api = inject(CasesApiService);
   private readonly _toaster = inject(TranslatedToasterService);
-  private readonly _router = inject(Router);
   private readonly _caseTypeService = inject(CaseTypeService);
 
-  public onCreateSubmit(event: ICaseTypeRequest): Observable<unknown> {
+  /**
+   * Creates the case type and emits its id, looked up by code since the create call returns no content. Emits undefined
+   * when the case type was created but the lookup failed; emits nothing when the create call failed.
+   */
+  public onCreateSubmit(event: ICaseTypeRequest): Observable<string | undefined> {
     const request = new CaseTypeRequest(this.toRequest(event));
     return this._api.createCaseType(request).pipe(
+      catchError(() => EMPTY),
       tap(() => {
         this._caseTypeService.invalidateCaseTypes();
         this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.caseTypeCreated.body');
-        this._router.navigate(['/case-types']);
       }),
-      catchError(() => EMPTY)
+      switchMap(() => this._caseTypeService.getCaseType(request.code!).pipe(catchError(() => of(undefined)))),
+      map(caseType => caseType?.id)
     );
   }
 

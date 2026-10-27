@@ -134,6 +134,9 @@ internal static class AdminCasesHandlers
         return TypedResults.Ok(timeline);
     }
 
+    public static async Task<Ok<ResultSet<CaseDataVersion>>> GetCaseDataVersions(Guid caseId, [AsParameters] ListOptions options, IAdminCaseService adminCaseService) =>
+        TypedResults.Ok(await adminCaseService.GetDataVersions(caseId, options));
+
     public static async Task<Ok<List<CasePartial>>> GetRelatedCases(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
         var cases = await adminCaseService.GetRelatedCases(currentUser.UserToActor(casesOptions.Value), caseId);

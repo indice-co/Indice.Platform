@@ -7,17 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- The case details page shows its content in tabs: the case data form, the case attachments as a flat list (open / download),
+  the data versions (paged and searchable by author, each version rendered read-only with the case type layout) and the related cases (when there are any).
 - Case data form renderers for what the JSON Forms angular-material set supports and the Cases form did not:
   nested objects (`Control` on an object property, so schemas without a UI schema render at any depth), `Label` elements,
   `options.multi` (textarea), `options.toggle`, `options.slider`, `format: date-time` / `time`, arrays of enum values (checkboxes),
   `oneOf` / `anyOf` / `allOf`, the `ListWithDetail` element, and `options.table: true` (with optional `options.columns`) for arrays.
   Elements no renderer accepts show their value as JSON instead of "No applicable renderer found".
-- Read-only cases render as a two-column list of labels and values instead of a form of read-only fields.
+- `imageUri` widget (`options.widget: "imageUri"`) for string fields: the image is picked from a file (`image/*`, stored as a
+  `data:` uri, up to `options.maxSize` bytes, 1 MB by default) or given as an external `https://` url, with a preview;
+  read-only views show the image. Translation keys: `jsonforms.imageUri.*`.
+- Read-only cases
 - When the user cannot open cases, the cases list shows an info button where the "New case" button would be, explaining why.
 - `CasesUIOptions.DashboardChannels`: the dashboard shows a "by case type" and a "by status" report for each listed case
   channel, a row per channel. Defaults to `Managed` and `External`; an empty list shows none. These reports follow
   `DashboardTags` through `GroupedByCasetype` / `GroupedByStatus`. A channel is labelled by its `channels.<name>`
   translation when there is one, otherwise by its name.
+- A case type is created in a four-step wizard: general → schema, layout & translations → configuration → checkpoint types.
+  "Save and continue" on the configuration step creates the case type, and the last step lists its checkpoint types to add.
+  The schema and layout are edited side by side, with the translations below them. Editing a case type shows the same
+  parts as tabs (checkpoint types included), with a red dot on tabs that have errors.
+- Case type translations are edited in forms instead of JSON (saved in the same `translations` / `layoutTranslations` format):
+  - title and description per app language; a language with a description but no title cannot be saved, since the server
+    would show it an empty title;
+  - form texts: every `title`, `placeholder`, `enumNames` and `helpvalue` text of the schema and layout (the properties the
+    server translates) with its translation, with progress, search, "untranslated" / "unused" filters and removal of
+    translations whose text is gone. A warning lists the `label`s of a JSON Forms UI schema layout, which the server does not translate.
+- The checkpoint type create / edit pages take a `returnUrl` query parameter; opened from a case type (wizard or edit page),
+  they return to its checkpoint types.
 ### Changed
 - On a case type's list, "New case" is shown only when that case type can be created, and opens with it already chosen.
 - The channel reports replace the fixed Agent/Customer (branch/eBanking) dashboard reports, so the `Agent*` / `Customer*`
@@ -28,8 +45,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `case-channel` UI schema option treats the legacy `Agent` / `Customer` channel names as `Managed` / `External`.
 - The JSON fields of the case type form (schema, layout, translations, configs) use a code editor (CodeMirror) instead of
   plain textareas: syntax highlighting, line numbers, bracket matching, folding and inline JSON parse errors.
+- Empty case type translations are no longer saved (the server would replace the text with an empty string).
+  Translation keys: `caseTypes.form.translations`, `caseTypes.form.layoutTranslations`, `caseTypes.form.sectionData` and
+  `caseTypes.form.fixJson` are removed; `caseTypes.steps.*`, `caseTypes.translations.*`,
+  `caseTypes.form.schemaHint`, `caseTypes.form.layoutHint`, `caseTypes.edit.fixTabs`,
+  `common.steps`, `common.stepState.*`, `common.stepOf`, `common.hasErrors`, `common.next` and `common.done` are added.
 ### Fixed
 - Editable checkboxes in the case data form could not be ticked.
+- Side panes (new case, saved queries) did not scroll, so the new-case pane cut off the case type list when there were many.
+  The pane body now scrolls under a fixed header and footer, with a thin scrollbar.
+- Opening an attachment (attachments tab, timeline comments, form file fields) no longer runs uploaded script: only PDF and
+  PNG / JPEG / GIF / WebP / BMP images open in a new tab, every other type (SVG, HTML, ...) is downloaded. Opened files, and
+  the case PDF, no longer stay in memory until the page reloads, and a blocked popup now downloads the file instead of doing nothing.
 
 ## [8.50.0] - 2026-06-16
 

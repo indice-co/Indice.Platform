@@ -2,6 +2,7 @@ import { Component, inject, input, output, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideFileDown } from '@lucide/angular';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
+import { previewBlob } from 'src/app/shared/services/attachment-preview';
 
 /** Downloads the case PDF and opens it in a new tab. Disabled while the form is invalid or has unsaved changes. */
 @Component({
@@ -29,9 +30,8 @@ export class CasePrintPdfComponent {
     this._api.downloadCasePdf(this.caseId()!).subscribe({
       next: result => {
         this.downloading.set(false);
-        const fileURL = window.URL.createObjectURL(result.data);
         this.pdfButtonClicked.emit(true);
-        window.open(fileURL, '_blank');
+        previewBlob(result.data, result.fileName ?? `${this.caseId()}.pdf`);
       },
       error: () => this.downloading.set(false)
     });
