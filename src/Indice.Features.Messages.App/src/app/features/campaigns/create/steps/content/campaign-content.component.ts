@@ -1,338 +1,271 @@
-import { AfterViewChecked, Component, Inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
-
-import * as app from 'src/app/core/models/settings';
-import { APP_LANGUAGES, LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
-import { Hyperlink, MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
-import { ValidationService } from 'src/app/core/services/validation.service';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
-import { ChannelState } from './channel-state';
-import { map } from 'rxjs/operators';
-import { SettingsStore } from 'src/app/features/settings/settings-store.service';
-import { MediaFile } from 'src/app/core/services/media-api.service';
-import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { JsonPipe } from '@angular/common';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { FormArray, FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization for non-template rendered dropdown
+import { Highlight } from 'ngx-highlightjs';
+import { LucideBraces, LucideEye, LucideLayers } from '@lucide/angular';
+import * as app from 'src/app/core/models/settings';
+import { MessageContent, MessageSender } from 'src/app/core/services/messages-api.service';
+import { ValidationService } from 'src/app/core/services/validation.service';
+import { SettingsStore } from 'src/app/features/settings/settings-store.service';
+import { ThemeService } from 'src/app/layout/theme.service';
+import { SafePipe } from 'src/app/shared/pipes/safe.pipe';
+import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { ChannelIconComponent } from 'src/app/ui/badges/badges';
+import { CONTENT_CHANNELS, ContentChannel, contentChannel } from '../../../campaign-utils';
 import { PartialTemplatesStore } from './partial-templates-store.service';
 
-// codew mirror
+export type ChannelContentForm = FormGroup<{
+  channel: FormControl<string>;
+  sender: FormControl<MessageSender | null | undefined>;
+  subject: FormControl<string>;
+  body: FormControl<string>;
+}>;
 
+const SAMPLE_CONTACT = {
+  id: 'FA24F7D6-332F-4E17-8E43-A111DB32E7CC',
+  recipientId: '05B7B29D-8969-425A-A1FC-D5222553336F',
+  salutation: 'Mr.',
+  firstName: 'John',
+  lastName: 'Doe',
+  fullName: 'John Doe',
+  email: 'email@john-doe.com',
+  phoneNumber: '(212)-456-7890'
+};
+
+/**
+ * Per channel content editor (subject + Handlebars body with live preview) plus the shared JSON data used by the
+ * templates. Used by the campaign wizard, the campaign content page and the template pages.
+ * Consumers read `form.controls.content` (`{ channel, sender, subject, body }[]`) and `form.controls.data` (JSON text).
+ */
 @Component({
-    selector: 'app-campaign-content',
-    templateUrl: './campaign-content.component.html',
-    styleUrl: './campaign-content.component.css',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-campaign-content',
+  imports: [ReactiveFormsModule, JsonPipe, TranslatePipe, CodeEditor, Highlight, SafePipe, ChannelIconComponent, LucideBraces, LucideEye, LucideLayers],
+  templateUrl: './campaign-content.component.html'
 })
-//https://github.com/acrodata/code-editor/blob/main/projects/dev-app/src/app/home/home.component.ts
-export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChecked {
-  private _samplePayload: any = {
-    contact: {
-      id: 'FA24F7D6-332F-4E17-8E43-A111DB32E7CC',
-      recipientId: '05B7B29D-8969-425A-A1FC-D5222553336F',
-      salutation: 'Mr.',
-      firstName: 'John',
-      lastName: 'Doe',
-      fullName: 'John Doe',
-      email: 'email@john-doe.com',
-      phoneNumber: '(212)-456-7890'
-    }
-  };
-  private _contentForm?: FormGroup;
+export class CampaignContentComponent {
+  private readonly _fb = inject(NonNullableFormBuilder);
+  private readonly _utilities = inject(UtilitiesService);
+  private readonly _settings = inject(SettingsStore);
+  private readonly _partials = inject(PartialTemplatesStore);
+  private readonly _translate = inject(TranslateService);
+  protected readonly theme = inject(ThemeService);
 
-  private _currentValidDataObject: any = undefined;
-  @ViewChild('tabGroup', { static: true }) private _tabGroup: LibTabGroupComponent | undefined;
-  @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
+  /** Extra sample payload fields (title, type, actionLink, mediaBaseHref) merged into the preview data. */
+  public readonly additionalData = input<Record<string, any>>({});
+  /** Initial content per channel; replaces the edited content whenever it changes. */
+  public readonly content = input<{ [key: string]: MessageContent } | undefined>(undefined);
+  /** Initial JSON data (object or JSON text). */
+  public readonly data = input<any>(undefined);
+  /** Locks the channel selection (e.g. for a published campaign). */
+  public readonly readonly = input(false);
 
-  constructor(
-    private _validationService: ValidationService,
-    private _utilities: UtilitiesService,
-    private _formBuilder: FormBuilder,
-    private _store: SettingsStore,
-    private _fileUtilitiesService: FileUtilitiesService,
-    private _partialStore: PartialTemplatesStore,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
-  ) { }
-
-  // Input & Output parameters
-  @Input() public additionalData: any = {};
-  @Input() public content: { [key: string]: MessageContent; } | undefined = undefined;
-  // Form Controls
-  public form: FormGroup = this._formBuilder.group({
-    data: new FormControl(null, this._validationService.invalidJsonValidator()),
-    content: this._formBuilder.array([])
+  public readonly form = this._fb.group({
+    data: new FormControl<string | null>(null, inject(ValidationService).invalidJsonValidator()),
+    content: new FormArray<ChannelContentForm>([])
   });
-  @Input() set data(value: any) {
-    this.form.controls['data'].setValue(value instanceof Object ? JSON.stringify(value, undefined, 2) : value);
-  }
-  public get data(): AbstractControl {
-    return this.form.controls['data'];
-  }
 
-  public get channelsContent(): FormArray {
-    return this.form.controls['content'] as FormArray;
-  }
+  /** Base URL that media references in the content resolve against (part of the preview payload). */
+  public readonly mediaBaseHref = signal<string | undefined>(undefined);
 
-  public subjectPreview: string = '';
-  public bodyPreview: string = '';
-  public MessageChannelKind = MessageChannelKind;
-  public hideMetadata = true;
-  public selectedSenderId: any;
-  public messageSenders: MenuOption[] = [];
-  public languages = languages;
+  protected readonly channels = CONTENT_CHANNELS;
+  protected readonly languages = languages;
+  /** 0 = channel selection, n = content of the (n - 1)th channel. */
+  protected readonly activeTab = signal(0);
+  protected readonly channelKeys = signal<string[]>([]);
+  protected readonly subjectPreview = signal('');
+  protected readonly bodyPreview = signal('');
+  protected readonly senders = signal<MessageSender[]>([]);
+  protected readonly selectedSenderId = signal<string>('');
+  private readonly _dataText = signal<string | null>(null);
+  private _explicitMediaBaseHref = false;
 
-  public get samplePayload(): any {
-    let data = null;
-    if (this.data?.value && this._utilities.isValidJson(this.data.value)) {
-      data = JSON.parse(this.data.value);
-    }
+  protected readonly samplePayload = computed(() => {
+    const text = this._dataText();
+    const data = text && this._utilities.isValidJson(text) ? JSON.parse(text) : null;
+    const extra = this.additionalData() ?? {};
     return {
-      ...this._samplePayload,
-      data: data,
-      ...this.additionalData
+      contact: SAMPLE_CONTACT,
+      data,
+      ...extra,
+      title: extra['title'] || this._translate.instant('Campaigns.DefaultTitle'),
+      actionLink: extra['actionLink'] ?? { text: this._translate.instant('Campaigns.ActionLinkDefaultText'), href: 'https://www.indice.gr' },
+      mediaBaseHref: this.mediaBaseHref()
     };
+  });
+
+  /** The body preview as an iframe document, following the app theme unless the content sets its own colors. */
+  protected readonly previewDocument = computed(() =>
+    `<style>:root { color-scheme: ${this.theme.isDark() ? 'dark' : 'light'}; font-family: ui-sans-serif, system-ui, sans-serif; }</style>${this.bodyPreview()}`);
+
+  public get channelsContent(): FormArray<ChannelContentForm> {
+    return this.form.controls.content;
   }
 
-  public get cannotRemoveChannel(): boolean {
-    return this.channelsContent.value.length <= 1;
-  }
-
-  // Key placeholders (HTML will apply | translate)
-  public channelsState: { [key: string]: ChannelState; } = {
-    'inbox': { name: 'Campaigns.ChannelInbox', description: 'Campaigns.ChannelInboxDescription', value: MessageChannelKind.Inbox, checked: false },
-    'pushNotification': { name: 'Campaigns.ChannelPushNotification', description: 'Campaigns.ChannelPushNotificationDescription', value: MessageChannelKind.PushNotification, checked: false },
-    'email': { name: 'Campaigns.ChannelEmail', description: 'Campaigns.ChannelEmailDescription', value: MessageChannelKind.Email, checked: false },
-    'sms': { name: 'Campaigns.ChannelSms', description: 'Campaigns.ChannelSmsDescription', value: MessageChannelKind.SMS, checked: false }
-  };
-
-  public ngOnInit(): void {
-    if (!this.additionalData.actionLink) {
-      this.additionalData.actionLink = new Hyperlink({
-        text: 'Campaigns.ActionLinkDefaultText', // key placeholder
-        href: 'https://www.indice.gr'
-      });
-    }
-    if (!this.additionalData.title) {
-      this.additionalData.title = 'Campaigns.DefaultTitle'; // key placeholder
-    }
-    if (!this.additionalData.mediaBaseHref) {
-      this.additionalData.mediaBaseHref = `${app.settings.api_url}`;
-      if (app.settings.enableMediaLibrary) {
-        this._store.getMediaSetting('Media CDN')
-          .subscribe(x => {
-            this.additionalData.mediaBaseHref = `${app.settings.api_url}/media-root`;
-            if (x?.value) {
-              this.additionalData.mediaBaseHref = x.value.endsWith('/') ? x.value.substring(0, x.value.length - 1) : x.value;
-            }
-          });
+  constructor() {
+    this.form.controls.data.valueChanges.subscribe(value => {
+      this._dataText.set(value);
+      const active = this.channelsContent.at(this.activeTab() - 1);
+      if (active) {
+        this.renderPreview(active);
       }
-    }
-  }
-  public ngAfterViewChecked(): void { }
-
-  public ngOnChanges(changes: SimpleChanges): void {
-    if (changes.content?.currentValue) {
-      this.channelsContent.clear();
-      const contentValue = changes.content.currentValue;
-      for (const channel in this.channelsState) {
-        this.channelsState[channel].checked = false;
+    });
+    effect(() => {
+      const value = this.data();
+      untracked(() => this.form.controls.data.setValue(value instanceof Object ? JSON.stringify(value, undefined, 2) : (value ?? null)));
+    });
+    effect(() => {
+      const content = this.content();
+      if (content) {
+        untracked(() => this.loadContent(content));
       }
-      let index = 0;
-      for (const channel in contentValue) {
-        if (Object.prototype.hasOwnProperty.call(contentValue, channel)) {
-          const content = contentValue[channel] as MessageContent;
-          const channelForm = this._formBuilder.group({
-            channel: channel,
-            sender: [content.sender],
-            subject: [content.title, Validators.required],
-            body: [content.body, Validators.required]
-          });
-          const channelState = this.getChannelState(channel);
-          if (channelState) {
-            channelState.checked = true;
-          }
-          this.channelsContent.push(channelForm);
-          if (index === 0) {
-            this._setSubjectPreview(content.title, channel);
-            this._setBodyPreview(content.body, channel);
-          }
+    });
+    effect(() => {
+      const href = this.additionalData()?.['mediaBaseHref'];
+      untracked(() => {
+        if (href) {
+          this._explicitMediaBaseHref = true;
+          this.mediaBaseHref.set(href);
+        } else {
+          this.resolveDefaultMediaBaseHref();
         }
-        index++;
+      });
+    });
+  }
+
+  /** The edited content as the API's `content` dictionary. */
+  public buildContent(): { [key: string]: MessageContent } {
+    const content: { [key: string]: MessageContent } = {};
+    for (const item of this.channelsContent.getRawValue()) {
+      content[item.channel] = new MessageContent({ title: item.subject, sender: item.sender ?? undefined, body: item.body });
+    }
+    return content;
+  }
+
+  protected isChecked(channel: ContentChannel): boolean {
+    return this.channelKeys().some(key => contentChannel(key) === channel);
+  }
+
+  protected channelOf(key: string): ContentChannel | undefined {
+    return contentChannel(key);
+  }
+
+  protected toggleChannel(channel: ContentChannel, checked: boolean): void {
+    if (checked) {
+      this.channelsContent.push(this.createChannelForm(channel.key));
+    } else {
+      const index = this.channelsContent.controls.findIndex(c => contentChannel(c.controls.channel.value) === channel);
+      if (index >= 0) {
+        this.channelsContent.removeAt(index);
       }
-      if (contentValue?.email) {
-        this._loadMessageSenders();
-      }
+    }
+    this.syncChannelKeys();
+    if (channel.key === 'email' && checked) {
+      this.loadSenders();
     }
   }
 
-  public senderSelectionChanged(selectedOption: MenuOption, content: FormGroup) {
-    if (!selectedOption.value) {
+  protected selectTab(index: number): void {
+    this.activeTab.set(index);
+    const form = this.channelsContent.at(index - 1);
+    if (form) {
+      this.renderPreview(form);
+    }
+  }
+
+  protected renderPreview(form: ChannelContentForm): void {
+    const { channel, subject, body } = form.getRawValue();
+    this.render(subject, channel, rendered => this.subjectPreview.set(rendered));
+    this.render(body, channel, rendered => {
+      const isPlainText = !['email', 'inbox'].includes(channel?.toLowerCase());
+      this.bodyPreview.set(isPlainText && rendered ? `<pre style="white-space: pre-wrap; font-family: ui-sans-serif, system-ui, sans-serif">${rendered}</pre>` : rendered);
+    });
+  }
+
+  protected onSenderChanged(id: string, form: ChannelContentForm): void {
+    if (!id) {
       return;
     }
-    this.selectedSenderId = selectedOption;
-    let sender = selectedOption.data ? new MessageSender(selectedOption.data) : undefined;
-    content.controls['sender'].setValue(sender);
+    this.selectedSenderId.set(id);
+    const sender = this.senders().find(s => s.id === id);
+    // The default sender is not stored on the campaign: the server falls back to it.
+    form.controls.sender.setValue(sender && !sender.isDefault
+      ? new MessageSender({ id: sender.id, sender: sender.sender, displayName: sender.displayName })
+      : undefined);
   }
 
-  public onChannelCheckboxChange(event: any): void {
-    const channelsFormArray: FormArray = this.channelsContent as FormArray;
-    const messageKind = event.target.value;
-    const checkbox = this.channelsState[messageKind];
-    if (event.target.checked) {
-      const channelForm = this._formBuilder.group({
-        channel: messageKind,
-        sender: [null],
-        subject: ['', Validators.required],
-        body: ['', Validators.required]
-      });
-      channelsFormArray.push(channelForm);
-      checkbox!.checked = true;
-    } else {
-      let i: number = 0;
-      channelsFormArray.controls.forEach((control: AbstractControl) => {
-        if (control.value.channel.toLowerCase() == messageKind.toLowerCase()) {
-          channelsFormArray.removeAt(i);
-          checkbox!.checked = false;
+  private loadContent(content: { [key: string]: MessageContent }): void {
+    this.channelsContent.clear();
+    for (const key of Object.keys(content)) {
+      const item = content[key];
+      this.channelsContent.push(this.createChannelForm(key, item));
+    }
+    this.syncChannelKeys();
+    const index = Math.min(this.activeTab(), this.channelsContent.length);
+    this.activeTab.set(index);
+    const first = this.channelsContent.at(Math.max(index, 1) - 1);
+    if (first) {
+      this.renderPreview(first);
+    }
+    const emailKey = Object.keys(content).find(key => key.toLowerCase() === 'email');
+    if (emailKey) {
+      this.selectedSenderId.set(content[emailKey]?.sender?.id ?? '');
+      this.loadSenders();
+    }
+  }
+
+  private createChannelForm(channel: string, content?: MessageContent): ChannelContentForm {
+    return this._fb.group({
+      channel: [channel],
+      sender: new FormControl<MessageSender | null | undefined>(content?.sender),
+      subject: [content?.title ?? '', Validators.required],
+      body: [content?.body ?? '', Validators.required]
+    });
+  }
+
+  private syncChannelKeys(): void {
+    this.channelKeys.set(this.channelsContent.controls.map(c => c.controls.channel.value));
+  }
+
+  private loadSenders(): void {
+    this._settings.getMessageSenders().subscribe(result => {
+      const senders = result.items ?? [];
+      this.senders.set(senders);
+      if (!this.selectedSenderId()) {
+        this.selectedSenderId.set(senders.find(s => s.isDefault)?.id ?? '');
+      }
+    });
+  }
+
+  private resolveDefaultMediaBaseHref(): void {
+    if (this.mediaBaseHref()) {
+      return;
+    }
+    this.mediaBaseHref.set(`${app.settings.api_url}`);
+    if (app.settings.enableMediaLibrary) {
+      this._settings.getMediaSetting('Media CDN').subscribe(setting => {
+        if (this._explicitMediaBaseHref) {
           return;
         }
-        i++;
+        const value = setting?.value;
+        this.mediaBaseHref.set(value ? (value.endsWith('/') ? value.substring(0, value.length - 1) : value) : `${app.settings.api_url}/media-root`);
       });
     }
-
-    if (messageKind == 'email') {
-      this._loadMessageSenders();
-    }
   }
 
-  public onContentTabChanged(tab: LibTabComponent): void {
-    const index = tab.index || 0;
-    this.hideMetadata = index === 0;
-    const formGroup = this.channelsContent.controls[index - 1] as FormGroup;
-    if (!formGroup) {
+  private render(template: string | undefined, channel: string, done: (rendered: string) => void): void {
+    if (!template) {
+      done('');
       return;
     }
-    const subject = formGroup.controls['subject'].value;
-    const body = formGroup.controls['body'].value;
-    const channel = formGroup.controls['channel'].value;
-    this._setSubjectPreview(subject, channel);
-    this._setBodyPreview(body, channel);
-  }
-
-  public onCampaignMetadataInput(event: any): void {
-    if (this._contentForm) {
-      this._contentForm.controls['data'].setValue(event);
-    }
-  }
-
-  public onSubjectInput(content: FormGroup): void {
-    const subject = content.controls['subject'].value;
-    const channel = content.controls['channel'].value;
-    this._setSubjectPreview(subject, channel);
-  }
-
-  public onBodyInput(content: FormGroup): void {
-    const body = content.controls['body'].value;
-    const channel = content.controls['channel'].value;
-    this._setBodyPreview(body, channel);
-  }
-
-  public onBodyInputValue(body: any, channel: any): void {
-    this._setBodyPreview(body, channel);
-  }
-
-  public openMediaLibraryInNewTab() {
-    let url = `${window.location.origin}/media`;
-    window.open(url, '_blank');
-  }
-
-  public openSidePane(content: FormGroup) {
-    this.rightPaneComponent.show();
-    this._contentForm = content;
-  }
-
-  public closeSidePane() {
-    this.rightPaneComponent.hide();
-  }
-
-  public async addToTextArea(file: MediaFile | undefined) {
-    if (!file) {
-      return;
-    }
-    this.rightPaneComponent.hide();
-  };
-
-  public getChannelState(key: string) {
-    let lowerKey = key.toLowerCase();
-    switch (lowerKey) {
-      case 'pushnotification':
-        return this.channelsState['pushNotification'];
-      default:
-        return this.channelsState[lowerKey];
-    }
-  }
-
-  private _setSubjectPreview(value: string | undefined, channel?: any): void {
-    if (!value) {
-      this.subjectPreview = '';
-      return;
-    }
-    this._partialStore.envFor(channel).subscribe(env => {
+    this._partials.envFor(channel).subscribe(env => {
       try {
-        const template = env.compile(value);
-        this.subjectPreview = template(this.samplePayload, {
-          data: { 'partial-block': () => '' }
-        });
-      } catch (error) { }
+        done(env.compile(template)(this.samplePayload(), { data: { 'partial-block': () => '' } }));
+      } catch {
+        // keep the last good preview while the template is being typed
+      }
     });
-  }
-  private _setBodyPreview(value: string | undefined, channel?: any): void {
-    if (!value) {
-      this.bodyPreview = '';
-      return;
-    }
-    this._partialStore.envFor(channel).subscribe(env => {
-      try {
-        const template = env.compile(value);
-        const rendered = template(this.samplePayload, {
-          data: { 'partial-block': () => '' }
-        });
-        const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox';
-        this.bodyPreview = isPlainText
-          ? `<pre style="white-space: pre-wrap">${rendered}</pre>`
-          : rendered;
-      } catch (error) { }
-    });
-  }
-  private _loadMessageSenders(): void {
-    // Localize placeholder (component controls third-party dropdown)
-    this._lang.translateKey('Campaigns.SelectSenderPlaceholder').subscribe(placeholder => {
-      this._store
-        .getMessageSenders()
-        .pipe(map((messageSenders: MessageSenderResultSet) => {
-          this.selectedSenderId = this.content?.email?.sender
-            ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
-            : undefined;
-          if (messageSenders.items) {
-            this.messageSenders = [new MenuOption(placeholder || 'Campaigns.SelectSenderPlaceholder', null)];
-            this.messageSenders.push(...messageSenders.items.map(s => {
-              let sender = {
-                id: s.id,
-                sender: s.sender,
-                displayName: s.displayName
-              }
-              if (s.isDefault) {
-                this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
-                return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
-              }
-              return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
-            }));
-          }
-        }))
-        .subscribe();
-    });
-  }
-
-  public log(event: any) {
-    console.log(event);
   }
 }

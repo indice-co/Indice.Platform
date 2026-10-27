@@ -2010,7 +2010,7 @@ user_code_2</value>
     <value>Add attachment file</value>
   </data>
   <data name="Shared.FileSizeLimitExceeded" xml:space="preserve">
-    <value>The file size exceeds the allowed limit ({size}).</value>
+    <value>The file size exceeds the allowed limit ({{size}}).</value>
   </data>
   <data name="Shared.AttachmentTitleLabel" xml:space="preserve">
     <value>Title</value>
@@ -2210,5 +2210,587 @@ user_code_2</value>
   <data name="MediaLibrary.DiscoverStructureTitle" xml:space="preserve">
     <value>Discover storage structure</value>
     <comment>Icon title for button Used to load structure form storage to database</comment>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common.Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Common.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="List.Range" xml:space="preserve">
+    <value>{{from}}–{{to}} of {{count}}</value>
+  </data>
+  <data name="List.NoResults" xml:space="preserve">
+    <value>No results</value>
+  </data>
+  <data name="List.PerPage" xml:space="preserve">
+    <value>Per page</value>
+  </data>
+  <data name="List.Previous" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="List.Next" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="Nav.Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Nav.Campaigns" xml:space="preserve">
+    <value>Campaigns</value>
+  </data>
+  <data name="Nav.Templates" xml:space="preserve">
+    <value>Templates</value>
+  </data>
+  <data name="Nav.Audience" xml:space="preserve">
+    <value>Audience</value>
+  </data>
+  <data name="Nav.Contacts" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="Nav.DistributionLists" xml:space="preserve">
+    <value>Distribution lists</value>
+  </data>
+  <data name="Nav.Configuration" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
+  <data name="Nav.Media" xml:space="preserve">
+    <value>Media library</value>
+  </data>
+  <data name="Nav.MessageTypes" xml:space="preserve">
+    <value>Message types</value>
+  </data>
+  <data name="Nav.Events" xml:space="preserve">
+    <value>Events</value>
+  </data>
+  <data name="Nav.Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Nav.OpenMenu" xml:space="preserve">
+    <value>Open menu</value>
+  </data>
+  <data name="Nav.CloseMenu" xml:space="preserve">
+    <value>Close menu</value>
+  </data>
+  <data name="Nav.Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Nav.Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Nav.Main" xml:space="preserve">
+    <value>Main navigation</value>
+  </data>
+  <data name="Nav.Logout" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Theme.Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Theme.Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Theme.System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Home.SigningIn" xml:space="preserve">
+    <value>Signing you in…</value>
+  </data>
+  <data name="Home.SigningOut" xml:space="preserve">
+    <value>Signing you out…</value>
+  </data>
+  <data name="Logout.Success.Title" xml:space="preserve">
+    <value>You have been signed out</value>
+  </data>
+  <data name="Logout.Success.Message" xml:space="preserve">
+    <value>You are now signed out of your account.</value>
+  </data>
+  <data name="Status.BackToDashboard" xml:space="preserve">
+    <value>Back to dashboard</value>
+  </data>
+  <data name="Status.NotFound.Title" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="Status.NotFound.Message" xml:space="preserve">
+    <value>The page you requested does not exist or has moved.</value>
+  </data>
+  <data name="Status.Forbidden.Title" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="Status.Forbidden.Message" xml:space="preserve">
+    <value>You do not have permission to view this page. Please contact support.</value>
+  </data>
+  <data name="Toasts.Error.Title" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="Toasts.Error.Body" xml:space="preserve">
+    <value>The request could not be completed. Please try again.</value>
+  </data>
+  <data name="Toasts.Offline.Body" xml:space="preserve">
+    <value>The server could not be reached. Check your connection.</value>
+  </data>
+  <data name="Toasts.Forbidden.Body" xml:space="preserve">
+    <value>You are not allowed to perform this action.</value>
+  </data>
+  <data name="Shared.MaxFileSize" xml:space="preserve">
+    <value>max {{size}}</value>
+  </data>
+  <data name="Channels.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Channels.SMS" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Channels.PushNotification" xml:space="preserve">
+    <value>Push notification</value>
+  </data>
+  <data name="Channels.Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Channels.None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="MessageTypes.Subtitle" xml:space="preserve">
+    <value>Categorize campaigns so recipients can manage what they receive.</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DashBoard.Greeting" xml:space="preserve">
+    <value>Welcome back, {{name}}</value>
+  </data>
+  <data name="DashBoard.Title" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="DashBoard.Subtitle" xml:space="preserve">
+    <value>How your messages are performing across every channel.</value>
+  </data>
+  <data name="DashBoard.TimeFrame" xml:space="preserve">
+    <value>Time frame</value>
+  </data>
+  <data name="DashBoard.DeliveryKpis" xml:space="preserve">
+    <value>Delivery indicators</value>
+  </data>
+  <data name="DashBoard.Dispatched" xml:space="preserve">
+    <value>Dispatched</value>
+  </data>
+  <data name="DashBoard.Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="DashBoard.FailedShort" xml:space="preserve">
+    <value>failed</value>
+  </data>
+  <data name="DashBoard.FailureRate" xml:space="preserve">
+    <value>{{rate}} failure rate</value>
+  </data>
+  <data name="DashBoard.SuccessRate" xml:space="preserve">
+    <value>Delivery success rate</value>
+  </data>
+  <data name="DashBoard.OfAttempts" xml:space="preserve">
+    <value>of {{count}} dispatch attempts</value>
+  </data>
+  <data name="DashBoard.Attempts" xml:space="preserve">
+    <value>attempts</value>
+  </data>
+  <data name="DashBoard.ActiveCampaigns" xml:space="preserve">
+    <value>Active campaigns</value>
+  </data>
+  <data name="DashBoard.CampaignsSummary" xml:space="preserve">
+    <value>of {{total}} in total · {{today}} created today</value>
+  </data>
+  <data name="DashBoard.DeliveryOverTime" xml:space="preserve">
+    <value>Dispatched vs failed</value>
+  </data>
+  <data name="DashBoard.Channel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="DashBoard.AllChannels" xml:space="preserve">
+    <value>All channels</value>
+  </data>
+  <data name="DashBoard.NoDeliveries" xml:space="preserve">
+    <value>No messages were dispatched in this period.</value>
+  </data>
+  <data name="DashBoard.LoadFailed" xml:space="preserve">
+    <value>The delivery metrics could not be loaded.</value>
+  </data>
+  <data name="DashBoard.ChannelMix" xml:space="preserve">
+    <value>Channel mix</value>
+  </data>
+  <data name="DashBoard.ChannelMixHint" xml:space="preserve">
+    <value>Dispatch attempts per channel; bars show the success rate.</value>
+  </data>
+  <data name="DashBoard.Audience" xml:space="preserve">
+    <value>Audience &amp; reach</value>
+  </data>
+  <data name="DashBoard.OfTotalContacts" xml:space="preserve">
+    <value>of {{total}} contacts</value>
+  </data>
+  <data name="DashBoard.OfTargeted" xml:space="preserve">
+    <value>of {{total}} targeted</value>
+  </data>
+  <data name="DashBoard.Engagement" xml:space="preserve">
+    <value>Engagement (opened or read)</value>
+  </data>
+  <data name="DashBoard.KnownContacts" xml:space="preserve">
+    <value>Known contacts</value>
+  </data>
+  <data name="DashBoard.TopMessageTypes" xml:space="preserve">
+    <value>Top message types</value>
+  </data>
+  <data name="DashBoard.Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="DashBoard.AllTime" xml:space="preserve">
+    <value>All time</value>
+  </data>
+  <data name="DashBoard.NoMessagesYet" xml:space="preserve">
+    <value>No messages yet.</value>
+  </data>
+  <data name="DashBoard.RecentCampaigns" xml:space="preserve">
+    <value>Recent campaigns</value>
+  </data>
+  <data name="DashBoard.ViewAll" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="DashBoard.Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="DashBoard.Draft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+  <data name="DashBoard.Drafts" xml:space="preserve">
+    <value>Drafts</value>
+  </data>
+  <data name="DashBoard.NoCampaignsYet" xml:space="preserve">
+    <value>No campaigns yet.</value>
+  </data>
+  <data name="DashBoard.VsPrevious" xml:space="preserve">
+    <value>vs previous period</value>
+  </data>
+  <data name="DashBoard.NoPreviousData" xml:space="preserve">
+    <value>No data for the previous period</value>
+  </data>
+  <data name="DashBoard.Range24h" xml:space="preserve">
+    <value>24h</value>
+  </data>
+  <data name="DashBoard.Range7d" xml:space="preserve">
+    <value>7d</value>
+  </data>
+  <data name="DashBoard.Range30d" xml:space="preserve">
+    <value>30d</value>
+  </data>
+  <data name="DashBoard.Range90d" xml:space="preserve">
+    <value>90d</value>
+  </data>
+  <data name="DashBoard.Range12m" xml:space="preserve">
+    <value>12m</value>
+  </data>
+  <data name="Campaigns.Subtitle" xml:space="preserve">
+    <value>Plan, publish and track messages sent to your audience across every channel.</value>
+  </data>
+  <data name="Campaigns.AllTypesOption" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="Campaigns.StatusDraft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+  <data name="Campaigns.AllStatusesOption" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Campaigns.ActivePeriodColumn" xml:space="preserve">
+    <value>Active period</value>
+  </data>
+  <data name="Campaigns.ChannelsRequiredError" xml:space="preserve">
+    <value>Select at least one communication channel.</value>
+  </data>
+  <data name="Campaigns.PublishedHint" xml:space="preserve">
+    <value>Recipients start receiving the campaign as soon as it is saved.</value>
+  </data>
+  <data name="Campaigns.IgnoreUserPreferencesHint" xml:space="preserve">
+    <value>Deliver even to recipients who opted out of this message type.</value>
+  </data>
+  <data name="Campaigns.RecipientsAllInfo" xml:space="preserve">
+    <value>The campaign will be sent to every user of the platform.</value>
+  </data>
+  <data name="Campaigns.NoMessagesMessage" xml:space="preserve">
+    <value>No messages have been sent for this campaign yet.</value>
+  </data>
+  <data name="Campaigns.FailedLabel" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Campaigns.NoEventsMessage" xml:space="preserve">
+    <value>No delivery events have been recorded for this recipient.</value>
+  </data>
+  <data name="Campaigns.CoverageHint" xml:space="preserve">
+    <value>Share of recipients reached</value>
+  </data>
+  <data name="Campaigns.EngagedLabel" xml:space="preserve">
+    <value>Engaged</value>
+  </data>
+  <data name="Campaigns.OfReachedSuffix" xml:space="preserve">
+    <value>of reached</value>
+  </data>
+  <data name="Campaigns.ActedLabel" xml:space="preserve">
+    <value>Took action</value>
+  </data>
+  <data name="Campaigns.ChannelBreakdownHeader" xml:space="preserve">
+    <value>Delivery by channel</value>
+  </data>
+  <data name="Campaigns.MessagesLabel" xml:space="preserve">
+    <value>messages</value>
+  </data>
+  <data name="Campaigns.OfMessagesSuffix" xml:space="preserve">
+    <value>of messages</value>
+  </data>
+  <data name="Campaigns.FailuresLabel" xml:space="preserve">
+    <value>failed</value>
+  </data>
+  <data name="Campaigns.NoReportDataTitle" xml:space="preserve">
+    <value>No delivery data yet</value>
+  </data>
+  <data name="Campaigns.NoReportDataMessage" xml:space="preserve">
+    <value>Statistics appear here once the campaign starts sending messages.</value>
+  </data>
+  <data name="Campaigns.ShowMore" xml:space="preserve">
+    <value>Show more</value>
+  </data>
+  <data name="Contacts.Subtitle" xml:space="preserve">
+    <value>Everyone you can reach, with their identifiers and the channels they can receive messages on.</value>
+  </data>
+  <data name="Contacts.Known" xml:space="preserve">
+    <value>Known</value>
+  </data>
+  <data name="Contacts.Anonymous" xml:space="preserve">
+    <value>Anonymous</value>
+  </data>
+  <data name="Contacts.ResolveTooltip" xml:space="preserve">
+    <value>Refresh the contact from the external system</value>
+  </data>
+  <data name="Contacts.AddContacts" xml:space="preserve">
+    <value>Add contacts</value>
+  </data>
+  <data name="Contacts.AddContactsSubtitle" xml:space="preserve">
+    <value>Search for existing contacts or type a name or email to create a new one.</value>
+  </data>
+  <data name="Contacts.CreateSuccessTitle" xml:space="preserve">
+    <value>Contacts added</value>
+  </data>
+  <data name="Contacts.CreateSuccessMessage" xml:space="preserve">
+    <value>{{count}} contact(s) were added successfully.</value>
+  </data>
+  <data name="Contacts.LastResolutionDate" xml:space="preserve">
+    <value>Last resolution</value>
+  </data>
+  <data name="Contacts.NoCampaignsMessage" xml:space="preserve">
+    <value>This contact has not received any campaigns yet.</value>
+  </data>
+  <data name="Contacts.DuplicatesSubtitle" xml:space="preserve">
+    <value>Select the duplicates to merge into this contact.</value>
+  </data>
+  <data name="Contacts.SelectAllDuplicates" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="Contacts.SelectedCount" xml:space="preserve">
+    <value>{{count}} selected</value>
+  </data>
+  <data name="Contacts.MergeInto" xml:space="preserve">
+    <value>Merge into</value>
+  </data>
+  <data name="Contacts.ChannelPreferencesTitle" xml:space="preserve">
+    <value>Channel preferences</value>
+  </data>
+  <data name="Contacts.ChannelPreferencesInfo" xml:space="preserve">
+    <value>The channels the contact has chosen to receive each message type on. Inbox messages are always delivered.</value>
+  </data>
+  <data name="Contacts.NoPreferences" xml:space="preserve">
+    <value>No communication preferences are available for this contact.</value>
+  </data>
+  <data name="DistributionLists.Subtitle" xml:space="preserve">
+    <value>Group contacts into lists you can send campaigns to.</value>
+  </data>
+  <data name="DistributionLists.AddContacts" xml:space="preserve">
+    <value>Add contacts</value>
+  </data>
+  <data name="DistributionLists.AddContactsSubtitle" xml:space="preserve">
+    <value>Search for existing contacts or type a name or email to create a new one.</value>
+  </data>
+  <data name="DistributionLists.AddContactsSuccessTitle" xml:space="preserve">
+    <value>Contacts added</value>
+  </data>
+  <data name="DistributionLists.AddContactsSuccessMessage" xml:space="preserve">
+    <value>{{count}} contact(s) were added to the distribution list.</value>
+  </data>
+  <data name="DistributionLists.Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="DistributionLists.RemoveContact" xml:space="preserve">
+    <value>Remove from list</value>
+  </data>
+  <data name="DistributionLists.NoContactsTitle" xml:space="preserve">
+    <value>No contacts yet</value>
+  </data>
+  <data name="DistributionLists.NoContactsMessage" xml:space="preserve">
+    <value>Add contacts one by one or import them from a CSV file.</value>
+  </data>
+  <data name="DistributionLists.ImportCompletedWithErrors" xml:space="preserve">
+    <value>Import finished: {{added}} added, {{updated}} updated. Some rows could not be imported:</value>
+  </data>
+  <data name="Shared.SortBy" xml:space="preserve">
+    <value>Sort by</value>
+  </data>
+  <data name="Shared.SortAscending" xml:space="preserve">
+    <value>Ascending</value>
+  </data>
+  <data name="Shared.SortDescending" xml:space="preserve">
+    <value>Descending</value>
+  </data>
+  <data name="Shared.ContactSearchPlaceholder" xml:space="preserve">
+    <value>Search by name, email or phone…</value>
+  </data>
+  <data name="Shared.ContactSearchHint" xml:space="preserve">
+    <value>Type to search contacts.</value>
+  </data>
+  <data name="Shared.ContactComboboxInfo" xml:space="preserve">
+    <value>Pick existing contacts, or type a name or email that doesn't exist yet to create a new contact.</value>
+  </data>
+  <data name="Shared.ShowMore" xml:space="preserve">
+    <value>Show more</value>
+  </data>
+  <data name="Shared.SelectedContactsCount" xml:space="preserve">
+    <value>Selected contacts ({{count}})</value>
+  </data>
+  <data name="Shared.NewContactBadge" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="Shared.NoContactsSelected" xml:space="preserve">
+    <value>No contacts selected yet.</value>
+  </data>
+  <data name="MediaLibrary.Subtitle" xml:space="preserve">
+    <value>Organize the images and files used in your messages into folders.</value>
+  </data>
+  <data name="MediaLibrary.UploadFiles" xml:space="preserve">
+    <value>Upload files</value>
+  </data>
+  <data name="MediaLibrary.FoldersSection" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="MediaLibrary.FilesSection" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="MediaLibrary.FolderCounts" xml:space="preserve">
+    <value>{{folders}} folders · {{files}} files</value>
+  </data>
+  <data name="MediaLibrary.FolderType" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="MediaLibrary.OpenFolder" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
+  <data name="MediaLibrary.FileDetails" xml:space="preserve">
+    <value>File details</value>
+  </data>
+  <data name="MediaLibrary.EmptyFolderTitle" xml:space="preserve">
+    <value>This folder is empty</value>
+  </data>
+  <data name="MediaLibrary.EmptyFolderMessage" xml:space="preserve">
+    <value>Upload files or create a subfolder to get started.</value>
+  </data>
+  <data name="MediaLibrary.NoPreview" xml:space="preserve">
+    <value>No preview available for this file type.</value>
+  </data>
+  <data name="MediaLibrary.Upload.Destination" xml:space="preserve">
+    <value>Upload to</value>
+  </data>
+  <data name="MediaLibrary.Upload.Submit" xml:space="preserve">
+    <value>Upload ({{count}})</value>
+  </data>
+  <data name="MediaLibrary.Upload.SuccessMessage" xml:space="preserve">
+    <value>{{count}} file(s) uploaded successfully.</value>
+  </data>
+  <data name="MediaLibrary.Upload.DropTitle" xml:space="preserve">
+    <value>Drag &amp; drop files here</value>
+  </data>
+  <data name="MediaLibrary.Upload.DropHint" xml:space="preserve">
+    <value>or click to browse your computer</value>
+  </data>
+  <data name="MediaLibrary.Upload.Summary" xml:space="preserve">
+    <value>{{count}} file(s) · {{size}}</value>
+  </data>
+  <data name="MediaLibrary.Upload.RemoveAll" xml:space="preserve">
+    <value>Remove all</value>
+  </data>
+  <data name="MediaLibrary.Upload.Done" xml:space="preserve">
+    <value>Uploaded</value>
+  </data>
+  <data name="MediaLibrary.Upload.Failed" xml:space="preserve">
+    <value>The upload failed. Try again.</value>
+  </data>
+  <data name="MediaLibrary.Upload.InvalidType" xml:space="preserve">
+    <value>This file type is not allowed (allowed: {{types}}).</value>
+  </data>
+  <data name="Templates.Subtitle" xml:space="preserve">
+    <value>Reusable message content per channel, with partials and layouts.</value>
+  </data>
+  <data name="Settings.Subtitle" xml:space="preserve">
+    <value>Email senders and media library configuration.</value>
+  </data>
+  <data name="Settings.DefaultBadge" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Settings.DeleteSenderConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the sender {{sender}}?</value>
+  </data>
+  <data name="Settings.DeleteSenderSuccessTitle" xml:space="preserve">
+    <value>Sender deleted</value>
+  </data>
+  <data name="Settings.DeleteSenderSuccessMessage" xml:space="preserve">
+    <value>The sender {{sender}} was deleted successfully.</value>
+  </data>
+  <data name="Events.Subtitle" xml:space="preserve">
+    <value>Delivery and engagement events of every message sent.</value>
+  </data>
+  <data name="Events.SearchRecipient" xml:space="preserve">
+    <value>Search recipient</value>
+  </data>
+  <data name="Events.From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Events.To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Events.ClearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="Events.EmptyMessage" xml:space="preserve">
+    <value>No message events match the current filters.</value>
+  </data>
+  <data name="Events.Types.Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Events.Types.Sent" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Events.Types.Delivered" xml:space="preserve">
+    <value>Delivered</value>
+  </data>
+  <data name="Events.Types.Opened" xml:space="preserve">
+    <value>Opened</value>
+  </data>
+  <data name="Events.Types.Read" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="Events.Types.UnRead" xml:space="preserve">
+    <value>Unread</value>
+  </data>
+  <data name="Events.Types.Deleted" xml:space="preserve">
+    <value>Deleted</value>
   </data>
 </root>

@@ -15,6 +15,9 @@ public class CreateDraftCaseRequestValidator : AbstractValidator<CreateDraftCase
         RuleFor(x => x.CaseTypeCode).NotEmpty();
         RuleFor(x=> x.ReferenceNumber).MaximumLength(128);
         RuleFor(x => x.Channel).MaximumLength(128);
+        RuleFor(x => x.RelationKey).MaximumLength(CaseMetadataValidation.RelationKeyMaxLength);
+        RuleFor(x => x.Metadata).Must(CaseMetadataValidation.IsValid).WithMessage(CaseMetadataValidation.RelationKeyTooLong)
+            .When(x => string.IsNullOrWhiteSpace(x.RelationKey));
     }
 }
 

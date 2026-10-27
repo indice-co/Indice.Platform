@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CasePartial } from 'src/app/core/services/cases-api.service';
 
-/** Grid of the cases sharing this case's external correlation key. The open case is marked rather than linked. */
+/** Grid of the cases sharing this case's relation key. The open case is marked rather than linked. */
 @Component({
   selector: 'app-case-related',
   imports: [DatePipe, RouterLink, TranslatePipe],

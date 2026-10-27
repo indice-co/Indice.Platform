@@ -12,6 +12,9 @@ public class MyCasePartial
     /// <remarks>To enable set to <see langword="true"/> the <strong>CasesOptions.ReferenceNumberEnabled</strong> flag</remarks>
     public string? ReferenceNumber { get; set; }
 
+    /// <summary>The key that correlates this case with other cases. Also found in <see cref="Metadata"/> under <c>ExternalCorrelationKey</c>.</summary>
+    public string? RelationKey { get; set; }
+
     /// <summary>The date the case was created.</summary>
     public DateTimeOffset? Created { get; set; }
 

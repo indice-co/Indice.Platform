@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- The case relation key: in the case details "Basic info" panel, and as a cases list filter
+  (`CaseListFilter.RelationKey`, shown by default). The related cases tab follows the key instead of the `ExternalCorrelationKey` metadata entry.
+  Translation keys: `cases.relationKey`, `caseDetails.relationKey`.
 - The case details page shows its content in tabs: the case data form, the case attachments as a flat list (open / download),
   the data versions (paged and searchable by author, each version rendered read-only with the case type layout) and the related cases (when there are any).
 - Case data form renderers for what the JSON Forms angular-material set supports and the Cases form did not:

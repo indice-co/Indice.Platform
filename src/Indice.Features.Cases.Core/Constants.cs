@@ -23,6 +23,13 @@ internal class CasesCoreConstants
     /// <summary>The default language key that will be used at <see cref="IJsonTranslationService"/>.</summary>
     public static string DefaultTranslationLanguage = "el";
 
+    /// <summary>Case metadata keys the feature knows about.</summary>
+    public static class MetadataKeys
+    {
+        /// <summary>Correlates cases. Kept equal to the case's <c>RelationKey</c> column, which serves the queries.</summary>
+        public const string ExternalCorrelationKey = nameof(ExternalCorrelationKey);
+    }
+
     /// <summary>Cases Api default channels.</summary>
     /// <remarks>Callers may create cases with any other channel name.</remarks>
     public static class Channels

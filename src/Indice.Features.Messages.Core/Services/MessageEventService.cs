@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Queries;
 using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Kpis;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -111,5 +112,99 @@ public class MessageEventService : IMessageEventService
 
         var set = new MessageSeriesResultSet(items, items.Count(), summary);
         return set;
+    }
+
+    /// <inheritdoc/>
+    public async Task<DeliveryMetrics> GetDeliveryMetricsAsync(DeliveryMetricsFilter filter) {
+        var timeFrame = filter.TimeFrame ?? SeriesTimeFrame.Last30Days;
+        var now = DateTimeOffset.UtcNow;
+        var today = new DateTimeOffset(now.UtcDateTime.Date, TimeSpan.Zero);
+        var (rangeStart, interval) = timeFrame switch {
+            SeriesTimeFrame.Last24Hours => (new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, 0, 0, TimeSpan.Zero).AddHours(-23), DeliveryInterval.Hour),
+            SeriesTimeFrame.Last7Days => (today.AddDays(-6), DeliveryInterval.Day),
+            SeriesTimeFrame.Last90Days => (today.AddDays(-89), DeliveryInterval.Day),
+            SeriesTimeFrame.Last12Months => (new DateTimeOffset(today.Year, today.Month, 1, 0, 0, 0, TimeSpan.Zero).AddMonths(-11), DeliveryInterval.Month),
+            _ => (today.AddDays(-29), DeliveryInterval.Day)
+        };
+        var previousStart = rangeStart - (now - rangeStart);
+
+        // Dispatch attempts: provider results (Sent, successful or not) plus inbox messages, which are delivered on creation.
+        var sent = nameof(MessageEventType.Sent);
+        var created = nameof(MessageEventType.Created);
+        var inbox = nameof(MessageChannelKind.Inbox);
+        var attempts = DbContext.MessageEvents.Where(x => x.Type == sent || (x.Channel == inbox && x.Type == created));
+        if (filter.Channel.HasValue) {
+            var channel = filter.Channel.Value.ToString();
+            attempts = attempts.Where(x => x.Channel == channel);
+        }
+        var current = attempts.Where(x => x.CreatedOn >= rangeStart);
+
+        var buckets = interval switch {
+            DeliveryInterval.Hour => await current
+                .GroupBy(x => new { x.CreatedOn.Year, x.CreatedOn.Month, x.CreatedOn.Day, x.CreatedOn.Hour, Failed = x.Type == sent && !x.Success })
+                .Select(g => new DeliveryBucket(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, g.Key.Failed, g.Count()))
+                .ToListAsync(),
+            DeliveryInterval.Month => await current
+                .GroupBy(x => new { x.CreatedOn.Year, x.CreatedOn.Month, Failed = x.Type == sent && !x.Success })
+                .Select(g => new DeliveryBucket(g.Key.Year, g.Key.Month, 1, 0, g.Key.Failed, g.Count()))
+                .ToListAsync(),
+            _ => await current
+                .GroupBy(x => new { x.CreatedOn.Year, x.CreatedOn.Month, x.CreatedOn.Day, Failed = x.Type == sent && !x.Success })
+                .Select(g => new DeliveryBucket(g.Key.Year, g.Key.Month, g.Key.Day, 0, g.Key.Failed, g.Count()))
+                .ToListAsync()
+        };
+        var perChannel = await current
+            .GroupBy(x => new { x.Channel, Failed = x.Type == sent && !x.Success })
+            .Select(g => new { g.Key.Channel, g.Key.Failed, Count = g.Count() })
+            .ToListAsync();
+        var previous = await attempts
+            .Where(x => x.CreatedOn >= previousStart && x.CreatedOn < rangeStart)
+            .GroupBy(x => x.Type == sent && !x.Success)
+            .Select(g => new { Failed = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        var items = new List<DeliverySeriesItem>();
+        for (var date = rangeStart; date < now; date = interval switch {
+            DeliveryInterval.Hour => date.AddHours(1),
+            DeliveryInterval.Month => date.AddMonths(1),
+            _ => date.AddDays(1)
+        }) {
+            var matches = buckets.Where(x => x.Date == date).ToList();
+            items.Add(new DeliverySeriesItem {
+                Date = date,
+                Dispatched = matches.Where(x => !x.Failed).Sum(x => x.Count),
+                Failed = matches.Where(x => x.Failed).Sum(x => x.Count)
+            });
+        }
+        return new DeliveryMetrics {
+            TimeFrame = timeFrame,
+            RangeStart = rangeStart,
+            RangeEnd = now,
+            Interval = interval,
+            Items = items,
+            Current = new DeliveryTotals {
+                Dispatched = buckets.Where(x => !x.Failed).Sum(x => x.Count),
+                Failed = buckets.Where(x => x.Failed).Sum(x => x.Count)
+            },
+            Previous = new DeliveryTotals {
+                Dispatched = previous.Where(x => !x.Failed).Sum(x => x.Count),
+                Failed = previous.Where(x => x.Failed).Sum(x => x.Count)
+            },
+            PerChannel = perChannel
+                .Where(x => Enum.TryParse<MessageChannelKind>(x.Channel, out _))
+                .GroupBy(x => Enum.Parse<MessageChannelKind>(x.Channel))
+                .Select(g => new ChannelDeliveryTotals {
+                    Kind = g.Key,
+                    Dispatched = g.Where(x => !x.Failed).Sum(x => x.Count),
+                    Failed = g.Where(x => x.Failed).Sum(x => x.Count)
+                })
+                .OrderByDescending(x => x.Total)
+                .ToList()
+        };
+    }
+
+    private sealed record DeliveryBucket(int Year, int Month, int Day, int Hour, bool Failed, int Count)
+    {
+        public DateTimeOffset Date => new(Year, Month, Day, Hour, 0, 0, TimeSpan.Zero);
     }
 }

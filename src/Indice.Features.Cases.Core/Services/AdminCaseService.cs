@@ -39,7 +39,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string? referenceNumber,
-        string? channel = null) {
+        string? channel = null,
+        string? relationKey = null) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
             _adminCaseMessageService,
@@ -50,7 +51,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             metadata,
             string.IsNullOrWhiteSpace(channel) ? CasesCoreConstants.Channels.Managed : channel,
             user,
-            referenceNumber: referenceNumber);
+            referenceNumber: referenceNumber,
+            relationKey: relationKey);
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
@@ -140,8 +142,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         var queryCases = DbContext.Cases
             .AsNoTracking()
-            .Where(c => !c.Draft) // filter out draft cases
-            .Where(options.Filter.Metadata ?? []); // filter Metadata
+            .Where(c => !c.Draft); // filter out draft cases
+        queryCases = WhereMetadata(queryCases, options.Filter.Metadata);
+        queryCases = WhereRelationKey(queryCases, options.Filter.RelationKeys);
 
         // filter assignedTo
         if (!string.IsNullOrWhiteSpace(options.Filter.AssignedTo)) {
@@ -154,6 +157,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
                     ReferenceNumber = @case.ReferenceNumber,
+                    RelationKey = @case.RelationKey,
                     OwnerId = @case.Owner.Reference,
                     OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                     OwnerTin = @case.Owner.Tin,
@@ -238,6 +242,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      select new CasePartial {
                          Id = @case.Id,
                          ReferenceNumber = @case.ReferenceNumber,
+                         RelationKey = @case.RelationKey,
                          OwnerId = @case.Owner.Reference,
                          OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                          OwnerTin = @case.Owner.Tin,
@@ -553,11 +558,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (dbCase == null) {
             return false;
         }
-        if (metadata != null && metadata.Count > 0 && dbCase.Metadata == null) {
+        var safeMetadata = metadata ?? new Dictionary<string, string>();
+        if (safeMetadata.Count > 0 && dbCase.Metadata == null) {
             dbCase.Metadata = [];
         }
-        foreach (var keyValuePair in metadata!) {
+        foreach (var keyValuePair in safeMetadata) {
             dbCase.Metadata![keyValuePair.Key] = keyValuePair.Value;
+        }
+        if (safeMetadata.TryGetValue(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey, out var relationKey)) {
+            SetRelationKey(dbCase, relationKey);
         }
         await DbContext.SaveChangesAsync();
         return true;
@@ -680,13 +689,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(caseId, false, false);
-        if (@case is null) {
+        if (@case?.RelationKey is null) {
             return [];
         }
 
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
-                Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
+                RelationKeys = [new FilterClause(nameof(GetCasesListFilter.RelationKeys), @case.RelationKey, FilterOperator.Eq, JsonDataType.String)]
             },
             Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
         });
