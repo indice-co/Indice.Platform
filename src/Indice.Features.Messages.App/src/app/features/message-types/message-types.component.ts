@@ -15,15 +15,17 @@ import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 @Component({
   selector: 'app-message-types',
   imports: [
-    RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, MessageTypeBadgeComponent,
+    ListCountComponent, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, MessageTypeBadgeComponent,
     LucidePencil, LucidePlus, LucideTags, LucideTrash
   ],
   template: `
     <app-page-header [title]="'MessageTypes.Title' | translate" [subtitle]="'MessageTypes.Subtitle' | translate">
+      <app-list-count class="mt-0.5" [count]="list.items() ? list.count() : null" one="MessageTypes.CountOne" other="MessageTypes.CountOther" />
       <div actions>
         <a class="btn btn-primary btn-sm" [routerLink]="pane.link('create-message-type')">
           <svg lucidePlus class="size-4"></svg>{{ 'MessageTypes.CreateDialogTitle' | translate }}

@@ -69,6 +69,9 @@ public sealed class EmailServiceWeMail : IEmailService
                      Headers = new Dictionary<string, string> {
                          ["X-Message-Id"] = messageId
                      },
+                     Tracking = new WeMailTracking {
+                         Unsubscribe = _settings.TrackUnsubscribe
+                     },
                      Attachments = attachments?
                          .Select(x => new WeMailAttachment {
                              Filename = x.FileName,
@@ -117,6 +120,9 @@ public sealed class EmailServiceWeMailSettings
     /// <summary>The API key.</summary>
     public string? ApiKey { get; set; }
 
+    /// <summary>Unsubscribe tracking preference. It's enabled by default.</summary>
+    public bool TrackUnsubscribe { get; set; } = true;
+
     /// <summary>The WeMail API URL.</summary>
     public string Api { get; set; } = "https://api.wemail.io/v3/";
 }
@@ -146,6 +152,9 @@ internal sealed class WeMailMessageRequest
 
     /// <summary>Custom email headers.</summary>
     public IReadOnlyDictionary<string, string>? Headers { get; init; }
+
+    /// <summary>Tracking preference.</summary>
+    public WeMailTracking Tracking { get; set; } = new();
 }
 
 internal sealed class WeMailAttachment
@@ -179,4 +188,9 @@ internal sealed class WeMailSendAcknowledgement
     /// </summary>
     [JsonPropertyName("created_at")]
     public DateTimeOffset CreatedAt { get; init; }
+}
+
+internal sealed class WeMailTracking {
+    [JsonPropertyName("unsubscribe")]
+    public bool Unsubscribe { get; set; } = true;
 }

@@ -7,7 +7,7 @@
     <VersionPrefixMajor>8</VersionPrefixMajor>
     <VersionPrefixBase>$(VersionPrefixMajor).61</VersionPrefixBase>
 
-    <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
+    <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
     <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
     <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
     <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
@@ -17,7 +17,7 @@
     <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
     <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
     <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
-    <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
+    <VersionPrefixAspNet>$(VersionPrefixBase).1</VersionPrefixAspNet>
     <VersionPrefixActivityLogs>$(VersionPrefixBase).0</VersionPrefixActivityLogs>
     <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
     <VersionPrefixWorkers>8.0.0</VersionPrefixWorkers>

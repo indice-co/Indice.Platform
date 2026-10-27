@@ -18,15 +18,17 @@ import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { ListSortComponent, SortOption } from 'src/app/features/contacts/list-sort.component';
 import { DistributionListEditStore } from '../distribution-list-edit-store.service';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** "Contacts" tab of the distribution list page. */
 @Component({
   selector: 'app-distribution-list-contacts',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent, ContactAvatarComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent, ContactAvatarComponent,
     BoolIconComponent, LucideDownload, LucideTrash, LucideUpload, LucideUserPlus, LucideUsers
   ],
   template: `
+    <app-list-count class="mb-3" [count]="list.items() ? list.count() : null" one="Contacts.CountOne" other="Contacts.CountOther" />
     <div class="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
