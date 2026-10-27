@@ -208,9 +208,15 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
     }
 
     private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders) {
-        if (string.IsNullOrWhiteSpace(_options.WebhookUsername) ||
-            string.IsNullOrWhiteSpace(_options.WebhookPassword)) {
+        var hasUsername = !string.IsNullOrWhiteSpace(_options.WebhookUsername);
+        var hasPassword = !string.IsNullOrWhiteSpace(_options.WebhookPassword);
+
+        if (hasUsername != hasPassword) {
             return false;
+        }
+
+        if (!hasUsername) {
+            return true;
         }
 
         var authorization = requestHeaders
@@ -242,8 +248,8 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
             return false;
         }
 
-        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookUsername));
-        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookPassword));
+        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookUsername!));
+        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookPassword!));
         var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
         var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
 

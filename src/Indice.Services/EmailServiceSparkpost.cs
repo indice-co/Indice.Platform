@@ -212,9 +212,15 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
     }
 
     private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders) {
-        if (string.IsNullOrWhiteSpace(_options.WebhookUsername) ||
-            string.IsNullOrWhiteSpace(_options.WebhookPassword)) {
+        var hasUsername = !string.IsNullOrWhiteSpace(_options.WebhookUsername);
+        var hasPassword = !string.IsNullOrWhiteSpace(_options.WebhookPassword);
+
+        if (hasUsername != hasPassword) {
             return false;
+        }
+
+        if (!hasUsername) {
+            return true;
         }
 
         var authorization = requestHeaders
@@ -246,8 +252,8 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
             return false;
         }
 
-        var username = Encoding.UTF8.GetBytes(_options.WebhookUsername);
-        var password = Encoding.UTF8.GetBytes(_options.WebhookPassword);
+        var username = Encoding.UTF8.GetBytes(_options.WebhookUsername!);
+        var password = Encoding.UTF8.GetBytes(_options.WebhookPassword!);
 
         var usernameMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(0, separator), username);
         var passwordMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(separator + 1), password);
