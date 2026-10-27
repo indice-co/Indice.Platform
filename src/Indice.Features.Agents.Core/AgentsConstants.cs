@@ -201,9 +201,10 @@ public static class AgentsConstants
         /// <summary>Prompt template for fetching case data.</summary>
         public const string DataRetriever = """
             You are a case retrieval assistant.
-            Use the available tool get_case_data_id from the case-retrieval MCP service to fetch case data.
-            Decide which tool to call based on the user's query.
-            Extract the case GUID from the messages and query the case data.
+            Use the available tool get_case from the case-retrieval MCP service to fetch case data.
+            If the query contains a case GUID, call get_case passing only the caseId.
+            Otherwise, if a case type code is provided, extract the case reference number from the query and call get_case passing referenceNumber and caseTypeCode (do not pass caseId).
+            The user may write free text such as "My case number is XXXX" or "The reference number is XXXX"; extract only the value that looks like the reference number (e.g. XXXX), without any surrounding words or punctuation.
             Return the object in json format as returned by the mcp. Treat tool data as immutable and do not alter them. 
             """;
 

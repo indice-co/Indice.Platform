@@ -47,7 +47,8 @@ const DEFAULT_FILTERS: Record<string, boolean> = {
   GroupIds: true,
   DateRange: true,
   CaseTypeCodes: true,
-  CheckpointTypeCodes: true
+  CheckpointTypeCodes: true,
+  RelationKey: true
 };
 
 const DEFAULT_COLUMNS: CaseColumnConfig[] = [
@@ -142,6 +143,9 @@ export class GeneralCasesComponent {
     const options: SearchOption[] = [];
     if (enabled.ReferenceNumber) {
       options.push({ field: 'referenceNumber', name: t('cases.referenceNumber'), dataType: 'string' });
+    }
+    if (enabled.RelationKey) {
+      options.push({ field: 'relationKey', name: t('cases.relationKey'), dataType: 'string' });
     }
     if (enabled.CustomerId) {
       options.push({ field: 'ownerId', name: t('cases.customerId'), dataType: 'string' });
@@ -320,6 +324,7 @@ export class GeneralCasesComponent {
       terms('groupIds'),
       metadata,
       terms('referenceNumber'),
+      terms('relationKey'),
       undefined,
       undefined,
       query.filters.find(f => f.member === ASSIGNED_TO)?.value || undefined

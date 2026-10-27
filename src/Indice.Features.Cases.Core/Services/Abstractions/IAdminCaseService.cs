@@ -21,8 +21,9 @@ public interface IAdminCaseService
     /// <param name="metadata">The metadata the case might have.</param>
     /// <param name="referenceNumber">The reference number the case might have.</param>
     /// <param name="channel">The channel the case was created from. Defaults to <strong>Managed</strong>.</param>
+    /// <param name="relationKey">The key that correlates the case with other cases. Falls back to the <c>ExternalCorrelationKey</c> metadata entry and is stored there too.</param>
     /// <returns></returns>
-    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? referenceNumber, string? channel = null);
+    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? referenceNumber, string? channel = null, string? relationKey = null);
 
     /// <summary>Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="CaseType.DataSchema"/>).</summary>
     /// <param name="user">The user that will update the case.</param>
@@ -110,7 +111,8 @@ public interface IAdminCaseService
 
     /// <summary>
     /// Gets the cases that are related to the given id.
-    /// Set a value to the case's metadata with the key ExternalCorrelationKey to correlate cases.
+    /// Cases are related when they share the same <see cref="CasePartial.RelationKey"/>.
+    /// It is set on case creation, or through the case's metadata with the key ExternalCorrelationKey.
     /// </summary>
     /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
@@ -141,7 +143,7 @@ public interface IAdminCaseService
     /// Adds or edits metadata for a case.
     /// </summary>
     /// <param name="caseId">The case id</param>
-    /// <param name="metadata">The metadata to add or edit.</param>
+    /// <param name="metadata">The metadata to add or edit. An <c>ExternalCorrelationKey</c> entry also sets the case's <see cref="CasePartial.RelationKey"/>.</param>
     /// <returns>True in case of success</returns>
     Task<bool> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata);
 

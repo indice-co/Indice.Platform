@@ -1,143 +1,185 @@
-import { Component, Inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-
-import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToastType, ViewAction } from '@indice/ng-components';
-import { Observable, combineLatest, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
-import { MessagesApiClient, Template, TemplateListItemResultSet, TemplateType } from 'src/app/core/services/messages-api.service';
-import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
-import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { filter, switchMap } from 'rxjs';
+import { LucideArrowDown, LucideArrowUp, LucideFileText, LucidePencil, LucidePlus, LucideTrash } from '@lucide/angular';
+import { MessagesApiClient, TemplateListItem, TemplateType } from 'src/app/core/services/messages-api.service';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
+import { CHANNEL_KINDS, ChannelIconComponent, MessageTypeBadgeComponent } from 'src/app/ui/badges/badges';
+import { DialogService } from 'src/app/ui/dialog/dialog.service';
+import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
+import { FilterClause } from 'src/app/ui/list/filter-clause';
+import { ListState } from 'src/app/ui/list/list-state';
+import { PaginationComponent } from 'src/app/ui/list/pagination.component';
+import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
+import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
+import { TEMPLATE_TYPES, templateTypeBadge, templateTypeLabel } from './template-type';
 
 @Component({
-    selector: 'app-templates',
-    templateUrl: './templates.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
-})
-export class TemplatesComponent extends BaseListComponent<Template> implements OnInit, OnDestroy {
-  constructor(
-    route: ActivatedRoute,
-    private _router: Router,
-    private _api: MessagesApiClient,
-    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
-    private _modalService: ModalService,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
+  selector: 'app-templates',
+  imports: [
+    DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideFileText, LucidePencil, LucidePlus, LucideTrash
+  ],
+  template: `
+    <app-page-header [title]="'Templates.Title' | translate" [subtitle]="'Templates.Subtitle' | translate">
+      <div actions>
+        <a class="btn btn-primary btn-sm" routerLink="add-template">
+          <svg lucidePlus class="size-4"></svg>{{ 'Templates.CreateTemplateDialogTitle' | translate }}
+        </a>
+      </div>
+    </app-page-header>
 
-  ) {
-    super(route, _router);
-    this.view = ListViewType.Table;
-    this.pageSize = 20;
-    this.sort = 'name';
-    this.sortdir = 'asc';
-    this.search = '';
-    // Fallback uses translation key as initial label.
-    this.sortOptions = [
-      new MenuOption('Templates.SortNameOption', 'name'),
-      new MenuOption('Templates.SortTypeOption', 'type')
-    ];
-  }
+    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
+      <div class="join" role="group" [attr.aria-label]="'Templates.KindLabel' | translate">
+        <button type="button" class="btn btn-sm join-item" [class.btn-active]="!typeFilter()" (click)="setType(undefined)">
+          {{ 'Templates.AllTypes' | translate }}
+        </button>
+        @for (type of types; track type) {
+          <button type="button" class="btn btn-sm join-item" [class.btn-active]="typeFilter() === type" (click)="setType(type)">
+            {{ typeLabel(type) | translate }}
+          </button>
+        }
+      </div>
+    </div>
 
-  private _destroy$ = new Subject<void>();
-
-  public newItemLink: string | null = null;
-  public full = true;
-
-  public readonly templateTypeEnum = TemplateType;
-  public selectedTypeFilter: TemplateType | undefined = undefined;
-  public typeFilterOptions: MenuOption[] = [
-    new MenuOption('Templates.AllTypes', undefined),
-    new MenuOption('Templates.FullTemplate', TemplateType.Full),
-    new MenuOption('Templates.PartialTemplate', TemplateType.Partial),
-    new MenuOption('Templates.LayoutTemplate', TemplateType.Layout)
-  ];
-
-  public override ngOnInit(): void {
-    super.ngOnInit();
-    this.actions.push(new RouterViewAction(Icons.Add, 'templates/add-template', null, 'add a new template'));
-
-    // Reactive translation of sort option labels.
-    const sortKeys = this.sortOptions.map(o => o.text);
-    combineLatest(sortKeys.map(k => this._lang.translateKey(k)))
-      .pipe(takeUntil(this._destroy$))
-      .subscribe(translated => {
-        this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
-      });
-
-    // Reactive translation of the type filter labels.
-    const typeFilterKeys = this.typeFilterOptions.map(o => o.text);
-    combineLatest(typeFilterKeys.map(k => this._lang.translateKey(k)))
-      .pipe(takeUntil(this._destroy$))
-      .subscribe(translated => {
-        this.typeFilterOptions = this.typeFilterOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
-      });
-  }
-
-  public onFilterChanged(filterName: string, value: any): void {
-    if (filterName === 'templateType') {
-      this.selectedTypeFilter = value as TemplateType | undefined;
-      this.page = 1;
-      this.refresh();
-    }
-  }
-
-  public typeLabelKey(type: TemplateType | undefined): string {
-    if (type === TemplateType.Partial) {
-      return 'Templates.PartialTemplate';
-    }
-    if (type === TemplateType.Full) {
-      return 'Templates.FullTemplate';
-    }
-    if (type === TemplateType.Layout) {
-      return 'Templates.LayoutTemplate';
-    }
-    return 'Templates.EmptyValueIndicator';
-  }
-
-  public override ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
-  }
-
-  public loadItems(): Observable<IResultSet<Template> | null | undefined> {
-    return this._api
-      .getTemplates(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined, this.selectedTypeFilter)
-      .pipe(map((result: TemplateListItemResultSet) => (result as IResultSet<Template>)));
-  }
-
-  public deleteConfirmation(template: Template): void {
-    const titleKey = 'Templates.DeleteTemplateTitle';
-    const messageKey = 'Templates.DeleteConfirmMessage';
-    const params = { name: template.name };
-    combineLatest([
-      this._lang.translateKey(titleKey),
-      this._lang.translateKey(messageKey, params)
-    ]).pipe(takeUntil(this._destroy$))
-      .subscribe(([title, message]) => {
-        const modal = this._modalService.show(BasicModalComponent, {
-          animated: true,
-          initialState: {
-            title: title || titleKey,
-            message: message || messageKey,
-            data: template
-          },
-          keyboard: true
-        });
-        modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
-          if (response.result?.answer) {
-            this._api.deleteTemplate(response.result.data.id).subscribe(() => {
-              this._toaster.show(ToastType.Success, 'Templates.DeleteSuccessTitle', 'Templates.DeleteSuccessMessage', undefined, { name: response.result.data.name });
-              this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates']));
-            });
+    <div class="panel overflow-x-auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="inline-flex items-center gap-1 uppercase" (click)="list.setSort('name')">
+                {{ 'Templates.NameColumn' | translate }}
+                @if (list.sort() === 'name') {
+                  @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                }
+              </button>
+            </th>
+            <th>
+              <button type="button" class="inline-flex items-center gap-1 uppercase" (click)="list.setSort('type')">
+                {{ 'Templates.TypeColumn' | translate }}
+                @if (list.sort() === 'type') {
+                  @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                }
+              </button>
+            </th>
+            <th>{{ 'Templates.ChannelsColumn' | translate }}</th>
+            <th>{{ 'Templates.MessageTypeColumn' | translate }}</th>
+            <th>{{ 'Templates.UpdatedAtColumn' | translate }}</th>
+            <th class="w-24 text-right"><span class="sr-only">{{ 'Templates.ActionsColumn' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (list.loading() && !list.items()?.length) {
+            @for (row of [1, 2, 3, 4]; track row) {
+              <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+            }
+          } @else {
+            @for (item of list.items(); track item.id) {
+              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                <td>
+                  <a class="link link-hover font-semibold" [routerLink]="[item.id]">{{ item.name }}</a>
+                  @if (item.alias) {
+                    <div><code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.alias }}</code></div>
+                  }
+                </td>
+                <td><span class="badge badge-sm whitespace-nowrap" [class]="typeBadge(item.type)">{{ typeLabel(item.type) | translate }}</span></td>
+                <td>
+                  <div class="flex items-center gap-1">
+                    @for (kind of channelKinds; track kind) {
+                      <app-channel-icon [kind]="kind" [muted]="!item.channels?.includes($any(kind))" />
+                    }
+                  </div>
+                </td>
+                <td><app-message-type-badge [name]="item.messageType?.name" [classification]="item.messageType?.classification" /></td>
+                <td class="whitespace-nowrap">
+                  @if (item.updatedAt || item.createdAt) {
+                    <div class="text-sm">{{ (item.updatedAt || item.createdAt) | date: 'medium' }}</div>
+                    @if (item.updatedBy || item.createdBy) {
+                      <div class="text-xs text-base-content/60">{{ item.updatedBy || item.createdBy }}</div>
+                    }
+                  } @else {
+                    <span class="text-base-content/40">—</span>
+                  }
+                </td>
+                <td class="text-right whitespace-nowrap">
+                  <span class="tooltip" [attr.data-tip]="'Templates.EditTemplateTitle' | translate">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="[item.id]" [attr.aria-label]="'Templates.EditTemplateTitle' | translate">
+                      <svg lucidePencil class="size-4"></svg>
+                    </a>
+                  </span>
+                  <span class="tooltip tooltip-left" [attr.data-tip]="'Templates.DeleteTemplateTitle' | translate">
+                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)"
+                      [attr.aria-label]="'Templates.DeleteTemplateTitle' | translate">
+                      <svg lucideTrash class="size-4"></svg>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">
+                  <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
+                    <svg icon lucideFileText class="size-5"></svg>
+                    <a actions class="btn btn-sm" routerLink="add-template">
+                      <svg lucidePlus class="size-4"></svg>{{ 'Templates.CreateTemplateDialogTitle' | translate }}
+                    </a>
+                  </app-empty-state>
+                </td>
+              </tr>
+            }
           }
-        });
-      });
+        </tbody>
+      </table>
+      @if (list.count() > 0) {
+        <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
+          (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
+      }
+    </div>
+  `
+})
+export class TemplatesComponent implements OnInit {
+  private readonly _api = inject(MessagesApiClient);
+  private readonly _dialog = inject(DialogService);
+  private readonly _toaster = inject(AppTranslatedToaster);
+
+  protected readonly types = TEMPLATE_TYPES;
+  protected readonly channelKinds = CHANNEL_KINDS;
+  protected readonly typeLabel = templateTypeLabel;
+  protected readonly typeBadge = templateTypeBadge;
+
+  protected readonly list = new ListState<TemplateListItem>({
+    pageSize: 20,
+    sort: 'name',
+    dir: 'asc',
+    load: query => this._api.getTemplates(
+      query.page, query.pageSize, query.dir === 'asc' ? query.sort : `${query.sort}-`, query.search || undefined, undefined, undefined,
+      query.filters.find(f => f.member === 'type')?.value as TemplateType | undefined
+    )
+  });
+
+  protected readonly typeFilter = computed(() => this.list.filters().find(f => f.member === 'type')?.value as TemplateType | undefined);
+
+  public ngOnInit(): void {
+    this.list.start();
   }
 
-  public override actionHandler(action: ViewAction): void {
-    if (action.icon === Icons.Refresh) {
-      this.search = '';
-      this.refresh();
-    }
+  protected setType(type: TemplateType | undefined): void {
+    this.list.setFilters(type ? [new FilterClause('type', type)] : []);
+  }
+
+  protected delete(template: TemplateListItem): void {
+    this._dialog
+      .confirm({ title: 'Templates.DeleteTemplateTitle', message: 'Templates.DeleteConfirmMessage', messageParams: { name: template.name }, confirmLabel: 'Common.Delete', tone: 'danger' })
+      .pipe(
+        filter(confirmed => confirmed),
+        switchMap(() => this._api.deleteTemplate(template.id!))
+      )
+      .subscribe(() => {
+        this._toaster.show(ToastType.Success, 'Templates.DeleteSuccessTitle', 'Templates.DeleteSuccessMessage', undefined, { name: template.name });
+        this.list.refresh();
+      });
   }
 }

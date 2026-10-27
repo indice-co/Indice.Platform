@@ -45,6 +45,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
@@ -217,7 +218,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         """;
     // Private fields
     private readonly HttpClient _httpClient;
-    private readonly TestServer _server;
+    private readonly IHost _host;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
     private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
@@ -226,7 +227,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
 
     public CustomGrantsIntegrationTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
+        _host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices"] = "20",
@@ -294,8 +296,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             app.UseIdentityServer();
             app.IdentityStoreSetup();
         });
-        var server = new TestServer(builder);
-        _server = server;
+        }).Start();
+        var server = _host.GetTestServer();
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;
         _httpClient = new HttpClient(handler) {
@@ -309,10 +311,13 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         TestUser = await InitTestUserAsync();
     }
 
-    public ValueTask DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         _httpClient.Dispose();
-        _server.Dispose();
-        return ValueTask.CompletedTask;
+        try {
+            await _host.StopAsync();
+        } finally {
+            _host.Dispose();
+        }
     }
 
     #region Device Authentication Tests

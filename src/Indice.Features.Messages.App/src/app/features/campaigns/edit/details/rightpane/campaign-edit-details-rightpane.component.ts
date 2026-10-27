@@ -1,255 +1,242 @@
-import { DatePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-
-import { APP_LANGUAGES, ComboboxComponent, MenuOption, ToastType } from '@indice/ng-components';
-import { Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { CampaignDetails, DistributionList, DistributionListResultSet, Hyperlink, MessagesApiClient, MessageSender, MessageSenderResultSet, MessageType, MessageTypeResultSet, Period } from 'src/app/core/services/messages-api.service';
-import { CampaignEditStore } from '../../campaign-edit-store.service';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
+import {
+  CampaignDetails, DistributionList, Hyperlink, MessageContent, MessageSender, MessagesApiClient, MessageType, Period
+} from 'src/app/core/services/messages-api.service';
 import { SettingsStore } from 'src/app/features/settings/settings-store.service';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization
-import { AppTranslatedToaster } from '../../../../../shared/services/app-translated-toaster';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
+import { RefreshBus } from 'src/app/ui/list/refresh-bus';
+import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
+import { URL_PATTERN, toLocalInput } from '../../../campaign-utils';
+import { PagedLookup } from '../../../shared/paged-lookup';
+import { SearchSelectComponent, SearchSelectItem } from '../../../shared/search-select.component';
+import { CampaignEditStore } from '../../campaign-edit-store.service';
 
+export type CampaignEditAction = 'editTitle' | 'editType' | 'editSender' | 'editActivePeriod' | 'editCta' | 'editList';
+
+/** Side pane that edits one aspect (`action`) of a draft campaign. */
 @Component({
-    selector: 'app-campaign-details-edit-rightpane',
-    templateUrl: './campaign-edit-details-rightpane.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-campaign-details-edit-rightpane',
+  imports: [ReactiveFormsModule, TranslatePipe, SidePaneLayoutComponent, SearchSelectComponent],
+  template: `
+    <app-side-pane-layout [title]="'Campaigns.EditCampaignTitle' | translate" [subtitle]="campaign()?.title">
+      @if (!campaign()) {
+        <div class="space-y-4">
+          @for (row of [1, 2]; track row) { <div class="skeleton h-10 w-full"></div> }
+        </div>
+      } @else {
+        <form id="campaign-edit-form" class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+          @switch (action()) {
+            @case ('editType') {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.TypeLabel' | translate }}</legend>
+                <select class="select w-full" formControlName="typeId">
+                  <option value="">{{ 'Campaigns.SelectPlaceholder' | translate }}</option>
+                  @for (type of messageTypes(); track type.id) {
+                    <option [value]="type.id">{{ type.name }}</option>
+                  }
+                </select>
+                <p class="label whitespace-normal">{{ 'Campaigns.TypeInfo' | translate }}</p>
+              </fieldset>
+            }
+            @case ('editSender') {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.SenderLabel' | translate }}</legend>
+                <select class="select w-full" formControlName="senderId">
+                  <option value="" disabled>{{ 'Campaigns.SelectPlaceholder' | translate }}</option>
+                  @for (sender of senders(); track sender.id) {
+                    <option [value]="sender.id">{{ sender.displayName }} &lt;{{ sender.sender }}&gt;</option>
+                  }
+                </select>
+                <p class="label whitespace-normal">{{ 'Campaigns.SenderInfo' | translate }}</p>
+              </fieldset>
+            }
+            @case ('editActivePeriod') {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.StartDateLabel' | translate }}</legend>
+                <input type="datetime-local" class="input w-full" formControlName="from" [min]="now" [max]="form.controls.to.value || null" />
+                <p class="label whitespace-normal">{{ 'Campaigns.StartDateInfo' | translate }}</p>
+              </fieldset>
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.EndDateLabel' | translate }}</legend>
+                <input type="datetime-local" class="input w-full" formControlName="to" [min]="form.controls.from.value || null"
+                  [readonly]="!form.controls.from.value" />
+                <p class="label whitespace-normal">{{ 'Campaigns.EndDateInfo' | translate }}</p>
+              </fieldset>
+            }
+            @case ('editCta') {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.CallToActionTextLabel' | translate }}</legend>
+                <input class="input w-full" formControlName="actionLinkText" maxlength="128" [placeholder]="'Campaigns.CallToActionTextPlaceholder' | translate" />
+                <p class="label whitespace-normal">{{ 'Campaigns.CallToActionTextInfo' | translate }}</p>
+              </fieldset>
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.CallToActionLinkLabel' | translate }}</legend>
+                <input type="url" class="input w-full" formControlName="actionLinkHref" maxlength="2048"
+                  [placeholder]="'Campaigns.CallToActionLinkPlaceholder' | translate"
+                  [class.input-error]="form.controls.actionLinkHref.invalid && form.controls.actionLinkHref.touched" />
+                @if (form.controls.actionLinkHref.touched && form.controls.actionLinkHref.hasError('pattern')) {
+                  <p class="label text-error">{{ 'Campaigns.CallToActionLinkInvalidError' | translate }}</p>
+                } @else {
+                  <p class="label whitespace-normal">{{ 'Campaigns.CallToActionLinkInfo' | translate }}</p>
+                }
+              </fieldset>
+            }
+            @case ('editList') {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.DistributionListLabel' | translate }}</legend>
+                <app-search-select [items]="lists.items()" [loading]="lists.loading()" [hasMore]="lists.hasMore()"
+                  [placeholder]="'Campaigns.SelectPlaceholder' | translate" [selected]="form.controls.distributionList.value"
+                  (selectedChange)="form.controls.distributionList.setValue($event); form.markAsDirty()"
+                  (search)="lists.search($event)" (showMore)="lists.more()" />
+                <p class="label whitespace-normal">{{ 'Campaigns.DistributionListInfo' | translate }}</p>
+              </fieldset>
+            }
+            @default {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Campaigns.TitleLabelRequired' | translate }}</legend>
+                <input class="input w-full" formControlName="title" maxlength="128" [placeholder]="'Campaigns.TitlePlaceholder' | translate"
+                  [class.input-error]="form.controls.title.invalid && form.controls.title.touched" />
+                @if (form.controls.title.touched && form.controls.title.hasError('required')) {
+                  <p class="label text-error">{{ 'Campaigns.TitleRequiredError' | translate }}</p>
+                } @else {
+                  <p class="label whitespace-normal">{{ 'Campaigns.TitleInfo' | translate }}</p>
+                }
+              </fieldset>
+            }
+          }
+        </form>
+      }
+      <div footer class="flex justify-end gap-2 border-t border-base-300 px-6 py-4">
+        <button type="button" class="btn btn-ghost" (click)="pane.close()">{{ 'Campaigns.Close' | translate }}</button>
+        <button type="submit" form="campaign-edit-form" class="btn btn-primary" [disabled]="form.invalid || saving() || !campaign()">
+          @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
+          {{ 'Campaigns.Save' | translate }}
+        </button>
+      </div>
+    </app-side-pane-layout>
+  `
 })
-export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('editTitleTemplate', { static: true }) public editTitleTemplate!: TemplateRef<any>;
-  @ViewChild('editTypeTemplate', { static: true }) public editTypeTemplate!: TemplateRef<any>;
-  @ViewChild('editSenderTemplate', { static: true }) public editSenderTemplate!: TemplateRef<any>;
-  @ViewChild('editActivePeriodTemplate', { static: true }) public editActivePeriodTemplate!: TemplateRef<any>;
-  @ViewChild('editCtaTemplate', { static: true }) public editCtaTemplate!: TemplateRef<any>;
-  @ViewChild('editListTemplate', { static: true }) public editListTemplate!: TemplateRef<any>;
-  @ViewChild('editCampaignForm', { static: true }) public editCampaignForm!: NgForm;
-  @ViewChild('distributionListCombobox', { static: false }) private _distributionListCombobox!: ComboboxComponent;
-  private _updateCampaignSubscription: Subscription | undefined;
-  private _campaignId = '';
-  private _distributionLists: DistributionList[] = [];
-  private _subs: Subscription[] = []; // track transient subscriptions
+export class CampaignDetailsEditRightpaneComponent implements OnInit {
+  private readonly _api = inject(MessagesApiClient);
+  private readonly _store = inject(CampaignEditStore);
+  private readonly _settings = inject(SettingsStore);
+  private readonly _toaster = inject(AppTranslatedToaster);
+  private readonly _refresh = inject(RefreshBus);
+  protected readonly pane = inject(SidePaneService);
 
-  constructor(
-    private _campaignStore: CampaignEditStore,
-    private _router: Router,
-    private _activatedRoute: ActivatedRoute,
-    private _changeDetector: ChangeDetectorRef,
-    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
-    private _api: MessagesApiClient,
-    private _datePipe: DatePipe,
-    private _settingsStore: SettingsStore,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
-  ) { }
+  /** Matrix params of the `edit-campaign` pane route. */
+  public readonly campaignId = input.required<string>();
+  public readonly action = input<CampaignEditAction>('editTitle');
 
-  @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
-  public submitInProgress = false;
-  public templateOutlet!: TemplateRef<any>;
-  public model = new CampaignDetails();
-  // Fallback initial = key (localized after init)
-  public messageTypes: MenuOption[] = [new MenuOption('Campaigns.SelectPlaceholder', null)];
-  public messageSenders: MenuOption[] = [new MenuOption('Campaigns.SelectPlaceholder', null)];
-  public selectedTypeId: MenuOption | null = null;
-  public selectedSenderId: MenuOption | null = null;
-  public now: Date = new Date();
-  public activePeriodFrom: string | null = null;
-  public activePeriodTo: string | null = null;
-  public distributionListsLoading = false;
-  public distributionLists: string[] = [];
+  protected readonly now = toLocalInput(new Date());
+  protected readonly campaign = signal<CampaignDetails | undefined>(undefined);
+  protected readonly saving = signal(false);
+  protected readonly messageTypes = signal<MessageType[]>([]);
+  protected readonly senders = signal<MessageSender[]>([]);
+
+  protected readonly form = inject(NonNullableFormBuilder).group({
+    title: ['', [Validators.required, Validators.maxLength(128)]],
+    typeId: [''],
+    senderId: [''],
+    from: [''],
+    to: [''],
+    actionLinkText: ['', Validators.maxLength(128)],
+    actionLinkHref: ['', [Validators.pattern(URL_PATTERN), Validators.maxLength(2048)]],
+    distributionList: [null as SearchSelectItem<DistributionList> | null]
+  });
+
+  protected readonly lists = new PagedLookup<DistributionList>(
+    (page, size, term) => this._api.getDistributionLists(page, size, 'name', term || undefined),
+    list => ({ id: list.id!, label: list.name ?? '', data: list })
+  );
 
   public ngOnInit(): void {
-    const placeholderSub = this._lang.translateKey('Campaigns.SelectPlaceholder')
-      .subscribe(placeHolder => {
-        const val = placeHolder || 'Campaigns.SelectPlaceholder';
-        this.messageTypes[0] = new MenuOption(val, null);
-        this.messageSenders[0] = new MenuOption(val, null);
-      });
-    this._subs.push(placeholderSub);
-
-    this._campaignId = this._router.url.split('/')[2];
-    this._activatedRoute.queryParams.subscribe((queryParams: Params) => {
-      this._selectTemplate(queryParams.action || 'editTitle');
+    this._store.getCampaign(this.campaignId()).subscribe({
+      next: campaign => {
+        this.campaign.set(campaign);
+        this.form.patchValue({
+          title: campaign.title ?? '',
+          typeId: campaign.type?.id ?? '',
+          senderId: campaign.content?.['email']?.sender?.id ?? '',
+          from: toLocalInput(campaign.activePeriod?.from ?? new Date()),
+          to: toLocalInput(campaign.activePeriod?.to),
+          actionLinkText: campaign.actionLink?.text ?? '',
+          actionLinkHref: campaign.actionLink?.href ?? '',
+          distributionList: campaign.distributionList?.id
+            ? { id: campaign.distributionList.id, label: campaign.distributionList.name ?? '', data: campaign.distributionList }
+            : null
+        });
+        this.loadLookups();
+      },
+      error: () => this.pane.close()
     });
   }
 
-  public typeSelectionChanged(selectedOption: MenuOption): void {
-    if (selectedOption.value) {
-      this.selectedTypeId = selectedOption;
-      if (!this.model.type) {
-        this.model.type = new MessageType();
-      }
-      this.model.type.id = selectedOption.value;
-    } else {
-      this.selectedTypeId = null;
-      this.model.type = undefined;
-    }
-  }
-
-  public senderSelectionChanged(selectedOption: MenuOption): void {
-    if (!this.model.content?.email) {
+  protected submit(): void {
+    const current = this.campaign();
+    if (!current || this.form.invalid) {
       return;
     }
-    if (selectedOption.value) {
-      this.selectedSenderId = selectedOption;
-      if (!this.model.content?.email) {
-        return;
+    const value = this.form.getRawValue();
+    const model = new CampaignDetails(current);
+    switch (this.action()) {
+      case 'editType': {
+        const type = this.messageTypes().find(t => t.id === value.typeId);
+        model.type = type ? new MessageType(type) : undefined;
+        break;
       }
-    } else {
-      this.selectedSenderId = null;
-    }
-  }
-
-  public onSubmit(): void {
-    if (this.model.content?.email) {
-      if (!this.selectedSenderId?.data && this.model.content.email.sender) {
-        this.model.content.email.sender = undefined;
-      }
-      else if (this.selectedSenderId?.data && this.selectedSenderId.data.id != this.model.content.email.sender?.id) {
-        this.model.content.email.sender = new MessageSender(this.selectedSenderId.data);
-      }
-    }
-    this.submitInProgress = true;
-    this._updateCampaignSubscription = this._campaignStore
-      .updateCampaign(this._campaignId, this.model)
-      .subscribe({
-        next: () => {
-          this.submitInProgress = false;
-          this._toaster.show(ToastType.Success, 'Campaigns.UpdateSuccessTitle', 'Campaigns.UpdateSuccessMessage', undefined, { title: this.model.title })
-          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
+      case 'editSender': {
+        const email = current.content?.['email'];
+        if (email) {
+          const sender = this.senders().find(s => s.id === value.senderId);
+          // The default sender is not stored on the campaign: the server falls back to it.
+          const chosen = sender && !sender.isDefault ? new MessageSender({ id: sender.id, sender: sender.sender, displayName: sender.displayName }) : undefined;
+          model.content = { ...current.content, email: new MessageContent({ ...email, sender: chosen }) };
         }
-      });
-  }
-
-  public onCampaignStartInput(event: any): void {
-    if (!this.model.activePeriod) {
-      this.model.activePeriod = new Period();
-    }
-    this.model.activePeriod.from = new Date(event.target.value);
-  }
-
-  public onCampaignEndInput(event: any): void {
-    if (!this.model.activePeriod) {
-      this.model.activePeriod = new Period();
-    }
-    this.model.activePeriod.to = new Date(event.target.value);
-  }
-
-  public onDistributionListsSearch(searchTerm: string | undefined): void {
-    this.distributionListsLoading = true;
-    this._api
-      .getDistributionLists(1, 10, 'name', searchTerm)
-      .subscribe((distributionLists: DistributionListResultSet) => {
-        this._distributionLists = distributionLists.items || [];
-        this.distributionLists = this._distributionLists.map(x => x.name!);
-        this.distributionListsLoading = false;
-      });
-  }
-
-  public onDistributionListSelected(name: string): void {
-    if (!this.model.distributionList) {
-      this.model.distributionList = new DistributionList();
-    }
-    this.model.distributionList.id = this._distributionLists.find(x => x.name === name)?.id;
-    this.model.isGlobal = false;
-  }
-
-  public ngAfterViewInit(): void {
-    this._getCampaign();
-    this._changeDetector.detectChanges();
-  }
-
-  private _getCampaign(): void {
-    this._campaignStore.getCampaign(this._campaignId).subscribe((campaign: CampaignDetails) => {
-      this.model = new CampaignDetails(campaign);
-      this.model.activePeriod = new Period({
-        from: campaign.activePeriod?.from,
-        to: campaign.activePeriod?.to
-      });
-      this.model.actionLink = new Hyperlink({
-        text: campaign.actionLink?.text || '',
-        href: campaign.actionLink?.href || ''
-      });
-      if (campaign.type?.id) {
-        this.selectedTypeId = new MenuOption(campaign.type.name || '', campaign.type.id, undefined, null, `dot dot-${campaign.type.classification}`);
+        break;
       }
-      if (campaign.content?.email?.sender) {
-        let sender = {
-          id: campaign.content.email.sender.id,
-          sender: campaign.content.email.sender.sender,
-          displayName: campaign.content.email.sender.displayName
+      case 'editActivePeriod':
+        model.activePeriod = new Period({ from: value.from ? new Date(value.from) : undefined, to: value.to ? new Date(value.to) : undefined });
+        break;
+      case 'editCta':
+        model.actionLink = new Hyperlink({ text: value.actionLinkText, href: value.actionLinkHref });
+        break;
+      case 'editList':
+        if (value.distributionList) {
+          model.distributionList = new DistributionList({ id: value.distributionList.id, name: value.distributionList.label });
+          model.isGlobal = false;
         }
-        this.selectedSenderId = new MenuOption(`${sender.displayName} <${sender.sender}>`, sender.id, undefined, sender);
-      }
-      this.activePeriodFrom = this._datePipe.transform(campaign.activePeriod?.from || this.now, 'yyyy-MM-ddTHH:mm');
-      this.activePeriodTo = campaign.activePeriod?.to ? this._datePipe.transform(campaign.activePeriod.to, 'yyyy-MM-ddTHH:mm') : null;
-      if (this._distributionListCombobox) {
-        this._distributionListCombobox.value = campaign.distributionList?.name || '';
-      }
+        break;
+      default:
+        model.title = value.title;
+    }
+    this.saving.set(true);
+    this._store.updateCampaign(this.campaignId(), model).subscribe({
+      next: () => {
+        this._toaster.show(ToastType.Success, 'Campaigns.UpdateSuccessTitle', 'Campaigns.UpdateSuccessMessage', undefined, { title: model.title });
+        this._refresh.notify('campaign');
+        this.pane.close();
+      },
+      error: () => this.saving.set(false)
     });
   }
 
-  private _selectTemplate(action: string): void {
-    switch (action) {
-      case 'editTitle':
-        this.templateOutlet = this.editTitleTemplate;
-        break;
+  private loadLookups(): void {
+    switch (this.action()) {
       case 'editType':
-        this.templateOutlet = this.editTypeTemplate;
-        this._loadMessageTypes();
+        this._api.getMessageTypes(1, 100, 'name+').subscribe(result => this.messageTypes.set(result.items ?? []));
         break;
       case 'editSender':
-        this.templateOutlet = this.editSenderTemplate;
-        this._loadMessageSenders();
-        break;
-      case 'editActivePeriod':
-        this.templateOutlet = this.editActivePeriodTemplate;
-        break;
-      case 'editCta':
-        this.templateOutlet = this.editCtaTemplate;
-        break;
-      case 'editList':
-        this.templateOutlet = this.editListTemplate;
+        this._settings.getMessageSenders().subscribe(result => {
+          const senders = result.items ?? [];
+          this.senders.set(senders);
+          if (!this.form.controls.senderId.value) {
+            this.form.controls.senderId.setValue(senders.find(s => s.isDefault)?.id ?? '');
+          }
+        });
         break;
     }
-  }
-
-  private _loadMessageTypes(): void {
-    this._api
-      .getMessageTypes()
-      .pipe(map((messageTypes: MessageTypeResultSet) => {
-        if (messageTypes.items) {
-          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id, undefined, null, `dot dot-${type.classification}`)));
-        }
-      }))
-      .subscribe();
-  }
-
-  private _loadMessageSenders(): void {
-    this._settingsStore
-      .getMessageSenders()
-      .pipe(map((messageSenders: MessageSenderResultSet) => {
-        if (messageSenders.items) {
-          this.messageSenders.push(...messageSenders.items.map(s => {
-            let sender = {
-              id: s.id,
-              sender: s.sender,
-              displayName: s.displayName
-            }
-            if (s.isDefault) {
-              this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
-              return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
-            }
-            return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
-          }));
-        }
-      }))
-      .subscribe();
-  }
-
-  public ngOnDestroy(): void {
-    this._updateCampaignSubscription?.unsubscribe();
-    this._subs.forEach(s => s.unsubscribe());
   }
 }

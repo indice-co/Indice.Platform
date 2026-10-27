@@ -93,6 +93,7 @@ export class CaseDetailPageComponent {
     return [
       { key: 'caseDetails.caseId', value: model?.id, mono: true },
       { key: 'caseDetails.referenceNumber', value: model?.referenceNumber?.toString(), mono: true },
+      { key: 'caseDetails.relationKey', value: model?.relationKey, mono: true },
       { key: 'caseDetails.caseType', value: model?.caseType?.title },
       { key: 'caseDetails.checkpoint', value: model?.checkpointType?.title ?? model?.checkpointType?.code },
       { key: 'caseDetails.channel', value: model?.channel }
@@ -257,7 +258,7 @@ export class CaseDetailPageComponent {
   }
 
   private getRelatedCases(model: Case): void {
-    if (!model.metadata?.['ExternalCorrelationKey']) {
+    if (!model.relationKey) {
       return;
     }
     this._api.getRelatedCases(this._caseId)

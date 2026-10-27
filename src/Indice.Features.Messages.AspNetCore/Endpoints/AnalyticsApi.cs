@@ -59,6 +59,12 @@ internal static class AnalyticsApi
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
                                           .SetAuthorized().SetAutoTag());
 
+        group.MapGet("delivery", AnalyticsHandlers.GetDeliveryMetrics)
+             .WithName(nameof(AnalyticsHandlers.GetDeliveryMetrics))
+             .WithSummary("Gets dispatched vs failed message metrics for a time frame.")
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(10))
+                                          .SetAuthorized().SetAutoTag());
+
         group.MapPost("refresh", AnalyticsHandlers.RefreshCache)
              .WithName(nameof(AnalyticsHandlers.RefreshCache))
              .WithSummary("Refreshes the analytics cache.");
