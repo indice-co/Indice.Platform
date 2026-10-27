@@ -14,12 +14,13 @@ import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { SettingsStore } from '../settings-store.service';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** Email senders section of the settings page. */
 @Component({
   selector: 'app-email-settings',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent,
     LucideArrowDown, LucideArrowUp, LucideBadgeCheck, LucideMail, LucidePencil, LucidePlus, LucideTrash
   ],
   template: `
@@ -27,6 +28,7 @@ import { SettingsStore } from '../settings-store.service';
       <div class="flex flex-col gap-3 border-b border-base-300 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
         <div>
           <h2 class="font-semibold">{{ 'Settings.EmailSendersHeader' | translate }}</h2>
+          <app-list-count [count]="list.items() ? list.count() : null" one="Settings.SendersCountOne" other="Settings.SendersCountOther" />
           <p class="text-sm text-base-content/70">{{ 'Settings.EmailSendersDescription' | translate }}</p>
         </div>
         <a class="btn btn-primary btn-sm" [routerLink]="pane.link('create-message-sender')">

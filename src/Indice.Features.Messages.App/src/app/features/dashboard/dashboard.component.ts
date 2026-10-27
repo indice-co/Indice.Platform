@@ -15,7 +15,7 @@ import {
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { CHANNEL_KINDS, ChannelIconComponent, MessageTypeBadgeComponent, channelColor, channelLabel } from 'src/app/ui/badges/badges';
 import { DoughnutChartComponent, DoughnutChartItem } from 'src/app/ui/charts/doughnut-chart.component';
-import { LineSeries, StackedLineChartComponent } from 'src/app/ui/charts/stacked-line-chart.component';
+import { LineSeries, LineChartComponent } from 'src/app/ui/charts/line-chart.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 
 interface Trend {
@@ -34,13 +34,13 @@ const TIME_FRAMES: { value: SeriesTimeFrame; label: string }[] = [
 ];
 
 /**
- * Messaging overview: delivery KPIs (dispatched / failed / success rate with trends vs the previous period), a stacked
+ * Messaging overview: delivery KPIs (dispatched / failed / success rate with trends vs the previous period), a
  * dispatched vs failed time series, the channel mix, audience reach, top message types and the latest campaigns.
  */
 @Component({
   selector: 'app-dashboard',
   imports: [
-    RouterLink, DatePipe, DecimalPipe, NgTemplateOutlet, PercentPipe, TranslatePipe, PageHeaderComponent, StackedLineChartComponent, DoughnutChartComponent,
+    RouterLink, DatePipe, DecimalPipe, NgTemplateOutlet, PercentPipe, TranslatePipe, PageHeaderComponent, LineChartComponent, DoughnutChartComponent,
     ChannelIconComponent, MessageTypeBadgeComponent,
     LucideArrowDownRight, LucideArrowRight, LucideArrowUpRight, LucideBookUser, LucideFilePen, LucideLayoutTemplate,
     LucideMegaphone, LucidePlus, LucideSend, LucideTriangleAlert

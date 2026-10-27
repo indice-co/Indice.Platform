@@ -106,7 +106,7 @@
     </header>
     <div class="relative mt-4 h-72">
       @if (delivery.hasValue()) {
-        <app-stacked-line-chart class="h-full" [class.opacity-50]="delivery.isLoading()" [labels]="chartLabels()" [series]="chartSeries()" />
+        <app-line-chart class="h-full" [class.opacity-50]="delivery.isLoading()" [labels]="chartLabels()" [series]="chartSeries()" />
         @if (!current()?.total && !delivery.isLoading()) {
           <p class="absolute inset-0 grid place-items-center text-sm text-base-content/60">{{ 'DashBoard.NoDeliveries' | translate }}</p>
         }
