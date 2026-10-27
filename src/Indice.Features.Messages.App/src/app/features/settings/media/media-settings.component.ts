@@ -8,15 +8,17 @@ import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { SettingsStore } from '../settings-store.service';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** Media library section of the settings page. */
 @Component({
   selector: 'app-media-settings',
-  imports: [RouterLink, TranslatePipe, EmptyStateComponent, LucidePencil, LucideSettings],
+  imports: [ListCountComponent, RouterLink, TranslatePipe, EmptyStateComponent, LucidePencil, LucideSettings],
   template: `
     <section class="panel">
       <div class="border-b border-base-300 p-5 sm:p-6">
         <h2 class="font-semibold">{{ 'Settings.MediaLibraryHeader' | translate }}</h2>
+        <app-list-count [count]="settings()?.length ?? null" one="Settings.MediaSettingsCountOne" other="Settings.MediaSettingsCountOther" />
         <p class="text-sm text-base-content/70">{{ 'Settings.MediaLibraryDescription' | translate }}</p>
       </div>
       <div class="overflow-x-auto">

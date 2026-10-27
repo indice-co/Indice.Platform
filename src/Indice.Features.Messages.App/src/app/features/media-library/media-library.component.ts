@@ -17,17 +17,19 @@ import { FolderViewComponent } from './item-views/folder-view/folder-view.compon
 import { ListViewComponent } from './item-views/list-view/list-view.component';
 import { MEDIA_SCOPE, MediaLibraryStore } from './media-library-store.service';
 import { TreeBreadcrumbComponent } from './tree-breadcrumb/tree-breadcrumb.component';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** Media library file manager: folder tree, path breadcrumb, grid / list view of the current folder's content. */
 @Component({
   selector: 'app-media-library',
   imports: [
-    RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, TreeBreadcrumbComponent, FolderViewComponent,
+    ListCountComponent, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, TreeBreadcrumbComponent, FolderViewComponent,
     ListViewComponent, LucideCornerLeftUp, LucideDatabaseZap, LucideFolderOpen, LucideFolderPlus, LucideHouse, LucideLayoutGrid, LucideList,
     LucideRefreshCw, LucideUpload
   ],
   template: `
     <app-page-header [title]="'MediaLibrary.Title' | translate" [subtitle]="'MediaLibrary.Subtitle' | translate">
+      <app-list-count class="mt-0.5" [count]="list.items() ? list.count() : null" one="MediaLibrary.CountOne" other="MediaLibrary.CountOther" />
       <div actions class="flex flex-wrap gap-2">
         <a class="btn btn-sm" [routerLink]="pane.link('create-folder', createFolderParams())">
           <svg lucideFolderPlus class="size-4"></svg>{{ 'MediaLibrary.AddFolderTitle' | translate }}
@@ -64,7 +66,6 @@ import { TreeBreadcrumbComponent } from './tree-breadcrumb/tree-breadcrumb.compo
               }
             </ul>
           </nav>
-          <span class="text-sm text-base-content/60 tabular">{{ list.count() }} {{ 'MediaLibrary.ResultsSuffix' | translate }}</span>
           <div class="flex items-center gap-1">
             <span class="tooltip" [attr.data-tip]="'MediaLibrary.RefreshTitle' | translate">
               <button type="button" class="btn btn-ghost btn-sm btn-square" (click)="refresh()" [attr.aria-label]="'MediaLibrary.RefreshTitle' | translate">

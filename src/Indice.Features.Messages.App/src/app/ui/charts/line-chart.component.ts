@@ -13,15 +13,15 @@ export interface LineSeries {
 }
 
 /**
- * Stacked area line chart: every series is filled down to the one below it, so the top line is the total.
- * The legend is left to the host page. Re-renders when the theme changes.
+ * Area line chart: every series is plotted on its own value (not stacked) and filled down to zero; later series are
+ * drawn on top. The legend is left to the host page. Re-renders when the theme changes.
  */
 @Component({
-  selector: 'app-stacked-line-chart',
+  selector: 'app-line-chart',
   host: { class: 'relative block' },
   template: `<canvas #canvas></canvas>`
 })
-export class StackedLineChartComponent implements OnDestroy {
+export class LineChartComponent implements OnDestroy {
   private readonly _canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly _theme = inject(ThemeService);
   private _chart?: Chart<'line'>;
@@ -60,8 +60,10 @@ export class StackedLineChartComponent implements OnDestroy {
             label: s.label,
             data: s.data,
             borderColor: color,
-            backgroundColor: withAlpha(color, index === 0 ? 0.22 : 0.3),
-            fill: index === 0 ? 'origin' : '-1',
+            backgroundColor: withAlpha(color, 0.2),
+            fill: 'origin',
+            // a lower order is drawn later, i.e. on top
+            order: series.length - index,
             tension: 0.35,
             borderWidth: 2,
             pointRadius: 0,
@@ -82,7 +84,6 @@ export class StackedLineChartComponent implements OnDestroy {
             ticks: { color: withAlpha(chrome.text, 0.55), font: { family: chrome.font, size: 11 }, maxRotation: 0, autoSkipPadding: 16 }
           },
           y: {
-            stacked: true,
             beginAtZero: true,
             border: { display: false },
             grid: { color: chrome.grid },
@@ -94,6 +95,7 @@ export class StackedLineChartComponent implements OnDestroy {
           tooltip: {
             titleFont: { family: chrome.font },
             bodyFont: { family: chrome.font },
+            itemSort: (a, b) => a.datasetIndex - b.datasetIndex,
             callbacks: { label: ctx => ` ${ctx.dataset.label}: ${(ctx.parsed.y ?? 0).toLocaleString()}` }
           }
         }

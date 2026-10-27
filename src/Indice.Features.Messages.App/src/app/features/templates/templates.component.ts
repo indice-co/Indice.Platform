@@ -15,15 +15,17 @@ import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 import { TEMPLATE_TYPES, templateTypeBadge, templateTypeLabel } from './template-type';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 @Component({
   selector: 'app-templates',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
     ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideFileText, LucidePencil, LucidePlus, LucideTrash
   ],
   template: `
     <app-page-header [title]="'Templates.Title' | translate" [subtitle]="'Templates.Subtitle' | translate">
+      <app-list-count class="mt-0.5" [count]="list.items() ? list.count() : null" one="Templates.CountOne" other="Templates.CountOther" />
       <div actions>
         <a class="btn btn-primary btn-sm" routerLink="add-template">
           <svg lucidePlus class="size-4"></svg>{{ 'Templates.CreateTemplateDialogTitle' | translate }}
