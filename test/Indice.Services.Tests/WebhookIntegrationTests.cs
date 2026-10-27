@@ -64,6 +64,54 @@ public sealed class WebhookIntegrationTests
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
+    [Fact]
+    public async Task YubotoWebhook_WithWebhooksEnabled() {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Webhooks:Enabled"] = true.ToString(),
+                ["Webhooks:ChannelCapacity"] = "100",
+                ["Sms:Provider"] = "yuboto"
+            })
+            .Build();
+
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webHost => {
+                webHost.UseTestServer();
+                webHost.ConfigureServices(services => {
+                    services.AddRouting();
+                    services.AddSmsService(configuration);
+                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
+                });
+                webHost.Configure(app => {
+                    app.UseRouting();
+
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapWebhooks();
+                    });
+                });
+            })
+            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        var services = host.Services;
+
+        Assert.NotNull(
+            services.GetRequiredService<Channel<List<WebhookEvent>>>());
+
+        Assert.NotNull(
+            services.GetRequiredKeyedService<IWebhookHttpHandler>("yuboto"));
+
+        Assert.Contains(
+            services.GetServices<IHostedService>(),
+            service => service.GetType() == typeof(WebhookEventSink));
+
+        using var response = await host.GetTestClient().PostAsync(
+            "/webhooks/yuboto?smsid=msg-test-123&receiver=306900000000&sender=TestSender&status=6&statusDescription=Delivered&channel=sms&dlrDate=2024-11-21%2010:13:21&option1=optA&option2=optB",
+            content: null,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
     private static HttpRequestMessage GetValidApifonPayload(string webhookSecret) {
         var timestamp = DateTimeOffset.UtcNow.ToString("O");
         var reference = Guid.NewGuid().ToString("N");

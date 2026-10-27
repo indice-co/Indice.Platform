@@ -1,10 +1,12 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -385,4 +387,65 @@ public abstract class SmsServiceYubotoOmniBase
         }
     }
     #endregion
+}
+
+/// <inheritdoc/>
+public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+
+        var messageId = parameters.GetValueOrDefault("smsid").ToString();
+        var recipient = parameters.GetValueOrDefault("receiver").ToString();
+        var sender = parameters.GetValueOrDefault("sender").ToString();
+        var status = parameters.GetValueOrDefault("status").ToString();
+        var statusDescription = parameters.GetValueOrDefault("statusDescription").ToString();
+        var channel = parameters.GetValueOrDefault("channel").ToString();
+        var dlrDate = parameters.GetValueOrDefault("dlrDate").ToString();
+
+        if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(recipient)) {
+            return WebhookHttpResult.BadRequest("Yuboto webhook requires 'smsid' and 'receiver' query parameters.");
+        }
+
+        var timestamp = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrWhiteSpace(dlrDate)) {
+            if (!DateTimeOffset.TryParse(dlrDate, out timestamp)) {
+                return WebhookHttpResult.BadRequest("Invalid 'dlrDate' value in Yuboto webhook payload.");
+            }
+        }
+
+        var payload = new JsonObject();
+        foreach (var parameter in parameters) {
+            payload[parameter.Key] = parameter.Value.ToString();
+        }
+        var eventid = !string.IsNullOrWhiteSpace(statusDescription) ? $"{messageId}:{statusDescription}:{timestamp}" : $"{messageId}:{timestamp}";
+        var eventType = "";
+        if (!string.IsNullOrWhiteSpace(statusDescription)) {
+            eventType = statusDescription;
+        } else if (!string.IsNullOrWhiteSpace(status)) {
+            eventType = $"Status:{status}";
+        } else if (!string.IsNullOrWhiteSpace(channel)) {
+            eventType = $"{channel}Delivery";
+        }
+
+        var incomingEvents = new List<WebhookEvent> {
+            new() {
+                Provider = "Yuboto",
+                EventType = eventType,
+                EventId = eventid,
+                MessageId = messageId,
+                Recipient = recipient,
+                Subject = sender,
+                Timestamp = timestamp,
+                Payload = payload
+            }
+        };
+
+        await Task.CompletedTask;
+        return WebhookHttpResult.Ok(incomingEvents);
+    }
 }

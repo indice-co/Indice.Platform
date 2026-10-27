@@ -52,6 +52,17 @@ public static class WebhooksEndpointExtensions
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest);
 
+        group.MapGet("{provider}", HandleWebhook)
+            .WithName("ReceiveWebhookGet")
+            .WithSummary("Receive a webhook notification")
+            .WithDescription(
+                """
+                Receives a webhook notification from the specified provider, validates the request,
+                and processes the notification using the provider-specific webhook handler.
+                """)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest);
+
         return group;
     }
 

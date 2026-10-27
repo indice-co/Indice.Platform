@@ -577,6 +577,13 @@ public static class IndiceServicesServiceCollectionExtensions
             case "apifon":
                 services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
                 break;
+            case "yuboto":
+            case "yuboto_omni":
+            case "yuboto_viber":
+            case "yubotoviber":
+            case "yuboto_omni_viber":
+                services.AddWebhookServices<THandler, YubotoWebhookHttpHandler>(configuration, provider);
+                break;
         }
         return services;
     }
