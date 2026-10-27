@@ -15,7 +15,16 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import { PaymentService, PaymentSession, VivaConfiguration } from '../../../core/services/payment.service';
+import { ConversationsStore } from '../../../core/services/conversations.store';
 import { VivaPayment } from './part-contracts';
+import { clearVivaCheckout, pendingVivaCheckout, rememberVivaCheckout, vivaOrderCode, vivaReturnTransactionId } from './viva-checkout-return';
+
+// Drop Viva's `t`/`s` (and friends) from the address bar so a reload does not confirm again.
+function stripReturnParams(): void {
+  const url = new URL(window.location.href);
+  ['t', 's', 'lang', 'eventId', 'eci'].forEach((key) => url.searchParams.delete(key));
+  window.history.replaceState(window.history.state, '', url.toString());
+}
 
 type PayStatus = 'initializing' | 'ready' | 'confirming' | 'verifying' | 'completed' | 'error';
 
@@ -89,6 +98,17 @@ function loadScript(url: string): Promise<void> {
                 Amount to pay: <strong>{{ amount }}</strong>
               </p>
             }
+            @if (redirectMode()) {
+              <p class="text-sm text-base-content/70">You will be redirected to Viva Wallet to complete the payment securely.</p>
+              <button type="button" class="btn btn-primary" [disabled]="disabled() || status() !== 'ready'" (click)="checkout()">
+                @if (status() === 'confirming' || status() === 'verifying') {
+                  <span class="loading loading-spinner loading-sm"></span>
+                  {{ status() === 'verifying' ? 'Verifying payment…' : 'Redirecting…' }}
+                } @else {
+                  Pay with Viva Wallet
+                }
+              </button>
+            } @else {
             <form #cardForm class="flex flex-col gap-2" (submit)="$event.preventDefault(); pay()">
               <input class="input input-bordered w-full" type="text" data-vp="cardholder" placeholder="Cardholder name" autocomplete="cc-name" (input)="cardError.set('')" />
               <input class="input input-bordered w-full" type="text" data-vp="cardnumber" placeholder="Card number" inputmode="numeric" autocomplete="cc-number" (input)="cardError.set('')" />
@@ -110,6 +130,7 @@ function loadScript(url: string): Promise<void> {
                 Pay
               }
             </button>
+            }
           }
         }
       </div>
@@ -125,12 +146,15 @@ export class ChatVivaPaymentComponent {
   readonly completed = output<void>();
 
   private readonly payments = inject(PaymentService);
+  private readonly conversations = inject(ConversationsStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cardForm = viewChild<ElementRef<HTMLFormElement>>('cardForm');
 
   protected readonly status = signal<PayStatus>('initializing');
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly cardError = signal('');
+  /** Smart Checkout: a single button that leaves for the Viva hosted page instead of the inline card form. */
+  protected readonly redirectMode = signal(false);
   private readonly session = signal<PaymentSession | null>(null);
   protected readonly amountText = computed(() => {
     const session = this.session() ?? this.payment()?.session;
@@ -248,17 +272,86 @@ export class ChatVivaPaymentComponent {
     } else if (state === 'Cancelled') {
       this.fail('The payment was cancelled. Please try again.');
     } else if (!this.disabled() && state === 'Created' && session?.caseId) {
+      const caseId = session.caseId;
+      const returned = vivaReturnTransactionId();
+      const pending = pendingVivaCheckout();
+      if (pending?.caseId === caseId) {
+        if (returned) {
+          await this.confirmReturn(caseId, returned);
+          return;
+        }
+        // Back without a transaction (cancelled/failed page): forget the checkout and offer the button again.
+        clearVivaCheckout();
+        stripReturnParams();
+      }
+      try {
+        this.configuration = await firstValueFrom(this.payments.getVivaConfiguration(caseId));
+      } catch (error) {
+        console.error('Viva configuration failed', error);
+        this.fail('The payment provider is currently unavailable. Please try again later.');
+        return;
+      }
+      if (this.configuration.mode === 'Redirect') {
+        this.redirectMode.set(true);
+        this.status.set('ready');
+        return;
+      }
       try {
         // Viva binds to the `data-vp` inputs during setup, so the form must be in the DOM first.
         this.status.set('ready');
         await new Promise((resolve) => setTimeout(resolve));
-        await this.setup(session.caseId, false);
+        await this.setup(caseId, false);
       } catch (error) {
         console.error('Viva Native Checkout setup failed', error);
         this.fail('The payment provider is currently unavailable. Please try again later.');
       }
     } else {
       this.fail('The payment is no longer available.');
+    }
+  }
+
+  /** Redirect mode: create the Smart Checkout order and leave for the Viva hosted page (same tab). */
+  protected async checkout(): Promise<void> {
+    const caseId = this.payment()?.caseId;
+    if (this.disabled() || !caseId || this.status() !== 'ready') return;
+    this.status.set('confirming');
+    try {
+      const result = await firstValueFrom(this.payments.startVivaCheckout(caseId));
+      if (!result.redirectUrl) {
+        await this.apply(result.session);
+        return;
+      }
+      // Overwrite any older record: the return must reopen this conversation and confirm this order.
+      rememberVivaCheckout({
+        caseId,
+        conversationId: this.conversations.activeId(),
+        orderCode: vivaOrderCode(result.redirectUrl),
+      });
+      window.location.assign(result.redirectUrl);
+    } catch (error) {
+      console.error('Viva Smart Checkout failed', error);
+      this.fail('The payment provider is currently unavailable. Please try again later.');
+    }
+  }
+
+  // Back from Smart Checkout: the server verifies the transaction with Viva before accepting it.
+  private async confirmReturn(caseId: string, transactionId: string): Promise<void> {
+    this.status.set('verifying');
+    clearVivaCheckout();
+    stripReturnParams();
+    try {
+      const session = await firstValueFrom(this.payments.confirmViva(caseId, transactionId));
+      this.session.set(session);
+      const state = session?.paymentAuthorizationStatus;
+      if (state === 'Succeeded') {
+        this.complete();
+      } else if (state === 'Failed' || state === 'Cancelled') {
+        this.fail('Your payment was declined. Please try again.');
+      } else {
+        this.poll(0);
+      }
+    } catch {
+      this.poll(0);
     }
   }
 

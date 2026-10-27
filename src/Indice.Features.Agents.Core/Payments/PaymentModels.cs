@@ -41,6 +41,13 @@ public class VivaChargeRequestModel
     public string ChargeToken { get; set; } = null!;
 }
 
+/// <summary>Request to confirm a Viva attempt after the Smart Checkout redirect.</summary>
+public class VivaConfirmRequestModel
+{
+    /// <summary>The <c>t</c> query parameter Viva appends to the return URL.</summary>
+    public string TransactionId { get; set; } = null!;
+}
+
 /// <summary>The response to Viva's webhook URL verification.</summary>
 /// <param name="Key">The merchant webhook key.</param>
 public record VivaWebhookKey([property: System.Text.Json.Serialization.JsonPropertyName("Key")] string Key);

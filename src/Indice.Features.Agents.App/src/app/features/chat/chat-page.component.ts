@@ -12,6 +12,7 @@ import { ChatComposerComponent } from './chat-composer.component';
 import { ChatThreadComponent } from './chat-thread.component';
 import { EXAMPLE_PROMPTS, ThreadMessage, responseToThreadMessage, toThreadMessage } from './chat.models';
 import { HITL_REQUEST_MEDIA_TYPE, STRIPE_PAYMENT_MEDIA_TYPE, VIVA_PAYMENT_MEDIA_TYPE, hitlResponseParts, parseHitlRequest, textParts } from './parts/part-contracts';
+import { pendingVivaCheckout } from './parts/viva-checkout-return';
 
 /**
  * The Dex chat surface: conversation thread + composer, wired to the streaming API.
@@ -107,6 +108,11 @@ export class ChatPageComponent {
   private loadedId: string | null = null;
 
   constructor() {
+    // Back from Viva Smart Checkout: reopen the conversation that was being paid.
+    const returning = pendingVivaCheckout();
+    if (returning?.conversationId && this.store.activeId() !== returning.conversationId) {
+      this.store.select(returning.conversationId);
+    }
     effect(() => {
       const id = this.store.activeId();
       if (id === this.loadedId) {

@@ -64,6 +64,14 @@ internal static class PaymentsApi
              .WithName(nameof(PaymentsHandlers.ChargeVivaPaymentAttempt))
              .WithSummary("Charge the case's Viva payment attempt with a Native Checkout card token.");
 
+        chats.MapPost("viva/checkout", PaymentsHandlers.StartVivaCheckout)
+             .WithName(nameof(PaymentsHandlers.StartVivaCheckout))
+             .WithSummary("Create the Viva Smart Checkout order of the case's payment attempt and get the redirect URL.");
+
+        chats.MapPost("viva/confirm", PaymentsHandlers.ConfirmVivaCheckout)
+             .WithName(nameof(PaymentsHandlers.ConfirmVivaCheckout))
+             .WithSummary("Confirm the case's Viva payment attempt after returning from Smart Checkout.");
+
         return routes;
     }
 }

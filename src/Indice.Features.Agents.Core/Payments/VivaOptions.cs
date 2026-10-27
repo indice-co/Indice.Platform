@@ -9,7 +9,16 @@ public enum VivaEnvironment
     Production
 }
 
-/// <summary>Viva Wallet settings for the chat payment flow (Native Checkout v2, direct charge). Bound from the <c>Viva</c> configuration section.</summary>
+/// <summary>How the Viva card payment is collected.</summary>
+public enum VivaCheckoutMode
+{
+    /// <summary>Inline card form (Native Checkout v2), charged directly from the chat.</summary>
+    Native,
+    /// <summary>Redirect to the Viva hosted payment page (Smart Checkout); the user returns to the chat.</summary>
+    Redirect
+}
+
+/// <summary>Viva Wallet settings
 /// <remarks>Keep <see cref="ClientSecret"/> and <see cref="ApiKey"/> server-side (user-secrets / Key Vault).</remarks>
 public class VivaOptions
 {
@@ -17,6 +26,9 @@ public class VivaOptions
     public const string Name = "Viva";
     /// <summary>The environment; selects the default URLs. Defaults to <see cref="VivaEnvironment.Demo"/>.</summary>
     public VivaEnvironment Environment { get; set; } = VivaEnvironment.Demo;
+    /// <summary>Inline card form or redirect to the hosted Smart Checkout page. Defaults to <see cref="VivaCheckoutMode.Native"/>.</summary>
+    /// <remarks>For <see cref="VivaCheckoutMode.Redirect"/>, set the success and failure URLs of the source code in the Viva dashboard to the chat URL.</remarks>
+    public VivaCheckoutMode CheckoutMode { get; set; } = VivaCheckoutMode.Redirect;
     /// <summary>The Smart Checkout / Native Checkout OAuth2 client id.</summary>
     public string? ClientId { get; set; }
     /// <summary>The OAuth2 client secret.</summary>
@@ -46,6 +58,8 @@ public class VivaOptions
     public string GetWebUrl() => (WebUrl ?? (Environment == VivaEnvironment.Production ? "https://www.vivapayments.com" : "https://demo.vivapayments.com")).TrimEnd('/');
     /// <summary>The Native Checkout v2 script URL.</summary>
     public string GetScriptUrl() => $"{GetWebUrl()}/web/checkout/v2/js";
+    /// <summary>The Smart Checkout hosted page of an order.</summary>
+    public string GetCheckoutUrl(long orderCode) => $"{GetWebUrl()}/web/checkout?ref={orderCode}";
 
     /// <summary>The ISO 4217 numeric code of <see cref="Currency"/>, as required by Viva.</summary>
     /// <exception cref="InvalidOperationException">The currency is not supported.</exception>

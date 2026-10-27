@@ -61,6 +61,14 @@ export interface VivaConfiguration {
   baseUrl: string;
   scriptUrl: string;
   expiresAt?: string;
+  /** `Native` renders the inline card form; `Redirect` sends the user to the Viva hosted page. */
+  mode?: 'Native' | 'Redirect';
+}
+
+/** The Viva Smart Checkout page to redirect to (`null` when the attempt is no longer payable). */
+export interface VivaCheckoutRedirect {
+  redirectUrl?: string | null;
+  session: PaymentSession;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -72,6 +80,24 @@ export class PaymentService {
     return this.withTransientRetry(
       this.http.get<VivaConfiguration>(
         `${settings.api_url}/my/cases/${encodeURIComponent(caseId)}/payment-attempts/viva/configuration`,
+      ),
+    );
+  }
+
+  /** Creates (or reuses) the Smart Checkout order of the case's Viva attempt. */
+  startVivaCheckout(caseId: string): Observable<VivaCheckoutRedirect> {
+    return this.http.post<VivaCheckoutRedirect>(
+      `${settings.api_url}/my/cases/${encodeURIComponent(caseId)}/payment-attempts/viva/checkout`,
+      null,
+    );
+  }
+
+  /** Confirms the case's Viva attempt with the transaction id Viva returned to the chat. */
+  confirmViva(caseId: string, transactionId: string): Observable<PaymentSession> {
+    return this.withTransientRetry(
+      this.http.post<PaymentSession>(
+        `${settings.api_url}/my/cases/${encodeURIComponent(caseId)}/payment-attempts/viva/confirm`,
+        { transactionId },
       ),
     );
   }

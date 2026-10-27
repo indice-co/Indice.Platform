@@ -11,7 +11,13 @@ namespace Indice.Features.Agents.Core.Payments;
 /// <param name="BaseUrl">The API URL passed as <c>baseURL</c>.</param>
 /// <param name="ScriptUrl">The Native Checkout v2 script URL.</param>
 /// <param name="ExpiresAt">When <paramref name="AuthToken"/> expires.</param>
-public record VivaClientConfiguration(string AuthToken, string BaseUrl, string ScriptUrl, DateTimeOffset ExpiresAt);
+/// <param name="Mode">Inline card form or redirect.</param>
+public record VivaClientConfiguration(string AuthToken, string BaseUrl, string ScriptUrl, DateTimeOffset ExpiresAt, VivaCheckoutMode Mode = VivaCheckoutMode.Native);
+
+/// <summary>Where to send the browser for the Smart Checkout redirect flow.</summary>
+/// <param name="RedirectUrl">The Viva hosted payment page.</param>
+/// <param name="Session">The attempt being paid.</param>
+public record VivaCheckoutRedirect(string? RedirectUrl, PaymentSessionModel Session);
 
 /// <summary>Chat payments with Viva Wallet Native Checkout v2 (direct charge, the card form is rendered in place).</summary>
 public interface IVivaPaymentsService : IPaymentProvider
@@ -26,6 +32,16 @@ public interface IVivaPaymentsService : IPaymentProvider
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The attempt after the charge; <c>null</c> when the user has no attempt for the case.</returns>
     Task<PaymentSessionModel?> ChargeAsync(string userId, string caseId, string tenantId, string chargeToken, CancellationToken cancellationToken = default);
+    /// <summary>Creates (or reuses) the Smart Checkout order of the case's live Viva attempt and returns the hosted page URL.</summary>
+    /// <returns><c>null</c> when the user has no attempt for the case; a <c>null</c> URL when the attempt is no longer payable.</returns>
+    Task<VivaCheckoutRedirect?> StartCheckoutAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default);
+    /// <summary>Confirms the attempt after the browser returns from Smart Checkout. The transaction is re-read from the API.</summary>
+    /// <param name="userId">The paying user; must own the attempt.</param>
+    /// <param name="caseId">The case being paid.</param>
+    /// <param name="tenantId">The tenant the case belongs to.</param>
+    /// <param name="transactionId">The <c>t</c> query parameter Viva appends to the return URL.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<PaymentSessionModel?> ConfirmCheckoutAsync(string userId, string caseId, string tenantId, string transactionId, CancellationToken cancellationToken = default);
     /// <summary>The key returned to Viva when it verifies the webhook URL.</summary>
     Task<string> GetWebhookKeyAsync(CancellationToken cancellationToken = default);
     /// <summary>Handles a Viva webhook notification. The event is never trusted: the transaction is re-read from the API.</summary>
@@ -48,6 +64,7 @@ public class VivaPaymentsService(
     public const int EventTransactionFailed = 1798;
     private const string PendingPrefix = "viva:";
     private const string ChargingPrefix = "viva-charging:";
+    private const string OrderPrefix = "viva-order:";
     private readonly VivaOptions _options = options.Value;
 
     ///<inheritdoc/>
@@ -56,7 +73,88 @@ public class VivaPaymentsService(
     ///<inheritdoc/>
     public async Task<VivaClientConfiguration> GetClientConfigurationAsync(CancellationToken cancellationToken = default) {
         var token = await vivaClient.GetAccessTokenAsync(cancellationToken);
-        return new VivaClientConfiguration(token.Token, _options.GetApiUrl(), _options.GetScriptUrl(), token.ExpiresAt);
+        return new VivaClientConfiguration(token.Token, _options.GetApiUrl(), _options.GetScriptUrl(), token.ExpiresAt, _options.CheckoutMode);
+    }
+
+    ///<inheritdoc/>
+    public async Task<VivaCheckoutRedirect?> StartCheckoutAsync(string userId, string caseId, string tenantId, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
+        var session = await GetLatestAsync(caseId, tenantId, cancellationToken);
+        if (session is null) {
+            return null;
+        }
+        if (session.Provider != PaymentProviders.Viva || session.Status != PaymentAuthorizationStatus.Created) {
+            return new VivaCheckoutRedirect(null, session.ToModel());
+        }
+        // One order per attempt: reloading the page or clicking twice sends the user to the same order.
+        if (session.PaymentIntentId.StartsWith(OrderPrefix, StringComparison.Ordinal) && long.TryParse(session.PaymentIntentId[OrderPrefix.Length..], out var existing)) {
+            return new VivaCheckoutRedirect(_options.GetCheckoutUrl(existing), session.ToModel());
+        }
+        var pending = $"{PendingPrefix}{session.Id:N}";
+        if (session.PaymentIntentId != pending) {
+            return new VivaCheckoutRedirect(null, session.ToModel());
+        }
+        var orderCode = await vivaClient.CreateOrderAsync(new VivaOrderRequest {
+            Amount = ToMinorUnits(session.Amount),
+            PreAuth = false,
+            SourceCode = _options.SourceCode!,
+            CurrencyCode = _options.GetCurrencyCode(),
+            MerchantTrns = session.Id.ToString(),
+            CustomerTrns = $"Case {session.CaseId}"
+        }, cancellationToken);
+        var stored = await db.PaymentSessions.Where(x => x.Id == session.Id && x.Status == PaymentAuthorizationStatus.Created && x.PaymentIntentId == pending)
+                                             .ExecuteUpdateAsync(s => s.SetProperty(x => x.PaymentIntentId, $"{OrderPrefix}{orderCode}")
+                                                                       .SetProperty(x => x.UpdatedAt, DateTimeOffset.UtcNow), cancellationToken);
+        await db.Entry(session).ReloadAsync(cancellationToken);
+        if (stored == 0) {
+            // A concurrent request stored its own order first; use that one.
+            return session.PaymentIntentId.StartsWith(OrderPrefix, StringComparison.Ordinal) && long.TryParse(session.PaymentIntentId[OrderPrefix.Length..], out var winner)
+                ? new VivaCheckoutRedirect(_options.GetCheckoutUrl(winner), session.ToModel())
+                : new VivaCheckoutRedirect(null, session.ToModel());
+        }
+        return new VivaCheckoutRedirect(_options.GetCheckoutUrl(orderCode), session.ToModel());
+    }
+
+    ///<inheritdoc/>
+    public async Task<PaymentSessionModel?> ConfirmCheckoutAsync(string userId, string caseId, string tenantId, string transactionId, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(transactionId);
+        var session = await GetLatestAsync(caseId, tenantId, cancellationToken);
+        if (session is null || session.UserId != userId) {
+            return null;
+        }
+        if (session.Provider != PaymentProviders.Viva || session.Status != PaymentAuthorizationStatus.Created) {
+            return session.ToModel();
+        }
+        // The return URL is user-controlled: accept the transaction only when Viva says it belongs to this attempt.
+        var transaction = await vivaClient.GetTransactionAsync(transactionId, cancellationToken);
+        if (transaction is null || !string.Equals(transaction.MerchantTrns, session.Id.ToString(), StringComparison.OrdinalIgnoreCase)) {
+            logger.LogWarning("Viva transaction {TransactionId} does not belong to payment {PaymentId}.", transactionId, session.Id);
+            return session.ToModel();
+        }
+        await AttachTransactionAsync(session, transactionId, cancellationToken);
+        var status = MapStatus(transaction);
+        if (status is not null) {
+            await TryTransitionAsync(session, status.Value, status == PaymentAuthorizationStatus.Failed ? "The card payment was declined." : null, cancellationToken);
+        }
+        return session.ToModel();
+    }
+
+    private Task<DbPaymentSession?> GetLatestAsync(string caseId, string tenantId, CancellationToken cancellationToken) =>
+        db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId)
+                          .OrderByDescending(x => x.CreatedAt)
+                          .FirstOrDefaultAsync(cancellationToken);
+
+    // Replaces a placeholder (pending/charging/order) reference with the real transaction id.
+    private async Task AttachTransactionAsync(DbPaymentSession session, string transactionId, CancellationToken cancellationToken) {
+        if (HasTransaction(session)) {
+            return;
+        }
+        await db.PaymentSessions.Where(x => x.Id == session.Id && x.PaymentIntentId == session.PaymentIntentId)
+                                .ExecuteUpdateAsync(s => s.SetProperty(x => x.PaymentIntentId, transactionId), cancellationToken);
+        await db.Entry(session).ReloadAsync(cancellationToken);
     }
 
     ///<inheritdoc/>
@@ -163,10 +261,8 @@ public class VivaPaymentsService(
         if (session is null && Guid.TryParse(transaction.MerchantTrns ?? merchantTrns, out var paymentId)) {
             // The webhook can land before the charge response stored the transaction id.
             session = await db.PaymentSessions.FirstOrDefaultAsync(x => x.Id == paymentId && x.Provider == PaymentProviders.Viva, cancellationToken);
-            if (session is not null && session.PaymentIntentId.StartsWith(ChargingPrefix, StringComparison.Ordinal)) {
-                await db.PaymentSessions.Where(x => x.Id == session.Id && x.PaymentIntentId == session.PaymentIntentId)
-                                        .ExecuteUpdateAsync(s => s.SetProperty(x => x.PaymentIntentId, transactionId), cancellationToken);
-                await db.Entry(session).ReloadAsync(cancellationToken);
+            if (session is not null) {
+                await AttachTransactionAsync(session, transactionId!, cancellationToken);
             }
         }
         if (session is null) {
@@ -224,7 +320,7 @@ public class VivaPaymentsService(
     }
 
     private static bool HasTransaction(DbPaymentSession session) =>
-        !session.PaymentIntentId.StartsWith(PendingPrefix, StringComparison.Ordinal) && !session.PaymentIntentId.StartsWith(ChargingPrefix, StringComparison.Ordinal);
+        !session.PaymentIntentId.StartsWith(PendingPrefix, StringComparison.Ordinal) && !session.PaymentIntentId.StartsWith(ChargingPrefix, StringComparison.Ordinal) && !session.PaymentIntentId.StartsWith(OrderPrefix, StringComparison.Ordinal);
 
     /// <summary>Maps a Viva transaction status to the payment status; <c>null</c> while it is not final.</summary>
     public static PaymentAuthorizationStatus? MapStatus(VivaTransaction transaction) => transaction.StatusId?.Trim().ToUpperInvariant() switch {

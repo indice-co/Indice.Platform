@@ -44,7 +44,28 @@ internal static class PaymentsHandlers
         return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
     }
 
-    /// <summary>GET /api/webhooks/viva — answers Viva's webhook URL verification with the merchant key.</summary>
+    /// <summary>POST /api/my/cases/{caseId}/payment-attempts/viva/checkout — the Smart Checkout redirect URL of the caller's attempt.</summary>
+    public static async Task<Results<Ok<VivaCheckoutRedirect>, NotFound>> StartVivaCheckout(string caseId, ClaimsPrincipal user, IPaymentAttemptsService payments, CancellationToken cancellationToken) {
+        if (payments.GetProvider(PaymentProviders.Viva) is not IVivaPaymentsService viva) {
+            return TypedResults.NotFound();
+        }
+        var redirect = await viva.StartCheckoutAsync(user.FindSubjectId()!, caseId, AgentsConstants.DefaultTenantId, cancellationToken);
+        return redirect is null ? TypedResults.NotFound() : TypedResults.Ok(redirect);
+    }
+
+    /// <summary>POST /api/my/cases/{caseId}/payment-attempts/viva/confirm — confirms the caller's attempt with the transaction Viva returned.</summary>
+    public static async Task<Results<Ok<PaymentSessionModel>, NotFound, ValidationProblem>> ConfirmVivaCheckout(string caseId, VivaConfirmRequestModel request, ClaimsPrincipal user, IPaymentAttemptsService payments, CancellationToken cancellationToken) {
+        if (string.IsNullOrWhiteSpace(request?.TransactionId)) {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [nameof(VivaConfirmRequestModel.TransactionId)] = ["The transaction id is required."] });
+        }
+        if (payments.GetProvider(PaymentProviders.Viva) is not IVivaPaymentsService viva) {
+            return TypedResults.NotFound();
+        }
+        var session = await viva.ConfirmCheckoutAsync(user.FindSubjectId()!, caseId, AgentsConstants.DefaultTenantId, request.TransactionId, cancellationToken);
+        return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
+    }
+
+    /// <summary>GET /api/webhooks/viva
     public static async Task<Results<Ok<VivaWebhookKey>, NotFound>> VivaWebhookVerification(IPaymentAttemptsService payments, CancellationToken cancellationToken) {
         if (payments.GetProvider(PaymentProviders.Viva) is not IVivaPaymentsService viva) {
             return TypedResults.NotFound();

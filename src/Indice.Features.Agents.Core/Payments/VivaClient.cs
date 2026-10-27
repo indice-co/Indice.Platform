@@ -38,7 +38,24 @@ public class VivaChargeRequest
     public string? CustomerTrns { get; set; }
 }
 
-/// <summary>A Viva transaction (<c>GET /checkout/v2/transactions/{id}</c>).</summary>
+/// <summary>Smart Checkout payment order request (<c>POST /checkout/v2/orders</c>).</summary>
+public class VivaOrderRequest
+{
+    /// <summary>The amount in minor units (cents).</summary>
+    public long Amount { get; set; }
+    /// <summary>Description shown to the customer.</summary>
+    public string? CustomerTrns { get; set; }
+    /// <summary>Merchant reference (the payment attempt id).</summary>
+    public string? MerchantTrns { get; set; }
+    /// <summary>The payment source code.</summary>
+    public string SourceCode { get; set; } = null!;
+    /// <summary>The ISO 4217 numeric currency code.</summary>
+    public int CurrencyCode { get; set; }
+    /// <summary>Always <c>false</c>: direct charge.</summary>
+    public bool PreAuth { get; set; }
+}
+
+/// <summary>A Viva transaction
 public class VivaTransaction
 {
     /// <summary>The transaction id (not part of the payload; set by the client).</summary>
@@ -65,6 +82,8 @@ public interface IVivaClient
     /// <summary>Charges a card token; returns the transaction id.</summary>
     /// <exception cref="VivaException">The charge was rejected.</exception>
     Task<string> ChargeAsync(VivaChargeRequest request, CancellationToken cancellationToken = default);
+    /// <summary>Creates a Smart Checkout payment order; returns the order code.</summary>
+    Task<long> CreateOrderAsync(VivaOrderRequest request, CancellationToken cancellationToken = default);
     /// <summary>Retrieves a transaction; <c>null</c> when it does not exist.</summary>
     Task<VivaTransaction?> GetTransactionAsync(string transactionId, CancellationToken cancellationToken = default);
     /// <summary>The key returned to Viva when it verifies the webhook URL (cached).</summary>
@@ -125,6 +144,18 @@ public class VivaClient(HttpClient httpClient, VivaTokenCache cache, IOptions<Vi
     }
 
     /// <inheritdoc/>
+    public async Task<long> CreateOrderAsync(VivaOrderRequest request, CancellationToken cancellationToken = default) {
+        using var message = new HttpRequestMessage(HttpMethod.Post, $"{_options.GetApiUrl()}/checkout/v2/orders") {
+            Content = JsonContent.Create(request, options: JsonOptions)
+        };
+        message.Headers.Authorization = await BearerAsync(cancellationToken);
+        using var response = await httpClient.SendAsync(message, cancellationToken);
+        await EnsureSuccessAsync(response, "order", cancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<OrderResponse>(JsonOptions, cancellationToken);
+        return result?.OrderCode is > 0 ? result.OrderCode : throw new VivaException("Viva order response has no order code.");
+    }
+
+    /// <inheritdoc/>
     public async Task<VivaTransaction?> GetTransactionAsync(string transactionId, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(transactionId);
         using var message = new HttpRequestMessage(HttpMethod.Get, $"{_options.GetApiUrl()}/checkout/v2/transactions/{Uri.EscapeDataString(transactionId)}");
@@ -180,6 +211,11 @@ public class VivaClient(HttpClient httpClient, VivaTokenCache cache, IOptions<Vi
         public string AccessToken { get; set; } = null!;
         [JsonPropertyName("expires_in")]
         public int ExpiresIn { get; set; }
+    }
+
+    private sealed class OrderResponse
+    {
+        public long OrderCode { get; set; }
     }
 
     private sealed class ChargeResponse
