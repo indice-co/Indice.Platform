@@ -73,6 +73,8 @@ public static class AgentsConstants
         {
             /// <summary>Renders the Stripe card payment form inline and locks the chat until the payment is authorized. Payload: <c>{ "method": string }</c>.</summary>
             public const string Stripe = "application/vnd.indice.payment.stripe+json";
+            /// <summary>Renders the Viva Native Checkout card form inline and locks the chat until the payment is charged. Payload: <c>{ "method": string, "caseId": string }</c>.</summary>
+            public const string Viva = "application/vnd.indice.payment.viva+json";
         }
 
         /// <summary>A custom type to send a request for confirmation to the dex surface.</summary>

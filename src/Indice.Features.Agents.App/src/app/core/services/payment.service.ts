@@ -51,11 +51,38 @@ export interface PaymentSession {
   /** The amount charged, in major currency units. */
   amount?: number | null;
   currency?: string | null;
+  /** The provider that owns the attempt (`Stripe` or `Viva`). */
+  provider?: string | null;
+}
+
+/** What the Viva Native Checkout script needs to render the card form. */
+export interface VivaConfiguration {
+  authToken: string;
+  baseUrl: string;
+  scriptUrl: string;
+  expiresAt?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   private readonly http = inject(HttpClient);
+
+  /** A fresh Viva Native Checkout configuration (short-lived access token). */
+  getVivaConfiguration(caseId: string): Observable<VivaConfiguration> {
+    return this.withTransientRetry(
+      this.http.get<VivaConfiguration>(
+        `${settings.api_url}/my/cases/${encodeURIComponent(caseId)}/payment-attempts/viva/configuration`,
+      ),
+    );
+  }
+
+  /** Charges the case's Viva attempt with a card token. Not retried: the server claims the attempt once. */
+  chargeViva(caseId: string, chargeToken: string): Observable<PaymentSession> {
+    return this.http.post<PaymentSession>(
+      `${settings.api_url}/my/cases/${encodeURIComponent(caseId)}/payment-attempts/viva/charge`,
+      { chargeToken },
+    );
+  }
 
   /** The case's current payment attempt — polled until the webhook lands. */
   getCurrentPaymentAttempt(caseId: string): Observable<PaymentSession> {

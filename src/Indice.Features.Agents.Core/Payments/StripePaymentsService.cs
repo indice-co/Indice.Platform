@@ -40,8 +40,10 @@ public class StripePaymentsService(
     IStripeClient stripeClient,
     IOptions<StripeOptions> options,
     IPaymentEventHandler eventHandler,
-    ILogger<StripePaymentsService> logger) : IPaymentsService
+    ILogger<StripePaymentsService> logger) : IPaymentsService, IPaymentProvider
 {
+    ///<inheritdoc/>
+    public string Name => PaymentProviders.Stripe;
     private readonly StripeOptions _options = options.Value;
     private PaymentIntentService PaymentIntents => new(stripeClient);
     ///<inheritdoc/>
@@ -50,7 +52,8 @@ public class StripePaymentsService(
     public async Task<PaymentSessionModel?> CreateOrReuseAttemptAsync(string userId, string caseId, string tenantId, decimal amount, Guid conversationId, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
         var attempts = db.PaymentSessions.Where(x => x.CaseId == caseId && x.TenantId == tenantId);
-        var live = await attempts.Where(x => x.Status == PaymentAuthorizationStatus.Created || x.Status == PaymentAuthorizationStatus.Succeeded)
+        // A paid case stays paid whatever the provider; only a Stripe attempt can be resumed here.
+        var live = await attempts.Where(x => x.Status == PaymentAuthorizationStatus.Succeeded || (x.Status == PaymentAuthorizationStatus.Created && x.Provider == PaymentProviders.Stripe))
                                  .OrderByDescending(x => x.CreatedAt)
                                  .FirstOrDefaultAsync(cancellationToken);
         if (live is not null) {
@@ -83,6 +86,7 @@ public class StripePaymentsService(
             TenantId = tenantId,
             ConversationId = conversationId,
             UserId = userId,
+            Provider = PaymentProviders.Stripe,
             PaymentIntentId = paymentIntent.Id,
             ClientSecret = paymentIntent.ClientSecret,
             Status = PaymentAuthorizationStatus.Created,
@@ -124,7 +128,7 @@ public class StripePaymentsService(
     // An attempt still marked Created is reconciled against its PaymentIntent so a paid intent is never re-confirmed
     // and a declined one surfaces as Failed. The UI polls frequently, so Stripe is asked at most once per ReconciliationInterval.
     private async Task SyncWithStripeAsync(DbPaymentSession session, CancellationToken cancellationToken) {
-        if (session.Status != PaymentAuthorizationStatus.Created) {
+        if (session.Status != PaymentAuthorizationStatus.Created || session.Provider != PaymentProviders.Stripe) {
             return;
         }
         var now = DateTimeOffset.UtcNow;
@@ -197,6 +201,7 @@ public class StripePaymentsService(
         Id = session.Id,
         CaseId = session.CaseId,
         ConversationId = session.ConversationId,
+        Provider = session.Provider,
         // Only a confirmable attempt needs its secret on the wire.
         PaymentSessionSecret = session.Status == PaymentAuthorizationStatus.Created ? session.ClientSecret : null,
         PaymentAuthorizationStatus = session.Status,

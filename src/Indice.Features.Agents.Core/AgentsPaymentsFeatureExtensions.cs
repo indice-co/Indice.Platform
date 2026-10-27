@@ -22,6 +22,16 @@ public static class AgentsPaymentsFeatureExtensions
         services.TryAddSingleton<IStripeClient>(sp => new StripeClient(sp.GetRequiredService<IOptions<StripeOptions>>().Value.SecretKey));
         services.TryAddTransient<IPaymentEventHandler, NoOpPaymentEventHandler>();
         services.TryAddTransient<IPaymentsService, StripePaymentsService>();
+        services.TryAddTransient<StripePaymentsService>();
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IPaymentProvider, StripePaymentsService>());
+        services.AddOptions<PaymentsOptions>().BindConfiguration(PaymentsOptions.Name);
+        // Viva is validated only when it is in Dex:Payments:AllowedProviders.
+        services.AddOptions<VivaOptions>().BindConfiguration(VivaOptions.Name);
+        services.TryAddSingleton<VivaTokenCache>();
+        services.AddHttpClient<IVivaClient, VivaClient>();
+        services.TryAddTransient<IVivaPaymentsService, VivaPaymentsService>();
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IPaymentProvider, VivaPaymentsService>());
+        services.TryAddTransient<IPaymentAttemptsService, PaymentAttemptsService>();
         return services;
     }
 }

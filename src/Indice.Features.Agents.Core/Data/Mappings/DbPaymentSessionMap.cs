@@ -13,6 +13,7 @@ public class DbPaymentSessionMap : IEntityTypeConfiguration<DbPaymentSession>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.UserId).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.TenantId).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.Provider).HasMaxLength(TextSizePresets.S32).IsRequired();
         builder.Property(x => x.PaymentIntentId).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.ClientSecret).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(TextSizePresets.S32);

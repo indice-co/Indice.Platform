@@ -22,6 +22,8 @@ public class PaymentSessionModel
     public string CaseId { get; set; } = null!;
     /// <summary>The chat the payment was started from.</summary>
     public Guid ConversationId { get; set; }
+    /// <summary>The payment provider (see <see cref="PaymentProviders"/>).</summary>
+    public string Provider { get; set; } = PaymentProviders.Stripe;
     /// <summary>The PaymentIntent <c>client_secret</c> the card is confirmed against.</summary>
     public string? PaymentSessionSecret { get; set; }
     /// <summary>The authorization status.</summary>
@@ -31,6 +33,17 @@ public class PaymentSessionModel
     /// <summary>Three-letter ISO currency code.</summary>
     public string Currency { get; set; } = null!;
 }
+
+/// <summary>Request to charge a Viva attempt with a Native Checkout card token.</summary>
+public class VivaChargeRequestModel
+{
+    /// <summary>The token returned by <c>VivaPayments.cards.requestToken</c>.</summary>
+    public string ChargeToken { get; set; } = null!;
+}
+
+/// <summary>The response to Viva's webhook URL verification.</summary>
+/// <param name="Key">The merchant webhook key.</param>
+public record VivaWebhookKey([property: System.Text.Json.Serialization.JsonPropertyName("Key")] string Key);
 
 /// <summary>The publishable key response.</summary>
 public class PaymentProviderPublicKey

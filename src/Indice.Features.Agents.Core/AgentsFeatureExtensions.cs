@@ -229,6 +229,7 @@ public static class AgentsFeatureExtensions
         if (configureOptions is not null) {
             optionsBuilder.Configure(configureOptions);
         }
+        services.AddOptions<Indice.Features.Agents.Core.Payments.PaymentsOptions>().BindConfiguration(Indice.Features.Agents.Core.Payments.PaymentsOptions.Name);
         // The meta "auto" router advertises itself for discovery but has no workflow of its own — it runs the
         // IntentRouterService to pick one of the routable agents registered below.
         services.AddSingleton(new AgentInfo(

@@ -25,6 +25,19 @@ internal static class PaymentsApi
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost("webhooks/stripe", PaymentsHandlers.StripeWebhook)
+             .WithName(nameof(PaymentsHandlers.StripeWebhook))
+             .AllowAnonymous()
+             .ExcludeFromDescription()
+             .DisableAntiforgery();
+
+        // Viva verifies the webhook URL with a GET before it starts posting events to it.
+        group.MapGet("webhooks/viva", PaymentsHandlers.VivaWebhookVerification)
+             .WithName(nameof(PaymentsHandlers.VivaWebhookVerification))
+             .AllowAnonymous()
+             .ExcludeFromDescription();
+
+        group.MapPost("webhooks/viva", PaymentsHandlers.VivaWebhook)
+             .WithName(nameof(PaymentsHandlers.VivaWebhook))
              .AllowAnonymous()
              .ExcludeFromDescription()
              .DisableAntiforgery();
@@ -42,6 +55,14 @@ internal static class PaymentsApi
         chats.MapPost("retry", PaymentsHandlers.RetryPaymentAttempt)
              .WithName(nameof(PaymentsHandlers.RetryPaymentAttempt))
              .WithSummary("Replace a failed or cancelled payment attempt of a case.");
+
+        chats.MapGet("viva/configuration", PaymentsHandlers.GetVivaClientConfiguration)
+             .WithName(nameof(PaymentsHandlers.GetVivaClientConfiguration))
+             .WithSummary("Get a fresh Viva Native Checkout configuration (access token and URLs) for the card form.");
+
+        chats.MapPost("viva/charge", PaymentsHandlers.ChargeVivaPaymentAttempt)
+             .WithName(nameof(PaymentsHandlers.ChargeVivaPaymentAttempt))
+             .WithSummary("Charge the case's Viva payment attempt with a Native Checkout card token.");
 
         return routes;
     }

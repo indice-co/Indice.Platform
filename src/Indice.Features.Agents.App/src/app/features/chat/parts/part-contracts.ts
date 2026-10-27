@@ -72,6 +72,29 @@ export function parseStripePayment(value: string | undefined): StripePayment | n
   }
 }
 
+/** The inline Viva Native Checkout card form; the chat stays locked until the payment is charged. */
+export const VIVA_PAYMENT_MEDIA_TYPE = 'application/vnd.indice.payment.viva+json';
+
+/** Payload of {@link VIVA_PAYMENT_MEDIA_TYPE}: the case being paid and the server-created attempt. */
+export interface VivaPayment {
+  method: string;
+  caseId: string;
+  session?: PaymentSession | null;
+}
+
+/** Parses a {@link VIVA_PAYMENT_MEDIA_TYPE} part; `null` when the case id is missing. */
+export function parseVivaPayment(value: string | undefined): VivaPayment | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as Partial<VivaPayment> | null;
+    return parsed && typeof parsed.caseId === 'string' && parsed.caseId
+      ? { method: parsed.method ?? 'Viva', caseId: parsed.caseId, session: parsed.session ?? null }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 /** What `ChatMessagePartComponent` renders a part as. */
 export type PartKind =
   | 'markdown'
@@ -86,6 +109,7 @@ export type PartKind =
   | 'hitl-request-user-input'
   | 'hitl-request-payment'
   | 'payment-stripe'
+  | 'payment-viva'
   | 'unknown';
 
 /**
@@ -111,6 +135,8 @@ export function partKind(contentType: string | undefined): PartKind {
       return 'confirm';
     case STRIPE_PAYMENT_MEDIA_TYPE:
       return 'payment-stripe';
+    case VIVA_PAYMENT_MEDIA_TYPE:
+      return 'payment-viva';
     case HITL_REQUEST_MEDIA_TYPE:
       return 'hitl-request';
     default:

@@ -126,7 +126,7 @@ export class ChatHitlPaymentComponent {
     if (this.locked() || !method) {
       return;
     }
-    if (isStripe(method)) {
+    if (isProvider(method)) {
       this.submit(method);
       return;
     }
@@ -148,7 +148,8 @@ export class ChatHitlPaymentComponent {
   }
 }
 
-/** Stripe is the real provider; the method name is what the server's `PaymentCompletedStep` matches on. */
-function isStripe(method: string): boolean {
-  return method.trim().toLowerCase() === 'stripe';
+/** Stripe and Viva are the real providers; the method name is what the server's `PaymentCompletedStep` matches on. */
+function isProvider(method: string): boolean {
+  const name = method.trim().toLowerCase();
+  return name === 'stripe' || name === 'viva';
 }
