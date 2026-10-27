@@ -56,6 +56,7 @@ internal abstract class BaseCaseService
             select new Case {
                 Id = c.Id,
                 ReferenceNumber = c.ReferenceNumber,
+                RelationKey = c.RelationKey,
                 CheckpointType = new CheckpointType {
                     Id = publicData ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
                     Status = publicData ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
@@ -135,6 +136,7 @@ internal abstract class BaseCaseService
     /// <param name="channel">The channel the case was created from.</param>
     /// <param name="assignee">The assigned of the case (optional).</param>
     /// <param name="referenceNumber">The reference number of the case</param>
+    /// <param name="relationKey">The key that correlates the case with other cases. Falls back to the <c>ExternalCorrelationKey</c> metadata entry.</param>
     /// <returns></returns>
     protected async Task<DbCase> CreateDraftInternal(
         ICaseMessageService caseMessageService,
@@ -145,7 +147,8 @@ internal abstract class BaseCaseService
         Dictionary<string, string> metadata,
         string channel,
         UserActor? assignee = null,
-        string? referenceNumber = null) {
+        string? referenceNumber = null,
+        string? relationKey = null) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
         if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));
@@ -165,6 +168,7 @@ internal abstract class BaseCaseService
             AssignedTo = assignee == null ? null : AuditMeta.Create(assignee),
             ReferenceNumber = referenceNumber
         };
+        SetRelationKey(entity, relationKey);
 
         // If enabled get a new reference number from the sequence.
         if (Options.ReferenceNumberEnabled && string.IsNullOrWhiteSpace(referenceNumber)) {
@@ -179,4 +183,56 @@ internal abstract class BaseCaseService
         await caseMessageService.Send(entity.Id, user, new Message { CheckpointTypeName = "Submitted" });
         return entity;
     }
+
+    /// <summary>
+    /// Sets the relation key of the case and its <c>ExternalCorrelationKey</c> metadata entry to the same value.
+    /// <paramref name="value"/> wins; when it is empty the metadata entry is used.
+    /// </summary>
+    /// <param name="case">The case to update.</param>
+    /// <param name="value">The relation key.</param>
+    protected static void SetRelationKey(DbCase @case, string? value) {
+        const string key = CasesCoreConstants.MetadataKeys.ExternalCorrelationKey;
+        if (string.IsNullOrWhiteSpace(value)) {
+            value = @case.Metadata?.GetValueOrDefault(key);
+        }
+        @case.RelationKey = string.IsNullOrWhiteSpace(value) ? null : value;
+        if (@case.RelationKey is not null) {
+            @case.Metadata ??= [];
+            @case.Metadata[key] = @case.RelationKey;
+        }
+    }
+
+    /// <summary>
+    /// Filters the cases on their metadata. The relation key column answers the <c>metadata.ExternalCorrelationKey</c> clauses,
+    /// for the clients that still filter it as metadata.
+    /// </summary>
+    /// <param name="query">The cases.</param>
+    /// <param name="metadata">The metadata clauses.</param>
+    protected static IQueryable<DbCase> WhereMetadata(IQueryable<DbCase> query, FilterClause[]? metadata) {
+        if (metadata is null || metadata.Length == 0) {
+            return query;
+        }
+        var keyClauses = metadata.Where(IsRelationKeyClause).ToArray();
+        return WhereRelationKey(query.Where(metadata.Where(clause => !IsRelationKeyClause(clause))), keyClauses);
+    }
+
+    /// <summary>Filters the cases on their relation key.</summary>
+    /// <param name="query">The cases.</param>
+    /// <param name="clauses">The clauses. Supports the <c>eq</c>, <c>neq</c> and <c>contains</c> operators.</param>
+    protected static IQueryable<DbCase> WhereRelationKey(IQueryable<DbCase> query, FilterClause[]? clauses) {
+        foreach (var clause in clauses ?? []) {
+            var value = clause.Value;
+            query = clause.Operator switch {
+                FilterOperator.Eq => query.Where(c => c.RelationKey == value),
+                FilterOperator.Neq => query.Where(c => c.RelationKey != value),
+                FilterOperator.Contains => query.Where(c => c.RelationKey!.Contains(value)),
+                _ => query
+            };
+        }
+        return query;
+    }
+
+    private static bool IsRelationKeyClause(FilterClause clause) =>
+        string.Equals(clause.Member, $"metadata.{CasesCoreConstants.MetadataKeys.ExternalCorrelationKey}", StringComparison.OrdinalIgnoreCase) &&
+        clause.Operator is FilterOperator.Eq or FilterOperator.Neq or FilterOperator.Contains;
 }
