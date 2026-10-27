@@ -160,7 +160,7 @@ internal static class IntegrationHandlers
         Dictionary<string, string> metadata,
         IAdminCaseService adminCaseService
     ) {
-        if (new CaseMetadataValidator().Validate(metadata) is { } errors) {
+        if (new CaseMetadataValidator().Validate(metadata) is { IsValid: false } errors) {
             return TypedResults.ValidationProblem(errors.ToDictionary());
         }
         await adminCaseService.PatchCaseMetadata(caseId, metadata);
