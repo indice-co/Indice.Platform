@@ -6,6 +6,7 @@ using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Stores.Serialization;
+using Microsoft.AspNetCore.Mvc;
 #else
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -32,8 +33,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using Indice.Security;
-using Microsoft.AspNetCore.Session;
-using Microsoft.AspNetCore.Mvc;
 using Indice.Features.Identity.Core.Guards;
 
 namespace Indice.Features.Identity.Server.Manager;
@@ -49,23 +48,23 @@ internal static class UserHandlers
         var query = dbContext.Users.AsNoTracking();
         if (filter != null) {
             query = query.Where(x => filter.ClaimType == null || x.Claims.Any(x => x.ClaimType == filter.ClaimType && x.ClaimValue == filter.ClaimValue));
-            if (filter.Blocked.HasValue) {
-                query = query.Where(x => x.Blocked == filter.Blocked.Value);
+            if (filter.Blocked is bool blocked) {
+                query = query.Where(x => x.Blocked == blocked);
             }
-            if (filter.LockedOut.HasValue) {
+            if (filter.LockedOut is bool lockedOut) {
                 var now = DateTimeOffset.UtcNow;
-                query = filter.LockedOut.Value
+                query = lockedOut
                     ? query.Where(x => x.LockoutEnabled && x.LockoutEnd != null && x.LockoutEnd >= now)
                     : query.Where(x => !x.LockoutEnabled || x.LockoutEnd == null || x.LockoutEnd < now);
             }
-            if (filter.EmailConfirmed.HasValue) {
-                query = query.Where(x => x.EmailConfirmed == filter.EmailConfirmed.Value);
+            if (filter.EmailConfirmed is bool emailConfirmed) {
+                query = query.Where(x => x.EmailConfirmed == emailConfirmed);
             }
-            if (filter.PhoneNumberConfirmed.HasValue) {
-                query = query.Where(x => x.PhoneNumberConfirmed == filter.PhoneNumberConfirmed.Value);
+            if (filter.PhoneNumberConfirmed is bool phoneNumberConfirmed) {
+                query = query.Where(x => x.PhoneNumberConfirmed == phoneNumberConfirmed);
             }
-            if (filter.TwoFactorEnabled.HasValue) {
-                query = query.Where(x => x.TwoFactorEnabled == filter.TwoFactorEnabled.Value);
+            if (filter.TwoFactorEnabled is bool twoFactorEnabled) {
+                query = query.Where(x => x.TwoFactorEnabled == twoFactorEnabled);
             }
         }
         // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
