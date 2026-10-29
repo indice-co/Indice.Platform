@@ -19,4 +19,6 @@ public class UserListFilter
     public bool? PhoneNumberConfirmed { get; set; }
     /// <summary>Filters users by whether they have enabled two factor authentication.</summary>
     public bool? TwoFactorEnabled { get; set; }
+    /// <summary>Filters users by whether they are global administrators.</summary>
+    public bool? Admin { get; set; }
 }

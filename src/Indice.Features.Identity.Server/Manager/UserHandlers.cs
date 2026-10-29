@@ -67,6 +67,9 @@ internal static class UserHandlers
             if (filter.TwoFactorEnabled is bool twoFactorEnabled) {
                 query = query.Where(x => x.TwoFactorEnabled == twoFactorEnabled);
             }
+            if (filter.Admin is bool admin) {
+                query = query.Where(x => x.Admin == admin);
+            }
         }
         // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
         var usersQuery =

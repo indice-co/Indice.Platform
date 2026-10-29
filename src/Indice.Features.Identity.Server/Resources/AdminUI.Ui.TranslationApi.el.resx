@@ -2777,6 +2777,9 @@
   <data name="Users.Fields.UserName" xml:space="preserve">
     <value>Όνομα χρήστη</value>
   </data>
+  <data name="Users.Filters.Admin" xml:space="preserve">
+    <value>Διαχειριστές</value>
+  </data>
   <data name="Users.Filters.Blocked" xml:space="preserve">
     <value>Αποκλεισμένοι</value>
   </data>
@@ -3079,6 +3082,9 @@
   </data>
   <data name="Users.Status.MfaEnabled" xml:space="preserve">
     <value>MFA ενεργό</value>
+  </data>
+  <data name="Users.Status.NotAdmin" xml:space="preserve">
+    <value>Μη διαχειριστής</value>
   </data>
   <data name="Users.Status.NotBlocked" xml:space="preserve">
     <value>Μη αποκλεισμένος</value>

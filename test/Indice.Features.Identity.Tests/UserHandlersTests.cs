@@ -109,6 +109,25 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.True(true);
     }
 
+    [Fact]
+    public async Task GetUsers_FiltersByAdmin_Test() {
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        foreach (var (name, admin) in new[] { ("admin.user@indice.gr", true), ("plain.user@indice.gr", false) }) {
+            identityDbContext.Users.Add(new User(name) { Email = name, NormalizedUserName = name.ToUpperInvariant(), NormalizedEmail = name.ToUpperInvariant(), Admin = admin });
+        }
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var options = new ListOptions { Page = 1, Size = 10 };
+
+        var admins = await UserHandlers.GetUsers(identityDbContext, options, new UserListFilter { Admin = true }, null);
+        var others = await UserHandlers.GetUsers(identityDbContext, options, new UserListFilter { Admin = false }, null);
+
+        var adminItems = Assert.IsType<Ok<ResultSet<UserInfo>>>(admins.Result).Value!.Items;
+        var otherItems = Assert.IsType<Ok<ResultSet<UserInfo>>>(others.Result).Value!.Items;
+        Assert.Equal("admin.user@indice.gr", Assert.Single(adminItems).UserName);
+        Assert.True(adminItems[0].IsAdmin);
+        Assert.Equal("plain.user@indice.gr", Assert.Single(otherItems).UserName);
+    }
+
 
     [Fact]
     public void CreateUserDevice_ConvertDbPublicKeyToJsonWebKey_Test() {

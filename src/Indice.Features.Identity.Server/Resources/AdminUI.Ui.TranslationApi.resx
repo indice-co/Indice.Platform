@@ -2777,6 +2777,9 @@
   <data name="Users.Fields.UserName" xml:space="preserve">
     <value>Username</value>
   </data>
+  <data name="Users.Filters.Admin" xml:space="preserve">
+    <value>Admins</value>
+  </data>
   <data name="Users.Filters.Blocked" xml:space="preserve">
     <value>Blocked</value>
   </data>
@@ -3079,6 +3082,9 @@
   </data>
   <data name="Users.Status.MfaEnabled" xml:space="preserve">
     <value>MFA enabled</value>
+  </data>
+  <data name="Users.Status.NotAdmin" xml:space="preserve">
+    <value>Not admin</value>
   </data>
   <data name="Users.Status.NotBlocked" xml:space="preserve">
     <value>Not blocked</value>

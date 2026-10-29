@@ -734,7 +734,7 @@ export interface IIdentityApiService {
      * @param expandClaims (optional) 
      * @return OK
      */
-    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet>;
+    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet>;
     /**
      * Creates a new user.
      * @return Created
@@ -10315,7 +10315,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param expandClaims (optional) 
      * @return OK
      */
-    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet> {
+    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet> {
         let url_ = this.baseUrl + "/api/users?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -10343,6 +10343,8 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "PhoneNumberConfirmed=" + encodeURIComponent("" + phoneNumberConfirmed) + "&";
         if (twoFactorEnabled !== undefined && twoFactorEnabled !== null)
             url_ += "TwoFactorEnabled=" + encodeURIComponent("" + twoFactorEnabled) + "&";
+        if (admin !== undefined && admin !== null)
+            url_ += "Admin=" + encodeURIComponent("" + admin) + "&";
         if (expandClaims === null)
             throw new globalThis.Error("The parameter 'expandClaims' cannot be null.");
         else if (expandClaims !== undefined)

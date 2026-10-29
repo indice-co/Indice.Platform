@@ -59,7 +59,7 @@ export function inputDateToClaim(value: string | null | undefined): string {
 
 export interface StatusFilter {
   /** Query param (and API filter) name. */
-  param: 'blocked' | 'lockedOut' | 'emailConfirmed' | 'phoneNumberConfirmed' | 'twoFactorEnabled';
+  param: 'admin' | 'blocked' | 'lockedOut' | 'emailConfirmed' | 'phoneNumberConfirmed' | 'twoFactorEnabled';
   /** Translation keys. */
   label: string;
   yes: string;
@@ -70,6 +70,7 @@ export interface StatusFilter {
 
 /** The status filters of the users list, in display order. */
 export const STATUS_FILTERS: StatusFilter[] = [
+  { param: 'admin', label: 'Users.Filters.Admin', yes: 'Users.Status.Admin', no: 'Users.Status.NotAdmin', yesTone: 'primary', noTone: 'neutral' },
   { param: 'blocked', label: 'Users.Filters.Blocked', yes: 'Users.Status.Blocked', no: 'Users.Status.NotBlocked', yesTone: 'error', noTone: 'neutral' },
   { param: 'lockedOut', label: 'Users.Filters.LockedOut', yes: 'Users.Status.LockedOut', no: 'Users.Status.NotLockedOut', yesTone: 'warning', noTone: 'neutral' },
   { param: 'emailConfirmed', label: 'Users.Filters.Email', yes: 'Users.Status.EmailVerified', no: 'Users.Status.EmailUnverified', yesTone: 'success', noTone: 'warning' },

@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideLink, LucidePlus, LucideRotateCcw, LucideTrash, LucideTriangleAlert } from '@lucide/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -27,7 +27,7 @@ interface UrlRow {
   template: `
     <div class="panel">
       @if (canEdit) {
-        <form class="flex flex-col gap-2 border-b border-base-300 p-4 sm:flex-row sm:items-start" (ngSubmit)="add()">
+        <form class="flex flex-col gap-2 border-b border-base-300 p-4 sm:flex-row sm:items-start" [formGroup]="addForm" (ngSubmit)="add()">
           <div class="flex-1">
             <input class="input w-full font-mono text-sm" [formControl]="newUrl" placeholder="https://app.example.com/signin-oidc"
               [class.input-error]="newUrl.invalid && newUrl.touched" [attr.aria-label]="'Clients.Urls.UrlToAdd' | translate" />
@@ -120,6 +120,8 @@ export class ClientUrlsComponent implements OnInit {
   protected readonly dirty = signal(false);
   protected readonly saving = signal(false);
   protected readonly newUrl = new FormControl('', { nonNullable: true, validators: [Validators.pattern(URL_PATTERN)] });
+  /** Without a form directive on the `<form>` the browser would do a native submit and reload the page. */
+  protected readonly addForm = new FormGroup({ url: this.newUrl });
   protected readonly hasInvalidOrigins = computed(() => this.rows().some(row => row.cors && !this.isValidOrigin(row.url)));
 
   public ngOnInit(): void {
