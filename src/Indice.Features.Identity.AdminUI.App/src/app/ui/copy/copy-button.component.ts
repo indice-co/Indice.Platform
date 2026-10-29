@@ -1,14 +1,15 @@
 import { Component, input, signal } from '@angular/core';
 import { LucideCheck, LucideCopy } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /** Copies `value` to the clipboard and briefly shows a check mark. */
 @Component({
   selector: 'app-copy-button',
-  imports: [LucideCheck, LucideCopy],
+  imports: [LucideCheck, LucideCopy, TranslatePipe],
   host: { class: 'inline-flex' },
   template: `
-    <button type="button" class="btn btn-ghost btn-xs btn-square" [attr.aria-label]="'Copy ' + (label() || 'to clipboard')"
-      [attr.title]="copied() ? 'Copied' : 'Copy'" (click)="copy()">
+    <button type="button" class="btn btn-ghost btn-xs btn-square" [attr.aria-label]="label() ? ('Ui.CopyButton.CopyLabel' | translate: { label: label() }) : ('Ui.CopyButton.CopyToClipboard' | translate)"
+      [attr.title]="(copied() ? 'Common.Copied' : 'Common.Copy') | translate" (click)="copy()">
       @if (copied()) { <svg lucideCheck class="size-3.5 text-success"></svg> } @else { <svg lucideCopy class="size-3.5 opacity-70"></svg> }
     </button>
   `

@@ -3,6 +3,7 @@ import {
   afterNextRender, createComponent, inject, input, viewChild
 } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, map, take } from 'rxjs';
 import { DIALOG_DATA, DialogRef } from './dialog-ref';
 import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.component';
@@ -18,14 +19,14 @@ export interface DialogConfig<D = unknown> {
 
 @Component({
   selector: 'app-dialog-host',
-  imports: [NgComponentOutlet],
+  imports: [NgComponentOutlet, TranslatePipe],
   template: `
     <dialog #dialog class="modal modal-bottom sm:modal-middle" (cancel)="onCancel($event)">
       <div class="modal-box" [class]="sizeClass()">
         <ng-container *ngComponentOutlet="component(); injector: injector()" />
       </div>
       @if (dismissible()) {
-        <form method="dialog" class="modal-backdrop"><button type="button" (click)="ref().close()">close</button></form>
+        <form method="dialog" class="modal-backdrop"><button type="button" (click)="ref().close()">{{ 'Common.Close' | translate }}</button></form>
       }
     </dialog>
   `

@@ -1,27 +1,28 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ApiScopeInfo, UpdateApiScopeRequest } from 'src/app/core/services/identity-api.service';
 import { Translations, TranslationsEditorComponent, toTranslations } from './translations-editor.component';
 
 /** Details form of an API scope (display name, description, consent options and translations). */
 @Component({
   selector: 'app-scope-form',
-  imports: [ReactiveFormsModule, TranslationsEditorComponent],
+  imports: [ReactiveFormsModule, TranslationsEditorComponent, TranslatePipe],
   host: { class: 'block' },
   template: `
     <form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()">
       <div class="grid gap-4 sm:grid-cols-2">
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">Name</legend>
+          <legend class="fieldset-legend">{{ 'Common.Name' | translate }}</legend>
           <input class="input w-full font-mono" [value]="scope().name" disabled />
         </fieldset>
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">Display name</legend>
+          <legend class="fieldset-legend">{{ 'Common.DisplayName' | translate }}</legend>
           <input class="input w-full" formControlName="displayName" maxlength="200" />
         </fieldset>
       </div>
       <fieldset class="fieldset">
-        <legend class="fieldset-legend">Description</legend>
+        <legend class="fieldset-legend">{{ 'Common.Description' | translate }}</legend>
         <textarea class="textarea w-full" rows="2" formControlName="description" maxlength="1000"></textarea>
       </fieldset>
 
@@ -29,15 +30,15 @@ import { Translations, TranslationsEditorComponent, toTranslations } from './tra
         <label class="flex cursor-pointer items-start gap-3 rounded-field border border-base-300 p-3 has-checked:border-primary/50 has-checked:bg-primary/5">
           <input type="checkbox" class="toggle toggle-sm toggle-primary mt-0.5" formControlName="showInDiscoveryDocument" />
           <span>
-            <span class="block text-sm font-semibold">Show in discovery document</span>
-            <span class="block text-xs text-base-content/65">Listed in the OpenID Connect discovery document.</span>
+            <span class="block text-sm font-semibold">{{ 'Resources.Form.ShowInDiscovery' | translate }}</span>
+            <span class="block text-xs text-base-content/65">{{ 'Resources.Form.ShowInDiscoveryHint' | translate }}</span>
           </span>
         </label>
         <label class="flex cursor-pointer items-start gap-3 rounded-field border border-base-300 p-3 has-checked:border-primary/50 has-checked:bg-primary/5">
           <input type="checkbox" class="toggle toggle-sm toggle-primary mt-0.5" formControlName="emphasize" />
           <span>
-            <span class="block text-sm font-semibold">Emphasize</span>
-            <span class="block text-xs text-base-content/65">Highlighted on the consent screen.</span>
+            <span class="block text-sm font-semibold">{{ 'Resources.Form.Emphasize' | translate }}</span>
+            <span class="block text-xs text-base-content/65">{{ 'Resources.Form.EmphasizeHint' | translate }}</span>
           </span>
         </label>
       </div>
@@ -46,10 +47,10 @@ import { Translations, TranslationsEditorComponent, toTranslations } from './tra
 
       @if (!readonly()) {
         <div class="flex justify-end gap-2">
-          <button type="button" class="btn btn-ghost btn-sm" [disabled]="pristine() || saving()" (click)="reset()">Discard</button>
+          <button type="button" class="btn btn-ghost btn-sm" [disabled]="pristine() || saving()" (click)="reset()">{{ 'Common.Discard' | translate }}</button>
           <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || pristine() || saving()">
             @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
-            Save scope
+            {{ 'Resources.Scopes.Save' | translate }}
           </button>
         </div>
       }

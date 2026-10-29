@@ -118,7 +118,7 @@ internal static class ClaimTypeHandlers
         claimType.Rule = request.Rule;
         claimType.ValueType = request.ValueType;
         claimType.Required = request.Required;
-        claimType.UserEditable = !claimType.Reserved ? request.UserEditable : false;
+        claimType.UserEditable = request.UserEditable;
         // Commit changes to database.
         await configurationDbContext.SaveChangesAsync();
         // Send the response.

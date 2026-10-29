@@ -1,4 +1,5 @@
-import { AfterContentInit, OnInit, Directive, ElementRef, Input } from '@angular/core';
+import { AfterContentInit, OnInit, Directive, ElementRef, Input, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as app from 'src/app/core/models/settings';
 
 @Directive({
@@ -12,6 +13,7 @@ export class ImgUserPictureDirective implements OnInit {
     private _img: HTMLImageElement;
     private _version: number = 0;
     private _initialized: boolean = false;
+    private readonly _translate = inject(TranslateService);
 
     constructor(element: ElementRef) {
         this._img = element.nativeElement as HTMLImageElement;
@@ -86,7 +88,7 @@ export class ImgUserPictureDirective implements OnInit {
             let srcParts = ['/pictures', hash, this._size].join('/');
             this._img.src=`${app.settings.auth_settings.authority}${srcParts}?d=${encodeURIComponent(fallbackParts)}&v=${this._version}`;
         })();
-        this._img.alt = `Profile picture ${this._displayName}`;
+        this._img.alt = this._translate.instant('Ui.Avatar.Alt', { name: this._displayName });
     }
 
     private async generateSHA256Hash(text) {

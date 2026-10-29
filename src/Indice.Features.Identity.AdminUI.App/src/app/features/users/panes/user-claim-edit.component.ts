@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { forkJoin, map } from 'rxjs';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ClaimTypeInfo, CreateClaimRequest, IdentityApiService, UpdateUserClaimRequest } from 'src/app/core/services/identity-api.service';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
@@ -12,10 +13,10 @@ import { claimValueValidators, isAssignableClaimType } from '../user-utils';
 /** Side pane that adds a claim to the user in `userId`, or edits the value of the claim in `claimId`. */
 @Component({
   selector: 'app-user-claim-edit',
-  imports: [ReactiveFormsModule, SidePaneLayoutComponent, ClaimValueInputComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, SidePaneLayoutComponent, ClaimValueInputComponent],
   template: `
-    <app-side-pane-layout [title]="claimId() ? 'Edit claim' : 'Add claim'"
-      [subtitle]="claimId() ? 'Change the value of this claim.' : 'Store an additional detail about the user.'">
+    <app-side-pane-layout [title]="(claimId() ? 'Users.ClaimEdit.EditTitle' : 'Users.Claims.AddClaim') | translate"
+      [subtitle]="(claimId() ? 'Users.ClaimEdit.EditSubtitle' : 'Users.ClaimEdit.AddSubtitle') | translate">
       @if (loading()) {
         <div class="space-y-4">
           @for (row of [1, 2]; track row) { <div class="skeleton h-10 w-full"></div> }
@@ -23,13 +24,13 @@ import { claimValueValidators, isAssignableClaimType } from '../user-utils';
       } @else {
         <form id="user-claim-form" class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Claim *</legend>
+            <legend class="fieldset-legend">{{ 'Users.Claims.Claim' | translate }} *</legend>
             @if (claimId()) {
               <p class="font-medium">{{ selectedType()?.displayName || form.controls.type.value }}</p>
               <p class="font-mono text-xs text-base-content/60">{{ form.controls.type.value }}</p>
             } @else {
               <select class="select w-full" formControlName="type" (change)="typeChanged()">
-                <option value="" disabled>Select a claim…</option>
+                <option value="" disabled>{{ 'Users.Claims.SelectClaim' | translate }}</option>
                 @for (type of assignable(); track type.id) {
                   <option [value]="type.name">{{ type.displayName || type.name }}</option>
                 }
@@ -38,22 +39,22 @@ import { claimValueValidators, isAssignableClaimType } from '../user-utils';
             @if (selectedType()?.description) { <p class="label whitespace-normal">{{ selectedType()?.description }}</p> }
           </fieldset>
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Value *</legend>
+            <legend class="fieldset-legend">{{ 'Common.Value' | translate }} *</legend>
             <app-claim-value-input formControlName="value" [valueType]="selectedType()?.valueType"
               [invalid]="form.controls.value.invalid && form.controls.value.touched" />
             @if (form.controls.value.touched && form.controls.value.hasError('pattern')) {
-              <p class="label text-error">The value does not have the expected format.</p>
+              <p class="label text-error">{{ 'Users.Validation.ValueFormat' | translate }}</p>
             } @else if (form.controls.value.touched && form.controls.value.hasError('required')) {
-              <p class="label text-error">A value is required.</p>
+              <p class="label text-error">{{ 'Users.Validation.ValueRequired' | translate }}</p>
             }
           </fieldset>
         </form>
       }
       <div footer class="flex justify-end gap-2 border-t border-base-300 px-6 py-4">
-        <button type="button" class="btn btn-ghost" (click)="pane.close()">Cancel</button>
+        <button type="button" class="btn btn-ghost" (click)="pane.close()">{{ 'Common.Cancel' | translate }}</button>
         <button type="submit" form="user-claim-form" class="btn btn-primary" [disabled]="form.invalid || saving() || loading()">
           @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
-          {{ claimId() ? 'Save' : 'Add claim' }}
+          {{ (claimId() ? 'Common.Save' : 'Users.Claims.AddClaim') | translate }}
         </button>
       </div>
     </app-side-pane-layout>
@@ -63,6 +64,7 @@ export class UserClaimEditComponent implements OnInit {
   private readonly _api = inject(IdentityApiService);
   private readonly _toast = inject(ToastService);
   private readonly _refresh = inject(RefreshBus);
+  private readonly _translate = inject(TranslateService);
   protected readonly pane = inject(SidePaneService);
 
   /** Bound from the `user-claim/:userId(/:claimId)` pane routes. */
@@ -119,7 +121,9 @@ export class UserClaimEditComponent implements OnInit {
     this.saving.set(true);
     request$.subscribe({
       next: () => {
-        this._toast.success(claimId ? 'Claim updated' : 'Claim added', `Claim '${type}' was saved.`);
+        this._toast.success(
+          this._translate.instant(claimId ? 'Users.ClaimEdit.Updated' : 'Users.ClaimEdit.Added'),
+          this._translate.instant('Users.ClaimEdit.SavedMessage', { type }));
         this._refresh.notify(USER_REFRESH_SCOPE);
         this.pane.close();
       },

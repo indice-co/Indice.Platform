@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideChevronRight, LucidePlus, LucideShieldCheck } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityApiService, RoleInfo } from 'src/app/core/services/identity-api.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
@@ -18,28 +19,28 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
   selector: 'app-roles',
   imports: [
     RouterLink, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent,
-    LucideChevronRight, LucidePlus, LucideShieldCheck
+    LucideChevronRight, LucidePlus, LucideShieldCheck, TranslatePipe
   ],
   template: `
-    <app-page-header title="Roles" subtitle="Roles group users so that applications can authorize them as a whole.">
+    <app-page-header [title]="'Routes.Roles' | translate" [subtitle]="'Roles.List.Subtitle' | translate">
       @if (canEdit) {
         <div actions>
-          <a class="btn btn-primary btn-sm" [routerLink]="pane.link('role-add')"><svg lucidePlus class="size-4"></svg>New role</a>
+          <a class="btn btn-primary btn-sm" [routerLink]="pane.link('role-add')"><svg lucidePlus class="size-4"></svg>{{ 'Roles.New' | translate }}</a>
         </div>
       }
     </app-page-header>
 
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-      <app-search-input class="sm:w-72" [value]="list.search()" placeholder="Search roles" (search)="list.setSearch($event)" />
+      <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Roles.List.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
     </div>
 
     <div class="panel overflow-x-auto">
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="name">Name</app-sort-header></th>
-            <th>Description</th>
-            <th class="w-12"><span class="sr-only">Open</span></th>
+            <th><app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</app-sort-header></th>
+            <th>{{ 'Common.Description' | translate }}</th>
+            <th class="w-12"><span class="sr-only">{{ 'Roles.List.Open' | translate }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +61,7 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
                 </td>
                 <td class="max-w-xl text-base-content/75">{{ role.description || '—' }}</td>
                 <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['role', role.id!])" [attr.aria-label]="'Open ' + role.name">
+                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['role', role.id!])" [attr.aria-label]="'Roles.List.OpenItem' | translate: { name: role.name }">
                     <svg lucideChevronRight class="size-4"></svg>
                   </a>
                 </td>
@@ -68,11 +69,11 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
             } @empty {
               <tr>
                 <td colspan="3">
-                  <app-empty-state [title]="list.hasFilters() ? 'No matching roles' : 'No roles yet'"
-                    [message]="list.hasFilters() ? 'Try a different search term.' : 'Create a role to group users with the same access.'">
+                  <app-empty-state [title]="(list.hasFilters() ? 'Roles.List.NoMatches' : 'Roles.List.Empty') | translate"
+                    [message]="(list.hasFilters() ? 'Roles.List.NoMatchesHint' : 'Roles.List.EmptyHint') | translate">
                     <svg icon lucideShieldCheck class="size-5"></svg>
                     @if (canEdit && !list.hasFilters()) {
-                      <a actions class="btn btn-sm" [routerLink]="pane.link('role-add')"><svg lucidePlus class="size-4"></svg>New role</a>
+                      <a actions class="btn btn-sm" [routerLink]="pane.link('role-add')"><svg lucidePlus class="size-4"></svg>{{ 'Roles.New' | translate }}</a>
                     }
                   </app-empty-state>
                 </td>

@@ -1,16 +1,17 @@
 import { Component, input } from '@angular/core';
 import { LucideCircleCheck, LucideCircleMinus } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /** Yes / no indicator for boolean table cells. */
 @Component({
   selector: 'app-bool-icon',
-  imports: [LucideCircleCheck, LucideCircleMinus],
+  imports: [LucideCircleCheck, LucideCircleMinus, TranslatePipe],
   host: { class: 'inline-flex align-middle' },
   template: `
     @if (value()) {
-      <svg lucideCircleCheck class="size-5 text-success" aria-label="Yes"></svg>
+      <svg lucideCircleCheck class="size-5 text-success" [attr.aria-label]="'Common.Yes' | translate"></svg>
     } @else {
-      <svg lucideCircleMinus class="size-5 text-base-content/30" aria-label="No"></svg>
+      <svg lucideCircleMinus class="size-5 text-base-content/30" [attr.aria-label]="'Common.No' | translate"></svg>
     }
   `
 })

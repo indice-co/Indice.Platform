@@ -9,6 +9,7 @@ import { Permission, hasPermission } from '../core/services/auth.guards';
 import { UiFeaturesService, isFeatureEnabled } from '../core/services/ui-features.service';
 
 export interface NavItem {
+  /** Translation key. */
   label: string;
   link: string;
   icon: LucideIcon;
@@ -18,7 +19,7 @@ export interface NavItem {
 }
 
 export interface NavSection {
-  /** Section heading; omitted for the first section. */
+  /** Section heading translation key; omitted for the first section. */
   label?: string;
   items: NavItem[];
 }
@@ -26,37 +27,37 @@ export interface NavSection {
 const SECTIONS: NavSection[] = [
   {
     items: [
-      { label: 'Dashboard', link: '/dashboard', icon: LucideLayoutDashboard, permissions: ['usersReader', 'clientsReader'] }
+      { label: 'Routes.Dashboard', link: '/dashboard', icon: LucideLayoutDashboard, permissions: ['usersReader', 'clientsReader'] }
     ]
   },
   {
-    label: 'Identity',
+    label: 'Nav.Identity',
     items: [
-      { label: 'Users', link: '/users', icon: LucideUsers, permissions: ['usersReader'] },
-      { label: 'Roles', link: '/roles', icon: LucideShieldCheck, permissions: ['usersReader'] },
-      { label: 'Claim types', link: '/claim-types', icon: LucideTags, permissions: ['usersReader', 'clientsReader'] }
+      { label: 'Routes.Users', link: '/users', icon: LucideUsers, permissions: ['usersReader'] },
+      { label: 'Routes.Roles', link: '/roles', icon: LucideShieldCheck, permissions: ['usersReader'] },
+      { label: 'Routes.ClaimTypes', link: '/claim-types', icon: LucideTags, permissions: ['usersReader', 'clientsReader'] }
     ]
   },
   {
-    label: 'Applications',
+    label: 'Nav.Applications',
     items: [
-      { label: 'Clients', link: '/clients', icon: LucideAppWindow, permissions: ['clientsReader'] },
-      { label: 'Identity resources', link: '/resources/identity', icon: LucideIdCard, permissions: ['clientsReader'] },
-      { label: 'API resources', link: '/resources/api', icon: LucideBoxes, permissions: ['clientsReader'] },
-      { label: 'API scopes', link: '/resources/scopes', icon: LucideKeyRound, permissions: ['clientsReader'] }
+      { label: 'Routes.Clients', link: '/clients', icon: LucideAppWindow, permissions: ['clientsReader'] },
+      { label: 'Routes.IdentityResources', link: '/resources/identity', icon: LucideIdCard, permissions: ['clientsReader'] },
+      { label: 'Routes.ApiResources', link: '/resources/api', icon: LucideBoxes, permissions: ['clientsReader'] },
+      { label: 'Routes.ApiScopes', link: '/resources/scopes', icon: LucideKeyRound, permissions: ['clientsReader'] }
     ]
   },
   {
-    label: 'Monitoring',
+    label: 'Nav.Monitoring',
     items: [
-      { label: 'Sign-in logs', link: '/sign-in-logs', icon: LucideLogIn, permissions: ['admin'], feature: Features.SignInLogs },
-      { label: 'Activity logs', link: '/activity-logs', icon: LucideActivity, permissions: ['admin'], feature: Features.ActivityLogs }
+      { label: 'Routes.SignInLogs', link: '/sign-in-logs', icon: LucideLogIn, permissions: ['admin'], feature: Features.SignInLogs },
+      { label: 'Routes.ActivityLogs', link: '/activity-logs', icon: LucideActivity, permissions: ['admin'], feature: Features.ActivityLogs }
     ]
   },
   {
-    label: 'System',
+    label: 'Nav.System',
     items: [
-      { label: 'App settings', link: '/settings', icon: LucideSlidersHorizontal, permissions: ['admin'] }
+      { label: 'Routes.AppSettings', link: '/settings', icon: LucideSlidersHorizontal, permissions: ['admin'] }
     ]
   }
 ];

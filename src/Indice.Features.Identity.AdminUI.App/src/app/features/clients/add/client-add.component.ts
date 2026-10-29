@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { concatMap, forkJoin, map, of } from 'rxjs';
 import {
   LucideArrowLeft, LucideArrowRight, LucideCheck, LucideDices, LucideDynamicIcon, LucideFileBadge, LucideKeyRound, LucideTrash
@@ -31,13 +32,14 @@ interface PendingSecret {
 @Component({
   selector: 'app-client-add',
   imports: [
-    ReactiveFormsModule, RouterLink, DatePipe, NgTemplateOutlet, PageHeaderComponent, StepperComponent, TransferListComponent, LucideDynamicIcon,
+    ReactiveFormsModule, RouterLink, DatePipe, NgTemplateOutlet, TranslatePipe, PageHeaderComponent, StepperComponent, TransferListComponent, LucideDynamicIcon,
     LucideArrowLeft, LucideArrowRight, LucideCheck, LucideDices, LucideFileBadge, LucideKeyRound, LucideTrash
   ],
   template: `
-    <app-page-header title="New client" [subtitle]="type() ? type()!.name + ' · ' + type()!.flow : 'Choose the kind of application you are registering.'">
+    <app-page-header [title]="'Routes.NewClient' | translate"
+      [subtitle]="type() ? (type()!.name | translate) + ' · ' + (type()!.flow | translate) : ('Clients.Add.ChooseType' | translate)">
       <a leading routerLink="/clients" class="mb-2 inline-flex items-center gap-1 text-sm text-base-content/60 hover:text-base-content">
-        <svg lucideArrowLeft class="size-4"></svg>Clients
+        <svg lucideArrowLeft class="size-4"></svg>{{ 'Routes.Clients' | translate }}
       </a>
     </app-page-header>
 
@@ -53,9 +55,9 @@ interface PendingSecret {
               <svg [lucideIcon]="option.icon" class="size-5"></svg>
             </span>
             <span class="min-w-0">
-              <span class="block font-semibold">{{ option.name }}</span>
-              <span class="block text-xs font-medium text-primary">{{ option.flow }}</span>
-              <span class="mt-2 block text-sm text-base-content/70">{{ option.description[0] }}</span>
+              <span class="block font-semibold">{{ option.name | translate }}</span>
+              <span class="block text-xs font-medium text-primary">{{ option.flow | translate }}</span>
+              <span class="mt-2 block text-sm text-base-content/70">{{ option.description[0] | translate }}</span>
             </span>
           </button>
         }
@@ -63,13 +65,13 @@ interface PendingSecret {
       <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         @if (selected(); as option) {
           <ul class="list-inside list-disc space-y-0.5 text-sm text-base-content/75">
-            @for (line of option.description; track $index) { <li>{{ line }}</li> }
+            @for (line of option.description; track $index) { <li>{{ line | translate }}</li> }
           </ul>
         } @else {
-          <p class="text-sm text-base-content/60">Select an application type to continue.</p>
+          <p class="text-sm text-base-content/60">{{ 'Clients.Add.SelectTypeHint' | translate }}</p>
         }
         <button type="button" class="btn btn-primary" [disabled]="!selected()" (click)="start(selected()!)">
-          Get started<svg lucideArrowRight class="size-4"></svg>
+          {{ 'Clients.Add.GetStarted' | translate }}<svg lucideArrowRight class="size-4"></svg>
         </button>
       </div>
     } @else {
@@ -85,45 +87,46 @@ interface PendingSecret {
             @case ('urls') {
               <div class="grid max-w-2xl gap-4">
                 <fieldset class="fieldset">
-                  <legend class="fieldset-legend">Callback URL *</legend>
+                  <legend class="fieldset-legend">{{ 'Clients.Fields.CallbackUrl' | translate }} *</legend>
                   <input class="input w-full font-mono text-sm" formControlName="callbackUrl" maxlength="2000" placeholder="https://app.example.com/signin-oidc"
                     [class.input-error]="showError(form.controls.callbackUrl)" />
                   @if (showError(form.controls.callbackUrl)) {
-                    <p class="label text-error">{{ form.controls.callbackUrl.hasError('required') ? 'A callback URL is required.' : 'Enter a valid URL.' }}</p>
+                    <p class="label text-error">{{ (form.controls.callbackUrl.hasError('required') ? 'Clients.Validation.CallbackUrlRequired' : 'Clients.Validation.InvalidUrl') | translate }}</p>
                   } @else {
-                    <p class="label whitespace-normal">Tokens are sent to this address. You can add more after the client is created.</p>
+                    <p class="label whitespace-normal">{{ 'Clients.Add.CallbackUrlHint' | translate }}</p>
                   }
                 </fieldset>
                 <fieldset class="fieldset">
-                  <legend class="fieldset-legend">Post-logout URL</legend>
+                  <legend class="fieldset-legend">{{ 'Clients.Fields.PostLogoutUrl' | translate }}</legend>
                   <input class="input w-full font-mono text-sm" formControlName="postLogoutUrl" maxlength="2000" placeholder="https://app.example.com/signout-callback-oidc"
                     [class.input-error]="showError(form.controls.postLogoutUrl)" />
                   @if (showError(form.controls.postLogoutUrl)) {
-                    <p class="label text-error">Enter a valid URL.</p>
+                    <p class="label text-error">{{ 'Clients.Validation.InvalidUrl' | translate }}</p>
                   } @else {
-                    <p class="label whitespace-normal">Optional. Users can return here after signing out.</p>
+                    <p class="label whitespace-normal">{{ 'Clients.Add.PostLogoutUrlHint' | translate }}</p>
                   }
                 </fieldset>
               </div>
             }
             @case ('identity') {
-              <p class="mb-4 text-sm text-base-content/70">Pick the identity information (scopes such as <code class="code-chip">openid</code> or <code class="code-chip">profile</code>) this client may request.</p>
+              <p class="mb-4 text-sm text-base-content/70" [innerHTML]="'Clients.Add.IdentityIntro' | translate"></p>
               @if (identityResources(); as resources) {
                 <app-transfer-list [available]="resources" [selected]="selectedIdentity()" [key]="byName" [label]="byName" [sublabel]="byDescription"
-                  availableTitle="Available identity resources" selectedTitle="Granted" emptySelected="Grant at least one identity resource."
+                  [availableTitle]="'Clients.Resources.AvailableIdentity' | translate" [selectedTitle]="'Clients.Add.Granted' | translate"
+                  [emptySelected]="'Clients.Add.GrantAtLeastOne' | translate"
                   (added)="identity.update(list => [...list, $event.name!])" (removed)="identity.update(list => list.filter(x => x !== $event.name))" />
               } @else {
                 <div class="skeleton h-64 w-full"></div>
               }
               @if (stepTouched() && identity().length === 0) {
-                <p class="mt-3 text-sm text-error">Grant at least one identity resource, usually <code class="code-chip">openid</code>.</p>
+                <p class="mt-3 text-sm text-error" [innerHTML]="'Clients.Add.GrantAtLeastOneOpenId' | translate"></p>
               }
             }
             @case ('api') {
-              <p class="mb-4 text-sm text-base-content/70">Pick the API scopes this client may request access tokens for.</p>
+              <p class="mb-4 text-sm text-base-content/70">{{ 'Clients.Add.ApiIntro' | translate }}</p>
               @if (apiScopes(); as scopes) {
                 <app-transfer-list [available]="scopes" [selected]="selectedApi()" [key]="byName" [label]="byName" [sublabel]="byDescription"
-                  availableTitle="Available API scopes" selectedTitle="Granted"
+                  [availableTitle]="'Clients.Resources.AvailableApi' | translate" [selectedTitle]="'Clients.Add.Granted' | translate"
                   (added)="api.update(list => [...list, $event.name!])" (removed)="api.update(list => list.filter(x => x !== $event.name))" />
               } @else {
                 <div class="skeleton h-64 w-full"></div>
@@ -137,19 +140,19 @@ interface PendingSecret {
 
         <div class="flex items-center gap-2 border-t border-base-300 px-6 py-4">
           @if (index() > 0) {
-            <button type="button" class="btn btn-ghost" (click)="index.set(index() - 1)" [disabled]="saving()"><svg lucideArrowLeft class="size-4"></svg>Back</button>
+            <button type="button" class="btn btn-ghost" (click)="index.set(index() - 1)" [disabled]="saving()"><svg lucideArrowLeft class="size-4"></svg>{{ 'Common.Back' | translate }}</button>
           } @else {
-            <button type="button" class="btn btn-ghost" (click)="type.set(null)"><svg lucideArrowLeft class="size-4"></svg>Change type</button>
+            <button type="button" class="btn btn-ghost" (click)="type.set(null)"><svg lucideArrowLeft class="size-4"></svg>{{ 'Clients.Add.ChangeType' | translate }}</button>
           }
           <span class="flex-1"></span>
           @if (step() === 'summary') {
             <button type="button" class="btn btn-primary" (click)="save()" [disabled]="saving()">
               @if (saving()) { <span class="loading loading-spinner loading-sm"></span> } @else { <svg lucideCheck class="size-4"></svg> }
-              Create client
+              {{ 'Clients.Add.CreateClient' | translate }}
             </button>
           } @else {
             <button type="button" class="btn btn-primary" (click)="next()">
-              {{ index() === steps().length - 2 ? 'Review' : 'Next' }}<svg lucideArrowRight class="size-4"></svg>
+              {{ (index() === steps().length - 2 ? 'Clients.Add.Review' : 'Common.Next') | translate }}<svg lucideArrowRight class="size-4"></svg>
             </button>
           }
         </div>
@@ -159,52 +162,52 @@ interface PendingSecret {
     <ng-template #identityFields let-extended="extended">
       <div class="grid max-w-2xl gap-4" [formGroup]="form">
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">Client id *</legend>
+          <legend class="fieldset-legend">{{ 'Clients.Fields.ClientId' | translate }} *</legend>
           <div class="join w-full">
-            <input class="input join-item w-full font-mono text-sm" formControlName="clientId" maxlength="200" placeholder="e.g. backoffice-web"
+            <input class="input join-item w-full font-mono text-sm" formControlName="clientId" maxlength="200" [placeholder]="'Clients.Add.ClientIdPlaceholder' | translate"
               [class.input-error]="showError(form.controls.clientId)" />
-            <button type="button" class="btn join-item" (click)="form.controls.clientId.setValue(guid())" title="Generate a random id">
-              <svg lucideDices class="size-4"></svg><span class="hidden sm:inline">Generate</span>
+            <button type="button" class="btn join-item" (click)="form.controls.clientId.setValue(guid())" [title]="'Clients.Add.GenerateId' | translate">
+              <svg lucideDices class="size-4"></svg><span class="hidden sm:inline">{{ 'Clients.Add.Generate' | translate }}</span>
             </button>
           </div>
           @if (showError(form.controls.clientId)) {
-            <p class="label text-error">A client id is required.</p>
+            <p class="label text-error">{{ 'Clients.Validation.ClientIdRequired' | translate }}</p>
           } @else {
-            <p class="label whitespace-normal">The unique identifier applications use when they talk to the identity server.</p>
+            <p class="label whitespace-normal">{{ 'Clients.Add.ClientIdHint' | translate }}</p>
           }
         </fieldset>
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">Display name *</legend>
-          <input class="input w-full" formControlName="clientName" maxlength="200" placeholder="e.g. Back office"
+          <legend class="fieldset-legend">{{ 'Common.DisplayName' | translate }} *</legend>
+          <input class="input w-full" formControlName="clientName" maxlength="200" [placeholder]="'Clients.Add.DisplayNamePlaceholder' | translate"
             [class.input-error]="showError(form.controls.clientName)" />
           @if (showError(form.controls.clientName)) {
-            <p class="label text-error">A display name is required.</p>
+            <p class="label text-error">{{ 'Clients.Validation.DisplayNameRequired' | translate }}</p>
           } @else {
-            <p class="label whitespace-normal">Shown to users on the consent screen.</p>
+            <p class="label whitespace-normal">{{ 'Clients.Add.DisplayNameHint' | translate }}</p>
           }
         </fieldset>
         @if (extended) {
           <div class="grid gap-4 sm:grid-cols-2">
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">Client URL</legend>
+              <legend class="fieldset-legend">{{ 'Clients.Fields.ClientUrl' | translate }}</legend>
               <input class="input w-full" formControlName="clientUrl" maxlength="2000" placeholder="https://app.example.com" />
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">Logo URL</legend>
+              <legend class="fieldset-legend">{{ 'Clients.Fields.LogoUrl' | translate }}</legend>
               <input class="input w-full" formControlName="logoUrl" maxlength="2000" placeholder="https://app.example.com/logo.svg" />
             </fieldset>
           </div>
         }
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">Description</legend>
+          <legend class="fieldset-legend">{{ 'Common.Description' | translate }}</legend>
           <textarea class="textarea w-full" rows="3" formControlName="description" maxlength="1000"></textarea>
         </fieldset>
         @if (extended) {
           <label class="flex cursor-pointer items-start gap-3">
             <input type="checkbox" class="toggle toggle-primary toggle-sm mt-0.5" formControlName="requireConsent" />
             <span>
-              <span class="block text-sm font-medium">Require consent</span>
-              <span class="block text-xs text-base-content/60">Users must approve the access this client requests before signing in.</span>
+              <span class="block text-sm font-medium">{{ 'Clients.Fields.RequireConsent' | translate }}</span>
+              <span class="block text-xs text-base-content/60">{{ 'Clients.Add.RequireConsentHint' | translate }}</span>
             </span>
           </label>
         }
@@ -216,47 +219,47 @@ interface PendingSecret {
         <div class="space-y-4">
           <div class="join w-full">
             <button type="button" class="btn join-item flex-1" [class.btn-primary]="secretType() === 'SharedSecret'" (click)="secretType.set('SharedSecret')">
-              <svg lucideKeyRound class="size-4"></svg>Shared secret
+              <svg lucideKeyRound class="size-4"></svg>{{ 'Clients.Secrets.SharedSecret' | translate }}
             </button>
             <button type="button" class="btn join-item flex-1" [class.btn-primary]="secretType() === 'X509CertificateBase64'" (click)="secretType.set('X509CertificateBase64')">
-              <svg lucideFileBadge class="size-4"></svg>Certificate
+              <svg lucideFileBadge class="size-4"></svg>{{ 'Clients.Secrets.Certificate' | translate }}
             </button>
           </div>
           @if (secretType() === 'SharedSecret') {
             <div class="space-y-3" [formGroup]="secretForm">
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Value *</legend>
+                <legend class="fieldset-legend">{{ 'Common.Value' | translate }} *</legend>
                 <div class="join w-full">
                   <input class="input join-item w-full font-mono text-sm" formControlName="value" maxlength="4000" autocomplete="off" />
-                  <button type="button" class="btn join-item" (click)="secretForm.controls.value.setValue(secret())" title="Generate a random value">
+                  <button type="button" class="btn join-item" (click)="secretForm.controls.value.setValue(secret())" [title]="'Clients.Secrets.GenerateValue' | translate">
                     <svg lucideDices class="size-4"></svg>
                   </button>
                 </div>
-                <p class="label whitespace-normal">Copy it now: the value cannot be read back once the client is created.</p>
+                <p class="label whitespace-normal">{{ 'Clients.Add.SecretValueHint' | translate }}</p>
               </fieldset>
               <div class="grid gap-3 sm:grid-cols-2">
                 <fieldset class="fieldset">
-                  <legend class="fieldset-legend">Expires on</legend>
+                  <legend class="fieldset-legend">{{ 'Clients.Secrets.ExpiresOn' | translate }}</legend>
                   <input type="date" class="input w-full" formControlName="expiration" />
                 </fieldset>
                 <fieldset class="fieldset">
-                  <legend class="fieldset-legend">Description</legend>
+                  <legend class="fieldset-legend">{{ 'Common.Description' | translate }}</legend>
                   <input class="input w-full" formControlName="description" maxlength="2000" />
                 </fieldset>
               </div>
-              <button type="button" class="btn btn-sm" [disabled]="secretForm.invalid" (click)="addSharedSecret()">Add secret</button>
+              <button type="button" class="btn btn-sm" [disabled]="secretForm.invalid" (click)="addSharedSecret()">{{ 'Clients.Add.AddSecret' | translate }}</button>
             </div>
           } @else {
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">Public key (.cer) *</legend>
+              <legend class="fieldset-legend">{{ 'Clients.Secrets.PublicKey' | translate }} *</legend>
               <input #certificate type="file" class="file-input w-full" accept=".cer,.crt,.pem" (change)="addCertificate(certificate)" />
-              <p class="label whitespace-normal">Keep the private key safe and upload only the public certificate.</p>
+              <p class="label whitespace-normal">{{ 'Clients.Secrets.PublicKeyHint' | translate }}</p>
             </fieldset>
-            @if (readingCertificate()) { <p class="flex items-center gap-2 text-sm"><span class="loading loading-spinner loading-xs"></span>Reading certificate…</p> }
+            @if (readingCertificate()) { <p class="flex items-center gap-2 text-sm"><span class="loading loading-spinner loading-xs"></span>{{ 'Clients.Add.ReadingCertificate' | translate }}</p> }
           }
         </div>
         <div>
-          <h3 class="mb-2 text-sm font-semibold">Secrets to create <span class="badge badge-sm badge-ghost tabular">{{ secrets().length }}</span></h3>
+          <h3 class="mb-2 text-sm font-semibold">{{ 'Clients.Add.SecretsToCreate' | translate }} <span class="badge badge-sm badge-ghost tabular">{{ secrets().length }}</span></h3>
           <ul class="divide-y divide-base-200 rounded-box border border-base-300">
             @for (item of secrets(); track $index) {
               <li class="flex items-start gap-3 px-4 py-3">
@@ -264,18 +267,18 @@ interface PendingSecret {
                   @if (item.type === 'SharedSecret') { <svg lucideKeyRound class="size-4"></svg> } @else { <svg lucideFileBadge class="size-4"></svg> }
                 </span>
                 <div class="min-w-0 flex-1 text-sm">
-                  <p class="font-medium">{{ item.type === 'SharedSecret' ? 'Shared secret' : (item.file?.name ?? 'Certificate') }}</p>
+                  <p class="font-medium">{{ item.type === 'SharedSecret' ? ('Clients.Secrets.SharedSecret' | translate) : (item.file?.name ?? ('Clients.Secrets.Certificate' | translate)) }}</p>
                   <p class="truncate font-mono text-xs text-base-content/60">{{ item.value }}</p>
                   <p class="text-xs text-base-content/60">
-                    {{ item.expiration ? 'Expires ' + (item.expiration | date: 'mediumDate') : 'Never expires' }}{{ item.description ? ' · ' + item.description : '' }}
+                    {{ item.expiration ? ('Clients.Secrets.ExpiresOnDate' | translate: { date: (item.expiration | date: 'mediumDate') }) : ('Clients.Secrets.NeverExpires' | translate) }}{{ item.description ? ' · ' + item.description : '' }}
                   </p>
                 </div>
-                <button type="button" class="btn btn-ghost btn-xs btn-square text-error" aria-label="Remove secret" (click)="removeSecret($index)">
+                <button type="button" class="btn btn-ghost btn-xs btn-square text-error" [attr.aria-label]="'Clients.Add.RemoveSecret' | translate" (click)="removeSecret($index)">
                   <svg lucideTrash class="size-4"></svg>
                 </button>
               </li>
             } @empty {
-              <li class="px-4 py-8 text-center text-sm text-base-content/60">No secrets yet. You can also add them after the client is created.</li>
+              <li class="px-4 py-8 text-center text-sm text-base-content/60">{{ 'Clients.Add.NoSecrets' | translate }}</li>
             }
           </ul>
         </div>
@@ -284,29 +287,29 @@ interface PendingSecret {
 
     <ng-template #summaryStep>
       <dl class="grid max-w-3xl gap-x-8 gap-y-4 text-sm sm:grid-cols-[12rem_1fr]">
-        <dt class="text-base-content/60">Application type</dt><dd class="font-medium">{{ type()?.name }} <span class="text-base-content/60">· {{ type()?.flow }}</span></dd>
-        <dt class="text-base-content/60">Client id</dt><dd><code class="code-chip">{{ form.value.clientId }}</code></dd>
-        <dt class="text-base-content/60">Display name</dt><dd class="font-medium">{{ form.value.clientName }}</dd>
-        @if (form.value.description) { <dt class="text-base-content/60">Description</dt><dd>{{ form.value.description }}</dd> }
+        <dt class="text-base-content/60">{{ 'Clients.Add.ApplicationType' | translate }}</dt><dd class="font-medium">{{ type()?.name ?? '' | translate }} <span class="text-base-content/60">· {{ type()?.flow ?? '' | translate }}</span></dd>
+        <dt class="text-base-content/60">{{ 'Clients.Fields.ClientId' | translate }}</dt><dd><code class="code-chip">{{ form.value.clientId }}</code></dd>
+        <dt class="text-base-content/60">{{ 'Common.DisplayName' | translate }}</dt><dd class="font-medium">{{ form.value.clientName }}</dd>
+        @if (form.value.description) { <dt class="text-base-content/60">{{ 'Common.Description' | translate }}</dt><dd>{{ form.value.description }}</dd> }
         @if (hasStep('details')) {
-          <dt class="text-base-content/60">Require consent</dt><dd>{{ form.value.requireConsent ? 'Yes' : 'No' }}</dd>
-          @if (form.value.clientUrl) { <dt class="text-base-content/60">Client URL</dt><dd class="break-all">{{ form.value.clientUrl }}</dd> }
-          @if (form.value.logoUrl) { <dt class="text-base-content/60">Logo URL</dt><dd class="break-all">{{ form.value.logoUrl }}</dd> }
+          <dt class="text-base-content/60">{{ 'Clients.Fields.RequireConsent' | translate }}</dt><dd>{{ (form.value.requireConsent ? 'Common.Yes' : 'Common.No') | translate }}</dd>
+          @if (form.value.clientUrl) { <dt class="text-base-content/60">{{ 'Clients.Fields.ClientUrl' | translate }}</dt><dd class="break-all">{{ form.value.clientUrl }}</dd> }
+          @if (form.value.logoUrl) { <dt class="text-base-content/60">{{ 'Clients.Fields.LogoUrl' | translate }}</dt><dd class="break-all">{{ form.value.logoUrl }}</dd> }
         }
         @if (hasStep('urls')) {
-          <dt class="text-base-content/60">Callback URL</dt><dd class="font-mono text-xs break-all">{{ form.value.callbackUrl }}</dd>
-          @if (form.value.postLogoutUrl) { <dt class="text-base-content/60">Post-logout URL</dt><dd class="font-mono text-xs break-all">{{ form.value.postLogoutUrl }}</dd> }
+          <dt class="text-base-content/60">{{ 'Clients.Fields.CallbackUrl' | translate }}</dt><dd class="font-mono text-xs break-all">{{ form.value.callbackUrl }}</dd>
+          @if (form.value.postLogoutUrl) { <dt class="text-base-content/60">{{ 'Clients.Fields.PostLogoutUrl' | translate }}</dt><dd class="font-mono text-xs break-all">{{ form.value.postLogoutUrl }}</dd> }
         }
         @if (hasStep('secrets')) {
-          <dt class="text-base-content/60">Secrets</dt><dd>{{ secrets().length || 'None' }}</dd>
+          <dt class="text-base-content/60">{{ 'Clients.Tabs.Secrets' | translate }}</dt><dd>{{ secrets().length || ('Common.None' | translate) }}</dd>
         }
         @if (hasStep('identity')) {
-          <dt class="text-base-content/60">Identity resources</dt>
+          <dt class="text-base-content/60">{{ 'Clients.Resources.IdentityResources' | translate }}</dt>
           <dd class="flex flex-wrap gap-1.5">@for (name of identity(); track name) { <span class="badge badge-sm badge-primary badge-soft">{{ name }}</span> }</dd>
         }
-        <dt class="text-base-content/60">API scopes</dt>
+        <dt class="text-base-content/60">{{ 'Clients.Resources.ApiScopes' | translate }}</dt>
         <dd class="flex flex-wrap gap-1.5">
-          @for (name of api(); track name) { <span class="badge badge-sm badge-secondary badge-soft">{{ name }}</span> } @empty { None }
+          @for (name of api(); track name) { <span class="badge badge-sm badge-secondary badge-soft">{{ name }}</span> } @empty { {{ 'Common.None' | translate }} }
         </dd>
       </dl>
     </ng-template>
@@ -316,6 +319,7 @@ export class ClientAddComponent {
   private readonly _api = inject(IdentityApiService);
   private readonly _router = inject(Router);
   private readonly _toast = inject(ToastService);
+  private readonly _translate = inject(TranslateService);
   private readonly _fb = inject(NonNullableFormBuilder);
 
   protected readonly types = CLIENT_TYPES;
@@ -326,7 +330,7 @@ export class ClientAddComponent {
   protected readonly saving = signal(false);
   protected readonly steps = computed<WizardStep[]>(() => this.type()?.steps ?? []);
   protected readonly step = computed(() => this.steps()[this.index()]);
-  protected readonly stepTitles = computed(() => this.steps().map(step => STEP_TITLES[step]));
+  protected readonly stepTitles = computed(() => this.steps().map(step => this._translate.instant(STEP_TITLES[step]) as string));
 
   protected readonly form = this._fb.group({
     clientId: ['', [Validators.required, Validators.maxLength(200)]],
@@ -459,7 +463,8 @@ export class ClientAddComponent {
         : forkJoin(certificates.map(file => this._api.uploadCertificate(created.clientId!, { data: file, fileName: file.name }))).pipe(map(() => created)))
     ).subscribe({
       next: created => {
-        this._toast.success('Client created', `Client '${created.clientName || created.clientId}' is ready to use.`);
+        this._toast.success(this._translate.instant('Clients.Add.CreatedTitle'),
+          this._translate.instant('Clients.Add.CreatedMessage', { name: created.clientName || created.clientId }));
         this._router.navigate(['/clients', created.clientId]);
       },
       error: () => this.saving.set(false)

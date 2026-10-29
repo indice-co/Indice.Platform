@@ -32,18 +32,21 @@ export function usesRedirects(grantTypes: string[] | undefined): boolean {
   return hasAnyGrant(grantTypes, ['authorization_code', 'password', 'hybrid', 'implicit', DEVICE_CODE]);
 }
 
-/** Human readable duration, e.g. `1 day 2 hr 5 min`. */
-export function formatDuration(totalSeconds: number | null | undefined): string {
+/**
+ * Human readable duration, e.g. `1 day 2 hr 5 min`. `format` turns a `Clients.Duration.*` translation key and a count
+ * into text (usually `TranslateService.instant`).
+ */
+export function formatDuration(totalSeconds: number | null | undefined, format: (key: string, count: number) => string): string {
   if (totalSeconds == null || isNaN(totalSeconds) || totalSeconds <= 0) {
     return '';
   }
   const parts: string[] = [];
-  const units: [number, string][] = [[86400, 'day'], [3600, 'hr'], [60, 'min'], [1, 'sec']];
+  const units: [number, string][] = [[86400, 'Clients.Duration.Day'], [3600, 'Clients.Duration.Hour'], [60, 'Clients.Duration.Minute'], [1, 'Clients.Duration.Second']];
   let rest = Math.floor(totalSeconds);
-  for (const [size, label] of units) {
+  for (const [size, key] of units) {
     const value = Math.floor(rest / size);
     if (value > 0) {
-      parts.push(`${value} ${label}${label === 'day' && value > 1 ? 's' : ''}`);
+      parts.push(format(key === 'Clients.Duration.Day' && value > 1 ? 'Clients.Duration.Days' : key, value));
       rest -= value * size;
     }
   }
@@ -77,6 +80,7 @@ export function saveBlob(blob: Blob, fileName: string): void {
 
 export type WizardStep = 'details' | 'basic' | 'urls' | 'secrets' | 'identity' | 'api' | 'summary';
 
+/** `name`, `flow` and `description` hold translation keys. */
 export interface ClientTypeOption {
   key: ClientType;
   name: string;
@@ -89,45 +93,46 @@ export interface ClientTypeOption {
 /** The application kinds offered by the "new client" wizard, with the wizard steps each one needs. */
 export const CLIENT_TYPES: ClientTypeOption[] = [
   {
-    key: ClientType.SPA, name: 'Single page app', flow: 'Authorization code + PKCE', icon: LucideAppWindow,
-    description: ['A client side application running in a browser.', 'Cannot be trusted to keep secrets or use refresh tokens.', 'Tokens travel through the browser and are visible to the user.'],
+    key: ClientType.SPA, name: 'Clients.Types.Spa.Name', flow: 'Clients.Types.Spa.Flow', icon: LucideAppWindow,
+    description: ['Clients.Types.Spa.Description1', 'Clients.Types.Spa.Description2', 'Clients.Types.Spa.Description3'],
     steps: ['details', 'urls', 'identity', 'api', 'summary']
   },
   {
-    key: ClientType.WebApp, name: 'Web app', flow: 'Hybrid flow with client authentication', icon: LucideGlobe,
-    description: ['A server side application running on your infrastructure.', 'Can keep a secret and use refresh tokens.', 'Tokens are sent to a back-end server and are not visible to the user.'],
+    key: ClientType.WebApp, name: 'Clients.Types.WebApp.Name', flow: 'Clients.Types.WebApp.Flow', icon: LucideGlobe,
+    description: ['Clients.Types.WebApp.Description1', 'Clients.Types.WebApp.Description2', 'Clients.Types.WebApp.Description3'],
     steps: ['details', 'urls', 'secrets', 'identity', 'api', 'summary']
   },
   {
-    key: ClientType.Native, name: 'Native', flow: 'Authorization code + PKCE', icon: LucideMonitorSmartphone,
-    description: ['A desktop or mobile application running on a user\'s device.', 'Cannot keep a secret but can use refresh tokens.', 'Token visibility depends on the browser and redirect URI.'],
+    key: ClientType.Native, name: 'Clients.Types.Native.Name', flow: 'Clients.Types.Native.Flow', icon: LucideMonitorSmartphone,
+    description: ['Clients.Types.Native.Description1', 'Clients.Types.Native.Description2', 'Clients.Types.Native.Description3'],
     steps: ['details', 'urls', 'secrets', 'identity', 'api', 'summary']
   },
   {
-    key: ClientType.Machine, name: 'Machine', flow: 'Client credentials', icon: LucideServer,
-    description: ['Machine to machine communication.', 'No users are involved.', 'Tokens are sent over a back channel.'],
+    key: ClientType.Machine, name: 'Clients.Types.Machine.Name', flow: 'Clients.Types.Machine.Flow', icon: LucideServer,
+    description: ['Clients.Types.Machine.Description1', 'Clients.Types.Machine.Description2', 'Clients.Types.Machine.Description3'],
     steps: ['basic', 'api', 'secrets', 'summary']
   },
   {
-    key: ClientType.Device, name: 'Device', flow: 'Device flow with an external browser', icon: LucideCpu,
-    description: ['An IoT application or another browserless or input constrained device.', 'Usually cannot keep a secret but can use refresh tokens.'],
+    key: ClientType.Device, name: 'Clients.Types.Device.Name', flow: 'Clients.Types.Device.Flow', icon: LucideCpu,
+    description: ['Clients.Types.Device.Description1', 'Clients.Types.Device.Description2'],
     steps: ['basic', 'identity', 'api', 'summary']
   },
   {
-    key: ClientType.SPALegacy, name: 'Single page app (legacy)', flow: 'Implicit flow', icon: LucideTabletSmartphone,
-    description: ['A browser application following older OAuth working group recommendations.', 'Cannot keep secrets or use refresh tokens.', 'Tokens travel through the browser and are visible to the user.'],
+    key: ClientType.SPALegacy, name: 'Clients.Types.SpaLegacy.Name', flow: 'Clients.Types.SpaLegacy.Flow', icon: LucideTabletSmartphone,
+    description: ['Clients.Types.SpaLegacy.Description1', 'Clients.Types.SpaLegacy.Description2', 'Clients.Types.SpaLegacy.Description3'],
     steps: ['details', 'urls', 'identity', 'api', 'summary']
   }
 ];
 
+/** Translation keys of the wizard step titles. */
 export const STEP_TITLES: Record<WizardStep, string> = {
-  details: 'Details',
-  basic: 'Details',
-  urls: 'URLs',
-  secrets: 'Secrets',
-  identity: 'Identity resources',
-  api: 'API access',
-  summary: 'Summary'
+  details: 'Common.Details',
+  basic: 'Common.Details',
+  urls: 'Clients.Tabs.Urls',
+  secrets: 'Clients.Tabs.Secrets',
+  identity: 'Clients.Resources.IdentityResources',
+  api: 'Clients.Add.ApiAccess',
+  summary: 'Clients.Add.Summary'
 };
 
 /**

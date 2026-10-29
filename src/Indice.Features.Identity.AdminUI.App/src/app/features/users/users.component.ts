@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideChevronRight, LucideListFilter, LucideUserPlus, LucideUsers, LucideX } from '@lucide/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityApiService, UserInfo } from 'src/app/core/services/identity-api.service';
@@ -23,38 +24,38 @@ export const USERS_REFRESH_SCOPE = 'users';
 @Component({
   selector: 'app-users',
   imports: [
-    DatePipe, RouterLink, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent,
+    DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent,
     StatusBadgeComponent, ImgUserPictureDirective, LucideChevronRight, LucideListFilter, LucideUserPlus, LucideUsers, LucideX
   ],
   template: `
-    <app-page-header title="Users" subtitle="Everyone who can sign in through the identity server.">
+    <app-page-header [title]="'Routes.Users' | translate" [subtitle]="'Users.List.Subtitle' | translate">
       @if (canEdit) {
         <div actions>
-          <a class="btn btn-primary btn-sm" routerLink="/users/add"><svg lucideUserPlus class="size-4"></svg>New user</a>
+          <a class="btn btn-primary btn-sm" routerLink="/users/add"><svg lucideUserPlus class="size-4"></svg>{{ 'Routes.NewUser' | translate }}</a>
         </div>
       }
     </app-page-header>
 
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      <app-search-input class="sm:w-72" [value]="list.search()" placeholder="Search by name, email or username" (search)="list.setSearch($event)" />
+      <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Users.List.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
 
       <div class="dropdown">
         <button type="button" tabindex="0" class="btn btn-sm btn-ghost border-base-300 gap-1.5">
-          <svg lucideListFilter class="size-4"></svg>Status
+          <svg lucideListFilter class="size-4"></svg>{{ 'Common.Status' | translate }}
           @if (activeFilters().length) { <span class="badge badge-xs badge-primary tabular">{{ activeFilters().length }}</span> }
         </button>
         <div tabindex="0" class="dropdown-content z-30 mt-2 w-80 rounded-box border border-base-300 bg-base-100 p-3 shadow-lg">
-          <p class="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">Filter by status</p>
+          <p class="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">{{ 'Users.List.FilterByStatus' | translate }}</p>
           <ul class="space-y-2">
             @for (filter of filters; track filter.param) {
               <li class="flex items-center justify-between gap-3">
-                <span class="text-sm">{{ filter.label }}</span>
+                <span class="text-sm">{{ filter.label | translate }}</span>
                 <div class="join">
                   @for (option of options; track option.value) {
                     <button type="button" class="join-item btn btn-xs"
                       [class.btn-primary]="(list.params()[filter.param] ?? '') === option.value"
                       [class.btn-ghost]="(list.params()[filter.param] ?? '') !== option.value"
-                      (click)="setFilter(filter.param, option.value)">{{ option.label }}</button>
+                      (click)="setFilter(filter.param, option.value)">{{ option.label | translate }}</button>
                   }
                 </div>
               </li>
@@ -65,15 +66,15 @@ export const USERS_REFRESH_SCOPE = 'users';
 
       @for (active of activeFilters(); track active.filter.param) {
         <span class="badge badge-soft badge-primary gap-1 py-3">
-          {{ active.value ? active.filter.yes : active.filter.no }}
-          <button type="button" class="btn btn-ghost btn-xs btn-circle -mr-1 size-5 min-h-0" [attr.aria-label]="'Remove filter ' + active.filter.label"
+          {{ (active.value ? active.filter.yes : active.filter.no) | translate }}
+          <button type="button" class="btn btn-ghost btn-xs btn-circle -mr-1 size-5 min-h-0" [attr.aria-label]="'Users.List.RemoveFilter' | translate: { name: (active.filter.label | translate) }"
             (click)="setFilter(active.filter.param, null)">
             <svg lucideX class="size-3"></svg>
           </button>
         </span>
       }
       @if (list.hasFilters()) {
-        <button type="button" class="btn btn-ghost btn-sm" (click)="list.clearFilters()">Clear all</button>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="list.clearFilters()">{{ 'Users.List.ClearAll' | translate }}</button>
       }
     </div>
 
@@ -81,12 +82,12 @@ export const USERS_REFRESH_SCOPE = 'users';
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="userName">User</app-sort-header></th>
-            <th class="hidden lg:table-cell">Phone</th>
-            <th>Status</th>
-            <th class="hidden md:table-cell"><app-sort-header [list]="list" field="createDate">Created</app-sort-header></th>
-            <th class="hidden md:table-cell"><app-sort-header [list]="list" field="lastSignInDate">Last sign-in</app-sort-header></th>
-            <th class="w-12"><span class="sr-only">Open</span></th>
+            <th><app-sort-header [list]="list" field="userName">{{ 'Routes.User' | translate }}</app-sort-header></th>
+            <th class="hidden lg:table-cell">{{ 'Users.List.ColumnPhone' | translate }}</th>
+            <th>{{ 'Common.Status' | translate }}</th>
+            <th class="hidden md:table-cell"><app-sort-header [list]="list" field="createDate">{{ 'Common.CreatedAt' | translate }}</app-sort-header></th>
+            <th class="hidden md:table-cell"><app-sort-header [list]="list" field="lastSignInDate">{{ 'Users.Fields.LastSignIn' | translate }}</app-sort-header></th>
+            <th class="w-12"><span class="sr-only">{{ 'Users.List.Open' | translate }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -116,23 +117,23 @@ export const USERS_REFRESH_SCOPE = 'users';
                 <td class="hidden tabular whitespace-nowrap text-base-content/75 lg:table-cell">{{ user.phoneNumber || '—' }}</td>
                 <td>
                   <div class="flex flex-wrap gap-1">
-                    @if (user.blocked) { <app-status-badge tone="error">Blocked</app-status-badge> }
-                    @if (user.isLocked) { <app-status-badge tone="warning">Locked</app-status-badge> }
-                    @if (user.isAdmin) { <app-status-badge tone="primary">Admin</app-status-badge> }
-                    @if (user.twoFactorEnabled) { <app-status-badge tone="success">MFA</app-status-badge> }
-                    @if (!user.emailConfirmed) { <app-status-badge tone="warning">Email unverified</app-status-badge> }
-                    @if (user.phoneNumber && !user.phoneNumberConfirmed) { <app-status-badge tone="neutral">Phone unverified</app-status-badge> }
+                    @if (user.blocked) { <app-status-badge tone="error">{{ 'Users.Status.Blocked' | translate }}</app-status-badge> }
+                    @if (user.isLocked) { <app-status-badge tone="warning">{{ 'Users.Status.Locked' | translate }}</app-status-badge> }
+                    @if (user.isAdmin) { <app-status-badge tone="primary">{{ 'Users.Status.Admin' | translate }}</app-status-badge> }
+                    @if (user.twoFactorEnabled) { <app-status-badge tone="success">{{ 'Users.Status.Mfa' | translate }}</app-status-badge> }
+                    @if (!user.emailConfirmed) { <app-status-badge tone="warning">{{ 'Users.Status.EmailUnverified' | translate }}</app-status-badge> }
+                    @if (user.phoneNumber && !user.phoneNumberConfirmed) { <app-status-badge tone="neutral">{{ 'Users.Status.PhoneUnverified' | translate }}</app-status-badge> }
                     @if (!user.blocked && !user.isLocked && !user.isAdmin && !user.twoFactorEnabled && user.emailConfirmed && (!user.phoneNumber || user.phoneNumberConfirmed)) {
-                      <app-status-badge tone="success">Active</app-status-badge>
+                      <app-status-badge tone="success">{{ 'Users.Status.Active' | translate }}</app-status-badge>
                     }
                   </div>
                 </td>
                 <td class="hidden tabular whitespace-nowrap text-base-content/75 md:table-cell">{{ user.createDate | date: 'mediumDate' }}</td>
                 <td class="hidden tabular whitespace-nowrap text-base-content/75 md:table-cell">
-                  {{ user.lastSignInDate ? (user.lastSignInDate | date: 'short') : 'Never' }}
+                  {{ user.lastSignInDate ? (user.lastSignInDate | date: 'short') : ('Common.Never' | translate) }}
                 </td>
                 <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/users', user.id]" [attr.aria-label]="'Open ' + (user.email || user.userName)">
+                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/users', user.id]" [attr.aria-label]="'Users.List.OpenUser' | translate: { name: user.email || user.userName }">
                     <svg lucideChevronRight class="size-4"></svg>
                   </a>
                 </td>
@@ -140,13 +141,13 @@ export const USERS_REFRESH_SCOPE = 'users';
             } @empty {
               <tr>
                 <td colspan="6">
-                  <app-empty-state [title]="list.hasFilters() ? 'No matching users' : 'No users yet'"
-                    [message]="list.hasFilters() ? 'Try a different search term or clear the filters.' : 'Create the first user to get started.'">
+                  <app-empty-state [title]="(list.hasFilters() ? 'Users.List.EmptyFilteredTitle' : 'Users.List.EmptyTitle') | translate"
+                    [message]="(list.hasFilters() ? 'Users.List.EmptyFilteredMessage' : 'Users.List.EmptyMessage') | translate">
                     <svg icon lucideUsers class="size-5"></svg>
                     @if (list.hasFilters()) {
-                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">Clear filters</button>
+                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Users.List.ClearFilters' | translate }}</button>
                     } @else if (canEdit) {
-                      <a actions class="btn btn-sm" routerLink="/users/add"><svg lucideUserPlus class="size-4"></svg>New user</a>
+                      <a actions class="btn btn-sm" routerLink="/users/add"><svg lucideUserPlus class="size-4"></svg>{{ 'Routes.NewUser' | translate }}</a>
                     }
                   </app-empty-state>
                 </td>
@@ -167,7 +168,7 @@ export class UsersComponent implements OnInit {
   private readonly _features = inject(UiFeaturesService);
   protected readonly canEdit = inject(AuthService).isAdminUIUsersWriter();
   protected readonly filters = STATUS_FILTERS;
-  protected readonly options = [{ value: '', label: 'Any' }, { value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }];
+  protected readonly options = [{ value: '', label: 'Users.List.Any' }, { value: 'true', label: 'Common.Yes' }, { value: 'false', label: 'Common.No' }];
   /** With `EmailAsUserName` the username is the email, so it is not repeated. */
   protected readonly showUserName = computed(() => !this._features.features()?.emailAsUserName);
 

@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, LOCALE_ID, computed, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /** Shared building blocks of the sign in and activity log views. */
 
@@ -39,13 +40,13 @@ export function idpIcon(provider: string | null | undefined): string | undefined
   return `assets/img/idps/${file}.svg`;
 }
 
-/** "5 min ago" style text for a past date. */
-export function relativeTime(date: Date | string | null | undefined, now = Date.now()): string {
+/** "5 min ago" style text for a past date, in the given locale. */
+export function relativeTime(date: Date | string | null | undefined, locale = 'en', now = Date.now()): string {
   if (!date) {
     return '';
   }
   const seconds = Math.round((now - new Date(date).getTime()) / 1000);
-  const format = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
   const steps: [Intl.RelativeTimeFormatUnit, number][] = [['second', 60], ['minute', 60], ['hour', 24], ['day', 30], ['month', 12], ['year', Infinity]];
   let value = seconds;
   for (const [unit, size] of steps) {
@@ -55,6 +56,27 @@ export function relativeTime(date: Date | string | null | undefined, now = Date.
     value /= size;
   }
   return '';
+}
+
+/** Translation keys of the sign in types. */
+const SIGN_IN_TYPE_LABELS: Record<string, string> = {
+  Interactive: 'SignInLogs.SignInTypes.Interactive',
+  NonInteractive: 'SignInLogs.SignInTypes.NonInteractive'
+};
+
+/** Translation keys of the sign in warnings. */
+const SIGN_IN_WARNING_LABELS: Record<string, string> = {
+  ImpossibleTravel: 'SignInLogs.Warnings.ImpossibleTravel'
+};
+
+/** Translation key of a sign in type (unknown values are returned as is). */
+export function signInTypeLabel(type: string | null | undefined): string {
+  return type ? SIGN_IN_TYPE_LABELS[type] ?? type : '';
+}
+
+/** Translation key of a sign in warning (unknown values are returned as is). */
+export function signInWarningLabel(warning: string | null | undefined): string {
+  return warning ? SIGN_IN_WARNING_LABELS[warning] ?? warning : '';
 }
 
 /** Converts a `from` / `to` query param (ISO date or date-time) into the `yyyy-MM-dd` value of a date input. */
@@ -90,17 +112,19 @@ export function toDate(value: string | null | undefined): Date | undefined {
 })
 export class LogTimeComponent {
   public readonly value = input<Date | undefined>();
-  protected readonly relative = computed(() => relativeTime(this.value()));
+  private readonly _locale = inject(LOCALE_ID);
+  protected readonly relative = computed(() => relativeTime(this.value(), this._locale));
 }
 
 /** Browser and operating system icons followed by the device display name. */
 @Component({
   selector: 'app-log-device',
+  imports: [TranslatePipe],
   host: { class: 'inline-flex min-w-0 items-center gap-1.5' },
   template: `
     @if (displayName() || userAgentFamily() || platform()) {
-      <img class="size-4 shrink-0" [src]="browser()" [alt]="userAgentFamily() || 'Browser'" [title]="userAgentFamily() || 'Unknown browser'" />
-      <img class="size-4 shrink-0 dark:invert" [src]="os()" [alt]="platform() || 'OS'" [title]="platform() || 'Unknown platform'" />
+      <img class="size-4 shrink-0" [src]="browser()" [alt]="userAgentFamily() || ('Logs.Device.Browser' | translate)" [title]="userAgentFamily() || ('Logs.Device.UnknownBrowser' | translate)" />
+      <img class="size-4 shrink-0 dark:invert" [src]="os()" [alt]="platform() || ('Logs.Device.Os' | translate)" [title]="platform() || ('Logs.Device.UnknownPlatform' | translate)" />
       <span class="truncate text-sm" [title]="displayName()">{{ displayName() || '—' }}</span>
     } @else {
       <span class="text-base-content/40">—</span>

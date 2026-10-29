@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { LucidePalette, LucideRotateCcw } from '@lucide/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ClientThemeConfigRequest, IdentityApiService } from 'src/app/core/services/identity-api.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
@@ -63,13 +64,13 @@ function toFields(schema: unknown): ThemeField[] {
 /** Sign in page theme of the client, edited through a form generated from the server's theme schema. */
 @Component({
   selector: 'app-client-theme',
-  imports: [EmptyStateComponent, LucidePalette, LucideRotateCcw],
+  imports: [TranslatePipe, EmptyStateComponent, LucidePalette, LucideRotateCcw],
   template: `
     @if (loading()) {
       <div class="grid gap-6 lg:grid-cols-2"><div class="skeleton h-80"></div><div class="skeleton h-80"></div></div>
     } @else if (fields().length === 0) {
       <div class="panel">
-        <app-empty-state title="No theme options" message="The identity server does not expose any theme settings for clients.">
+        <app-empty-state [title]="'Clients.Theme.EmptyTitle' | translate" [message]="'Clients.Theme.EmptyMessage' | translate">
           <svg icon lucidePalette class="size-5"></svg>
         </app-empty-state>
       </div>
@@ -77,8 +78,8 @@ function toFields(schema: unknown): ThemeField[] {
       <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
         <form class="panel space-y-4 p-6" (submit)="$event.preventDefault(); save()">
           <div>
-            <h2 class="font-semibold">Sign in page theme</h2>
-            <p class="text-sm text-base-content/60">Colors and imagery used when users sign in through this client.</p>
+            <h2 class="font-semibold">{{ 'Clients.Theme.Title' | translate }}</h2>
+            <p class="text-sm text-base-content/60">{{ 'Clients.Theme.Subtitle' | translate }}</p>
           </div>
           @for (field of fields(); track field.key) {
             @switch (field.kind) {
@@ -99,14 +100,14 @@ function toFields(schema: unknown): ThemeField[] {
                     @case ('color') {
                       <div class="join w-full max-w-xs">
                         <input type="color" class="join-item h-10 w-12 cursor-pointer border border-base-300 bg-base-100 p-1" [disabled]="!canEdit"
-                          [value]="colorValue(field.key)" (input)="set(field.key, $any($event.target).value)" [attr.aria-label]="field.label + ' picker'" />
+                          [value]="colorValue(field.key)" (input)="set(field.key, $any($event.target).value)" [attr.aria-label]="'Clients.Theme.ColorPicker' | translate: { label: field.label }" />
                         <input class="input join-item w-full font-mono text-sm" [value]="values()[field.key] ?? ''" placeholder="#000000" [disabled]="!canEdit"
                           [class.input-error]="invalidColor(field.key)" (input)="set(field.key, $any($event.target).value)" />
-                        <button type="button" class="btn join-item" title="Clear" [disabled]="!canEdit" (click)="set(field.key, '')">
+                        <button type="button" class="btn join-item" [title]="'Common.Clear' | translate" [disabled]="!canEdit" (click)="set(field.key, '')">
                           <svg lucideRotateCcw class="size-4"></svg>
                         </button>
                       </div>
-                      @if (invalidColor(field.key)) { <p class="label text-error">Use a hex color such as #3d5afe.</p> }
+                      @if (invalidColor(field.key)) { <p class="label text-error">{{ 'Clients.Theme.InvalidColor' | translate }}</p> }
                     }
                     @case ('number') {
                       <input type="number" class="input w-full max-w-xs" [value]="values()[field.key] ?? ''" [disabled]="!canEdit"
@@ -114,7 +115,7 @@ function toFields(schema: unknown): ThemeField[] {
                     }
                     @case ('enum') {
                       <select class="select w-full max-w-xs" [disabled]="!canEdit" (change)="set(field.key, $any($event.target).value || null)">
-                        <option value="" [selected]="!values()[field.key]">Default</option>
+                        <option value="" [selected]="!values()[field.key]">{{ 'Clients.Theme.Default' | translate }}</option>
                         @for (option of field.options; track option) {
                           <option [value]="option" [selected]="values()[field.key] === option">{{ option }}</option>
                         }
@@ -134,14 +135,14 @@ function toFields(schema: unknown): ThemeField[] {
             <div class="flex justify-end pt-2">
               <button type="submit" class="btn btn-primary" [disabled]="saving() || hasErrors()">
                 @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
-                Save theme
+                {{ 'Clients.Theme.Save' | translate }}
               </button>
             </div>
           }
         </form>
 
-        <section class="panel h-fit overflow-hidden" aria-label="Preview">
-          <p class="border-b border-base-300 px-4 py-2 text-xs font-semibold tracking-wider text-base-content/60 uppercase">Preview</p>
+        <section class="panel h-fit overflow-hidden" [attr.aria-label]="'Clients.Theme.Preview' | translate">
+          <p class="border-b border-base-300 px-4 py-2 text-xs font-semibold tracking-wider text-base-content/60 uppercase">{{ 'Clients.Theme.Preview' | translate }}</p>
           <div class="grid min-h-72 place-items-center bg-base-200 bg-cover bg-center p-6" [style.background-image]="backgroundImage()"
             [style.background-color]="preview().accent">
             <div class="w-full max-w-60 space-y-3 rounded-box bg-base-100 p-5 shadow-lg">
@@ -161,6 +162,7 @@ export class ClientThemeComponent implements OnInit {
   private readonly _api = inject(IdentityApiService);
   private readonly _store = inject(ClientStore);
   private readonly _toast = inject(ToastService);
+  private readonly _translate = inject(TranslateService);
   protected readonly canEdit = inject(AuthService).isAdminUIClientsWriter();
 
   protected readonly loading = signal(true);
@@ -225,7 +227,7 @@ export class ClientThemeComponent implements OnInit {
     this._api.createOrUpdateClientTheme(this._store.clientId(), body as unknown as ClientThemeConfigRequest).subscribe({
       next: () => {
         this.saving.set(false);
-        this._toast.success('Theme saved', 'The sign in page theme of the client was updated.');
+        this._toast.success(this._translate.instant('Clients.Theme.SavedTitle'), this._translate.instant('Clients.Theme.SavedMessage'));
       },
       error: () => this.saving.set(false)
     });

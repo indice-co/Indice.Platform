@@ -246,6 +246,11 @@ export interface IIdentityApiService {
      */
     getCertificateMetadata(file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfoBase>;
     /**
+     * Gets the key user, client and resource figures shown on the Admin UI dashboard.
+     * @return OK
+     */
+    getDashboardMetrics(): Observable<DashboardMetricsInfo>;
+    /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
      * @param size (optional) 
@@ -257,12 +262,6 @@ export interface IIdentityApiService {
      * @return OK
      */
     getSystemSummary(): Observable<SummaryInfo>;
-
-    /**
-     * Gets the key user, client and resource figures shown on the Admin UI dashboard.
-     * @return OK
-     */
-    getDashboardMetrics(): Observable<DashboardMetricsInfo>;
     /**
      * Gets the UI features status.
      * @return OK
@@ -702,9 +701,9 @@ export interface IIdentityApiService {
      * @return OK
      */
     getSignInLocations(timeFrame?: SeriesTimeFrame | undefined): Observable<SignInLocationSet>;
-
     /**
      * Gets the number of successful and failed sign ins per day.
+     * @param timeFrame (optional) 
      * @return OK
      */
     getSignInSeries(timeFrame?: SeriesTimeFrame | undefined): Observable<SignInDailyCountResultSet>;
@@ -727,6 +726,11 @@ export interface IIdentityApiService {
      * @param claimType (optional) 
      * @param claimValue (optional) 
      * @param userId (optional) 
+     * @param blocked (optional) 
+     * @param lockedOut (optional) 
+     * @param emailConfirmed (optional) 
+     * @param phoneNumberConfirmed (optional) 
+     * @param twoFactorEnabled (optional) 
      * @param expandClaims (optional) 
      * @return OK
      */
@@ -4050,6 +4054,72 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Gets the key user, client and resource figures shown on the Admin UI dashboard.
+     * @return OK
+     */
+    getDashboardMetrics(): Observable<DashboardMetricsInfo> {
+        let url_ = this.baseUrl + "/api/dashboard/metrics";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDashboardMetrics(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDashboardMetrics(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DashboardMetricsInfo>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DashboardMetricsInfo>;
+        }));
+    }
+
+    protected processGetDashboardMetrics(response: HttpResponseBase): Observable<DashboardMetricsInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DashboardMetricsInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
      * @param size (optional) 
@@ -4163,72 +4233,6 @@ export class IdentityApiService implements IIdentityApiService {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = SummaryInfo.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Gets the key user, client and resource figures shown on the Admin UI dashboard.
-     * @return OK
-     */
-    getDashboardMetrics(): Observable<DashboardMetricsInfo> {
-        let url_ = this.baseUrl + "/api/dashboard/metrics";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetDashboardMetrics(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetDashboardMetrics(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<DashboardMetricsInfo>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<DashboardMetricsInfo>;
-        }));
-    }
-
-    protected processGetDashboardMetrics(response: HttpResponseBase): Observable<DashboardMetricsInfo> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DashboardMetricsInfo.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 401) {
@@ -7628,6 +7632,13 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
@@ -8157,6 +8168,13 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
@@ -8547,6 +8565,13 @@ export class IdentityApiService implements IIdentityApiService {
         if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -10024,6 +10049,7 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets the number of successful and failed sign ins per day.
+     * @param timeFrame (optional) 
      * @return OK
      */
     getSignInSeries(timeFrame?: SeriesTimeFrame | undefined): Observable<SignInDailyCountResultSet> {
@@ -10275,6 +10301,11 @@ export class IdentityApiService implements IIdentityApiService {
      * @param claimType (optional) 
      * @param claimValue (optional) 
      * @param userId (optional) 
+     * @param blocked (optional) 
+     * @param lockedOut (optional) 
+     * @param emailConfirmed (optional) 
+     * @param phoneNumberConfirmed (optional) 
+     * @param twoFactorEnabled (optional) 
      * @param expandClaims (optional) 
      * @return OK
      */
@@ -10764,6 +10795,13 @@ export class IdentityApiService implements IIdentityApiService {
         if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -13612,6 +13650,7 @@ export class ApiScopeInfo implements IApiScopeInfo {
     description?: string | undefined;
     emphasize?: boolean | undefined;
     showInDiscoveryDocument?: boolean | undefined;
+    nonEditable?: boolean;
     translations?: { [key: string]: ApiScopeTranslation; } | undefined;
     userClaims?: string[] | undefined;
 
@@ -13632,6 +13671,7 @@ export class ApiScopeInfo implements IApiScopeInfo {
             this.description = _data["description"];
             this.emphasize = _data["emphasize"];
             this.showInDiscoveryDocument = _data["showInDiscoveryDocument"];
+            this.nonEditable = _data["nonEditable"];
             if (_data["translations"]) {
                 this.translations = {} as any;
                 for (let key in _data["translations"]) {
@@ -13662,6 +13702,7 @@ export class ApiScopeInfo implements IApiScopeInfo {
         data["description"] = this.description;
         data["emphasize"] = this.emphasize;
         data["showInDiscoveryDocument"] = this.showInDiscoveryDocument;
+        data["nonEditable"] = this.nonEditable;
         if (this.translations) {
             data["translations"] = {};
             for (let key in this.translations) {
@@ -13685,6 +13726,7 @@ export interface IApiScopeInfo {
     description?: string | undefined;
     emphasize?: boolean | undefined;
     showInDiscoveryDocument?: boolean | undefined;
+    nonEditable?: boolean;
     translations?: { [key: string]: ApiScopeTranslation; } | undefined;
     userClaims?: string[] | undefined;
 }
@@ -14610,6 +14652,58 @@ export class ClientInfoResultSet implements IClientInfoResultSet {
 export interface IClientInfoResultSet {
     count?: number;
     items?: ClientInfo[];
+}
+
+export class ClientMetricsInfo implements IClientMetricsInfo {
+    total?: number;
+    enabled?: number;
+    identityResources?: number;
+    apiResources?: number;
+    apiScopes?: number;
+
+    constructor(data?: IClientMetricsInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.enabled = _data["enabled"];
+            this.identityResources = _data["identityResources"];
+            this.apiResources = _data["apiResources"];
+            this.apiScopes = _data["apiScopes"];
+        }
+    }
+
+    static fromJS(data: any): ClientMetricsInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClientMetricsInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["enabled"] = this.enabled;
+        data["identityResources"] = this.identityResources;
+        data["apiResources"] = this.apiResources;
+        data["apiScopes"] = this.apiScopes;
+        return data;
+    }
+}
+
+export interface IClientMetricsInfo {
+    total?: number;
+    enabled?: number;
+    identityResources?: number;
+    apiResources?: number;
+    apiScopes?: number;
 }
 
 export class ClientSecretInfo implements IClientSecretInfo {
@@ -15615,6 +15709,50 @@ export class CredentialsValidationInfo implements ICredentialsValidationInfo {
 
 export interface ICredentialsValidationInfo {
     passwordRules?: PasswordRuleInfo[];
+}
+
+export class DashboardMetricsInfo implements IDashboardMetricsInfo {
+    calculatedAt?: Date;
+    users?: UserMetricsInfo | undefined;
+    clients?: ClientMetricsInfo | undefined;
+
+    constructor(data?: IDashboardMetricsInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.calculatedAt = _data["calculatedAt"] ? new Date(_data["calculatedAt"].toString()) : undefined as any;
+            this.users = _data["users"] ? UserMetricsInfo.fromJS(_data["users"]) : undefined as any;
+            this.clients = _data["clients"] ? ClientMetricsInfo.fromJS(_data["clients"]) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): DashboardMetricsInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new DashboardMetricsInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["calculatedAt"] = this.calculatedAt ? this.calculatedAt.toISOString() : undefined as any;
+        data["users"] = this.users ? this.users.toJSON() : undefined as any;
+        data["clients"] = this.clients ? this.clients.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IDashboardMetricsInfo {
+    calculatedAt?: Date;
+    users?: UserMetricsInfo | undefined;
+    clients?: ClientMetricsInfo | undefined;
 }
 
 export class DefaultClientThemeConfig implements IDefaultClientThemeConfig {
@@ -17330,6 +17468,102 @@ export interface ISetUserBlockRequest {
     blocked?: boolean;
 }
 
+export class SignInDailyCount implements ISignInDailyCount {
+    date!: Date;
+    succeeded!: number;
+    failed!: number;
+    uniqueUsers!: number;
+
+    constructor(data?: ISignInDailyCount) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.succeeded = _data["succeeded"];
+            this.failed = _data["failed"];
+            this.uniqueUsers = _data["uniqueUsers"];
+        }
+    }
+
+    static fromJS(data: any): SignInDailyCount {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInDailyCount();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : undefined as any;
+        data["succeeded"] = this.succeeded;
+        data["failed"] = this.failed;
+        data["uniqueUsers"] = this.uniqueUsers;
+        return data;
+    }
+}
+
+export interface ISignInDailyCount {
+    date: Date;
+    succeeded: number;
+    failed: number;
+    uniqueUsers: number;
+}
+
+export class SignInDailyCountResultSet implements ISignInDailyCountResultSet {
+    count?: number;
+    items?: SignInDailyCount[];
+
+    constructor(data?: ISignInDailyCountResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SignInDailyCount.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SignInDailyCountResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInDailyCountResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ISignInDailyCountResultSet {
+    count?: number;
+    items?: SignInDailyCount[];
+}
+
 export class SignInLocationSet implements ISignInLocationSet {
     countryLegend?: SignInLogLocation[];
     count?: number;
@@ -18409,300 +18643,6 @@ export enum SubjectFilterMode {
     Actor = "Actor",
     Resource = "Resource",
     Any = "Any",
-}
-
-/** Client and resource figures for the dashboard. */
-export class ClientMetricsInfo implements IClientMetricsInfo {
-    total?: number | undefined;
-    enabled?: number | undefined;
-    identityResources?: number | undefined;
-    apiResources?: number | undefined;
-    apiScopes?: number | undefined;
-
-    constructor(data?: IClientMetricsInfo) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.total = _data["total"];
-            this.enabled = _data["enabled"];
-            this.identityResources = _data["identityResources"];
-            this.apiResources = _data["apiResources"];
-            this.apiScopes = _data["apiScopes"];
-        }
-    }
-
-    static fromJS(data: any): ClientMetricsInfo {
-        data = typeof data === 'object' ? data : {};
-        let result = new ClientMetricsInfo();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["total"] = this.total;
-        data["enabled"] = this.enabled;
-        data["identityResources"] = this.identityResources;
-        data["apiResources"] = this.apiResources;
-        data["apiScopes"] = this.apiScopes;
-        return data;
-    }
-}
-
-/** Client and resource figures for the dashboard. */
-export interface IClientMetricsInfo {
-    total?: number | undefined;
-    enabled?: number | undefined;
-    identityResources?: number | undefined;
-    apiResources?: number | undefined;
-    apiScopes?: number | undefined;
-}
-
-/** Key figures shown on the Admin UI dashboard. */
-export class DashboardMetricsInfo implements IDashboardMetricsInfo {
-    calculatedAt?: Date | undefined;
-    users?: UserMetricsInfo | undefined;
-    clients?: ClientMetricsInfo | undefined;
-
-    constructor(data?: IDashboardMetricsInfo) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.calculatedAt = _data["calculatedAt"] ? new Date(_data["calculatedAt"].toString()) : undefined as any;
-            this.users = _data["users"] ? UserMetricsInfo.fromJS(_data["users"]) : undefined as any;
-            this.clients = _data["clients"] ? ClientMetricsInfo.fromJS(_data["clients"]) : undefined as any;
-        }
-    }
-
-    static fromJS(data: any): DashboardMetricsInfo {
-        data = typeof data === 'object' ? data : {};
-        let result = new DashboardMetricsInfo();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["calculatedAt"] = this.calculatedAt ? this.calculatedAt.toISOString() : undefined as any;
-        data["users"] = this.users ? this.users.toJSON() : undefined as any;
-        data["clients"] = this.clients ? this.clients.toJSON() : undefined as any;
-        return data;
-    }
-}
-
-/** Key figures shown on the Admin UI dashboard. */
-export interface IDashboardMetricsInfo {
-    calculatedAt?: Date | undefined;
-    users?: UserMetricsInfo | undefined;
-    clients?: ClientMetricsInfo | undefined;
-}
-
-/** Sign in attempts of a single day (UTC). */
-export class SignInDailyCount implements ISignInDailyCount {
-    date?: Date | undefined;
-    succeeded?: number | undefined;
-    failed?: number | undefined;
-    uniqueUsers?: number | undefined;
-
-    constructor(data?: ISignInDailyCount) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
-            this.succeeded = _data["succeeded"];
-            this.failed = _data["failed"];
-            this.uniqueUsers = _data["uniqueUsers"];
-        }
-    }
-
-    static fromJS(data: any): SignInDailyCount {
-        data = typeof data === 'object' ? data : {};
-        let result = new SignInDailyCount();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["date"] = this.date ? this.date.toISOString() : undefined as any;
-        data["succeeded"] = this.succeeded;
-        data["failed"] = this.failed;
-        data["uniqueUsers"] = this.uniqueUsers;
-        return data;
-    }
-}
-
-/** Sign in attempts of a single day (UTC). */
-export interface ISignInDailyCount {
-    date?: Date | undefined;
-    succeeded?: number | undefined;
-    failed?: number | undefined;
-    uniqueUsers?: number | undefined;
-}
-
-/** A page of daily sign in counts. */
-export class SignInDailyCountResultSet implements ISignInDailyCountResultSet {
-    count?: number | undefined;
-    items?: SignInDailyCount[] | undefined;
-
-    constructor(data?: ISignInDailyCountResultSet) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.count = _data["count"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(SignInDailyCount.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): SignInDailyCountResultSet {
-        data = typeof data === 'object' ? data : {};
-        let result = new SignInDailyCountResultSet();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["count"] = this.count;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : undefined as any);
-        }
-        return data;
-    }
-}
-
-/** A page of daily sign in counts. */
-export interface ISignInDailyCountResultSet {
-    count?: number | undefined;
-    items?: SignInDailyCount[] | undefined;
-}
-
-/** User figures for the dashboard. */
-export class UserMetricsInfo implements IUserMetricsInfo {
-    total?: number | undefined;
-    roles?: number | undefined;
-    newLast7Days?: number | undefined;
-    newLast30Days?: number | undefined;
-    activeToday?: number | undefined;
-    activeYesterday?: number | undefined;
-    activeLast7Days?: number | undefined;
-    activeLast30Days?: number | undefined;
-    neverSignedIn?: number | undefined;
-    blocked?: number | undefined;
-    lockedOut?: number | undefined;
-    twoFactorEnabled?: number | undefined;
-    emailConfirmed?: number | undefined;
-    phoneNumberConfirmed?: number | undefined;
-    passwordExpired?: number | undefined;
-
-    constructor(data?: IUserMetricsInfo) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.total = _data["total"];
-            this.roles = _data["roles"];
-            this.newLast7Days = _data["newLast7Days"];
-            this.newLast30Days = _data["newLast30Days"];
-            this.activeToday = _data["activeToday"];
-            this.activeYesterday = _data["activeYesterday"];
-            this.activeLast7Days = _data["activeLast7Days"];
-            this.activeLast30Days = _data["activeLast30Days"];
-            this.neverSignedIn = _data["neverSignedIn"];
-            this.blocked = _data["blocked"];
-            this.lockedOut = _data["lockedOut"];
-            this.twoFactorEnabled = _data["twoFactorEnabled"];
-            this.emailConfirmed = _data["emailConfirmed"];
-            this.phoneNumberConfirmed = _data["phoneNumberConfirmed"];
-            this.passwordExpired = _data["passwordExpired"];
-        }
-    }
-
-    static fromJS(data: any): UserMetricsInfo {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserMetricsInfo();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["total"] = this.total;
-        data["roles"] = this.roles;
-        data["newLast7Days"] = this.newLast7Days;
-        data["newLast30Days"] = this.newLast30Days;
-        data["activeToday"] = this.activeToday;
-        data["activeYesterday"] = this.activeYesterday;
-        data["activeLast7Days"] = this.activeLast7Days;
-        data["activeLast30Days"] = this.activeLast30Days;
-        data["neverSignedIn"] = this.neverSignedIn;
-        data["blocked"] = this.blocked;
-        data["lockedOut"] = this.lockedOut;
-        data["twoFactorEnabled"] = this.twoFactorEnabled;
-        data["emailConfirmed"] = this.emailConfirmed;
-        data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
-        data["passwordExpired"] = this.passwordExpired;
-        return data;
-    }
-}
-
-/** User figures for the dashboard. */
-export interface IUserMetricsInfo {
-    total?: number | undefined;
-    roles?: number | undefined;
-    newLast7Days?: number | undefined;
-    newLast30Days?: number | undefined;
-    activeToday?: number | undefined;
-    activeYesterday?: number | undefined;
-    activeLast7Days?: number | undefined;
-    activeLast30Days?: number | undefined;
-    neverSignedIn?: number | undefined;
-    blocked?: number | undefined;
-    lockedOut?: number | undefined;
-    twoFactorEnabled?: number | undefined;
-    emailConfirmed?: number | undefined;
-    phoneNumberConfirmed?: number | undefined;
-    passwordExpired?: number | undefined;
 }
 
 export class SummaryInfo implements ISummaryInfo {
@@ -20424,6 +20364,98 @@ export class UserLoginProviderInfoResultSet implements IUserLoginProviderInfoRes
 export interface IUserLoginProviderInfoResultSet {
     count?: number;
     items?: UserLoginProviderInfo[];
+}
+
+export class UserMetricsInfo implements IUserMetricsInfo {
+    total?: number;
+    roles?: number;
+    newLast7Days?: number;
+    newLast30Days?: number;
+    activeToday?: number;
+    activeYesterday?: number;
+    activeLast7Days?: number;
+    activeLast30Days?: number;
+    neverSignedIn?: number;
+    blocked?: number;
+    lockedOut?: number;
+    twoFactorEnabled?: number;
+    emailConfirmed?: number;
+    phoneNumberConfirmed?: number;
+    passwordExpired?: number;
+
+    constructor(data?: IUserMetricsInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.roles = _data["roles"];
+            this.newLast7Days = _data["newLast7Days"];
+            this.newLast30Days = _data["newLast30Days"];
+            this.activeToday = _data["activeToday"];
+            this.activeYesterday = _data["activeYesterday"];
+            this.activeLast7Days = _data["activeLast7Days"];
+            this.activeLast30Days = _data["activeLast30Days"];
+            this.neverSignedIn = _data["neverSignedIn"];
+            this.blocked = _data["blocked"];
+            this.lockedOut = _data["lockedOut"];
+            this.twoFactorEnabled = _data["twoFactorEnabled"];
+            this.emailConfirmed = _data["emailConfirmed"];
+            this.phoneNumberConfirmed = _data["phoneNumberConfirmed"];
+            this.passwordExpired = _data["passwordExpired"];
+        }
+    }
+
+    static fromJS(data: any): UserMetricsInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserMetricsInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["roles"] = this.roles;
+        data["newLast7Days"] = this.newLast7Days;
+        data["newLast30Days"] = this.newLast30Days;
+        data["activeToday"] = this.activeToday;
+        data["activeYesterday"] = this.activeYesterday;
+        data["activeLast7Days"] = this.activeLast7Days;
+        data["activeLast30Days"] = this.activeLast30Days;
+        data["neverSignedIn"] = this.neverSignedIn;
+        data["blocked"] = this.blocked;
+        data["lockedOut"] = this.lockedOut;
+        data["twoFactorEnabled"] = this.twoFactorEnabled;
+        data["emailConfirmed"] = this.emailConfirmed;
+        data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
+        data["passwordExpired"] = this.passwordExpired;
+        return data;
+    }
+}
+
+export interface IUserMetricsInfo {
+    total?: number;
+    roles?: number;
+    newLast7Days?: number;
+    newLast30Days?: number;
+    activeToday?: number;
+    activeYesterday?: number;
+    activeLast7Days?: number;
+    activeLast30Days?: number;
+    neverSignedIn?: number;
+    blocked?: number;
+    lockedOut?: number;
+    twoFactorEnabled?: number;
+    emailConfirmed?: number;
+    phoneNumberConfirmed?: number;
+    passwordExpired?: number;
 }
 
 export class UsersActivityInfo implements IUsersActivityInfo {

@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { LucideTrash, LucideTriangleAlert } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DIALOG_DATA, DialogRef } from './dialog-ref';
 
 export interface ConfirmDialogData {
@@ -15,7 +16,7 @@ export interface ConfirmDialogData {
 
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [LucideTrash, LucideTriangleAlert],
+  imports: [LucideTrash, LucideTriangleAlert, TranslatePipe],
   template: `
     <div class="flex gap-4">
       <div class="grid size-10 shrink-0 place-items-center rounded-full"
@@ -30,9 +31,9 @@ export interface ConfirmDialogData {
       </div>
     </div>
     <div class="modal-action">
-      <button type="button" class="btn btn-ghost" (click)="ref.close(false)">{{ data.cancelLabel ?? 'Cancel' }}</button>
+      <button type="button" class="btn btn-ghost" (click)="ref.close(false)">{{ data.cancelLabel ?? ('Common.Cancel' | translate) }}</button>
       <button type="button" class="btn" [class]="data.tone === 'danger' ? 'btn-error' : 'btn-primary'" (click)="ref.close(true)">
-        {{ data.confirmLabel ?? 'Confirm' }}
+        {{ data.confirmLabel ?? ('Common.Confirm' | translate) }}
       </button>
     </div>
   `

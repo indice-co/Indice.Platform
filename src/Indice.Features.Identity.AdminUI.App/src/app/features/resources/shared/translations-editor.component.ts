@@ -1,5 +1,6 @@
 import { Component, computed, input, model, signal } from '@angular/core';
 import { LucideLanguages, LucidePlus, LucideX } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ApiScopeTranslation } from 'src/app/core/services/identity-api.service';
 
 export type Translations = { [culture: string]: ApiScopeTranslation };
@@ -10,13 +11,13 @@ export type Translations = { [culture: string]: ApiScopeTranslation };
  */
 @Component({
   selector: 'app-translations-editor',
-  imports: [LucideLanguages, LucidePlus, LucideX],
+  imports: [LucideLanguages, LucidePlus, LucideX, TranslatePipe],
   host: { class: 'block' },
   template: `
     <div class="rounded-box border border-base-300">
       <div class="flex flex-wrap items-center gap-2 border-b border-base-300 px-3 py-2">
         <svg lucideLanguages class="size-4 text-base-content/60"></svg>
-        <span class="mr-1 text-sm font-semibold">Translations</span>
+        <span class="mr-1 text-sm font-semibold">{{ 'Resources.Translations.Title' | translate }}</span>
         <div role="tablist" class="tabs tabs-box tabs-xs">
           @for (culture of cultures(); track culture) {
             <button type="button" role="tab" class="tab gap-1 font-mono uppercase" [class.tab-active]="culture === current()"
@@ -27,31 +28,31 @@ export type Translations = { [culture: string]: ApiScopeTranslation };
         </div>
         @if (!disabled()) {
           <form class="ml-auto flex items-center gap-1" (submit)="$event.preventDefault(); addCulture(code.value); code.value = ''">
-            <input #code class="input input-xs w-20 font-mono" maxlength="10" placeholder="e.g. en" aria-label="Culture code" />
-            <button type="submit" class="btn btn-ghost btn-xs" aria-label="Add language"><svg lucidePlus class="size-3.5"></svg>Add</button>
+            <input #code class="input input-xs w-20 font-mono" maxlength="10" [placeholder]="'Resources.Form.ExamplePlaceholder' | translate: { example: 'en' }" [attr.aria-label]="'Resources.Translations.CultureCode' | translate" />
+            <button type="submit" class="btn btn-ghost btn-xs" [attr.aria-label]="'Resources.Translations.AddLanguage' | translate"><svg lucidePlus class="size-3.5"></svg>{{ 'Common.Add' | translate }}</button>
           </form>
         }
       </div>
       @if (current(); as culture) {
         <div class="space-y-3 p-3">
           <fieldset class="fieldset py-0">
-            <legend class="fieldset-legend">Display name ({{ culture }})</legend>
+            <legend class="fieldset-legend">{{ 'Common.DisplayName' | translate }} ({{ culture }})</legend>
             <input class="input input-sm w-full" maxlength="200" [disabled]="disabled()" [value]="value()[culture]?.displayName ?? ''"
               (input)="set(culture, 'displayName', $any($event.target).value)" />
           </fieldset>
           <fieldset class="fieldset py-0">
-            <legend class="fieldset-legend">Description ({{ culture }})</legend>
+            <legend class="fieldset-legend">{{ 'Common.Description' | translate }} ({{ culture }})</legend>
             <textarea class="textarea textarea-sm w-full" rows="2" maxlength="1000" [disabled]="disabled()"
               [value]="value()[culture]?.description ?? ''" (input)="set(culture, 'description', $any($event.target).value)"></textarea>
           </fieldset>
           @if (!disabled()) {
             <button type="button" class="btn btn-ghost btn-xs text-error" (click)="removeCulture(culture)">
-              <svg lucideX class="size-3.5"></svg>Remove {{ culture }}
+              <svg lucideX class="size-3.5"></svg>{{ 'Resources.Translations.RemoveCulture' | translate: { culture: culture } }}
             </button>
           }
         </div>
       } @else {
-        <p class="px-3 py-4 text-sm text-base-content/60">No translations. Add a culture code to translate the display name and description.</p>
+        <p class="px-3 py-4 text-sm text-base-content/60">{{ 'Resources.Translations.Empty' | translate }}</p>
       }
     </div>
   `

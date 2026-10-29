@@ -1,6 +1,7 @@
 import { Component, Injectable, inject, input } from '@angular/core';
 import { Route, Router, UrlTree } from '@angular/router';
 import { LucideX } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { authGuard } from 'src/app/core/services/auth.guards';
 
 /** Name of the router outlet the shell renders as a right-hand slide-over pane. */
@@ -37,7 +38,7 @@ export class SidePaneService {
  */
 @Component({
   selector: 'app-side-pane-layout',
-  imports: [LucideX],
+  imports: [LucideX, TranslatePipe],
   host: { class: 'flex h-full flex-col' },
   template: `
     <header class="flex items-start justify-between gap-4 border-b border-base-300 px-6 py-5">
@@ -47,7 +48,7 @@ export class SidePaneService {
           <p class="mt-0.5 text-sm text-base-content/70">{{ subtitle() }}</p>
         }
       </div>
-      <button type="button" class="btn btn-ghost btn-sm btn-square" (click)="pane.close()" aria-label="Close">
+      <button type="button" class="btn btn-ghost btn-sm btn-square" (click)="pane.close()" [attr.aria-label]="'Common.Close' | translate">
         <svg lucideX class="size-5"></svg>
       </button>
     </header>

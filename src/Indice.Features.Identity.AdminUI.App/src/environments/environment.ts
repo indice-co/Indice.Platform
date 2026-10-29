@@ -22,6 +22,7 @@ export const environment = {
         silent_redirect_uri: 'http://localhost:4200/auth-renew'
     },
     culture: 'en-GB',
+    i18n_assets: '/assets/i18n/',
     isTemplate: false,
     production: false
 }

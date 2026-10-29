@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { LucideBoxes, LucideChevronRight, LucideIdCard, LucideKeyRound, LucideLock, LucidePlus } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityApiService } from 'src/app/core/services/identity-api.service';
 import { StatusBadgeComponent } from 'src/app/ui/badges/badges';
@@ -28,31 +29,36 @@ interface ResourceRow {
   allowedClaims?: string[];
 }
 
+/** Translation keys of the texts that differ per kind. */
 interface KindConfig {
   title: string;
   subtitle: string;
-  noun: string;
+  newLabel: string;
+  emptyMessage: string;
   search: string;
 }
 
 const KINDS: Record<ResourceKind, KindConfig> = {
   identity: {
-    title: 'Identity resources',
-    subtitle: 'Groups of user claims (such as profile or email) that clients can request about the signed-in user.',
-    noun: 'identity resource',
-    search: 'Search identity resources'
+    title: 'Routes.IdentityResources',
+    subtitle: 'Resources.List.Identity.Subtitle',
+    newLabel: 'Resources.List.Identity.New',
+    emptyMessage: 'Resources.List.Identity.EmptyMessage',
+    search: 'Resources.List.Identity.Search'
   },
   api: {
-    title: 'API resources',
-    subtitle: 'APIs protected by the identity server, along with their scopes, claims and secrets.',
-    noun: 'API resource',
-    search: 'Search API resources'
+    title: 'Routes.ApiResources',
+    subtitle: 'Resources.List.Api.Subtitle',
+    newLabel: 'Resources.List.Api.New',
+    emptyMessage: 'Resources.List.Api.EmptyMessage',
+    search: 'Resources.List.Api.Search'
   },
   scope: {
-    title: 'API scopes',
-    subtitle: 'Permissions that clients request in order to call APIs on behalf of users.',
-    noun: 'API scope',
-    search: 'Search API scopes'
+    title: 'Routes.ApiScopes',
+    subtitle: 'Resources.List.Scope.Subtitle',
+    newLabel: 'Resources.List.Scope.New',
+    emptyMessage: 'Resources.List.Scope.EmptyMessage',
+    search: 'Resources.List.Scope.Search'
   }
 };
 
@@ -60,33 +66,33 @@ const KINDS: Record<ResourceKind, KindConfig> = {
 @Component({
   selector: 'app-resource-list',
   imports: [
-    RouterLink, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent, StatusBadgeComponent,
+    RouterLink, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent, StatusBadgeComponent, TranslatePipe,
     LucideBoxes, LucideChevronRight, LucideIdCard, LucideKeyRound, LucideLock, LucidePlus
   ],
   template: `
-    <app-page-header [title]="config().title" [subtitle]="config().subtitle">
+    <app-page-header [title]="config().title | translate" [subtitle]="config().subtitle | translate">
       @if (canEdit) {
         <div actions>
           <a class="btn btn-primary btn-sm" routerLink="/resources/add" [state]="{ origin: kind() }">
-            <svg lucidePlus class="size-4"></svg>New {{ config().noun }}
+            <svg lucidePlus class="size-4"></svg>{{ config().newLabel | translate }}
           </a>
         </div>
       }
     </app-page-header>
 
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-      <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="config().search" (search)="list.setSearch($event)" />
+      <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="config().search | translate" (search)="list.setSearch($event)" />
     </div>
 
     <div class="panel overflow-x-auto">
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="name">Name</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="displayName">Display name</app-sort-header></th>
-            <th class="hidden lg:table-cell">Description</th>
-            <th>Claims</th>
-            <th class="w-12"><span class="sr-only">Open</span></th>
+            <th><app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</app-sort-header></th>
+            <th class="hidden lg:table-cell">{{ 'Common.Description' | translate }}</th>
+            <th>{{ 'Resources.List.Claims' | translate }}</th>
+            <th class="w-12"><span class="sr-only">{{ 'Resources.List.Open' | translate }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -109,12 +115,12 @@ const KINDS: Record<ResourceKind, KindConfig> = {
                     <span class="min-w-0">
                       <span class="flex items-center gap-1.5 font-mono text-sm font-semibold">
                         {{ row.name }}
-                        @if (row.nonEditable) { <svg lucideLock class="size-3.5 text-warning" aria-label="Reserved"></svg> }
+                        @if (row.nonEditable) { <svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg> }
                       </span>
                       <span class="mt-0.5 flex flex-wrap gap-1">
-                        @if (row.enabled === false) { <app-status-badge tone="neutral">Disabled</app-status-badge> }
-                        @if (row.required) { <app-status-badge tone="info">Required</app-status-badge> }
-                        @if (row.emphasize) { <app-status-badge tone="secondary">Emphasized</app-status-badge> }
+                        @if (row.enabled === false) { <app-status-badge tone="neutral">{{ 'Common.Disabled' | translate }}</app-status-badge> }
+                        @if (row.required) { <app-status-badge tone="info">{{ 'Common.Required' | translate }}</app-status-badge> }
+                        @if (row.emphasize) { <app-status-badge tone="secondary">{{ 'Resources.List.Emphasized' | translate }}</app-status-badge> }
                       </span>
                     </span>
                   </a>
@@ -123,7 +129,7 @@ const KINDS: Record<ResourceKind, KindConfig> = {
                 <td class="hidden max-w-md text-base-content/75 lg:table-cell"><span class="line-clamp-2">{{ row.description || '—' }}</span></td>
                 <td><span class="badge badge-sm badge-ghost tabular">{{ claimsOf(row).length }}</span></td>
                 <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="link(row)" [attr.aria-label]="'Open ' + row.name">
+                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="link(row)" [attr.aria-label]="'Resources.List.OpenItem' | translate: { name: row.name }">
                     <svg lucideChevronRight class="size-4"></svg>
                   </a>
                 </td>
@@ -131,12 +137,12 @@ const KINDS: Record<ResourceKind, KindConfig> = {
             } @empty {
               <tr>
                 <td colspan="5">
-                  <app-empty-state [title]="list.hasFilters() ? 'No matches' : 'Nothing here yet'"
-                    [message]="list.hasFilters() ? 'Try a different search term.' : 'Create the first ' + config().noun + '.'">
+                  <app-empty-state [title]="(list.hasFilters() ? 'Resources.List.NoMatches' : 'Resources.List.NothingYet') | translate"
+                    [message]="(list.hasFilters() ? 'Resources.List.TryDifferentSearch' : config().emptyMessage) | translate">
                     <svg icon lucideKeyRound class="size-5"></svg>
                     @if (canEdit && !list.hasFilters()) {
                       <a actions class="btn btn-sm" routerLink="/resources/add" [state]="{ origin: kind() }">
-                        <svg lucidePlus class="size-4"></svg>New {{ config().noun }}
+                        <svg lucidePlus class="size-4"></svg>{{ config().newLabel | translate }}
                       </a>
                     }
                   </app-empty-state>

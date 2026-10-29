@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, input } from '@angular/core';
 import { LucideFlag, LucideLogIn, LucideRotateCcw } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IdentityApiService, SignInLogEntry, SignInType } from 'src/app/core/services/identity-api.service';
 import { StatusBadgeComponent } from 'src/app/ui/badges/badges';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
@@ -8,7 +9,7 @@ import { ListState, toApiSort, toBool } from 'src/app/ui/list/list-state';
 import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { SortHeaderComponent } from 'src/app/ui/list/sort-header.component';
-import { LogDeviceComponent, LogIpComponent, LogTimeComponent, idpIcon, toDate, toDateInput } from './log-parts';
+import { LogDeviceComponent, LogIpComponent, LogTimeComponent, idpIcon, signInTypeLabel, toDate, toDateInput } from './log-parts';
 import { SignInLogDetailsComponent } from './sign-in-log-details.component';
 
 /** Query params the sign in log list reacts to (besides paging, sorting and `search`). */
@@ -22,44 +23,44 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
   selector: 'app-sign-in-logs-view',
   imports: [
     StatusBadgeComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent,
-    LogDeviceComponent, LogIpComponent, LogTimeComponent, LucideFlag, LucideLogIn, LucideRotateCcw
+    LogDeviceComponent, LogIpComponent, LogTimeComponent, LucideFlag, LucideLogIn, LucideRotateCcw, TranslatePipe
   ],
   host: { class: 'block' },
   template: `
     <div class="mb-3 flex flex-wrap items-end gap-2">
-      <app-search-input class="w-full sm:w-64" [value]="list.search()" placeholder="Search logs" (search)="list.setSearch($event)" />
-      <select class="select select-sm w-36" aria-label="Outcome" [value]="list.params()['succeeded'] ?? ''"
+      <app-search-input class="w-full sm:w-64" [value]="list.search()" [placeholder]="'SignInLogs.Filters.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
+      <select class="select select-sm w-36" [attr.aria-label]="'Logs.Filters.Outcome' | translate" [value]="list.params()['succeeded'] ?? ''"
         (change)="list.setParams({ succeeded: $any($event.target).value })">
-        <option value="">All outcomes</option>
-        <option value="true">Succeeded</option>
-        <option value="false">Failed</option>
+        <option value="">{{ 'Logs.Filters.AllOutcomes' | translate }}</option>
+        <option value="true">{{ 'Logs.Outcome.Succeeded' | translate }}</option>
+        <option value="false">{{ 'Logs.Outcome.Failed' | translate }}</option>
       </select>
-      <select class="select select-sm w-40" aria-label="Sign-in type" [value]="list.params()['signInType'] ?? ''"
+      <select class="select select-sm w-40" [attr.aria-label]="'SignInLogs.Fields.SignInType' | translate" [value]="list.params()['signInType'] ?? ''"
         (change)="list.setParams({ signInType: $any($event.target).value })">
-        <option value="">All sign-in types</option>
-        @for (type of signInTypes; track type) { <option [value]="type" [selected]="list.params()['signInType'] === type">{{ type === 'NonInteractive' ? 'Non-interactive' : type }}</option> }
+        <option value="">{{ 'SignInLogs.Filters.AllSignInTypes' | translate }}</option>
+        @for (type of signInTypes; track type) { <option [value]="type" [selected]="list.params()['signInType'] === type">{{ signInTypeLabel(type) | translate }}</option> }
       </select>
-      <label class="input input-sm w-40" title="From date">
-        <span class="text-base-content/55">From</span>
+      <label class="input input-sm w-40" [title]="'Logs.Filters.FromDate' | translate">
+        <span class="text-base-content/55">{{ 'Logs.Filters.From' | translate }}</span>
         <input type="date" [value]="dateValue('from')" (change)="list.setParams({ from: $any($event.target).value })" />
       </label>
-      <label class="input input-sm w-40" title="To date">
-        <span class="text-base-content/55">To</span>
+      <label class="input input-sm w-40" [title]="'Logs.Filters.ToDate' | translate">
+        <span class="text-base-content/55">{{ 'Logs.Filters.To' | translate }}</span>
         <input type="date" [value]="dateValue('to')" (change)="list.setParams({ to: $any($event.target).value })" />
       </label>
       @if (!subject()) {
-        <input class="input input-sm w-40" placeholder="Subject" aria-label="Subject" [value]="list.params()['subject'] ?? ''"
+        <input class="input input-sm w-40" [placeholder]="'Logs.Fields.Subject' | translate" [attr.aria-label]="'Logs.Fields.Subject' | translate" [value]="list.params()['subject'] ?? ''"
           (change)="list.setParams({ subject: $any($event.target).value.trim() })" />
       }
-      <input class="input input-sm w-40 font-mono" placeholder="Client id" aria-label="Application id" [value]="list.params()['application'] ?? ''"
+      <input class="input input-sm w-40 font-mono" [placeholder]="'Logs.Filters.ClientId' | translate" [attr.aria-label]="'Logs.Filters.ApplicationId' | translate" [value]="list.params()['application'] ?? ''"
         (change)="list.setParams({ application: $any($event.target).value.trim() })" />
       <label class="label h-8 cursor-pointer gap-2 rounded-field border border-base-300 bg-base-100 px-3 text-sm text-base-content">
         <input type="checkbox" class="toggle toggle-xs toggle-warning" [checked]="list.params()['review'] === 'true'"
           (change)="list.setParams({ review: $any($event.target).checked ? 'true' : null })" />
-        Marked for review
+        {{ 'Logs.Review.Marked' | translate }}
       </label>
       @if (list.hasFilters()) {
-        <button type="button" class="btn btn-ghost btn-sm" (click)="list.clearFilters()"><svg lucideRotateCcw class="size-4"></svg>Reset</button>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="list.clearFilters()"><svg lucideRotateCcw class="size-4"></svg>{{ 'Common.Reset' | translate }}</button>
       }
     </div>
 
@@ -67,14 +68,14 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="createdAt">When</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="actionName">Event</app-sort-header></th>
-            @if (!subject()) { <th><app-sort-header [list]="list" field="subjectName">Subject</app-sort-header></th> }
-            <th>Application</th>
-            <th>Device</th>
-            <th><app-sort-header [list]="list" field="ipAddress">IP address</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="location">Location</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="signInType">Type</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="actionName">{{ 'Logs.Fields.Event' | translate }}</app-sort-header></th>
+            @if (!subject()) { <th><app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</app-sort-header></th> }
+            <th>{{ 'Logs.Fields.Application' | translate }}</th>
+            <th>{{ 'Logs.Fields.Device' | translate }}</th>
+            <th><app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="location">{{ 'Logs.Fields.Location' | translate }}</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="signInType">{{ 'Common.Type' | translate }}</app-sort-header></th>
           </tr>
         </thead>
         <tbody>
@@ -89,8 +90,8 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
                 <td><app-log-time [value]="entry.createdAt" /></td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || (entry.succeeded ? 'Succeeded' : 'Failed') }}</app-status-badge>
-                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" aria-label="Marked for review"></svg> }
+                    <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
+                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" [attr.aria-label]="'Logs.Review.Marked' | translate"></svg> }
                     @if (idp(entry); as icon) { <img [src]="icon" class="h-3.5" [alt]="entry.extraData?.provider" [title]="entry.extraData?.provider" /> }
                   </div>
                 </td>
@@ -106,18 +107,18 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
                 <td class="max-w-48 truncate text-base-content/75" [title]="entry.location ?? ''">{{ entry.location || '—' }}</td>
                 <td>
                   @if (entry.signInType) {
-                    <span class="badge badge-sm badge-ghost whitespace-nowrap">{{ entry.signInType === 'NonInteractive' ? 'Non-interactive' : entry.signInType }}</span>
+                    <span class="badge badge-sm badge-ghost whitespace-nowrap">{{ signInTypeLabel(entry.signInType) | translate }}</span>
                   } @else { <span class="text-base-content/40">—</span> }
                 </td>
               </tr>
             } @empty {
               <tr>
                 <td [attr.colspan]="columns()">
-                  <app-empty-state [title]="list.failed() ? 'Sign-in logs could not be loaded' : 'No sign-in events'"
-                    [message]="list.hasFilters() ? 'No entries match the current filters.' : 'Sign-in events will appear here as users authenticate.'">
+                  <app-empty-state [title]="(list.failed() ? 'SignInLogs.Empty.LoadFailed' : 'SignInLogs.Empty.Title') | translate"
+                    [message]="(list.hasFilters() ? 'Logs.Filters.NoMatches' : 'SignInLogs.Empty.Message') | translate">
                     <svg icon lucideLogIn class="size-5"></svg>
                     @if (list.hasFilters()) {
-                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">Reset filters</button>
+                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Logs.Filters.ResetFilters' | translate }}</button>
                     }
                   </app-empty-state>
                 </td>
@@ -141,6 +142,7 @@ export class SignInLogsViewComponent implements OnInit {
   public readonly subject = input<string>();
 
   protected readonly signInTypes = Object.values(SignInType);
+  protected readonly signInTypeLabel = signInTypeLabel;
   protected readonly list = new ListState<SignInLogEntry>({
     sort: 'createdAt',
     dir: 'desc',
@@ -179,8 +181,10 @@ export class SignInLogsViewComponent implements OnInit {
   }
 
   protected open(entry: SignInLogEntry): void {
+    const review = entry.review;
     this._dialog.open<boolean, SignInLogEntry>(SignInLogDetailsComponent, { data: entry, size: 'xl' }).closed.subscribe(changed => {
-      if (changed) {
+      // the dialog may also be dismissed (escape / backdrop) after the flag was toggled
+      if (changed || entry.review !== review) {
         this.list.refresh();
       }
     });

@@ -2,18 +2,19 @@ import { Component, DestroyRef, effect, inject, input, output, signal } from '@a
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { LucideSearch, LucideX } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /** Debounced free-text search box. Emits once the text is empty or at least `minLength` characters long. */
 @Component({
   selector: 'app-search-input',
-  imports: [LucideSearch, LucideX],
+  imports: [LucideSearch, LucideX, TranslatePipe],
   template: `
     <label class="input input-sm w-full">
       <svg lucideSearch class="size-4 opacity-60"></svg>
       <input type="search" class="grow" [placeholder]="placeholder()" [value]="text()"
         (input)="onInput($any($event.target).value)" (keydown.escape)="onInput('')" />
       @if (text()) {
-        <button type="button" class="btn btn-ghost btn-xs btn-circle" (click)="onInput('')" aria-label="Clear">
+        <button type="button" class="btn btn-ghost btn-xs btn-circle" (click)="onInput('')" [attr.aria-label]="'Common.Clear' | translate">
           <svg lucideX class="size-3.5"></svg>
         </button>
       }

@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideLink, LucidePlus, LucideRotateCcw, LucideTrash, LucideTriangleAlert } from '@lucide/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
@@ -22,32 +23,32 @@ interface UrlRow {
  */
 @Component({
   selector: 'app-client-urls',
-  imports: [ReactiveFormsModule, EmptyStateComponent, LucideLink, LucidePlus, LucideRotateCcw, LucideTrash, LucideTriangleAlert],
+  imports: [ReactiveFormsModule, TranslatePipe, EmptyStateComponent, LucideLink, LucidePlus, LucideRotateCcw, LucideTrash, LucideTriangleAlert],
   template: `
     <div class="panel">
       @if (canEdit) {
         <form class="flex flex-col gap-2 border-b border-base-300 p-4 sm:flex-row sm:items-start" (ngSubmit)="add()">
           <div class="flex-1">
             <input class="input w-full font-mono text-sm" [formControl]="newUrl" placeholder="https://app.example.com/signin-oidc"
-              [class.input-error]="newUrl.invalid && newUrl.touched" aria-label="URL to add" />
+              [class.input-error]="newUrl.invalid && newUrl.touched" [attr.aria-label]="'Clients.Urls.UrlToAdd' | translate" />
             @if (newUrl.touched && newUrl.hasError('pattern')) {
-              <p class="mt-1 text-xs text-error">Enter a valid URL.</p>
+              <p class="mt-1 text-xs text-error">{{ 'Clients.Validation.InvalidUrl' | translate }}</p>
             } @else if (newUrl.touched && newUrl.hasError('duplicate')) {
-              <p class="mt-1 text-xs text-error">This URL is already listed.</p>
+              <p class="mt-1 text-xs text-error">{{ 'Clients.Urls.Duplicate' | translate }}</p>
             }
           </div>
-          <button type="submit" class="btn btn-primary" [disabled]="!newUrl.value"><svg lucidePlus class="size-4"></svg>Add URL</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!newUrl.value"><svg lucidePlus class="size-4"></svg>{{ 'Clients.Urls.AddUrl' | translate }}</button>
         </form>
       }
       <div class="overflow-x-auto">
         <table class="table">
           <thead>
             <tr>
-              <th>URL</th>
-              <th class="w-28 text-center"><span class="tooltip" data-tip="Tokens can be sent to this URL">Redirect</span></th>
-              <th class="w-28 text-center"><span class="tooltip" data-tip="Origin allowed to make cross origin requests">CORS</span></th>
-              <th class="w-32 text-center"><span class="tooltip tooltip-left" data-tip="Users can return here after signing out">Post logout</span></th>
-              @if (canEdit) { <th class="w-12"><span class="sr-only">Remove</span></th> }
+              <th>{{ 'Clients.Urls.Url' | translate }}</th>
+              <th class="w-28 text-center"><span class="tooltip" [attr.data-tip]="'Clients.Urls.RedirectTip' | translate">{{ 'Clients.Urls.Redirect' | translate }}</span></th>
+              <th class="w-28 text-center"><span class="tooltip" [attr.data-tip]="'Clients.Urls.CorsTip' | translate">{{ 'Clients.Urls.Cors' | translate }}</span></th>
+              <th class="w-32 text-center"><span class="tooltip tooltip-left" [attr.data-tip]="'Clients.Urls.PostLogoutTip' | translate">{{ 'Clients.Urls.PostLogout' | translate }}</span></th>
+              @if (canEdit) { <th class="w-12"><span class="sr-only">{{ 'Common.Remove' | translate }}</span></th> }
             </tr>
           </thead>
           <tbody>
@@ -57,7 +58,7 @@ interface UrlRow {
                   <span class="inline-flex items-center gap-2 font-mono text-sm break-all" [class.line-through]="isRemoved(row)">
                     {{ row.url }}
                     @if (row.cors && !isValidOrigin(row.url)) {
-                      <span class="tooltip" data-tip="Not a valid CORS origin: use scheme, host and port only">
+                      <span class="tooltip" [attr.data-tip]="'Clients.Urls.InvalidOriginTip' | translate">
                         <svg lucideTriangleAlert class="size-4 text-warning"></svg>
                       </span>
                     }
@@ -66,17 +67,17 @@ interface UrlRow {
                 @for (kind of kinds; track kind) {
                   <td class="text-center">
                     <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" [checked]="row[kind]" [disabled]="!canEdit"
-                      [attr.aria-label]="kind + ' ' + row.url" (change)="toggle(row, kind, $any($event.target).checked)" />
+                      [attr.aria-label]="(kindLabels[kind] | translate) + ' ' + row.url" (change)="toggle(row, kind, $any($event.target).checked)" />
                   </td>
                 }
                 @if (canEdit) {
                   <td class="text-right">
                     @if (isRemoved(row)) {
-                      <button type="button" class="btn btn-ghost btn-xs btn-square" aria-label="Restore" (click)="restore(row)">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square" [attr.aria-label]="'Clients.Urls.Restore' | translate" (click)="restore(row)">
                         <svg lucideRotateCcw class="size-4"></svg>
                       </button>
                     } @else {
-                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" [attr.aria-label]="'Remove ' + row.url" (click)="removeAll(row)">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" [attr.aria-label]="'Clients.Urls.RemoveLabel' | translate: { url: row.url }" (click)="removeAll(row)">
                         <svg lucideTrash class="size-4"></svg>
                       </button>
                     }
@@ -86,7 +87,7 @@ interface UrlRow {
             } @empty {
               <tr>
                 <td [attr.colspan]="canEdit ? 5 : 4">
-                  <app-empty-state title="No URLs yet" message="Add the addresses this application redirects to after sign in or sign out.">
+                  <app-empty-state [title]="'Clients.Urls.EmptyTitle' | translate" [message]="'Clients.Urls.EmptyMessage' | translate">
                     <svg icon lucideLink class="size-5"></svg>
                   </app-empty-state>
                 </td>
@@ -97,11 +98,11 @@ interface UrlRow {
       </div>
       @if (canEdit) {
         <div class="flex items-center justify-end gap-3 border-t border-base-300 px-4 py-3">
-          @if (dirty()) { <span class="text-sm text-base-content/60">Unsaved changes</span> }
-          <button type="button" class="btn btn-ghost" [disabled]="!dirty() || saving()" (click)="reset()">Discard</button>
+          @if (dirty()) { <span class="text-sm text-base-content/60">{{ 'Clients.Urls.Unsaved' | translate }}</span> }
+          <button type="button" class="btn btn-ghost" [disabled]="!dirty() || saving()" (click)="reset()">{{ 'Common.Discard' | translate }}</button>
           <button type="button" class="btn btn-primary" [disabled]="!dirty() || hasInvalidOrigins() || saving()" (click)="save()">
             @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
-            Save URLs
+            {{ 'Clients.Urls.Save' | translate }}
           </button>
         </div>
       }
@@ -111,8 +112,10 @@ interface UrlRow {
 export class ClientUrlsComponent implements OnInit {
   private readonly _store = inject(ClientStore);
   private readonly _toast = inject(ToastService);
+  private readonly _translate = inject(TranslateService);
   protected readonly canEdit = inject(AuthService).isAdminUIClientsWriter();
   protected readonly kinds: UrlKind[] = ['redirect', 'cors', 'postLogout'];
+  protected readonly kindLabels: Record<UrlKind, string> = { redirect: 'Clients.Urls.Redirect', cors: 'Clients.Urls.Cors', postLogout: 'Clients.Urls.PostLogout' };
   protected readonly rows = signal<UrlRow[]>([]);
   protected readonly dirty = signal(false);
   protected readonly saving = signal(false);
@@ -179,7 +182,7 @@ export class ClientUrlsComponent implements OnInit {
       next: () => {
         this.saving.set(false);
         this.reset();
-        this._toast.success('URLs saved', 'The client URLs were updated.');
+        this._toast.success(this._translate.instant('Clients.Urls.SavedTitle'), this._translate.instant('Clients.Urls.SavedMessage'));
       },
       error: () => this.saving.set(false)
     });

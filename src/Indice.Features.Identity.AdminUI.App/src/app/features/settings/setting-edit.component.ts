@@ -2,6 +2,7 @@ import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { filter, switchMap } from 'rxjs';
 import { LucideTrash } from '@lucide/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CreateAppSettingRequest, IdentityApiService, UpdateAppSettingRequest } from 'src/app/core/services/identity-api.service';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
@@ -12,10 +13,10 @@ import { SETTINGS_REFRESH } from './settings.component';
 /** Side pane form that creates an app setting, or edits the one in the `key` route param. */
 @Component({
   selector: 'app-setting-edit',
-  imports: [ReactiveFormsModule, SidePaneLayoutComponent, LucideTrash],
+  imports: [ReactiveFormsModule, SidePaneLayoutComponent, LucideTrash, TranslatePipe],
   template: `
-    <app-side-pane-layout [title]="key() ? 'Edit setting' : 'New setting'"
-      subtitle="Keys use the configuration path syntax, e.g. Section:Subsection:Name.">
+    <app-side-pane-layout [title]="(key() ? 'Settings.Edit.Title' : 'Settings.New') | translate"
+      [subtitle]="'Settings.Edit.Subtitle' | translate">
       @if (loading()) {
         <div class="space-y-4">
           @for (row of [1, 2]; track row) { <div class="skeleton h-10 w-full"></div> }
@@ -23,21 +24,21 @@ import { SETTINGS_REFRESH } from './settings.component';
       } @else {
         <form id="setting-form" class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Key{{ key() ? '' : ' *' }}</legend>
-            <input class="input w-full font-mono" formControlName="key" maxlength="512" placeholder="e.g. General:Host"
+            <legend class="fieldset-legend">{{ 'Settings.Fields.Key' | translate }}{{ key() ? '' : ' *' }}</legend>
+            <input class="input w-full font-mono" formControlName="key" maxlength="512" [placeholder]="'Settings.Edit.KeyPlaceholder' | translate"
               [class.input-error]="form.controls.key.invalid && form.controls.key.touched" />
             @if (form.controls.key.touched && form.controls.key.hasError('required')) {
-              <p class="label text-error">A key is required.</p>
+              <p class="label text-error">{{ 'Settings.Edit.KeyRequired' | translate }}</p>
             } @else if (key()) {
-              <p class="label whitespace-normal">The key cannot change; delete the setting and create a new one instead.</p>
+              <p class="label whitespace-normal">{{ 'Settings.Edit.KeyImmutable' | translate }}</p>
             }
           </fieldset>
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Value *</legend>
+            <legend class="fieldset-legend">{{ 'Common.Value' | translate }} *</legend>
             <textarea class="textarea w-full font-mono text-sm" rows="8" formControlName="value"
               [class.textarea-error]="form.controls.value.invalid && form.controls.value.touched"></textarea>
             @if (form.controls.value.touched && form.controls.value.hasError('required')) {
-              <p class="label text-error">A value is required.</p>
+              <p class="label text-error">{{ 'Settings.Edit.ValueRequired' | translate }}</p>
             }
           </fieldset>
         </form>
@@ -45,14 +46,14 @@ import { SETTINGS_REFRESH } from './settings.component';
       <div footer class="flex items-center gap-2 border-t border-base-300 px-6 py-4">
         @if (key()) {
           <button type="button" class="btn btn-ghost text-error" (click)="remove()" [disabled]="saving()">
-            <svg lucideTrash class="size-4"></svg>Delete
+            <svg lucideTrash class="size-4"></svg>{{ 'Common.Delete' | translate }}
           </button>
         }
         <span class="flex-1"></span>
-        <button type="button" class="btn btn-ghost" (click)="pane.close()">Cancel</button>
+        <button type="button" class="btn btn-ghost" (click)="pane.close()">{{ 'Common.Cancel' | translate }}</button>
         <button type="submit" form="setting-form" class="btn btn-primary" [disabled]="form.invalid || saving() || loading()">
           @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
-          {{ key() ? 'Save' : 'Create setting' }}
+          {{ (key() ? 'Common.Save' : 'Settings.Edit.Create') | translate }}
         </button>
       </div>
     </app-side-pane-layout>
@@ -63,6 +64,7 @@ export class SettingEditComponent implements OnInit {
   private readonly _dialog = inject(DialogService);
   private readonly _toast = inject(ToastService);
   private readonly _refresh = inject(RefreshBus);
+  private readonly _translate = inject(TranslateService);
   protected readonly pane = inject(SidePaneService);
 
   /** Bound from the `setting/:key` pane route; absent when creating. */
@@ -103,7 +105,10 @@ export class SettingEditComponent implements OnInit {
     this.saving.set(true);
     request$.subscribe({
       next: setting => {
-        this._toast.success(key ? 'Setting updated' : 'Setting created', `Setting '${setting.key}' was ${key ? 'updated' : 'created'}.`);
+        this._toast.success(
+          this._translate.instant(key ? 'Settings.Toast.UpdatedTitle' : 'Settings.Toast.CreatedTitle'),
+          this._translate.instant(key ? 'Settings.Toast.UpdatedMessage' : 'Settings.Toast.CreatedMessage', { name: setting.key })
+        );
         this._refresh.notify(SETTINGS_REFRESH);
         this.pane.close();
       },
@@ -114,10 +119,15 @@ export class SettingEditComponent implements OnInit {
   protected remove(): void {
     const key = this.key()!;
     this._dialog
-      .confirm({ title: 'Delete setting?', message: `Setting '${key}' will be deleted permanently.`, confirmLabel: 'Delete', tone: 'danger' })
+      .confirm({
+        title: this._translate.instant('Settings.Delete.Title'),
+        message: this._translate.instant('Settings.Delete.Message', { name: key }),
+        confirmLabel: this._translate.instant('Common.Delete'),
+        tone: 'danger'
+      })
       .pipe(filter(Boolean), switchMap(() => this._api.deleteSetting(key)))
       .subscribe(() => {
-        this._toast.success('Setting deleted', `Setting '${key}' was deleted.`);
+        this._toast.success(this._translate.instant('Settings.Toast.DeletedTitle'), this._translate.instant('Settings.Toast.DeletedMessage', { name: key }));
         this._refresh.notify(SETTINGS_REFRESH);
         this.pane.close();
       });

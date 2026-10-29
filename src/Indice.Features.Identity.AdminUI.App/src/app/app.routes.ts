@@ -20,31 +20,31 @@ export const routes: Routes = [
   { path: 'logout', component: LogoutComponent },
   {
     path: 'forbidden', component: StatusPageComponent,
-    data: { code: '403', title: 'Access denied', message: 'Your account is not allowed to use this part of the IAM UI. Ask an administrator for access.' }
+    data: { code: '403', title: 'Pages.Forbidden.Title', message: 'Pages.Forbidden.Message' }
   },
   // links of the previous UI lived under /app
   { path: 'app', redirectTo: 'dashboard', pathMatch: 'full' },
   {
     path: '', component: ShellComponent, canActivate: [authGuard], children: [
       {
-        path: 'dashboard', data: { breadcrumb: 'Dashboard' }, canActivate: [permissionGuard('usersReader', 'clientsReader')],
+        path: 'dashboard', data: { breadcrumb: 'Routes.Dashboard' }, canActivate: [permissionGuard('usersReader', 'clientsReader')],
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
-      { path: 'users', data: { breadcrumb: 'Users' }, canActivate: [permissionGuard('usersReader')], children: USER_ROUTES },
-      { path: 'roles', data: { breadcrumb: 'Roles' }, canActivate: [permissionGuard('usersReader')], children: ROLE_ROUTES },
+      { path: 'users', data: { breadcrumb: 'Routes.Users' }, canActivate: [permissionGuard('usersReader')], children: USER_ROUTES },
+      { path: 'roles', data: { breadcrumb: 'Routes.Roles' }, canActivate: [permissionGuard('usersReader')], children: ROLE_ROUTES },
       {
-        path: 'claim-types', data: { breadcrumb: 'Claim types' }, canActivate: [permissionGuard('usersReader', 'clientsReader')],
+        path: 'claim-types', data: { breadcrumb: 'Routes.ClaimTypes' }, canActivate: [permissionGuard('usersReader', 'clientsReader')],
         children: CLAIM_TYPE_ROUTES
       },
-      { path: 'clients', data: { breadcrumb: 'Clients' }, canActivate: [permissionGuard('clientsReader')], children: CLIENT_ROUTES },
+      { path: 'clients', data: { breadcrumb: 'Routes.Clients' }, canActivate: [permissionGuard('clientsReader')], children: CLIENT_ROUTES },
       { path: 'resources', canActivate: [permissionGuard('clientsReader')], children: RESOURCE_ROUTES },
-      { path: 'settings', data: { breadcrumb: 'App settings' }, canActivate: [permissionGuard('admin')], children: SETTING_ROUTES },
+      { path: 'settings', data: { breadcrumb: 'Routes.AppSettings' }, canActivate: [permissionGuard('admin')], children: SETTING_ROUTES },
       {
-        path: 'sign-in-logs', data: { breadcrumb: 'Sign-in logs' }, canMatch: [featureGuard(Features.SignInLogs)],
+        path: 'sign-in-logs', data: { breadcrumb: 'Routes.SignInLogs' }, canMatch: [featureGuard(Features.SignInLogs)],
         canActivate: [permissionGuard('admin')], children: SIGN_IN_LOG_ROUTES
       },
       {
-        path: 'activity-logs', data: { breadcrumb: 'Activity logs' }, canMatch: [featureGuard(Features.ActivityLogs)],
+        path: 'activity-logs', data: { breadcrumb: 'Routes.ActivityLogs' }, canMatch: [featureGuard(Features.ActivityLogs)],
         canActivate: [permissionGuard('admin')], children: ACTIVITY_LOG_ROUTES
       }
     ]

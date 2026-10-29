@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LucideActivity, LucideFlag, LucideRotateCcw, LucideSlidersHorizontal } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivityLogEntry, IdentityApiService, SubjectFilterMode } from 'src/app/core/services/identity-api.service';
 import { StatusBadgeComponent } from 'src/app/ui/badges/badges';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
@@ -24,63 +25,63 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
   selector: 'app-activity-logs-view',
   imports: [
     StatusBadgeComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent,
-    LogDeviceComponent, LogIpComponent, LogTimeComponent, LucideActivity, LucideFlag, LucideRotateCcw, LucideSlidersHorizontal
+    LogDeviceComponent, LogIpComponent, LogTimeComponent, LucideActivity, LucideFlag, LucideRotateCcw, LucideSlidersHorizontal, TranslatePipe
   ],
   host: { class: 'block' },
   template: `
     <div class="mb-3 flex flex-wrap items-end gap-2">
-      <app-search-input class="w-full sm:w-64" [value]="list.search()" placeholder="Search activity" (search)="list.setSearch($event)" />
-      <select class="select select-sm w-36" aria-label="Outcome" [value]="list.params()['succeeded'] ?? ''"
+      <app-search-input class="w-full sm:w-64" [value]="list.search()" [placeholder]="'ActivityLogs.Filters.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
+      <select class="select select-sm w-36" [attr.aria-label]="'Logs.Filters.Outcome' | translate" [value]="list.params()['succeeded'] ?? ''"
         (change)="list.setParams({ succeeded: $any($event.target).value })">
-        <option value="">All outcomes</option>
-        <option value="true">Succeeded</option>
-        <option value="false">Failed</option>
+        <option value="">{{ 'Logs.Filters.AllOutcomes' | translate }}</option>
+        <option value="true">{{ 'Logs.Outcome.Succeeded' | translate }}</option>
+        <option value="false">{{ 'Logs.Outcome.Failed' | translate }}</option>
       </select>
-      <label class="input input-sm w-40" title="From date">
-        <span class="text-base-content/55">From</span>
+      <label class="input input-sm w-40" [title]="'Logs.Filters.FromDate' | translate">
+        <span class="text-base-content/55">{{ 'Logs.Filters.From' | translate }}</span>
         <input type="date" [value]="dateValue('from')" (change)="list.setParams({ from: $any($event.target).value })" />
       </label>
-      <label class="input input-sm w-40" title="To date">
-        <span class="text-base-content/55">To</span>
+      <label class="input input-sm w-40" [title]="'Logs.Filters.ToDate' | translate">
+        <span class="text-base-content/55">{{ 'Logs.Filters.To' | translate }}</span>
         <input type="date" [value]="dateValue('to')" (change)="list.setParams({ to: $any($event.target).value })" />
       </label>
       @if (subject() || list.params()['subject']) {
-        <select class="select select-sm w-44" aria-label="Match subject as" [value]="list.params()['subjectMode'] ?? 'Actor'"
+        <select class="select select-sm w-44" [attr.aria-label]="'ActivityLogs.Filters.SubjectMode' | translate" [value]="list.params()['subjectMode'] ?? 'Actor'"
           (change)="list.setParams({ subjectMode: $any($event.target).value === 'Actor' ? null : $any($event.target).value })">
-          <option value="Actor">Subject is the actor</option>
-          <option value="Resource">Subject is the resource</option>
-          <option value="Any">Actor or resource</option>
+          <option value="Actor">{{ 'ActivityLogs.SubjectModes.Actor' | translate }}</option>
+          <option value="Resource">{{ 'ActivityLogs.SubjectModes.Resource' | translate }}</option>
+          <option value="Any">{{ 'ActivityLogs.SubjectModes.Any' | translate }}</option>
         </select>
       }
       <label class="label h-8 cursor-pointer gap-2 rounded-field border border-base-300 bg-base-100 px-3 text-sm text-base-content">
         <input type="checkbox" class="toggle toggle-xs toggle-warning" [checked]="list.params()['review'] === 'true'"
           (change)="list.setParams({ review: $any($event.target).checked ? 'true' : null })" />
-        Marked for review
+        {{ 'Logs.Review.Marked' | translate }}
       </label>
       <button type="button" class="btn btn-ghost btn-sm" [class.btn-active]="showAdvanced()" (click)="showAdvanced.set(!showAdvanced())"
         [attr.aria-expanded]="showAdvanced()">
-        <svg lucideSlidersHorizontal class="size-4"></svg>More filters
+        <svg lucideSlidersHorizontal class="size-4"></svg>{{ 'ActivityLogs.Filters.MoreFilters' | translate }}
         @if (advancedCount()) { <span class="badge badge-xs badge-primary">{{ advancedCount() }}</span> }
       </button>
       @if (list.hasFilters()) {
-        <button type="button" class="btn btn-ghost btn-sm" (click)="list.clearFilters()"><svg lucideRotateCcw class="size-4"></svg>Reset</button>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="list.clearFilters()"><svg lucideRotateCcw class="size-4"></svg>{{ 'Common.Reset' | translate }}</button>
       }
     </div>
     @if (showAdvanced()) {
       <div class="mb-3 grid gap-2 rounded-box border border-base-300 bg-base-100 p-3 sm:grid-cols-2 lg:grid-cols-3">
         @if (!subject()) {
-          <input class="input input-sm w-full" placeholder="Subject (user id or name)" aria-label="Subject" [value]="list.params()['subject'] ?? ''"
+          <input class="input input-sm w-full" [placeholder]="'ActivityLogs.Filters.SubjectPlaceholder' | translate" [attr.aria-label]="'Logs.Fields.Subject' | translate" [value]="list.params()['subject'] ?? ''"
             (change)="list.setParams({ subject: $any($event.target).value.trim() })" />
         }
-        <input class="input input-sm w-full" placeholder="Action name" aria-label="Action name" [value]="list.params()['action'] ?? ''"
+        <input class="input input-sm w-full" [placeholder]="'ActivityLogs.Fields.ActionName' | translate" [attr.aria-label]="'ActivityLogs.Fields.ActionName' | translate" [value]="list.params()['action'] ?? ''"
           (change)="list.setParams({ action: $any($event.target).value.trim() })" />
-        <input class="input input-sm w-full" placeholder="Category" aria-label="Category" [value]="list.params()['category'] ?? ''"
+        <input class="input input-sm w-full" [placeholder]="'ActivityLogs.Fields.Category' | translate" [attr.aria-label]="'ActivityLogs.Fields.Category' | translate" [value]="list.params()['category'] ?? ''"
           (change)="list.setParams({ category: $any($event.target).value.trim() })" />
-        <input class="input input-sm w-full" placeholder="Resource type" aria-label="Resource type" [value]="list.params()['resourceType'] ?? ''"
+        <input class="input input-sm w-full" [placeholder]="'Logs.Fields.ResourceType' | translate" [attr.aria-label]="'Logs.Fields.ResourceType' | translate" [value]="list.params()['resourceType'] ?? ''"
           (change)="list.setParams({ resourceType: $any($event.target).value.trim() })" />
-        <input class="input input-sm w-full font-mono" placeholder="Resource id" aria-label="Resource id" [value]="list.params()['resourceId'] ?? ''"
+        <input class="input input-sm w-full font-mono" [placeholder]="'ActivityLogs.Fields.ResourceId' | translate" [attr.aria-label]="'ActivityLogs.Fields.ResourceId' | translate" [value]="list.params()['resourceId'] ?? ''"
           (change)="list.setParams({ resourceId: $any($event.target).value.trim() })" />
-        <input class="input input-sm w-full font-mono" placeholder="Client id" aria-label="Application id" [value]="list.params()['application'] ?? ''"
+        <input class="input input-sm w-full font-mono" [placeholder]="'Logs.Filters.ClientId' | translate" [attr.aria-label]="'Logs.Filters.ApplicationId' | translate" [value]="list.params()['application'] ?? ''"
           (change)="list.setParams({ application: $any($event.target).value.trim() })" />
       </div>
     }
@@ -89,15 +90,15 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="createdAt">When</app-sort-header></th>
-            @if (!subject()) { <th><app-sort-header [list]="list" field="subjectName">Subject</app-sort-header></th> }
-            <th><app-sort-header [list]="list" field="actionName">Action</app-sort-header></th>
-            <th>Description</th>
-            <th><app-sort-header [list]="list" field="category">Category</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="resourceType">Resource</app-sort-header></th>
-            <th>Application</th>
-            <th><app-sort-header [list]="list" field="ipAddress">IP address</app-sort-header></th>
-            <th>Device</th>
+            <th><app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</app-sort-header></th>
+            @if (!subject()) { <th><app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</app-sort-header></th> }
+            <th><app-sort-header [list]="list" field="actionName">{{ 'ActivityLogs.Fields.Action' | translate }}</app-sort-header></th>
+            <th>{{ 'Common.Description' | translate }}</th>
+            <th><app-sort-header [list]="list" field="category">{{ 'ActivityLogs.Fields.Category' | translate }}</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="resourceType">{{ 'ActivityLogs.Fields.Resource' | translate }}</app-sort-header></th>
+            <th>{{ 'Logs.Fields.Application' | translate }}</th>
+            <th><app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</app-sort-header></th>
+            <th>{{ 'Logs.Fields.Device' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -115,8 +116,8 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
                 }
                 <td>
                   <div class="flex items-center gap-2">
-                    <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || (entry.succeeded ? 'Succeeded' : 'Failed') }}</app-status-badge>
-                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" aria-label="Marked for review"></svg> }
+                    <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
+                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" [attr.aria-label]="'Logs.Review.Marked' | translate"></svg> }
                   </div>
                 </td>
                 <td class="max-w-80 truncate text-base-content/75" [title]="entry.description ?? ''">{{ entry.description || '—' }}</td>
@@ -137,11 +138,11 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
             } @empty {
               <tr>
                 <td [attr.colspan]="columns()">
-                  <app-empty-state [title]="list.failed() ? 'Activity logs could not be loaded' : 'No activity'"
-                    [message]="list.hasFilters() ? 'No entries match the current filters.' : 'Changes and actions performed through the identity server will appear here.'">
+                  <app-empty-state [title]="(list.failed() ? 'ActivityLogs.Empty.LoadFailed' : 'ActivityLogs.Empty.Title') | translate"
+                    [message]="(list.hasFilters() ? 'Logs.Filters.NoMatches' : 'ActivityLogs.Empty.Message') | translate">
                     <svg icon lucideActivity class="size-5"></svg>
                     @if (list.hasFilters()) {
-                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">Reset filters</button>
+                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Logs.Filters.ResetFilters' | translate }}</button>
                     }
                   </app-empty-state>
                 </td>
@@ -213,8 +214,10 @@ export class ActivityLogsViewComponent implements OnInit {
   }
 
   protected open(entry: ActivityLogEntry): void {
+    const review = entry.review;
     this._dialog.open<boolean, ActivityLogEntry>(ActivityLogDetailsComponent, { data: entry, size: 'xl' }).closed.subscribe(changed => {
-      if (changed) {
+      // the dialog may also be dismissed (escape / backdrop) after the flag was toggled
+      if (changed || entry.review !== review) {
         this.list.refresh();
       }
     });

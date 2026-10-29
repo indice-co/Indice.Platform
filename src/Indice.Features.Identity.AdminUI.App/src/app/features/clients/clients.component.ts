@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAppWindow, LucideChevronRight, LucideLock, LucidePlus } from '@lucide/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ClientInfo, IdentityApiService } from 'src/app/core/services/identity-api.service';
@@ -17,30 +18,30 @@ import { ClientLogoComponent } from './client-logo.component';
 @Component({
   selector: 'app-clients',
   imports: [
-    RouterLink, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent, StatusBadgeComponent,
+    RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent, StatusBadgeComponent,
     CopyButtonComponent, ClientLogoComponent, LucideAppWindow, LucideChevronRight, LucideLock, LucidePlus
   ],
   template: `
-    <app-page-header title="Clients" subtitle="Applications that sign users in or call APIs on their behalf.">
+    <app-page-header [title]="'Routes.Clients' | translate" [subtitle]="'Clients.List.Subtitle' | translate">
       @if (canEdit) {
         <div actions>
-          <a class="btn btn-primary btn-sm" routerLink="add"><svg lucidePlus class="size-4"></svg>New client</a>
+          <a class="btn btn-primary btn-sm" routerLink="add"><svg lucidePlus class="size-4"></svg>{{ 'Routes.NewClient' | translate }}</a>
         </div>
       }
     </app-page-header>
 
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-      <app-search-input class="sm:w-72" [value]="list.search()" placeholder="Search clients" (search)="list.setSearch($event)" />
+      <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Clients.List.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
     </div>
 
     <div class="panel overflow-x-auto">
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="clientName">Client</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="clientId">Client id</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="enabled">Status</app-sort-header></th>
-            <th class="w-12"><span class="sr-only">Open</span></th>
+            <th><app-sort-header [list]="list" field="clientName">{{ 'Clients.List.Client' | translate }}</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="clientId">{{ 'Clients.Fields.ClientId' | translate }}</app-sort-header></th>
+            <th><app-sort-header [list]="list" field="enabled">{{ 'Common.Status' | translate }}</app-sort-header></th>
+            <th class="w-12"><span class="sr-only">{{ 'Clients.List.Open' | translate }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -65,21 +66,21 @@ import { ClientLogoComponent } from './client-logo.component';
                 <td>
                   <span class="inline-flex items-center gap-1">
                     <code class="code-chip">{{ client.clientId }}</code>
-                    <app-copy-button [value]="client.clientId" label="client id" />
+                    <app-copy-button [value]="client.clientId" [label]="'Clients.Fields.ClientIdLabel' | translate" />
                     @if (client.nonEditable) {
-                      <span class="tooltip" data-tip="Reserved client"><svg lucideLock class="size-3.5 text-warning" aria-label="Reserved"></svg></span>
+                      <span class="tooltip" [attr.data-tip]="'Clients.List.ReservedClient' | translate"><svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg></span>
                     }
                   </span>
                 </td>
                 <td>
                   @if (client.enabled) {
-                    <app-status-badge tone="success">Enabled</app-status-badge>
+                    <app-status-badge tone="success">{{ 'Common.Enabled' | translate }}</app-status-badge>
                   } @else {
-                    <app-status-badge tone="neutral">Disabled</app-status-badge>
+                    <app-status-badge tone="neutral">{{ 'Common.Disabled' | translate }}</app-status-badge>
                   }
                 </td>
                 <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="[client.clientId]" [attr.aria-label]="'Open ' + client.clientId">
+                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="[client.clientId]" [attr.aria-label]="'Clients.List.OpenClient' | translate: { id: client.clientId }">
                     <svg lucideChevronRight class="size-4"></svg>
                   </a>
                 </td>
@@ -87,11 +88,11 @@ import { ClientLogoComponent } from './client-logo.component';
             } @empty {
               <tr>
                 <td colspan="4">
-                  <app-empty-state [title]="list.failed() ? 'Clients could not be loaded' : list.hasFilters() ? 'No matching clients' : 'No clients yet'"
-                    [message]="list.hasFilters() ? 'Try a different search term.' : 'Register an application to let it sign users in or call your APIs.'">
+                  <app-empty-state [title]="(list.failed() ? 'Clients.List.LoadFailed' : list.hasFilters() ? 'Clients.List.NoMatches' : 'Clients.List.Empty') | translate"
+                    [message]="(list.hasFilters() ? 'Clients.List.NoMatchesMessage' : 'Clients.List.EmptyMessage') | translate">
                     <svg icon lucideAppWindow class="size-5"></svg>
                     @if (canEdit && !list.hasFilters()) {
-                      <a actions class="btn btn-sm" routerLink="add"><svg lucidePlus class="size-4"></svg>New client</a>
+                      <a actions class="btn btn-sm" routerLink="add"><svg lucidePlus class="size-4"></svg>{{ 'Routes.NewClient' | translate }}</a>
                     }
                   </app-empty-state>
                 </td>

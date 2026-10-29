@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { filter, switchMap } from 'rxjs';
 import { LucideAppWindow, LucideExternalLink, LucideUnlink } from '@lucide/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityApiService, UserClientInfo } from 'src/app/core/services/identity-api.service';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
@@ -12,12 +13,12 @@ import { UserStore } from '../user-store';
 /** Applications the user has granted access to (consents, refresh / reference tokens), with revocation. */
 @Component({
   selector: 'app-user-applications',
-  imports: [DatePipe, EmptyStateComponent, LucideAppWindow, LucideExternalLink, LucideUnlink],
+  imports: [DatePipe, TranslatePipe, EmptyStateComponent, LucideAppWindow, LucideExternalLink, LucideUnlink],
   template: `
     <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-      <p class="text-sm text-base-content/70">Applications holding grants for this user. Revoking deletes the grants, so the app must ask for consent again.</p>
+      <p class="text-sm text-base-content/70">{{ 'Users.Applications.Intro' | translate }}</p>
       @if (canEdit && (items()?.length ?? 0) > 1) {
-        <button type="button" class="btn btn-sm btn-error btn-soft" (click)="revokeAll()"><svg lucideUnlink class="size-4"></svg>Revoke all</button>
+        <button type="button" class="btn btn-sm btn-error btn-soft" (click)="revokeAll()"><svg lucideUnlink class="size-4"></svg>{{ 'Users.Applications.RevokeAll' | translate }}</button>
       }
     </div>
 
@@ -36,15 +37,16 @@ import { UserStore } from '../user-store';
                 <p class="truncate font-mono text-xs text-base-content/60">{{ app.clientId }}</p>
               </div>
               @if (app.clientUri) {
-                <a class="btn btn-ghost btn-xs btn-square" [href]="app.clientUri" target="_blank" rel="noopener" aria-label="Open application">
+                <a class="btn btn-ghost btn-xs btn-square" [href]="app.clientUri" target="_blank" rel="noopener" [attr.aria-label]="'Users.Applications.OpenApplication' | translate">
                   <svg lucideExternalLink class="size-4"></svg>
                 </a>
               }
             </div>
             @if (app.description) { <p class="mt-3 text-sm text-base-content/75">{{ app.description }}</p> }
             <dl class="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div><dt class="text-base-content/60">Granted</dt><dd class="tabular">{{ app.createdAt | date: 'medium' }}</dd></div>
-              <div><dt class="text-base-content/60">Expires</dt><dd class="tabular">{{ app.expiresAt ? (app.expiresAt | date: 'medium') : 'Never' }}</dd></div>
+              <div><dt class="text-base-content/60">{{ 'Users.Applications.Granted' | translate }}</dt><dd class="tabular">{{ app.createdAt | date: 'medium' }}</dd></div>
+              <div><dt class="text-base-content/60">{{ 'Users.Applications.Expires' | translate }}</dt>
+                <dd class="tabular">{{ app.expiresAt ? (app.expiresAt | date: 'medium') : ('Common.Never' | translate) }}</dd></div>
             </dl>
             @if (app.types?.length) {
               <div class="mt-3 flex flex-wrap gap-1">
@@ -58,13 +60,13 @@ import { UserStore } from '../user-store';
             }
             @if (canEdit) {
               <div class="mt-4 flex justify-end border-t border-base-200 pt-3">
-                <button type="button" class="btn btn-ghost btn-sm text-error" (click)="revoke(app)"><svg lucideUnlink class="size-4"></svg>Revoke access</button>
+                <button type="button" class="btn btn-ghost btn-sm text-error" (click)="revoke(app)"><svg lucideUnlink class="size-4"></svg>{{ 'Users.Applications.RevokeAccess' | translate }}</button>
               </div>
             }
           </article>
         } @empty {
           <div class="panel lg:col-span-2">
-            <app-empty-state title="No applications" message="This user has not granted access to any application.">
+            <app-empty-state [title]="'Users.Applications.EmptyTitle' | translate" [message]="'Users.Applications.EmptyMessage' | translate">
               <svg icon lucideAppWindow class="size-5"></svg>
             </app-empty-state>
           </div>
@@ -78,6 +80,7 @@ export class UserApplicationsComponent implements OnInit {
   private readonly _dialog = inject(DialogService);
   private readonly _toast = inject(ToastService);
   private readonly _store = inject(UserStore);
+  private readonly _translate = inject(TranslateService);
   protected readonly canEdit = inject(AuthService).isAdminUIUsersWriter();
   protected readonly items = signal<UserClientInfo[] | null>(null);
 
@@ -91,30 +94,32 @@ export class UserApplicationsComponent implements OnInit {
   protected revoke(app: UserClientInfo): void {
     this._dialog
       .confirm({
-        title: 'Revoke access?',
-        message: `All grants of ${this._store.displayName()} for '${app.clientName || app.clientId}' will be deleted.`,
-        confirmLabel: 'Revoke',
+        title: this._translate.instant('Users.Applications.RevokeTitle'),
+        message: this._translate.instant('Users.Applications.RevokeMessage', { name: this._store.displayName(), app: app.clientName || app.clientId }),
+        confirmLabel: this._translate.instant('Users.Applications.Revoke'),
         tone: 'danger'
       })
       .pipe(filter(Boolean), switchMap(() => this._api.revokeUserApplicationAccess(this._store.id(), app.clientId!)))
       .subscribe(() => {
         this.items.update(items => (items ?? []).filter(item => item.clientId !== app.clientId));
-        this._toast.success('Access revoked', `'${app.clientName || app.clientId}' no longer has access.`);
+        this._toast.success(
+          this._translate.instant('Users.Applications.AccessRevoked'),
+          this._translate.instant('Users.Applications.AccessRevokedMessage', { app: app.clientName || app.clientId }));
       });
   }
 
   protected revokeAll(): void {
     this._dialog
       .confirm({
-        title: 'Revoke all applications?',
-        message: `All grants of ${this._store.displayName()} will be deleted, for every application.`,
-        confirmLabel: 'Revoke all',
+        title: this._translate.instant('Users.Applications.RevokeAllTitle'),
+        message: this._translate.instant('Users.Applications.RevokeAllMessage', { name: this._store.displayName() }),
+        confirmLabel: this._translate.instant('Users.Applications.RevokeAll'),
         tone: 'danger'
       })
       .pipe(filter(Boolean), switchMap(() => this._api.revokeAllUserApplicationAccess(this._store.id())))
       .subscribe(() => {
         this.items.set([]);
-        this._toast.success('Access revoked', 'All application grants were deleted.');
+        this._toast.success(this._translate.instant('Users.Applications.AccessRevoked'), this._translate.instant('Users.Applications.AllRevokedMessage'));
       });
   }
 }

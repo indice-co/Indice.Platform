@@ -1,5 +1,6 @@
 import { Component, Injectable, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { Observable, map, shareReplay } from 'rxjs';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ClaimTypeInfo, IdentityApiService } from 'src/app/core/services/identity-api.service';
 import { TransferListComponent } from 'src/app/ui/transfer/transfer-list.component';
 
@@ -21,7 +22,7 @@ export class ClaimTypesCatalog {
  */
 @Component({
   selector: 'app-claims-assignment',
-  imports: [TransferListComponent],
+  imports: [TransferListComponent, TranslatePipe],
   template: `
     @if (loading()) {
       <div class="grid gap-4 md:grid-cols-2">
@@ -30,7 +31,8 @@ export class ClaimTypesCatalog {
       </div>
     } @else {
       <app-transfer-list [available]="catalog()" [selected]="selected()" [key]="key" [label]="label" [sublabel]="sublabel"
-        availableTitle="Available claims" selectedTitle="Included claims" emptySelected="No claims included yet."
+        [availableTitle]="'Resources.ClaimsPicker.Available' | translate" [selectedTitle]="'Resources.ClaimsPicker.Selected' | translate"
+        [emptySelected]="'Resources.ClaimsPicker.Empty' | translate"
         [readonly]="readonly()" (added)="added.emit($event.name!)" (removed)="removed.emit($event.name!)" />
     }
   `

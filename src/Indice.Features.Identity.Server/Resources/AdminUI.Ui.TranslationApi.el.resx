@@ -1,0 +1,3119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActivityLogs.Details.ActorAndOrigin" xml:space="preserve">
+    <value>Εκτελών &amp; προέλευση</value>
+  </data>
+  <data name="ActivityLogs.Details.DefaultTitle" xml:space="preserve">
+    <value>Δραστηριότητα</value>
+  </data>
+  <data name="ActivityLogs.Details.Event" xml:space="preserve">
+    <value>Συμβάν</value>
+  </data>
+  <data name="ActivityLogs.Details.ExtraData" xml:space="preserve">
+    <value>Επιπλέον δεδομένα</value>
+  </data>
+  <data name="ActivityLogs.Empty.LoadFailed" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση του αρχείου δραστηριότητας</value>
+  </data>
+  <data name="ActivityLogs.Empty.Message" xml:space="preserve">
+    <value>Οι αλλαγές και οι ενέργειες που πραγματοποιούνται μέσω του identity server θα εμφανίζονται εδώ.</value>
+  </data>
+  <data name="ActivityLogs.Empty.Title" xml:space="preserve">
+    <value>Δεν υπάρχει δραστηριότητα</value>
+  </data>
+  <data name="ActivityLogs.Fields.Action" xml:space="preserve">
+    <value>Ενέργεια</value>
+  </data>
+  <data name="ActivityLogs.Fields.ActionName" xml:space="preserve">
+    <value>Όνομα ενέργειας</value>
+  </data>
+  <data name="ActivityLogs.Fields.Category" xml:space="preserve">
+    <value>Κατηγορία</value>
+  </data>
+  <data name="ActivityLogs.Fields.Resource" xml:space="preserve">
+    <value>Πόρος</value>
+  </data>
+  <data name="ActivityLogs.Fields.ResourceId" xml:space="preserve">
+    <value>Αναγνωριστικό πόρου</value>
+  </data>
+  <data name="ActivityLogs.Fields.Source" xml:space="preserve">
+    <value>Πηγή</value>
+  </data>
+  <data name="ActivityLogs.Filters.MoreFilters" xml:space="preserve">
+    <value>Περισσότερα φίλτρα</value>
+  </data>
+  <data name="ActivityLogs.Filters.SearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση δραστηριότητας</value>
+  </data>
+  <data name="ActivityLogs.Filters.SubjectMode" xml:space="preserve">
+    <value>Αντιστοίχιση χρήστη ως</value>
+  </data>
+  <data name="ActivityLogs.Filters.SubjectPlaceholder" xml:space="preserve">
+    <value>Χρήστης (αναγνωριστικό ή όνομα)</value>
+  </data>
+  <data name="ActivityLogs.Page.Subtitle" xml:space="preserve">
+    <value>Ιστορικό ελέγχου των ενεργειών που εκτέλεσαν χρήστες και διαχειριστές.</value>
+  </data>
+  <data name="ActivityLogs.SubjectModes.Actor" xml:space="preserve">
+    <value>Ο χρήστης είναι ο εκτελών</value>
+  </data>
+  <data name="ActivityLogs.SubjectModes.Any" xml:space="preserve">
+    <value>Εκτελών ή πόρος</value>
+  </data>
+  <data name="ActivityLogs.SubjectModes.Resource" xml:space="preserve">
+    <value>Ο χρήστης είναι ο πόρος</value>
+  </data>
+  <data name="ClaimTypes.Delete.Message" xml:space="preserve">
+    <value>Ο τύπος claim '{{name}}' θα διαγραφεί οριστικά. Οι τιμές που έχουν ήδη αποθηκευτεί στους χρήστες δεν επηρεάζονται.</value>
+  </data>
+  <data name="ClaimTypes.Delete.Title" xml:space="preserve">
+    <value>Διαγραφή τύπου claim;</value>
+  </data>
+  <data name="ClaimTypes.Edit.ClaimType" xml:space="preserve">
+    <value>Τύπος claim</value>
+  </data>
+  <data name="ClaimTypes.Edit.Create" xml:space="preserve">
+    <value>Δημιουργία τύπου claim</value>
+  </data>
+  <data name="ClaimTypes.Edit.DisplayNamePlaceholder" xml:space="preserve">
+    <value>π.χ. ΑΦΜ</value>
+  </data>
+  <data name="ClaimTypes.Edit.NameImmutable" xml:space="preserve">
+    <value>Το όνομα ενός τύπου claim δεν μπορεί να αλλάξει μετά τη δημιουργία του.</value>
+  </data>
+  <data name="ClaimTypes.Edit.NamePlaceholder" xml:space="preserve">
+    <value>π.χ. tax_number</value>
+  </data>
+  <data name="ClaimTypes.Edit.NameRequired" xml:space="preserve">
+    <value>Το όνομα είναι υποχρεωτικό.</value>
+  </data>
+  <data name="ClaimTypes.Edit.RequiredHint" xml:space="preserve">
+    <value>Κάθε χρήστης πρέπει να έχει τιμή για αυτό το claim.</value>
+  </data>
+  <data name="ClaimTypes.Edit.ReservedNotice" xml:space="preserve">
+    <value>Αυτός είναι ένας δεσμευμένος τύπος claim που χρησιμοποιείται από το σύστημα ταυτότητας.</value>
+  </data>
+  <data name="ClaimTypes.Edit.Rule" xml:space="preserve">
+    <value>Κανόνας επικύρωσης</value>
+  </data>
+  <data name="ClaimTypes.Edit.RulePlaceholder" xml:space="preserve">
+    <value>Κανονική έκφραση</value>
+  </data>
+  <data name="ClaimTypes.Edit.Subtitle" xml:space="preserve">
+    <value>Πώς αποθηκεύεται και επεξεργάζεται αυτό το είδος πληροφορίας χρήστη.</value>
+  </data>
+  <data name="ClaimTypes.Edit.SubtitleNew" xml:space="preserve">
+    <value>Αποθηκεύστε ένα νέο είδος πληροφορίας για τους χρήστες.</value>
+  </data>
+  <data name="ClaimTypes.Edit.UserEditableHint" xml:space="preserve">
+    <value>Οι χρήστες μπορούν να αλλάξουν αυτή την τιμή από τον λογαριασμό τους.</value>
+  </data>
+  <data name="ClaimTypes.Fields.UserEditable" xml:space="preserve">
+    <value>Επεξεργάσιμο από τον χρήστη</value>
+  </data>
+  <data name="ClaimTypes.Fields.ValueType" xml:space="preserve">
+    <value>Τύπος τιμής</value>
+  </data>
+  <data name="ClaimTypes.List.AutoGenerated" xml:space="preserve">
+    <value>Αυτόματα δημιουργημένα</value>
+  </data>
+  <data name="ClaimTypes.List.ClearFilters" xml:space="preserve">
+    <value>Καθαρισμός φίλτρων</value>
+  </data>
+  <data name="ClaimTypes.List.Empty" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη τύποι claims</value>
+  </data>
+  <data name="ClaimTypes.List.EmptyHint" xml:space="preserve">
+    <value>Δημιουργήστε έναν τύπο claim για να αποθηκεύετε επιπλέον πληροφορίες για τους χρήστες.</value>
+  </data>
+  <data name="ClaimTypes.List.ManuallyCreated" xml:space="preserve">
+    <value>Χειροκίνητα δημιουργημένα</value>
+  </data>
+  <data name="ClaimTypes.List.NoMatches" xml:space="preserve">
+    <value>Δεν βρέθηκαν τύποι claims</value>
+  </data>
+  <data name="ClaimTypes.List.NoMatchesHint" xml:space="preserve">
+    <value>Δοκιμάστε διαφορετικά φίλτρα.</value>
+  </data>
+  <data name="ClaimTypes.List.Open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="ClaimTypes.List.OpenItem" xml:space="preserve">
+    <value>Άνοιγμα {{name}}</value>
+  </data>
+  <data name="ClaimTypes.List.OptionalOnly" xml:space="preserve">
+    <value>Μόνο προαιρετικά</value>
+  </data>
+  <data name="ClaimTypes.List.OriginAny" xml:space="preserve">
+    <value>Προέλευση: όλες</value>
+  </data>
+  <data name="ClaimTypes.List.RequiredAny" xml:space="preserve">
+    <value>Υποχρεωτικό: όλα</value>
+  </data>
+  <data name="ClaimTypes.List.RequiredOnly" xml:space="preserve">
+    <value>Μόνο υποχρεωτικά</value>
+  </data>
+  <data name="ClaimTypes.List.SearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση τύπων claims</value>
+  </data>
+  <data name="ClaimTypes.List.Subtitle" xml:space="preserve">
+    <value>Τα είδη πληροφοριών που αποθηκεύονται για τους χρήστες και ο τρόπος επεξεργασίας τους.</value>
+  </data>
+  <data name="ClaimTypes.New" xml:space="preserve">
+    <value>Νέος τύπος claim</value>
+  </data>
+  <data name="ClaimTypes.Toast.CreatedMessage" xml:space="preserve">
+    <value>Ο τύπος claim '{{name}}' δημιουργήθηκε.</value>
+  </data>
+  <data name="ClaimTypes.Toast.CreatedTitle" xml:space="preserve">
+    <value>Ο τύπος claim δημιουργήθηκε</value>
+  </data>
+  <data name="ClaimTypes.Toast.DeletedMessage" xml:space="preserve">
+    <value>Ο τύπος claim '{{name}}' διαγράφηκε.</value>
+  </data>
+  <data name="ClaimTypes.Toast.DeletedTitle" xml:space="preserve">
+    <value>Ο τύπος claim διαγράφηκε</value>
+  </data>
+  <data name="ClaimTypes.Toast.UpdatedMessage" xml:space="preserve">
+    <value>Ο τύπος claim '{{name}}' ενημερώθηκε.</value>
+  </data>
+  <data name="ClaimTypes.Toast.UpdatedTitle" xml:space="preserve">
+    <value>Ο τύπος claim ενημερώθηκε</value>
+  </data>
+  <data name="Clients.Add.AddSecret" xml:space="preserve">
+    <value>Προσθήκη secret</value>
+  </data>
+  <data name="Clients.Add.ApiAccess" xml:space="preserve">
+    <value>Πρόσβαση σε API</value>
+  </data>
+  <data name="Clients.Add.ApiIntro" xml:space="preserve">
+    <value>Επιλέξτε τα API scopes για τα οποία αυτή η εφαρμογή πελάτης μπορεί να ζητά access tokens.</value>
+  </data>
+  <data name="Clients.Add.ApplicationType" xml:space="preserve">
+    <value>Τύπος εφαρμογής</value>
+  </data>
+  <data name="Clients.Add.CallbackUrlHint" xml:space="preserve">
+    <value>Τα tokens αποστέλλονται σε αυτή τη διεύθυνση. Μπορείτε να προσθέσετε περισσότερες μετά τη δημιουργία της εφαρμογής πελάτη.</value>
+  </data>
+  <data name="Clients.Add.ChangeType" xml:space="preserve">
+    <value>Αλλαγή τύπου</value>
+  </data>
+  <data name="Clients.Add.ChooseType" xml:space="preserve">
+    <value>Επιλέξτε το είδος της εφαρμογής που καταχωρίζετε.</value>
+  </data>
+  <data name="Clients.Add.ClientIdHint" xml:space="preserve">
+    <value>Το μοναδικό αναγνωριστικό που χρησιμοποιούν οι εφαρμογές όταν επικοινωνούν με τον διακομιστή ταυτότητας.</value>
+  </data>
+  <data name="Clients.Add.ClientIdPlaceholder" xml:space="preserve">
+    <value>π.χ. backoffice-web</value>
+  </data>
+  <data name="Clients.Add.CreateClient" xml:space="preserve">
+    <value>Δημιουργία εφαρμογής πελάτη</value>
+  </data>
+  <data name="Clients.Add.CreatedMessage" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης '{{name}}' είναι έτοιμη για χρήση.</value>
+  </data>
+  <data name="Clients.Add.CreatedTitle" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης δημιουργήθηκε</value>
+  </data>
+  <data name="Clients.Add.DisplayNameHint" xml:space="preserve">
+    <value>Εμφανίζεται στους χρήστες στην οθόνη συναίνεσης.</value>
+  </data>
+  <data name="Clients.Add.DisplayNamePlaceholder" xml:space="preserve">
+    <value>π.χ. Back office</value>
+  </data>
+  <data name="Clients.Add.Generate" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Clients.Add.GenerateId" xml:space="preserve">
+    <value>Δημιουργία τυχαίου αναγνωριστικού</value>
+  </data>
+  <data name="Clients.Add.GetStarted" xml:space="preserve">
+    <value>Έναρξη</value>
+  </data>
+  <data name="Clients.Add.GrantAtLeastOne" xml:space="preserve">
+    <value>Εκχωρήστε τουλάχιστον έναν πόρο ταυτότητας.</value>
+  </data>
+  <data name="Clients.Add.GrantAtLeastOneOpenId" xml:space="preserve">
+    <value>Εκχωρήστε τουλάχιστον έναν πόρο ταυτότητας, συνήθως τον &lt;code class="code-chip"&gt;openid&lt;/code&gt;.</value>
+  </data>
+  <data name="Clients.Add.Granted" xml:space="preserve">
+    <value>Εκχωρημένα</value>
+  </data>
+  <data name="Clients.Add.IdentityIntro" xml:space="preserve">
+    <value>Επιλέξτε τις πληροφορίες ταυτότητας (scopes όπως &lt;code class="code-chip"&gt;openid&lt;/code&gt; ή &lt;code class="code-chip"&gt;profile&lt;/code&gt;) που μπορεί να ζητά αυτή η εφαρμογή πελάτης.</value>
+  </data>
+  <data name="Clients.Add.NoSecrets" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη secrets. Μπορείτε να τα προσθέσετε και μετά τη δημιουργία της εφαρμογής πελάτη.</value>
+  </data>
+  <data name="Clients.Add.PostLogoutUrlHint" xml:space="preserve">
+    <value>Προαιρετικό. Οι χρήστες μπορούν να επιστρέψουν εδώ μετά την αποσύνδεση.</value>
+  </data>
+  <data name="Clients.Add.ReadingCertificate" xml:space="preserve">
+    <value>Ανάγνωση πιστοποιητικού…</value>
+  </data>
+  <data name="Clients.Add.RemoveSecret" xml:space="preserve">
+    <value>Αφαίρεση secret</value>
+  </data>
+  <data name="Clients.Add.RequireConsentHint" xml:space="preserve">
+    <value>Οι χρήστες πρέπει να εγκρίνουν την πρόσβαση που ζητά αυτή η εφαρμογή πελάτης πριν συνδεθούν.</value>
+  </data>
+  <data name="Clients.Add.Review" xml:space="preserve">
+    <value>Επισκόπηση</value>
+  </data>
+  <data name="Clients.Add.SecretsToCreate" xml:space="preserve">
+    <value>Secrets προς δημιουργία</value>
+  </data>
+  <data name="Clients.Add.SecretValueHint" xml:space="preserve">
+    <value>Αντιγράψτε την τώρα: η τιμή δεν μπορεί να ανακτηθεί μετά τη δημιουργία της εφαρμογής πελάτη.</value>
+  </data>
+  <data name="Clients.Add.SelectTypeHint" xml:space="preserve">
+    <value>Επιλέξτε έναν τύπο εφαρμογής για να συνεχίσετε.</value>
+  </data>
+  <data name="Clients.Add.Summary" xml:space="preserve">
+    <value>Σύνοψη</value>
+  </data>
+  <data name="Clients.Claims.AddClaim" xml:space="preserve">
+    <value>Προσθήκη claim</value>
+  </data>
+  <data name="Clients.Claims.AddedMessage" xml:space="preserve">
+    <value>Το claim '{{type}}' προστέθηκε στην εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.Claims.AddedTitle" xml:space="preserve">
+    <value>Το claim προστέθηκε</value>
+  </data>
+  <data name="Clients.Claims.AlwaysSend" xml:space="preserve">
+    <value>Αποστολή claims εφαρμογής πελάτη πάντα</value>
+  </data>
+  <data name="Clients.Claims.AlwaysSendHint" xml:space="preserve">
+    <value>Συμπερίληψή τους σε κάθε flow, όχι μόνο στο client credentials.</value>
+  </data>
+  <data name="Clients.Claims.ClaimType" xml:space="preserve">
+    <value>Τύπος claim</value>
+  </data>
+  <data name="Clients.Claims.ClaimValue" xml:space="preserve">
+    <value>Τιμή claim</value>
+  </data>
+  <data name="Clients.Claims.DeletedMessage" xml:space="preserve">
+    <value>Το claim '{{type}}' αφαιρέθηκε.</value>
+  </data>
+  <data name="Clients.Claims.DeletedTitle" xml:space="preserve">
+    <value>Το claim διαγράφηκε</value>
+  </data>
+  <data name="Clients.Claims.DeleteLabel" xml:space="preserve">
+    <value>Διαγραφή claim {{type}}</value>
+  </data>
+  <data name="Clients.Claims.DeleteMessage" xml:space="preserve">
+    <value>Το claim '{{type}}' δεν θα εκδίδεται πλέον για αυτή την εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.Claims.DeleteTitle" xml:space="preserve">
+    <value>Διαγραφή claim;</value>
+  </data>
+  <data name="Clients.Claims.EmptyMessage" xml:space="preserve">
+    <value>Τα claims της εφαρμογής πελάτη προστίθενται στα tokens που εκδίδονται για αυτήν.</value>
+  </data>
+  <data name="Clients.Claims.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν claims εφαρμογής πελάτη</value>
+  </data>
+  <data name="Clients.Claims.Issuing" xml:space="preserve">
+    <value>Έκδοση</value>
+  </data>
+  <data name="Clients.Claims.Prefix" xml:space="preserve">
+    <value>Πρόθεμα τύπου claim</value>
+  </data>
+  <data name="Clients.Claims.PrefixHint" xml:space="preserve">
+    <value>Προστίθεται στην αρχή των τύπων claims της εφαρμογής πελάτη. Αφήστε το κενό για καθόλου πρόθεμα.</value>
+  </data>
+  <data name="Clients.Claims.SettingsSaved" xml:space="preserve">
+    <value>Οι ρυθμίσεις claims αποθηκεύτηκαν</value>
+  </data>
+  <data name="Clients.Details.ConsentAndSignIn" xml:space="preserve">
+    <value>Συναίνεση και σύνδεση</value>
+  </data>
+  <data name="Clients.Details.ExternalProviders" xml:space="preserve">
+    <value>Εξωτερικοί πάροχοι</value>
+  </data>
+  <data name="Clients.Details.ExternalProvidersHint" xml:space="preserve">
+    <value>Πάροχοι που προσφέρονται στη σελίδα σύνδεσης αυτής της εφαρμογής πελάτη. Η επιλογή όλων ή κανενός σημαίνει χωρίς περιορισμό.</value>
+  </data>
+  <data name="Clients.Details.General" xml:space="preserve">
+    <value>Γενικά</value>
+  </data>
+  <data name="Clients.Details.GeneralHint" xml:space="preserve">
+    <value>Όσα βλέπουν οι χρήστες στις οθόνες σύνδεσης και συναίνεσης.</value>
+  </data>
+  <data name="Clients.Details.LocalAccounts" xml:space="preserve">
+    <value>Τοπικοί λογαριασμοί</value>
+  </data>
+  <data name="Clients.Details.LocalAccountsHint" xml:space="preserve">
+    <value>Οι χρήστες μπορούν να συνδέονται με όνομα χρήστη και κωδικό πρόσβασης.</value>
+  </data>
+  <data name="Clients.Details.RememberConsent" xml:space="preserve">
+    <value>Απομνημόνευση συναίνεσης</value>
+  </data>
+  <data name="Clients.Details.RememberConsentHint" xml:space="preserve">
+    <value>Η συναίνεση που δίνεται απομνημονεύεται για επόμενες συνδέσεις.</value>
+  </data>
+  <data name="Clients.Details.RequireConsentHint" xml:space="preserve">
+    <value>Οι χρήστες εγκρίνουν την πρόσβαση που ζητείται πριν συνδεθούν.</value>
+  </data>
+  <data name="Clients.Details.UpdatedMessage" xml:space="preserve">
+    <value>Η '{{name}}' αποθηκεύτηκε.</value>
+  </data>
+  <data name="Clients.Details.UpdatedTitle" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης ενημερώθηκε</value>
+  </data>
+  <data name="Clients.Duration.Day" xml:space="preserve">
+    <value>{{count}} ημέρα</value>
+  </data>
+  <data name="Clients.Duration.Days" xml:space="preserve">
+    <value>{{count}} ημέρες</value>
+  </data>
+  <data name="Clients.Duration.Hour" xml:space="preserve">
+    <value>{{count}} ώρ.</value>
+  </data>
+  <data name="Clients.Duration.Minute" xml:space="preserve">
+    <value>{{count}} λεπ.</value>
+  </data>
+  <data name="Clients.Duration.Month" xml:space="preserve">
+    <value>{{count}} μήν.</value>
+  </data>
+  <data name="Clients.Duration.Second" xml:space="preserve">
+    <value>{{count}} δευτ.</value>
+  </data>
+  <data name="Clients.Duration.Week" xml:space="preserve">
+    <value>{{count}} εβδ.</value>
+  </data>
+  <data name="Clients.Duration.Year" xml:space="preserve">
+    <value>{{count}} έτ.</value>
+  </data>
+  <data name="Clients.Edit.BackToClients" xml:space="preserve">
+    <value>Επιστροφή στις εφαρμογές πελάτες</value>
+  </data>
+  <data name="Clients.Edit.DeletedMessage" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης '{{name}}' διαγράφηκε.</value>
+  </data>
+  <data name="Clients.Edit.DeletedTitle" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης διαγράφηκε</value>
+  </data>
+  <data name="Clients.Edit.DeleteMessage" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης '{{name}}' θα διαγραφεί οριστικά και οι εφαρμογές που τη χρησιμοποιούν θα σταματήσουν να λειτουργούν. Η ενέργεια δεν μπορεί να αναιρεθεί.</value>
+  </data>
+  <data name="Clients.Edit.DeleteTitle" xml:space="preserve">
+    <value>Διαγραφή εφαρμογής πελάτη;</value>
+  </data>
+  <data name="Clients.Edit.DisabledMessage" xml:space="preserve">
+    <value>Η '{{name}}' δεν μπορεί πλέον να ζητά tokens.</value>
+  </data>
+  <data name="Clients.Edit.DisabledTitle" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης απενεργοποιήθηκε</value>
+  </data>
+  <data name="Clients.Edit.EnabledMessage" xml:space="preserve">
+    <value>Η '{{name}}' μπορεί να ζητά tokens.</value>
+  </data>
+  <data name="Clients.Edit.EnabledTitle" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης ενεργοποιήθηκε</value>
+  </data>
+  <data name="Clients.Edit.NotFoundMessage" xml:space="preserve">
+    <value>Μπορεί να έχει διαγραφεί ή ο σύνδεσμος να είναι λανθασμένος.</value>
+  </data>
+  <data name="Clients.Edit.NotFoundTitle" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης δεν βρέθηκε</value>
+  </data>
+  <data name="Clients.Fields.CallbackUrl" xml:space="preserve">
+    <value>URL επιστροφής (callback)</value>
+  </data>
+  <data name="Clients.Fields.ClientId" xml:space="preserve">
+    <value>Αναγνωριστικό client</value>
+  </data>
+  <data name="Clients.Fields.ClientIdLabel" xml:space="preserve">
+    <value>αναγνωριστικό client</value>
+  </data>
+  <data name="Clients.Fields.ClientUrl" xml:space="preserve">
+    <value>URL εφαρμογής</value>
+  </data>
+  <data name="Clients.Fields.LogoUrl" xml:space="preserve">
+    <value>URL λογοτύπου</value>
+  </data>
+  <data name="Clients.Fields.PostLogoutUrl" xml:space="preserve">
+    <value>URL μετά την αποσύνδεση</value>
+  </data>
+  <data name="Clients.Fields.RequireConsent" xml:space="preserve">
+    <value>Απαίτηση συναίνεσης</value>
+  </data>
+  <data name="Clients.GrantTypes.AddedMessage" xml:space="preserve">
+    <value>Το '{{type}}' προστέθηκε στην εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.GrantTypes.AddedSuffix" xml:space="preserve">
+    <value>(έχει προστεθεί)</value>
+  </data>
+  <data name="Clients.GrantTypes.AddedTitle" xml:space="preserve">
+    <value>Το grant type προστέθηκε</value>
+  </data>
+  <data name="Clients.GrantTypes.AddGrantType" xml:space="preserve">
+    <value>Προσθήκη grant type</value>
+  </data>
+  <data name="Clients.GrantTypes.CustomBadge" xml:space="preserve">
+    <value>προσαρμοσμένο</value>
+  </data>
+  <data name="Clients.GrantTypes.CustomGrantType" xml:space="preserve">
+    <value>Προσαρμοσμένο grant type</value>
+  </data>
+  <data name="Clients.GrantTypes.CustomOption" xml:space="preserve">
+    <value>Προσαρμοσμένο…</value>
+  </data>
+  <data name="Clients.GrantTypes.EmptyMessage" xml:space="preserve">
+    <value>Χωρίς grant type η εφαρμογή πελάτης δεν μπορεί να ζητήσει κανένα token.</value>
+  </data>
+  <data name="Clients.GrantTypes.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν grant types</value>
+  </data>
+  <data name="Clients.GrantTypes.GrantType" xml:space="preserve">
+    <value>Grant type</value>
+  </data>
+  <data name="Clients.GrantTypes.RemovedMessage" xml:space="preserve">
+    <value>Το '{{type}}' αφαιρέθηκε από την εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.GrantTypes.RemovedTitle" xml:space="preserve">
+    <value>Το grant type αφαιρέθηκε</value>
+  </data>
+  <data name="Clients.GrantTypes.RemoveLabel" xml:space="preserve">
+    <value>Αφαίρεση {{type}}</value>
+  </data>
+  <data name="Clients.GrantTypes.RemoveMessage" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης δεν θα μπορεί πλέον να χρησιμοποιεί το '{{type}}'.</value>
+  </data>
+  <data name="Clients.GrantTypes.RemoveTitle" xml:space="preserve">
+    <value>Αφαίρεση grant type;</value>
+  </data>
+  <data name="Clients.GrantTypes.SelectPlaceholder" xml:space="preserve">
+    <value>Επιλέξτε grant type…</value>
+  </data>
+  <data name="Clients.GrantTypes.UnusualCombination" xml:space="preserve">
+    <value>Το '{{type}}' δεν είναι συνήθης συνδυασμός με τα grant types που έχει ήδη αυτή η εφαρμογή πελάτης.</value>
+  </data>
+  <data name="Clients.List.Client" xml:space="preserve">
+    <value>Εφαρμογή πελάτης</value>
+  </data>
+  <data name="Clients.List.Empty" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη εφαρμογές πελάτες</value>
+  </data>
+  <data name="Clients.List.EmptyMessage" xml:space="preserve">
+    <value>Καταχωρίστε μια εφαρμογή ώστε να μπορεί να συνδέει χρήστες ή να καλεί τα APIs σας.</value>
+  </data>
+  <data name="Clients.List.LoadFailed" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση των εφαρμογών πελατών</value>
+  </data>
+  <data name="Clients.List.NoMatches" xml:space="preserve">
+    <value>Δεν βρέθηκαν εφαρμογές πελάτες που να ταιριάζουν</value>
+  </data>
+  <data name="Clients.List.NoMatchesMessage" xml:space="preserve">
+    <value>Δοκιμάστε έναν διαφορετικό όρο αναζήτησης.</value>
+  </data>
+  <data name="Clients.List.Open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="Clients.List.OpenClient" xml:space="preserve">
+    <value>Άνοιγμα {{id}}</value>
+  </data>
+  <data name="Clients.List.ReservedClient" xml:space="preserve">
+    <value>Δεσμευμένη εφαρμογή πελάτης</value>
+  </data>
+  <data name="Clients.List.SearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση εφαρμογών πελατών</value>
+  </data>
+  <data name="Clients.List.Subtitle" xml:space="preserve">
+    <value>Εφαρμογές που συνδέουν χρήστες ή καλούν APIs εκ μέρους τους.</value>
+  </data>
+  <data name="Clients.Resources.ApiIntro" xml:space="preserve">
+    <value>API scopes για τα οποία αυτή η εφαρμογή πελάτης μπορεί να ζητά access tokens.</value>
+  </data>
+  <data name="Clients.Resources.ApiScopes" xml:space="preserve">
+    <value>API scopes</value>
+  </data>
+  <data name="Clients.Resources.AvailableApi" xml:space="preserve">
+    <value>Διαθέσιμα API scopes</value>
+  </data>
+  <data name="Clients.Resources.AvailableIdentity" xml:space="preserve">
+    <value>Διαθέσιμοι πόροι ταυτότητας</value>
+  </data>
+  <data name="Clients.Resources.GrantedMessage" xml:space="preserve">
+    <value>Το '{{name}}' εκχωρήθηκε στην εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.Resources.GrantedTitle" xml:space="preserve">
+    <value>Η πρόσβαση εκχωρήθηκε</value>
+  </data>
+  <data name="Clients.Resources.GrantedToClient" xml:space="preserve">
+    <value>Εκχωρημένα σε αυτή την εφαρμογή πελάτη</value>
+  </data>
+  <data name="Clients.Resources.IdentityIntro" xml:space="preserve">
+    <value>Πληροφορίες ταυτότητας (claims χρήστη) που μπορεί να ζητά αυτή η εφαρμογή πελάτης.</value>
+  </data>
+  <data name="Clients.Resources.IdentityResources" xml:space="preserve">
+    <value>Πόροι ταυτότητας</value>
+  </data>
+  <data name="Clients.Resources.NoApi" xml:space="preserve">
+    <value>Αυτή η εφαρμογή πελάτης δεν μπορεί ακόμη να καλέσει κανένα API.</value>
+  </data>
+  <data name="Clients.Resources.NoIdentity" xml:space="preserve">
+    <value>Δεν έχουν εκχωρηθεί πόροι ταυτότητας.</value>
+  </data>
+  <data name="Clients.Resources.RemovedMessage" xml:space="preserve">
+    <value>Το '{{name}}' αφαιρέθηκε από την εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.Resources.RemovedTitle" xml:space="preserve">
+    <value>Η πρόσβαση αφαιρέθηκε</value>
+  </data>
+  <data name="Clients.Secrets.AddedMessage" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης μπορεί πλέον να αυθεντικοποιείται με το νέο secret.</value>
+  </data>
+  <data name="Clients.Secrets.AddedTitle" xml:space="preserve">
+    <value>Το secret προστέθηκε</value>
+  </data>
+  <data name="Clients.Secrets.Certificate" xml:space="preserve">
+    <value>Πιστοποιητικό</value>
+  </data>
+  <data name="Clients.Secrets.CopyLabel" xml:space="preserve">
+    <value>secret</value>
+  </data>
+  <data name="Clients.Secrets.DeletedMessage" xml:space="preserve">
+    <value>Το secret αφαιρέθηκε από την εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.Secrets.DeletedTitle" xml:space="preserve">
+    <value>Το secret διαγράφηκε</value>
+  </data>
+  <data name="Clients.Secrets.DeleteMessage" xml:space="preserve">
+    <value>Οι εφαρμογές που χρησιμοποιούν ακόμη αυτό το secret δεν θα μπορούν πλέον να ζητούν tokens. Η ενέργεια δεν μπορεί να αναιρεθεί.</value>
+  </data>
+  <data name="Clients.Secrets.DeleteSecret" xml:space="preserve">
+    <value>Διαγραφή secret</value>
+  </data>
+  <data name="Clients.Secrets.DeleteTitle" xml:space="preserve">
+    <value>Διαγραφή secret;</value>
+  </data>
+  <data name="Clients.Secrets.DownloadCertificate" xml:space="preserve">
+    <value>Λήψη πιστοποιητικού</value>
+  </data>
+  <data name="Clients.Secrets.EmptyMessage" xml:space="preserve">
+    <value>Οι εμπιστευτικές (confidential) εφαρμογές πελάτες χρειάζονται secret ή πιστοποιητικό για να ζητούν tokens.</value>
+  </data>
+  <data name="Clients.Secrets.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν secrets</value>
+  </data>
+  <data name="Clients.Secrets.Expired" xml:space="preserve">
+    <value>Έληξε</value>
+  </data>
+  <data name="Clients.Secrets.Expires" xml:space="preserve">
+    <value>Λήξη</value>
+  </data>
+  <data name="Clients.Secrets.ExpiresOn" xml:space="preserve">
+    <value>Λήγει στις</value>
+  </data>
+  <data name="Clients.Secrets.ExpiresOnDate" xml:space="preserve">
+    <value>Λήγει στις {{date}}</value>
+  </data>
+  <data name="Clients.Secrets.GenerateValue" xml:space="preserve">
+    <value>Δημιουργία τυχαίας τιμής</value>
+  </data>
+  <data name="Clients.Secrets.NeverExpires" xml:space="preserve">
+    <value>Δεν λήγει ποτέ</value>
+  </data>
+  <data name="Clients.Secrets.NewSecret" xml:space="preserve">
+    <value>Νέο secret</value>
+  </data>
+  <data name="Clients.Secrets.NewSecretHint" xml:space="preserve">
+    <value>Οι τιμές των shared secrets δεν μπορούν να ανακτηθούν μετά την αποθήκευση: αντιγράψτε τις πρώτα.</value>
+  </data>
+  <data name="Clients.Secrets.PublicKey" xml:space="preserve">
+    <value>Δημόσιο κλειδί (.cer)</value>
+  </data>
+  <data name="Clients.Secrets.PublicKeyHint" xml:space="preserve">
+    <value>Φυλάξτε με ασφάλεια το ιδιωτικό κλειδί και ανεβάστε μόνο το δημόσιο πιστοποιητικό.</value>
+  </data>
+  <data name="Clients.Secrets.SharedSecret" xml:space="preserve">
+    <value>Shared secret</value>
+  </data>
+  <data name="Clients.Secrets.UploadedMessage" xml:space="preserve">
+    <value>Το '{{name}}' προστέθηκε στην εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.Secrets.UploadedTitle" xml:space="preserve">
+    <value>Το πιστοποιητικό μεταφορτώθηκε</value>
+  </data>
+  <data name="Clients.Secrets.Uploading" xml:space="preserve">
+    <value>Μεταφόρτωση…</value>
+  </data>
+  <data name="Clients.Tabs.Claims" xml:space="preserve">
+    <value>Claims</value>
+  </data>
+  <data name="Clients.Tabs.GrantTypes" xml:space="preserve">
+    <value>Grant types</value>
+  </data>
+  <data name="Clients.Tabs.Resources" xml:space="preserve">
+    <value>Πόροι</value>
+  </data>
+  <data name="Clients.Tabs.Secrets" xml:space="preserve">
+    <value>Secrets</value>
+  </data>
+  <data name="Clients.Tabs.Theme" xml:space="preserve">
+    <value>Θέμα</value>
+  </data>
+  <data name="Clients.Tabs.Tokens" xml:space="preserve">
+    <value>Tokens</value>
+  </data>
+  <data name="Clients.Tabs.Urls" xml:space="preserve">
+    <value>URLs</value>
+  </data>
+  <data name="Clients.Theme.ColorPicker" xml:space="preserve">
+    <value>Επιλογέας: {{label}}</value>
+  </data>
+  <data name="Clients.Theme.Default" xml:space="preserve">
+    <value>Προεπιλογή</value>
+  </data>
+  <data name="Clients.Theme.EmptyMessage" xml:space="preserve">
+    <value>Ο διακομιστής ταυτότητας δεν παρέχει ρυθμίσεις θέματος για εφαρμογές πελάτες.</value>
+  </data>
+  <data name="Clients.Theme.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν επιλογές θέματος</value>
+  </data>
+  <data name="Clients.Theme.InvalidColor" xml:space="preserve">
+    <value>Χρησιμοποιήστε δεκαεξαδικό χρώμα, π.χ. #3d5afe.</value>
+  </data>
+  <data name="Clients.Theme.Preview" xml:space="preserve">
+    <value>Προεπισκόπηση</value>
+  </data>
+  <data name="Clients.Theme.Save" xml:space="preserve">
+    <value>Αποθήκευση θέματος</value>
+  </data>
+  <data name="Clients.Theme.SavedMessage" xml:space="preserve">
+    <value>Το θέμα της σελίδας σύνδεσης της εφαρμογής πελάτη ενημερώθηκε.</value>
+  </data>
+  <data name="Clients.Theme.SavedTitle" xml:space="preserve">
+    <value>Το θέμα αποθηκεύτηκε</value>
+  </data>
+  <data name="Clients.Theme.Subtitle" xml:space="preserve">
+    <value>Χρώματα και εικόνες που χρησιμοποιούνται όταν οι χρήστες συνδέονται μέσω αυτής της εφαρμογής πελάτη.</value>
+  </data>
+  <data name="Clients.Theme.Title" xml:space="preserve">
+    <value>Θέμα σελίδας σύνδεσης</value>
+  </data>
+  <data name="Clients.Tokens.Absolute" xml:space="preserve">
+    <value>Απόλυτη</value>
+  </data>
+  <data name="Clients.Tokens.AccessToken" xml:space="preserve">
+    <value>Access token</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokenHint" xml:space="preserve">
+    <value>Διάρκεια ισχύος του access token.</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokensViaBrowser" xml:space="preserve">
+    <value>Access tokens μέσω προγράμματος περιήγησης</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokensViaBrowserHint" xml:space="preserve">
+    <value>Τα access tokens μπορούν να διέρχονται από το πρόγραμμα περιήγησης.</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokenType" xml:space="preserve">
+    <value>Τύπος access token</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokenTypeHint" xml:space="preserve">
+    <value>Αυτόνομο JWT ή reference token που επικυρώνεται μέσω introspection.</value>
+  </data>
+  <data name="Clients.Tokens.AllowOfflineAccess" xml:space="preserve">
+    <value>Να επιτρέπεται πρόσβαση εκτός σύνδεσης</value>
+  </data>
+  <data name="Clients.Tokens.AllowOfflineAccessHint" xml:space="preserve">
+    <value>Η εφαρμογή πελάτης μπορεί να ζητά refresh tokens.</value>
+  </data>
+  <data name="Clients.Tokens.AllowPlainTextPkce" xml:space="preserve">
+    <value>Να επιτρέπεται PKCE απλού κειμένου</value>
+  </data>
+  <data name="Clients.Tokens.AllowPlainTextPkceHint" xml:space="preserve">
+    <value>Το proof key μπορεί να αποστέλλεται με τη μέθοδο plain.</value>
+  </data>
+  <data name="Clients.Tokens.AuthorizationCode" xml:space="preserve">
+    <value>Authorization code</value>
+  </data>
+  <data name="Clients.Tokens.AuthorizationCodeHint" xml:space="preserve">
+    <value>Διάρκεια ισχύος του authorization code.</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutSession" xml:space="preserve">
+    <value>Συνεδρία back-channel logout</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutSessionHint" xml:space="preserve">
+    <value>Αποστολή του αναγνωριστικού συνεδρίας στο back-channel logout URI.</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutUri" xml:space="preserve">
+    <value>Back-channel logout URI</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutUriHint" xml:space="preserve">
+    <value>URI αποσύνδεσης στην εφαρμογή πελάτη για αποσύνδεση HTTP back-channel.</value>
+  </data>
+  <data name="Clients.Tokens.Behaviour" xml:space="preserve">
+    <value>Συμπεριφορά</value>
+  </data>
+  <data name="Clients.Tokens.Consent" xml:space="preserve">
+    <value>Συναίνεση</value>
+  </data>
+  <data name="Clients.Tokens.ConsentHint" xml:space="preserve">
+    <value>Πόσο διαρκεί μια συναίνεση που έχει δοθεί. Κενό σημαίνει για πάντα.</value>
+  </data>
+  <data name="Clients.Tokens.DeviceCode" xml:space="preserve">
+    <value>Device code</value>
+  </data>
+  <data name="Clients.Tokens.DeviceCodeHint" xml:space="preserve">
+    <value>Διάρκεια ισχύος του device code.</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutSession" xml:space="preserve">
+    <value>Συνεδρία front-channel logout</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutSessionHint" xml:space="preserve">
+    <value>Αποστολή του αναγνωριστικού συνεδρίας στο front-channel logout URI.</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutUri" xml:space="preserve">
+    <value>Front-channel logout URI</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutUriHint" xml:space="preserve">
+    <value>URI αποσύνδεσης στην εφαρμογή πελάτη για αποσύνδεση HTTP front-channel.</value>
+  </data>
+  <data name="Clients.Tokens.IdentityToken" xml:space="preserve">
+    <value>Identity token</value>
+  </data>
+  <data name="Clients.Tokens.IdentityTokenHint" xml:space="preserve">
+    <value>Διάρκεια ισχύος του identity token.</value>
+  </data>
+  <data name="Clients.Tokens.IncludeJwtId" xml:space="preserve">
+    <value>Συμπερίληψη JWT id</value>
+  </data>
+  <data name="Clients.Tokens.IncludeJwtIdHint" xml:space="preserve">
+    <value>Τα JWT access tokens λαμβάνουν μοναδικό αναγνωριστικό (jti).</value>
+  </data>
+  <data name="Clients.Tokens.InSeconds" xml:space="preserve">
+    <value>{{label}} σε δευτερόλεπτα</value>
+  </data>
+  <data name="Clients.Tokens.Jwt" xml:space="preserve">
+    <value>JWT</value>
+  </data>
+  <data name="Clients.Tokens.LifetimeInvalid" xml:space="preserve">
+    <value>Απαιτείται τιμή μηδέν ή περισσότερων δευτερολέπτων.</value>
+  </data>
+  <data name="Clients.Tokens.Lifetimes" xml:space="preserve">
+    <value>Διάρκειες ισχύος</value>
+  </data>
+  <data name="Clients.Tokens.NothingApplies" xml:space="preserve">
+    <value>Οι ρυθμίσεις των tokens εξαρτώνται από τα grant types. Προσθέστε πρώτα ένα grant type σε αυτή την εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Clients.Tokens.OneTimeOnly" xml:space="preserve">
+    <value>Μίας χρήσης</value>
+  </data>
+  <data name="Clients.Tokens.PairWiseSubjectSalt" xml:space="preserve">
+    <value>Pair-wise subject salt</value>
+  </data>
+  <data name="Clients.Tokens.PairWiseSubjectSaltHint" xml:space="preserve">
+    <value>Salt για τη δημιουργία pair-wise αναγνωριστικών subject για τους χρήστες αυτής της εφαρμογής πελάτη.</value>
+  </data>
+  <data name="Clients.Tokens.Reference" xml:space="preserve">
+    <value>Reference</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenAbsolute" xml:space="preserve">
+    <value>Refresh token (απόλυτη)</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenAbsoluteHint" xml:space="preserve">
+    <value>Μέγιστη διάρκεια ισχύος ενός refresh token.</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenExpiration" xml:space="preserve">
+    <value>Λήξη refresh token</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenExpirationHint" xml:space="preserve">
+    <value>Η απόλυτη λήγει σε σταθερό χρόνο· η κυλιόμενη ανανεώνει τη διάρκεια ισχύος σε κάθε ανανέωση.</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenSliding" xml:space="preserve">
+    <value>Refresh token (κυλιόμενη)</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenSlidingHint" xml:space="preserve">
+    <value>Διάρκεια που προστίθεται κάθε φορά που χρησιμοποιείται ένα κυλιόμενο refresh token.</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenUsage" xml:space="preserve">
+    <value>Χρήση refresh token</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenUsageHint" xml:space="preserve">
+    <value>Η επαναχρησιμοποίηση διατηρεί το ίδιο handle· η μίας χρήσης εκδίδει νέο handle σε κάθε ανανέωση.</value>
+  </data>
+  <data name="Clients.Tokens.RequirePkce" xml:space="preserve">
+    <value>Απαίτηση PKCE</value>
+  </data>
+  <data name="Clients.Tokens.RequirePkceHint" xml:space="preserve">
+    <value>Απαιτείται proof key για τα αιτήματα authorization code.</value>
+  </data>
+  <data name="Clients.Tokens.ReUse" xml:space="preserve">
+    <value>Επαναχρησιμοποίηση</value>
+  </data>
+  <data name="Clients.Tokens.SavedMessage" xml:space="preserve">
+    <value>Η '{{name}}' ενημερώθηκε.</value>
+  </data>
+  <data name="Clients.Tokens.SavedTitle" xml:space="preserve">
+    <value>Οι ρυθμίσεις tokens αποθηκεύτηκαν</value>
+  </data>
+  <data name="Clients.Tokens.SecondsUnit" xml:space="preserve">
+    <value>δευτ.</value>
+  </data>
+  <data name="Clients.Tokens.Sliding" xml:space="preserve">
+    <value>Κυλιόμενη</value>
+  </data>
+  <data name="Clients.Tokens.SsoSession" xml:space="preserve">
+    <value>Συνεδρία SSO</value>
+  </data>
+  <data name="Clients.Tokens.SsoSessionHint" xml:space="preserve">
+    <value>Μέγιστος χρόνος από την τελευταία αυθεντικοποίηση του χρήστη. Κενό σημαίνει ότι αποφασίζει η συνεδρία.</value>
+  </data>
+  <data name="Clients.Tokens.TokenOptions" xml:space="preserve">
+    <value>Επιλογές tokens</value>
+  </data>
+  <data name="Clients.Tokens.UpdateClaimsOnRefresh" xml:space="preserve">
+    <value>Ενημέρωση claims κατά την ανανέωση</value>
+  </data>
+  <data name="Clients.Tokens.UpdateClaimsOnRefreshHint" xml:space="preserve">
+    <value>Τα claims του access token ανανεώνονται μαζί με το token.</value>
+  </data>
+  <data name="Clients.Tokens.UserClaimsInIdToken" xml:space="preserve">
+    <value>Claims χρήστη στο identity token</value>
+  </data>
+  <data name="Clients.Tokens.UserClaimsInIdTokenHint" xml:space="preserve">
+    <value>Τα claims του χρήστη τοποθετούνται πάντα στο identity token αντί για το userinfo endpoint.</value>
+  </data>
+  <data name="Clients.Tokens.UserCodeType" xml:space="preserve">
+    <value>Τύπος κωδικού χρήστη</value>
+  </data>
+  <data name="Clients.Tokens.UserCodeTypeHint" xml:space="preserve">
+    <value>Τύπος του κωδικού χρήστη που δημιουργείται στο device flow.</value>
+  </data>
+  <data name="Clients.TranslatableField.Default" xml:space="preserve">
+    <value>προεπιλογή</value>
+  </data>
+  <data name="Clients.TranslatableField.Language" xml:space="preserve">
+    <value>Γλώσσα: {{culture}}</value>
+  </data>
+  <data name="Clients.Types.Device.Description1" xml:space="preserve">
+    <value>Εφαρμογή IoT ή άλλη συσκευή χωρίς πρόγραμμα περιήγησης ή με περιορισμένες δυνατότητες εισαγωγής.</value>
+  </data>
+  <data name="Clients.Types.Device.Description2" xml:space="preserve">
+    <value>Συνήθως δεν μπορεί να διατηρεί secret, αλλά μπορεί να χρησιμοποιεί refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.Device.Flow" xml:space="preserve">
+    <value>Device flow με εξωτερικό πρόγραμμα περιήγησης</value>
+  </data>
+  <data name="Clients.Types.Device.Name" xml:space="preserve">
+    <value>Συσκευή</value>
+  </data>
+  <data name="Clients.Types.Machine.Description1" xml:space="preserve">
+    <value>Επικοινωνία μεταξύ μηχανών (machine to machine).</value>
+  </data>
+  <data name="Clients.Types.Machine.Description2" xml:space="preserve">
+    <value>Δεν εμπλέκονται χρήστες.</value>
+  </data>
+  <data name="Clients.Types.Machine.Description3" xml:space="preserve">
+    <value>Τα tokens αποστέλλονται μέσω back channel.</value>
+  </data>
+  <data name="Clients.Types.Machine.Flow" xml:space="preserve">
+    <value>Client credentials</value>
+  </data>
+  <data name="Clients.Types.Machine.Name" xml:space="preserve">
+    <value>Μηχανή</value>
+  </data>
+  <data name="Clients.Types.Native.Description1" xml:space="preserve">
+    <value>Εφαρμογή desktop ή κινητού που εκτελείται στη συσκευή του χρήστη.</value>
+  </data>
+  <data name="Clients.Types.Native.Description2" xml:space="preserve">
+    <value>Δεν μπορεί να διατηρεί secret, αλλά μπορεί να χρησιμοποιεί refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.Native.Description3" xml:space="preserve">
+    <value>Η ορατότητα των tokens εξαρτάται από το πρόγραμμα περιήγησης και το redirect URI.</value>
+  </data>
+  <data name="Clients.Types.Native.Flow" xml:space="preserve">
+    <value>Authorization code + PKCE</value>
+  </data>
+  <data name="Clients.Types.Native.Name" xml:space="preserve">
+    <value>Εγγενής εφαρμογή</value>
+  </data>
+  <data name="Clients.Types.Spa.Description1" xml:space="preserve">
+    <value>Εφαρμογή client side που εκτελείται σε πρόγραμμα περιήγησης.</value>
+  </data>
+  <data name="Clients.Types.Spa.Description2" xml:space="preserve">
+    <value>Δεν είναι ασφαλές να διατηρεί secrets ή να χρησιμοποιεί refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.Spa.Description3" xml:space="preserve">
+    <value>Τα tokens διέρχονται από το πρόγραμμα περιήγησης και είναι ορατά στον χρήστη.</value>
+  </data>
+  <data name="Clients.Types.Spa.Flow" xml:space="preserve">
+    <value>Authorization code + PKCE</value>
+  </data>
+  <data name="Clients.Types.Spa.Name" xml:space="preserve">
+    <value>Εφαρμογή μίας σελίδας (SPA)</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Description1" xml:space="preserve">
+    <value>Εφαρμογή προγράμματος περιήγησης που ακολουθεί παλαιότερες συστάσεις της ομάδας εργασίας OAuth.</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Description2" xml:space="preserve">
+    <value>Δεν μπορεί να διατηρεί secrets ή να χρησιμοποιεί refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Description3" xml:space="preserve">
+    <value>Τα tokens διέρχονται από το πρόγραμμα περιήγησης και είναι ορατά στον χρήστη.</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Flow" xml:space="preserve">
+    <value>Implicit flow</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Name" xml:space="preserve">
+    <value>Εφαρμογή μίας σελίδας (παλαιού τύπου)</value>
+  </data>
+  <data name="Clients.Types.WebApp.Description1" xml:space="preserve">
+    <value>Εφαρμογή server side που εκτελείται στην υποδομή σας.</value>
+  </data>
+  <data name="Clients.Types.WebApp.Description2" xml:space="preserve">
+    <value>Μπορεί να διατηρεί secret και να χρησιμοποιεί refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.WebApp.Description3" xml:space="preserve">
+    <value>Τα tokens αποστέλλονται σε back-end διακομιστή και δεν είναι ορατά στον χρήστη.</value>
+  </data>
+  <data name="Clients.Types.WebApp.Flow" xml:space="preserve">
+    <value>Hybrid flow με αυθεντικοποίηση client</value>
+  </data>
+  <data name="Clients.Types.WebApp.Name" xml:space="preserve">
+    <value>Εφαρμογή web</value>
+  </data>
+  <data name="Clients.Urls.AddUrl" xml:space="preserve">
+    <value>Προσθήκη URL</value>
+  </data>
+  <data name="Clients.Urls.Cors" xml:space="preserve">
+    <value>CORS</value>
+  </data>
+  <data name="Clients.Urls.CorsTip" xml:space="preserve">
+    <value>Origin που επιτρέπεται να κάνει αιτήματα cross origin</value>
+  </data>
+  <data name="Clients.Urls.Duplicate" xml:space="preserve">
+    <value>Αυτό το URL υπάρχει ήδη στη λίστα.</value>
+  </data>
+  <data name="Clients.Urls.EmptyMessage" xml:space="preserve">
+    <value>Προσθέστε τις διευθύνσεις στις οποίες ανακατευθύνει αυτή η εφαρμογή μετά τη σύνδεση ή την αποσύνδεση.</value>
+  </data>
+  <data name="Clients.Urls.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη URLs</value>
+  </data>
+  <data name="Clients.Urls.InvalidOriginTip" xml:space="preserve">
+    <value>Μη έγκυρο CORS origin: χρησιμοποιήστε μόνο scheme, host και port</value>
+  </data>
+  <data name="Clients.Urls.PostLogout" xml:space="preserve">
+    <value>Μετά την αποσύνδεση</value>
+  </data>
+  <data name="Clients.Urls.PostLogoutTip" xml:space="preserve">
+    <value>Οι χρήστες μπορούν να επιστρέψουν εδώ μετά την αποσύνδεση</value>
+  </data>
+  <data name="Clients.Urls.Redirect" xml:space="preserve">
+    <value>Ανακατεύθυνση</value>
+  </data>
+  <data name="Clients.Urls.RedirectTip" xml:space="preserve">
+    <value>Τα tokens μπορούν να αποστέλλονται σε αυτό το URL</value>
+  </data>
+  <data name="Clients.Urls.RemoveLabel" xml:space="preserve">
+    <value>Αφαίρεση {{url}}</value>
+  </data>
+  <data name="Clients.Urls.Restore" xml:space="preserve">
+    <value>Επαναφορά</value>
+  </data>
+  <data name="Clients.Urls.Save" xml:space="preserve">
+    <value>Αποθήκευση URLs</value>
+  </data>
+  <data name="Clients.Urls.SavedMessage" xml:space="preserve">
+    <value>Τα URLs της εφαρμογής πελάτη ενημερώθηκαν.</value>
+  </data>
+  <data name="Clients.Urls.SavedTitle" xml:space="preserve">
+    <value>Τα URLs αποθηκεύτηκαν</value>
+  </data>
+  <data name="Clients.Urls.Unsaved" xml:space="preserve">
+    <value>Μη αποθηκευμένες αλλαγές</value>
+  </data>
+  <data name="Clients.Urls.Url" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="Clients.Urls.UrlToAdd" xml:space="preserve">
+    <value>URL προς προσθήκη</value>
+  </data>
+  <data name="Clients.Validation.CallbackUrlRequired" xml:space="preserve">
+    <value>Το URL επιστροφής (callback) είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Clients.Validation.ClientIdRequired" xml:space="preserve">
+    <value>Το αναγνωριστικό client είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Clients.Validation.DisplayNameRequired" xml:space="preserve">
+    <value>Το εμφανιζόμενο όνομα είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Clients.Validation.InvalidUrl" xml:space="preserve">
+    <value>Εισαγάγετε ένα έγκυρο URL.</value>
+  </data>
+  <data name="Common.Actions" xml:space="preserve">
+    <value>Ενέργειες</value>
+  </data>
+  <data name="Common.Add" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="Common.All" xml:space="preserve">
+    <value>Όλα</value>
+  </data>
+  <data name="Common.Apply" xml:space="preserve">
+    <value>Εφαρμογή</value>
+  </data>
+  <data name="Common.Back" xml:space="preserve">
+    <value>Πίσω</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Ακύρωση</value>
+  </data>
+  <data name="Common.Clear" xml:space="preserve">
+    <value>Καθαρισμός</value>
+  </data>
+  <data name="Common.Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="Common.Confirm" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="Common.Copied" xml:space="preserve">
+    <value>Αντιγράφηκε</value>
+  </data>
+  <data name="Common.Copy" xml:space="preserve">
+    <value>Αντιγραφή</value>
+  </data>
+  <data name="Common.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Common.Created" xml:space="preserve">
+    <value>Δημιουργήθηκε</value>
+  </data>
+  <data name="Common.CreatedAt" xml:space="preserve">
+    <value>Ημ/νία δημιουργίας</value>
+  </data>
+  <data name="Common.Date" xml:space="preserve">
+    <value>Ημερομηνία</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="Common.Deleted" xml:space="preserve">
+    <value>Διαγράφηκε</value>
+  </data>
+  <data name="Common.Description" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="Common.Details" xml:space="preserve">
+    <value>Λεπτομέρειες</value>
+  </data>
+  <data name="Common.Disabled" xml:space="preserve">
+    <value>Ανενεργό</value>
+  </data>
+  <data name="Common.Discard" xml:space="preserve">
+    <value>Απόρριψη</value>
+  </data>
+  <data name="Common.DisplayName" xml:space="preserve">
+    <value>Εμφανιζόμενο όνομα</value>
+  </data>
+  <data name="Common.Edit" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="Common.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Common.Enabled" xml:space="preserve">
+    <value>Ενεργό</value>
+  </data>
+  <data name="Common.Error" xml:space="preserve">
+    <value>Σφάλμα</value>
+  </data>
+  <data name="Common.Filters" xml:space="preserve">
+    <value>Φίλτρα</value>
+  </data>
+  <data name="Common.Hide" xml:space="preserve">
+    <value>Απόκρυψη</value>
+  </data>
+  <data name="Common.Loading" xml:space="preserve">
+    <value>Φόρτωση…</value>
+  </data>
+  <data name="Common.Name" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Common.Never" xml:space="preserve">
+    <value>Ποτέ</value>
+  </data>
+  <data name="Common.Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>Όχι</value>
+  </data>
+  <data name="Common.None" xml:space="preserve">
+    <value>Κανένα</value>
+  </data>
+  <data name="Common.NoResults" xml:space="preserve">
+    <value>Δεν βρέθηκαν αποτελέσματα</value>
+  </data>
+  <data name="Common.Optional" xml:space="preserve">
+    <value>Προαιρετικό</value>
+  </data>
+  <data name="Common.PhoneNumber" xml:space="preserve">
+    <value>Αριθμός τηλεφώνου</value>
+  </data>
+  <data name="Common.Previous" xml:space="preserve">
+    <value>Προηγούμενο</value>
+  </data>
+  <data name="Common.Refresh" xml:space="preserve">
+    <value>Ανανέωση</value>
+  </data>
+  <data name="Common.Remove" xml:space="preserve">
+    <value>Αφαίρεση</value>
+  </data>
+  <data name="Common.Required" xml:space="preserve">
+    <value>Υποχρεωτικό</value>
+  </data>
+  <data name="Common.Reserved" xml:space="preserve">
+    <value>Δεσμευμένο</value>
+  </data>
+  <data name="Common.Reset" xml:space="preserve">
+    <value>Επαναφορά</value>
+  </data>
+  <data name="Common.Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Common.SaveChanges" xml:space="preserve">
+    <value>Αποθήκευση αλλαγών</value>
+  </data>
+  <data name="Common.Saved" xml:space="preserve">
+    <value>Οι αλλαγές αποθηκεύτηκαν</value>
+  </data>
+  <data name="Common.Search" xml:space="preserve">
+    <value>Αναζήτηση</value>
+  </data>
+  <data name="Common.Select" xml:space="preserve">
+    <value>Επιλογή</value>
+  </data>
+  <data name="Common.Show" xml:space="preserve">
+    <value>Εμφάνιση</value>
+  </data>
+  <data name="Common.Status" xml:space="preserve">
+    <value>Κατάσταση</value>
+  </data>
+  <data name="Common.Type" xml:space="preserve">
+    <value>Τύπος</value>
+  </data>
+  <data name="Common.Unknown" xml:space="preserve">
+    <value>Άγνωστο</value>
+  </data>
+  <data name="Common.Updated" xml:space="preserve">
+    <value>Ενημερώθηκε</value>
+  </data>
+  <data name="Common.UpdatedAt" xml:space="preserve">
+    <value>Τελευταία ενημέρωση</value>
+  </data>
+  <data name="Common.UserName" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="Common.Value" xml:space="preserve">
+    <value>Τιμή</value>
+  </data>
+  <data name="Common.ViewAll" xml:space="preserve">
+    <value>Προβολή όλων</value>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="Core.Http.ErrorTitle" xml:space="preserve">
+    <value>Κάτι πήγε στραβά</value>
+  </data>
+  <data name="Core.Http.Forbidden" xml:space="preserve">
+    <value>Δεν έχετε δικαίωμα να εκτελέσετε αυτή την ενέργεια.</value>
+  </data>
+  <data name="Core.Http.RequestFailed" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η ολοκλήρωση του αιτήματος.</value>
+  </data>
+  <data name="Core.Http.Unreachable" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η επικοινωνία με τον διακομιστή. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</value>
+  </data>
+  <data name="Dashboard.Activity.Attempts" xml:space="preserve">
+    <value>Απόπειρες</value>
+  </data>
+  <data name="Dashboard.Activity.Failed" xml:space="preserve">
+    <value>Αποτυχημένες</value>
+  </data>
+  <data name="Dashboard.Activity.FailureRate" xml:space="preserve">
+    <value>Ποσοστό αποτυχίας</value>
+  </data>
+  <data name="Dashboard.Activity.Last30Days" xml:space="preserve">
+    <value>30 ημέρες</value>
+  </data>
+  <data name="Dashboard.Activity.Last7Days" xml:space="preserve">
+    <value>7 ημέρες</value>
+  </data>
+  <data name="Dashboard.Activity.Last90Days" xml:space="preserve">
+    <value>90 ημέρες</value>
+  </data>
+  <data name="Dashboard.Activity.Legend" xml:space="preserve">
+    <value>Υπόμνημα</value>
+  </data>
+  <data name="Dashboard.Activity.PeakDailyUsers" xml:space="preserve">
+    <value>Μέγιστοι ημερήσιοι χρήστες</value>
+  </data>
+  <data name="Dashboard.Activity.Subtitle" xml:space="preserve">
+    <value>Επιτυχημένες και αποτυχημένες απόπειρες σύνδεσης ανά ημέρα.</value>
+  </data>
+  <data name="Dashboard.Activity.Successful" xml:space="preserve">
+    <value>Επιτυχημένες</value>
+  </data>
+  <data name="Dashboard.Activity.Title" xml:space="preserve">
+    <value>Δραστηριότητα συνδέσεων</value>
+  </data>
+  <data name="Dashboard.Attention.Blocked" xml:space="preserve">
+    <value>Αποκλεισμένοι</value>
+  </data>
+  <data name="Dashboard.Attention.BlockedHint" xml:space="preserve">
+    <value>Αποκλείστηκαν από διαχειριστή</value>
+  </data>
+  <data name="Dashboard.Attention.ExpiredPasswords" xml:space="preserve">
+    <value>Ληγμένοι κωδικοί πρόσβασης</value>
+  </data>
+  <data name="Dashboard.Attention.ExpiredPasswordsHint" xml:space="preserve">
+    <value>Πρέπει να αλλάξουν κωδικό πρόσβασης στην επόμενη σύνδεση</value>
+  </data>
+  <data name="Dashboard.Attention.Flagged" xml:space="preserve">
+    <value>Συνδέσεις προς έλεγχο</value>
+  </data>
+  <data name="Dashboard.Attention.FlaggedHint" xml:space="preserve">
+    <value>Επισημάνθηκαν ως ύποπτες, π.χ. αδύνατη μετακίνηση</value>
+  </data>
+  <data name="Dashboard.Attention.LockedOut" xml:space="preserve">
+    <value>Κλειδωμένοι</value>
+  </data>
+  <data name="Dashboard.Attention.LockedOutHint" xml:space="preserve">
+    <value>Πάρα πολλές αποτυχημένες απόπειρες σύνδεσης</value>
+  </data>
+  <data name="Dashboard.Attention.NeverSignedIn" xml:space="preserve">
+    <value>Δεν συνδέθηκαν ποτέ</value>
+  </data>
+  <data name="Dashboard.Attention.NeverSignedInHint" xml:space="preserve">
+    <value>Λογαριασμοί που δημιουργήθηκαν αλλά δεν χρησιμοποιήθηκαν ποτέ</value>
+  </data>
+  <data name="Dashboard.Attention.Subtitle" xml:space="preserve">
+    <value>Λογαριασμοί και συμβάντα που ίσως θέλει να εξετάσει ένας διαχειριστής.</value>
+  </data>
+  <data name="Dashboard.Attention.Title" xml:space="preserve">
+    <value>Χρειάζονται προσοχή</value>
+  </data>
+  <data name="Dashboard.Engagement.Last30Days" xml:space="preserve">
+    <value>Τελευταίες 30 ημέρες</value>
+  </data>
+  <data name="Dashboard.Engagement.Last7Days" xml:space="preserve">
+    <value>Τελευταίες 7 ημέρες</value>
+  </data>
+  <data name="Dashboard.Engagement.Stickiness" xml:space="preserve">
+    <value>Βαθμός επιστροφής</value>
+  </data>
+  <data name="Dashboard.Engagement.StickinessHint" xml:space="preserve">
+    <value>(ημερήσιοι ÷ μηνιαίοι)</value>
+  </data>
+  <data name="Dashboard.Engagement.Subtitle" xml:space="preserve">
+    <value>Ποσοστό του συνόλου των χρηστών που συνδέθηκαν πρόσφατα.</value>
+  </data>
+  <data name="Dashboard.Engagement.Title" xml:space="preserve">
+    <value>Δραστηριότητα χρηστών</value>
+  </data>
+  <data name="Dashboard.Engagement.Today" xml:space="preserve">
+    <value>Σήμερα</value>
+  </data>
+  <data name="Dashboard.Greeting.Afternoon" xml:space="preserve">
+    <value>Καλησπέρα</value>
+  </data>
+  <data name="Dashboard.Greeting.Evening" xml:space="preserve">
+    <value>Καλησπέρα</value>
+  </data>
+  <data name="Dashboard.Greeting.Morning" xml:space="preserve">
+    <value>Καλημέρα</value>
+  </data>
+  <data name="Dashboard.Inventory.ApiResourcesHint" xml:space="preserve">
+    <value>Προστατευμένα API</value>
+  </data>
+  <data name="Dashboard.Inventory.ApiScopesHint" xml:space="preserve">
+    <value>Δικαιώματα που μπορούν να ζητήσουν οι εφαρμογές πελάτες</value>
+  </data>
+  <data name="Dashboard.Inventory.IdentityResourcesHint" xml:space="preserve">
+    <value>Claims χρηστών που μπορούν να ζητήσουν οι εφαρμογές πελάτες</value>
+  </data>
+  <data name="Dashboard.Inventory.Title" xml:space="preserve">
+    <value>Διαμόρφωση</value>
+  </data>
+  <data name="Dashboard.Locations.Subtitle" xml:space="preserve">
+    <value>{{count}} τοποθεσίες τις τελευταίες 7 ημέρες.</value>
+  </data>
+  <data name="Dashboard.Locations.Title" xml:space="preserve">
+    <value>Από πού συνδέονται οι χρήστες</value>
+  </data>
+  <data name="Dashboard.News.ReadMore" xml:space="preserve">
+    <value>Περισσότερα</value>
+  </data>
+  <data name="Dashboard.News.Title" xml:space="preserve">
+    <value>Από το blog του IdentityServer</value>
+  </data>
+  <data name="Dashboard.RolesHint" xml:space="preserve">
+    <value>Ομάδες χρηστών με κοινή πρόσβαση</value>
+  </data>
+  <data name="Dashboard.Security.Mfa" xml:space="preserve">
+    <value>MFA</value>
+  </data>
+  <data name="Dashboard.Security.SignedInOnce" xml:space="preserve">
+    <value>Συνδέθηκαν τουλάχιστον μία φορά</value>
+  </data>
+  <data name="Dashboard.Security.Subtitle" xml:space="preserve">
+    <value>Πόσο καλά προστατεύονται οι λογαριασμοί των χρηστών σας.</value>
+  </data>
+  <data name="Dashboard.Security.Title" xml:space="preserve">
+    <value>Ασφάλεια λογαριασμών</value>
+  </data>
+  <data name="Dashboard.Security.VerifiedEmail" xml:space="preserve">
+    <value>Επιβεβαιωμένο email</value>
+  </data>
+  <data name="Dashboard.Security.VerifiedPhone" xml:space="preserve">
+    <value>Επιβεβαιωμένο τηλέφωνο</value>
+  </data>
+  <data name="Dashboard.Security.WithoutMfa" xml:space="preserve">
+    <value>{{count}} χωρίς MFA</value>
+  </data>
+  <data name="Dashboard.Stats.ClientApplications" xml:space="preserve">
+    <value>Εφαρμογές πελάτες</value>
+  </data>
+  <data name="Dashboard.Stats.ClientsHint" xml:space="preserve">
+    <value>{{enabled}} ενεργές · {{disabled}} ανενεργές</value>
+  </data>
+  <data name="Dashboard.Stats.FailedSignIns" xml:space="preserve">
+    <value>Αποτυχημένες συνδέσεις (24 ώρες)</value>
+  </data>
+  <data name="Dashboard.Stats.FailedSignInsHint" xml:space="preserve">
+    <value>Ανοίξτε το αρχείο συνδέσεων για διερεύνηση</value>
+  </data>
+  <data name="Dashboard.Stats.NewUsersHint" xml:space="preserve">
+    <value>τις τελευταίες 7 ημέρες</value>
+  </data>
+  <data name="Dashboard.Stats.SignedInToday" xml:space="preserve">
+    <value>Συνδέθηκαν σήμερα</value>
+  </data>
+  <data name="Dashboard.Stats.VsYesterday" xml:space="preserve">
+    <value>σε σχέση με χθες</value>
+  </data>
+  <data name="Dashboard.Subtitle" xml:space="preserve">
+    <value>Δείτε τι συμβαίνει στην πλατφόρμα ταυτότητάς σας.</value>
+  </data>
+  <data name="Dashboard.UpdatedAt" xml:space="preserve">
+    <value>Ενημέρωση {{time}}</value>
+  </data>
+  <data name="Logs.Columns.When" xml:space="preserve">
+    <value>Πότε</value>
+  </data>
+  <data name="Logs.Copy.RequestId" xml:space="preserve">
+    <value>αναγνωριστικό αιτήματος</value>
+  </data>
+  <data name="Logs.Copy.ResourceId" xml:space="preserve">
+    <value>αναγνωριστικό πόρου</value>
+  </data>
+  <data name="Logs.Copy.SessionId" xml:space="preserve">
+    <value>αναγνωριστικό συνεδρίας</value>
+  </data>
+  <data name="Logs.Copy.SubjectId" xml:space="preserve">
+    <value>αναγνωριστικό χρήστη</value>
+  </data>
+  <data name="Logs.Copy.Token" xml:space="preserve">
+    <value>token</value>
+  </data>
+  <data name="Logs.Device.Browser" xml:space="preserve">
+    <value>Πρόγραμμα περιήγησης</value>
+  </data>
+  <data name="Logs.Device.Os" xml:space="preserve">
+    <value>Λειτουργικό σύστημα</value>
+  </data>
+  <data name="Logs.Device.UnknownBrowser" xml:space="preserve">
+    <value>Άγνωστο πρόγραμμα περιήγησης</value>
+  </data>
+  <data name="Logs.Device.UnknownPlatform" xml:space="preserve">
+    <value>Άγνωστη πλατφόρμα</value>
+  </data>
+  <data name="Logs.Fields.Application" xml:space="preserve">
+    <value>Εφαρμογή</value>
+  </data>
+  <data name="Logs.Fields.Coordinates" xml:space="preserve">
+    <value>Συντεταγμένες</value>
+  </data>
+  <data name="Logs.Fields.Device" xml:space="preserve">
+    <value>Συσκευή</value>
+  </data>
+  <data name="Logs.Fields.DeviceId" xml:space="preserve">
+    <value>Αναγνωριστικό συσκευής</value>
+  </data>
+  <data name="Logs.Fields.EntryId" xml:space="preserve">
+    <value>Αναγνωριστικό εγγραφής</value>
+  </data>
+  <data name="Logs.Fields.Event" xml:space="preserve">
+    <value>Συμβάν</value>
+  </data>
+  <data name="Logs.Fields.EventType" xml:space="preserve">
+    <value>Τύπος συμβάντος</value>
+  </data>
+  <data name="Logs.Fields.IpAddress" xml:space="preserve">
+    <value>Διεύθυνση IP</value>
+  </data>
+  <data name="Logs.Fields.Location" xml:space="preserve">
+    <value>Τοποθεσία</value>
+  </data>
+  <data name="Logs.Fields.RequestId" xml:space="preserve">
+    <value>Αναγνωριστικό αιτήματος</value>
+  </data>
+  <data name="Logs.Fields.ResourceType" xml:space="preserve">
+    <value>Τύπος πόρου</value>
+  </data>
+  <data name="Logs.Fields.SessionId" xml:space="preserve">
+    <value>Αναγνωριστικό συνεδρίας</value>
+  </data>
+  <data name="Logs.Fields.Subject" xml:space="preserve">
+    <value>Χρήστης</value>
+  </data>
+  <data name="Logs.Fields.SubjectId" xml:space="preserve">
+    <value>Αναγνωριστικό χρήστη</value>
+  </data>
+  <data name="Logs.Fields.UnknownUser" xml:space="preserve">
+    <value>(άγνωστος χρήστης)</value>
+  </data>
+  <data name="Logs.Fields.UserAgent" xml:space="preserve">
+    <value>User agent</value>
+  </data>
+  <data name="Logs.Filters.AllOutcomes" xml:space="preserve">
+    <value>Όλα τα αποτελέσματα</value>
+  </data>
+  <data name="Logs.Filters.ApplicationId" xml:space="preserve">
+    <value>Αναγνωριστικό εφαρμογής</value>
+  </data>
+  <data name="Logs.Filters.ClientId" xml:space="preserve">
+    <value>Client id</value>
+  </data>
+  <data name="Logs.Filters.From" xml:space="preserve">
+    <value>Από</value>
+  </data>
+  <data name="Logs.Filters.FromDate" xml:space="preserve">
+    <value>Από ημερομηνία</value>
+  </data>
+  <data name="Logs.Filters.NoMatches" xml:space="preserve">
+    <value>Καμία εγγραφή δεν ταιριάζει με τα τρέχοντα φίλτρα.</value>
+  </data>
+  <data name="Logs.Filters.Outcome" xml:space="preserve">
+    <value>Αποτέλεσμα</value>
+  </data>
+  <data name="Logs.Filters.ResetFilters" xml:space="preserve">
+    <value>Επαναφορά φίλτρων</value>
+  </data>
+  <data name="Logs.Filters.To" xml:space="preserve">
+    <value>Έως</value>
+  </data>
+  <data name="Logs.Filters.ToDate" xml:space="preserve">
+    <value>Έως ημερομηνία</value>
+  </data>
+  <data name="Logs.Outcome.Failed" xml:space="preserve">
+    <value>Αποτυχία</value>
+  </data>
+  <data name="Logs.Outcome.Succeeded" xml:space="preserve">
+    <value>Επιτυχία</value>
+  </data>
+  <data name="Logs.Review.Clear" xml:space="preserve">
+    <value>Αφαίρεση σήμανσης ελέγχου</value>
+  </data>
+  <data name="Logs.Review.Cleared" xml:space="preserve">
+    <value>Η σήμανση ελέγχου αφαιρέθηκε</value>
+  </data>
+  <data name="Logs.Review.Mark" xml:space="preserve">
+    <value>Σήμανση για έλεγχο</value>
+  </data>
+  <data name="Logs.Review.Marked" xml:space="preserve">
+    <value>Σημειωμένο για έλεγχο</value>
+  </data>
+  <data name="Nav.ApiDocs" xml:space="preserve">
+    <value>Τεκμηρίωση API</value>
+  </data>
+  <data name="Nav.Applications" xml:space="preserve">
+    <value>Εφαρμογές</value>
+  </data>
+  <data name="Nav.Developers" xml:space="preserve">
+    <value>Προγραμματιστές</value>
+  </data>
+  <data name="Nav.DiscoveryDocument" xml:space="preserve">
+    <value>Discovery document</value>
+  </data>
+  <data name="Nav.Identity" xml:space="preserve">
+    <value>Ταυτότητα</value>
+  </data>
+  <data name="Nav.Monitoring" xml:space="preserve">
+    <value>Παρακολούθηση</value>
+  </data>
+  <data name="Nav.System" xml:space="preserve">
+    <value>Σύστημα</value>
+  </data>
+  <data name="Pages.Auth.SigningIn" xml:space="preserve">
+    <value>Γίνεται σύνδεση…</value>
+  </data>
+  <data name="Pages.Auth.SigningOut" xml:space="preserve">
+    <value>Γίνεται αποσύνδεση…</value>
+  </data>
+  <data name="Pages.Forbidden.Message" xml:space="preserve">
+    <value>Ο λογαριασμός σας δεν έχει πρόσβαση σε αυτό το τμήμα του IAM UI. Ζητήστε πρόσβαση από έναν διαχειριστή.</value>
+  </data>
+  <data name="Pages.Forbidden.Title" xml:space="preserve">
+    <value>Δεν επιτρέπεται η πρόσβαση</value>
+  </data>
+  <data name="Pages.Home.AuditLogs" xml:space="preserve">
+    <value>Αρχεία ελέγχου</value>
+  </data>
+  <data name="Pages.Home.ClientsAndScopes" xml:space="preserve">
+    <value>Εφαρμογές πελάτες &amp; scopes</value>
+  </data>
+  <data name="Pages.Home.SignIn" xml:space="preserve">
+    <value>Σύνδεση</value>
+  </data>
+  <data name="Pages.Home.Subtitle" xml:space="preserve">
+    <value>Διαχειριστείτε χρήστες, ρόλους, εφαρμογές πελάτες και τους πόρους στους οποίους έχουν πρόσβαση, όλα σε ένα σημείο.</value>
+  </data>
+  <data name="Pages.Home.Title" xml:space="preserve">
+    <value>Διαχείριση ταυτοτήτων</value>
+  </data>
+  <data name="Pages.Home.UsersAndRoles" xml:space="preserve">
+    <value>Χρήστες &amp; ρόλοι</value>
+  </data>
+  <data name="Pages.NotFound.Message" xml:space="preserve">
+    <value>Η σελίδα που αναζητάτε δεν υπάρχει ή έχει μετακινηθεί.</value>
+  </data>
+  <data name="Pages.NotFound.Title" xml:space="preserve">
+    <value>Η σελίδα δεν βρέθηκε</value>
+  </data>
+  <data name="Pages.Splash.PleaseWait" xml:space="preserve">
+    <value>Παρακαλούμε περιμένετε…</value>
+  </data>
+  <data name="Pages.Status.BackToDashboard" xml:space="preserve">
+    <value>Επιστροφή στον πίνακα ελέγχου</value>
+  </data>
+  <data name="Resources.Add.ApiHint" xml:space="preserve">
+    <value>Ένα API που προστατεύεται από τον identity server, με τις δικές του εμβέλειες και τα δικά του μυστικά.</value>
+  </data>
+  <data name="Resources.Add.ClaimsHint.Api" xml:space="preserve">
+    <value>Επιλέξτε τα claims χρήστη που περιλαμβάνονται σε κάθε access token που εκδίδεται για αυτό το API.</value>
+  </data>
+  <data name="Resources.Add.ClaimsHint.Identity" xml:space="preserve">
+    <value>Επιλέξτε τα claims χρήστη που περιλαμβάνονται στο identity token όταν μια εφαρμογή πελάτης ζητά αυτόν τον πόρο.</value>
+  </data>
+  <data name="Resources.Add.ClaimsHint.Scope" xml:space="preserve">
+    <value>Επιλέξτε τα claims χρήστη που περιλαμβάνονται στα access tokens όταν παραχωρείται αυτή η εμβέλεια σε μια εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Resources.Add.Create.Api" xml:space="preserve">
+    <value>Δημιουργία πόρου API</value>
+  </data>
+  <data name="Resources.Add.Create.Identity" xml:space="preserve">
+    <value>Δημιουργία πόρου ταυτότητας</value>
+  </data>
+  <data name="Resources.Add.Create.Scope" xml:space="preserve">
+    <value>Δημιουργία εμβέλειας API</value>
+  </data>
+  <data name="Resources.Add.Created.Api.Message" xml:space="preserve">
+    <value>Ο πόρος API '{{name}}' δημιουργήθηκε.</value>
+  </data>
+  <data name="Resources.Add.Created.Api.Title" xml:space="preserve">
+    <value>Ο πόρος API δημιουργήθηκε</value>
+  </data>
+  <data name="Resources.Add.Created.Identity.Message" xml:space="preserve">
+    <value>Ο πόρος ταυτότητας '{{name}}' δημιουργήθηκε.</value>
+  </data>
+  <data name="Resources.Add.Created.Identity.Title" xml:space="preserve">
+    <value>Ο πόρος ταυτότητας δημιουργήθηκε</value>
+  </data>
+  <data name="Resources.Add.Created.Scope.Message" xml:space="preserve">
+    <value>Η εμβέλεια API '{{name}}' δημιουργήθηκε.</value>
+  </data>
+  <data name="Resources.Add.Created.Scope.Title" xml:space="preserve">
+    <value>Η εμβέλεια API δημιουργήθηκε</value>
+  </data>
+  <data name="Resources.Add.IdentityHint" xml:space="preserve">
+    <value>Claims για τον συνδεδεμένο χρήστη, όπως profile ή email.</value>
+  </data>
+  <data name="Resources.Add.NameHint" xml:space="preserve">
+    <value>Μοναδικό και δεν μπορεί να αλλάξει αργότερα.</value>
+  </data>
+  <data name="Resources.Add.ScopeHint" xml:space="preserve">
+    <value>Ένα δικαίωμα που ζητούν οι εφαρμογές πελάτες για να καλούν ένα ή περισσότερα API.</value>
+  </data>
+  <data name="Resources.Add.Steps.Basics" xml:space="preserve">
+    <value>Βασικά στοιχεία</value>
+  </data>
+  <data name="Resources.Add.Steps.Review" xml:space="preserve">
+    <value>Επισκόπηση</value>
+  </data>
+  <data name="Resources.Add.Subtitle" xml:space="preserve">
+    <value>Περιγράψτε τι μπορούν να ζητήσουν οι εφαρμογές πελάτες: δεδομένα ταυτότητας χρήστη, ένα API ή ένα δικαίωμα σε ένα API.</value>
+  </data>
+  <data name="Resources.Api.AddScope" xml:space="preserve">
+    <value>Προσθήκη εμβέλειας</value>
+  </data>
+  <data name="Resources.Api.ClaimCount" xml:space="preserve">
+    <value>{{count}} claims</value>
+  </data>
+  <data name="Resources.Api.ClaimsIntro" xml:space="preserve">
+    <value>Αυτά τα claims χρήστη περιλαμβάνονται στα access tokens που εκδίδονται για αυτό το API, ανεξάρτητα από την εμβέλεια που ζητήθηκε.</value>
+  </data>
+  <data name="Resources.Api.Delete.Message" xml:space="preserve">
+    <value>Ο πόρος API '{{name}}' και οι εμβέλειές του θα διαγραφούν οριστικά. Οι εφαρμογές πελάτες θα χάσουν την πρόσβαση σε αυτόν.</value>
+  </data>
+  <data name="Resources.Api.Delete.Title" xml:space="preserve">
+    <value>Διαγραφή πόρου API;</value>
+  </data>
+  <data name="Resources.Api.Deleted.Message" xml:space="preserve">
+    <value>Ο πόρος API '{{name}}' διαγράφηκε.</value>
+  </data>
+  <data name="Resources.Api.Deleted.Title" xml:space="preserve">
+    <value>Ο πόρος API διαγράφηκε</value>
+  </data>
+  <data name="Resources.Api.EnabledHint" xml:space="preserve">
+    <value>Οι εφαρμογές πελάτες μπορούν να ζητούν access tokens για αυτό το API.</value>
+  </data>
+  <data name="Resources.Api.NoDisplayName" xml:space="preserve">
+    <value>Χωρίς εμφανιζόμενο όνομα</value>
+  </data>
+  <data name="Resources.Api.NoScopes.Message" xml:space="preserve">
+    <value>Προσθέστε μια εμβέλεια ώστε οι εφαρμογές πελάτες να μπορούν να ζητούν πρόσβαση σε αυτό το API.</value>
+  </data>
+  <data name="Resources.Api.NoScopes.Title" xml:space="preserve">
+    <value>Δεν υπάρχουν εμβέλειες ακόμη</value>
+  </data>
+  <data name="Resources.Api.ScopeAddSubtitle" xml:space="preserve">
+    <value>Ένα δικαίωμα που μπορούν να ζητήσουν οι εφαρμογές πελάτες για να καλούν αυτό το API.</value>
+  </data>
+  <data name="Resources.Api.ScopeNameHint" xml:space="preserve">
+    <value>Η τιμή που στέλνουν οι εφαρμογές πελάτες στην παράμετρο &lt;code&gt;scope&lt;/code&gt;. Δεν μπορεί να αλλάξει αργότερα.</value>
+  </data>
+  <data name="Resources.Api.ScopesIntro" xml:space="preserve">
+    <value>Οι εμβέλειες είναι τα δικαιώματα που ζητούν οι εφαρμογές πελάτες για να καλούν αυτό το API.</value>
+  </data>
+  <data name="Resources.Api.Tabs.Scopes" xml:space="preserve">
+    <value>Εμβέλειες</value>
+  </data>
+  <data name="Resources.Api.Tabs.Secrets" xml:space="preserve">
+    <value>Μυστικά</value>
+  </data>
+  <data name="Resources.Api.Updated.Message" xml:space="preserve">
+    <value>Ο πόρος API '{{name}}' ενημερώθηκε.</value>
+  </data>
+  <data name="Resources.Api.Updated.Title" xml:space="preserve">
+    <value>Ο πόρος API ενημερώθηκε</value>
+  </data>
+  <data name="Resources.Claims.Added.Message" xml:space="preserve">
+    <value>Το claim '{{claim}}' περιλαμβάνεται πλέον.</value>
+  </data>
+  <data name="Resources.Claims.Added.Title" xml:space="preserve">
+    <value>Το claim προστέθηκε</value>
+  </data>
+  <data name="Resources.Claims.AddedToScope" xml:space="preserve">
+    <value>Το claim '{{claim}}' περιλαμβάνεται πλέον στην εμβέλεια '{{scope}}'.</value>
+  </data>
+  <data name="Resources.Claims.Removed.Message" xml:space="preserve">
+    <value>Το claim '{{claim}}' αφαιρέθηκε.</value>
+  </data>
+  <data name="Resources.Claims.Removed.Title" xml:space="preserve">
+    <value>Το claim αφαιρέθηκε</value>
+  </data>
+  <data name="Resources.Claims.RemovedFromScope" xml:space="preserve">
+    <value>Το claim '{{claim}}' αφαιρέθηκε από την εμβέλεια '{{scope}}'.</value>
+  </data>
+  <data name="Resources.ClaimsPicker.Available" xml:space="preserve">
+    <value>Διαθέσιμα claims</value>
+  </data>
+  <data name="Resources.ClaimsPicker.Empty" xml:space="preserve">
+    <value>Δεν έχουν συμπεριληφθεί claims ακόμη.</value>
+  </data>
+  <data name="Resources.ClaimsPicker.Selected" xml:space="preserve">
+    <value>Συμπεριλαμβανόμενα claims</value>
+  </data>
+  <data name="Resources.Form.Emphasize" xml:space="preserve">
+    <value>Έμφαση</value>
+  </data>
+  <data name="Resources.Form.EmphasizeHint" xml:space="preserve">
+    <value>Επισημαίνεται στην οθόνη συγκατάθεσης.</value>
+  </data>
+  <data name="Resources.Form.ExamplePlaceholder" xml:space="preserve">
+    <value>π.χ. {{example}}</value>
+  </data>
+  <data name="Resources.Form.NameImmutable" xml:space="preserve">
+    <value>Το όνομα δεν μπορεί να αλλάξει μετά τη δημιουργία.</value>
+  </data>
+  <data name="Resources.Form.NameRequired" xml:space="preserve">
+    <value>Το όνομα είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Resources.Form.ShowInDiscovery" xml:space="preserve">
+    <value>Εμφάνιση στο discovery document</value>
+  </data>
+  <data name="Resources.Form.ShowInDiscoveryHint" xml:space="preserve">
+    <value>Εμφανίζεται στο discovery document του OpenID Connect.</value>
+  </data>
+  <data name="Resources.Identity.ClaimsIntro" xml:space="preserve">
+    <value>Αυτά τα claims χρήστη περιλαμβάνονται στο identity token όταν μια εφαρμογή πελάτης ζητά αυτόν τον πόρο.</value>
+  </data>
+  <data name="Resources.Identity.Delete.Message" xml:space="preserve">
+    <value>Ο πόρος ταυτότητας '{{name}}' θα διαγραφεί οριστικά και οι εφαρμογές πελάτες δεν θα μπορούν πλέον να τον ζητήσουν.</value>
+  </data>
+  <data name="Resources.Identity.Delete.Title" xml:space="preserve">
+    <value>Διαγραφή πόρου ταυτότητας;</value>
+  </data>
+  <data name="Resources.Identity.Deleted.Message" xml:space="preserve">
+    <value>Ο πόρος ταυτότητας '{{name}}' διαγράφηκε.</value>
+  </data>
+  <data name="Resources.Identity.Deleted.Title" xml:space="preserve">
+    <value>Ο πόρος ταυτότητας διαγράφηκε</value>
+  </data>
+  <data name="Resources.Identity.EnabledHint" xml:space="preserve">
+    <value>Οι εφαρμογές πελάτες μπορούν να ζητούν αυτόν τον πόρο.</value>
+  </data>
+  <data name="Resources.Identity.RequiredHint" xml:space="preserve">
+    <value>Οι χρήστες δεν μπορούν να τον αποεπιλέξουν στην οθόνη συγκατάθεσης.</value>
+  </data>
+  <data name="Resources.Identity.Updated.Message" xml:space="preserve">
+    <value>Ο πόρος ταυτότητας '{{name}}' ενημερώθηκε.</value>
+  </data>
+  <data name="Resources.Identity.Updated.Title" xml:space="preserve">
+    <value>Ο πόρος ταυτότητας ενημερώθηκε</value>
+  </data>
+  <data name="Resources.List.Api.EmptyMessage" xml:space="preserve">
+    <value>Δημιουργήστε τον πρώτο πόρο API.</value>
+  </data>
+  <data name="Resources.List.Api.New" xml:space="preserve">
+    <value>Νέος πόρος API</value>
+  </data>
+  <data name="Resources.List.Api.Search" xml:space="preserve">
+    <value>Αναζήτηση πόρων API</value>
+  </data>
+  <data name="Resources.List.Api.Subtitle" xml:space="preserve">
+    <value>Τα API που προστατεύονται από τον identity server, μαζί με τις εμβέλειες, τα claims και τα μυστικά τους.</value>
+  </data>
+  <data name="Resources.List.Claims" xml:space="preserve">
+    <value>Claims</value>
+  </data>
+  <data name="Resources.List.Emphasized" xml:space="preserve">
+    <value>Με έμφαση</value>
+  </data>
+  <data name="Resources.List.Identity.EmptyMessage" xml:space="preserve">
+    <value>Δημιουργήστε τον πρώτο πόρο ταυτότητας.</value>
+  </data>
+  <data name="Resources.List.Identity.New" xml:space="preserve">
+    <value>Νέος πόρος ταυτότητας</value>
+  </data>
+  <data name="Resources.List.Identity.Search" xml:space="preserve">
+    <value>Αναζήτηση πόρων ταυτότητας</value>
+  </data>
+  <data name="Resources.List.Identity.Subtitle" xml:space="preserve">
+    <value>Ομάδες claims χρήστη (όπως profile ή email) που μπορούν να ζητήσουν οι εφαρμογές πελάτες για τον συνδεδεμένο χρήστη.</value>
+  </data>
+  <data name="Resources.List.NoMatches" xml:space="preserve">
+    <value>Δεν βρέθηκαν αποτελέσματα</value>
+  </data>
+  <data name="Resources.List.NothingYet" xml:space="preserve">
+    <value>Δεν υπάρχει τίποτα ακόμη</value>
+  </data>
+  <data name="Resources.List.Open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="Resources.List.OpenItem" xml:space="preserve">
+    <value>Άνοιγμα {{name}}</value>
+  </data>
+  <data name="Resources.List.Scope.EmptyMessage" xml:space="preserve">
+    <value>Δημιουργήστε την πρώτη εμβέλεια API.</value>
+  </data>
+  <data name="Resources.List.Scope.New" xml:space="preserve">
+    <value>Νέα εμβέλεια API</value>
+  </data>
+  <data name="Resources.List.Scope.Search" xml:space="preserve">
+    <value>Αναζήτηση εμβελειών API</value>
+  </data>
+  <data name="Resources.List.Scope.Subtitle" xml:space="preserve">
+    <value>Δικαιώματα που ζητούν οι εφαρμογές πελάτες για να καλούν API εκ μέρους των χρηστών.</value>
+  </data>
+  <data name="Resources.List.TryDifferentSearch" xml:space="preserve">
+    <value>Δοκιμάστε διαφορετικό όρο αναζήτησης.</value>
+  </data>
+  <data name="Resources.Scopes.Added.Message" xml:space="preserve">
+    <value>Η εμβέλεια '{{name}}' προστέθηκε.</value>
+  </data>
+  <data name="Resources.Scopes.Added.Title" xml:space="preserve">
+    <value>Η εμβέλεια προστέθηκε</value>
+  </data>
+  <data name="Resources.Scopes.ClaimsIntro" xml:space="preserve">
+    <value>Περιλαμβάνονται στα access tokens όταν παραχωρείται αυτή η εμβέλεια σε μια εφαρμογή πελάτη.</value>
+  </data>
+  <data name="Resources.Scopes.Delete.Message" xml:space="preserve">
+    <value>Η εμβέλεια '{{name}}' θα διαγραφεί οριστικά και οι εφαρμογές πελάτες δεν θα μπορούν πλέον να τη ζητήσουν.</value>
+  </data>
+  <data name="Resources.Scopes.Delete.Title" xml:space="preserve">
+    <value>Διαγραφή εμβέλειας;</value>
+  </data>
+  <data name="Resources.Scopes.Deleted.Message" xml:space="preserve">
+    <value>Η εμβέλεια '{{name}}' διαγράφηκε.</value>
+  </data>
+  <data name="Resources.Scopes.Deleted.Title" xml:space="preserve">
+    <value>Η εμβέλεια διαγράφηκε</value>
+  </data>
+  <data name="Resources.Scopes.DeleteScope" xml:space="preserve">
+    <value>Διαγραφή εμβέλειας</value>
+  </data>
+  <data name="Resources.Scopes.NotFound.Message" xml:space="preserve">
+    <value>Η εμβέλεια '{{name}}' δεν υπάρχει.</value>
+  </data>
+  <data name="Resources.Scopes.NotFound.Title" xml:space="preserve">
+    <value>Η εμβέλεια δεν βρέθηκε</value>
+  </data>
+  <data name="Resources.Scopes.Save" xml:space="preserve">
+    <value>Αποθήκευση εμβέλειας</value>
+  </data>
+  <data name="Resources.Scopes.Updated.Message" xml:space="preserve">
+    <value>Η εμβέλεια '{{name}}' ενημερώθηκε.</value>
+  </data>
+  <data name="Resources.Scopes.Updated.Title" xml:space="preserve">
+    <value>Η εμβέλεια ενημερώθηκε</value>
+  </data>
+  <data name="Resources.Secrets.Add" xml:space="preserve">
+    <value>Προσθήκη μυστικού</value>
+  </data>
+  <data name="Resources.Secrets.Added.Message" xml:space="preserve">
+    <value>Το μυστικό του API προστέθηκε.</value>
+  </data>
+  <data name="Resources.Secrets.Added.Title" xml:space="preserve">
+    <value>Το μυστικό προστέθηκε</value>
+  </data>
+  <data name="Resources.Secrets.AddTitle" xml:space="preserve">
+    <value>Προσθήκη κοινόχρηστου μυστικού</value>
+  </data>
+  <data name="Resources.Secrets.CopyLabel" xml:space="preserve">
+    <value>τιμή μυστικού</value>
+  </data>
+  <data name="Resources.Secrets.CopyNow" xml:space="preserve">
+    <value>Αντιγράψτε το τώρα: θα αποκρυφτεί μετά την αποθήκευση.</value>
+  </data>
+  <data name="Resources.Secrets.Delete.Message" xml:space="preserve">
+    <value>Το API δεν θα μπορεί πλέον να πιστοποιείται με αυτό το μυστικό.</value>
+  </data>
+  <data name="Resources.Secrets.Delete.Title" xml:space="preserve">
+    <value>Διαγραφή μυστικού;</value>
+  </data>
+  <data name="Resources.Secrets.Deleted.Message" xml:space="preserve">
+    <value>Το μυστικό του API διαγράφηκε.</value>
+  </data>
+  <data name="Resources.Secrets.Deleted.Title" xml:space="preserve">
+    <value>Το μυστικό διαγράφηκε</value>
+  </data>
+  <data name="Resources.Secrets.DeleteSecret" xml:space="preserve">
+    <value>Διαγραφή μυστικού</value>
+  </data>
+  <data name="Resources.Secrets.Empty.Message" xml:space="preserve">
+    <value>Το API χρειάζεται ένα μυστικό για να καλεί το endpoint token introspection.</value>
+  </data>
+  <data name="Resources.Secrets.Empty.Title" xml:space="preserve">
+    <value>Δεν υπάρχουν μυστικά</value>
+  </data>
+  <data name="Resources.Secrets.Expiration" xml:space="preserve">
+    <value>Λήξη</value>
+  </data>
+  <data name="Resources.Secrets.Expired" xml:space="preserve">
+    <value>Έληξε</value>
+  </data>
+  <data name="Resources.Secrets.Generate" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Resources.Secrets.GenerateRandom" xml:space="preserve">
+    <value>Δημιουργία τυχαίας τιμής</value>
+  </data>
+  <data name="Resources.Secrets.Hidden" xml:space="preserve">
+    <value>Κρυφό</value>
+  </data>
+  <data name="Resources.Translations.AddLanguage" xml:space="preserve">
+    <value>Προσθήκη γλώσσας</value>
+  </data>
+  <data name="Resources.Translations.CultureCode" xml:space="preserve">
+    <value>Κωδικός γλώσσας</value>
+  </data>
+  <data name="Resources.Translations.Empty" xml:space="preserve">
+    <value>Δεν υπάρχουν μεταφράσεις. Προσθέστε έναν κωδικό γλώσσας για να μεταφράσετε το εμφανιζόμενο όνομα και την περιγραφή.</value>
+  </data>
+  <data name="Resources.Translations.RemoveCulture" xml:space="preserve">
+    <value>Αφαίρεση {{culture}}</value>
+  </data>
+  <data name="Resources.Translations.Title" xml:space="preserve">
+    <value>Μεταφράσεις</value>
+  </data>
+  <data name="Resources.Types.Api" xml:space="preserve">
+    <value>Πόρος API</value>
+  </data>
+  <data name="Resources.Types.Identity" xml:space="preserve">
+    <value>Πόρος ταυτότητας</value>
+  </data>
+  <data name="Resources.Types.Scope" xml:space="preserve">
+    <value>Εμβέλεια API</value>
+  </data>
+  <data name="Resources.UserClaims" xml:space="preserve">
+    <value>Claims χρήστη</value>
+  </data>
+  <data name="Roles.Delete.Message" xml:space="preserve">
+    <value>Ο ρόλος '{{name}}' θα αφαιρεθεί από όλους τους χρήστες που τον έχουν. Η ενέργεια δεν μπορεί να αναιρεθεί.</value>
+  </data>
+  <data name="Roles.Delete.Title" xml:space="preserve">
+    <value>Διαγραφή ρόλου;</value>
+  </data>
+  <data name="Roles.Edit.Create" xml:space="preserve">
+    <value>Δημιουργία ρόλου</value>
+  </data>
+  <data name="Roles.Edit.DescriptionPlaceholder" xml:space="preserve">
+    <value>Τι δικαιώματα παρέχει αυτός ο ρόλος;</value>
+  </data>
+  <data name="Roles.Edit.NameImmutable" xml:space="preserve">
+    <value>Το όνομα ενός ρόλου δεν μπορεί να αλλάξει μετά τη δημιουργία του.</value>
+  </data>
+  <data name="Roles.Edit.NamePlaceholder" xml:space="preserve">
+    <value>π.χ. Εγκριτής</value>
+  </data>
+  <data name="Roles.Edit.NameRequired" xml:space="preserve">
+    <value>Το όνομα είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Roles.Edit.Role" xml:space="preserve">
+    <value>Ρόλος</value>
+  </data>
+  <data name="Roles.Edit.Subtitle" xml:space="preserve">
+    <value>Οι χρήστες που έχουν αυτόν τον ρόλο εξουσιοδοτούνται μέσω αυτού σε κάθε εφαρμογή.</value>
+  </data>
+  <data name="Roles.Edit.SubtitleNew" xml:space="preserve">
+    <value>Ομαδοποιήστε χρήστες που έχουν την ίδια πρόσβαση.</value>
+  </data>
+  <data name="Roles.List.Empty" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη ρόλοι</value>
+  </data>
+  <data name="Roles.List.EmptyHint" xml:space="preserve">
+    <value>Δημιουργήστε έναν ρόλο για να ομαδοποιήσετε χρήστες με την ίδια πρόσβαση.</value>
+  </data>
+  <data name="Roles.List.NoMatches" xml:space="preserve">
+    <value>Δεν βρέθηκαν ρόλοι</value>
+  </data>
+  <data name="Roles.List.NoMatchesHint" xml:space="preserve">
+    <value>Δοκιμάστε διαφορετικό όρο αναζήτησης.</value>
+  </data>
+  <data name="Roles.List.Open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="Roles.List.OpenItem" xml:space="preserve">
+    <value>Άνοιγμα {{name}}</value>
+  </data>
+  <data name="Roles.List.SearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση ρόλων</value>
+  </data>
+  <data name="Roles.List.Subtitle" xml:space="preserve">
+    <value>Οι ρόλοι ομαδοποιούν τους χρήστες, ώστε οι εφαρμογές να τους εξουσιοδοτούν συνολικά.</value>
+  </data>
+  <data name="Roles.New" xml:space="preserve">
+    <value>Νέος ρόλος</value>
+  </data>
+  <data name="Roles.Toast.CreatedMessage" xml:space="preserve">
+    <value>Ο ρόλος '{{name}}' δημιουργήθηκε.</value>
+  </data>
+  <data name="Roles.Toast.CreatedTitle" xml:space="preserve">
+    <value>Ο ρόλος δημιουργήθηκε</value>
+  </data>
+  <data name="Roles.Toast.DeletedMessage" xml:space="preserve">
+    <value>Ο ρόλος '{{name}}' διαγράφηκε.</value>
+  </data>
+  <data name="Roles.Toast.DeletedTitle" xml:space="preserve">
+    <value>Ο ρόλος διαγράφηκε</value>
+  </data>
+  <data name="Roles.Toast.UpdatedMessage" xml:space="preserve">
+    <value>Ο ρόλος '{{name}}' ενημερώθηκε.</value>
+  </data>
+  <data name="Roles.Toast.UpdatedTitle" xml:space="preserve">
+    <value>Ο ρόλος ενημερώθηκε</value>
+  </data>
+  <data name="Routes.ActivityLogs" xml:space="preserve">
+    <value>Αρχείο δραστηριότητας</value>
+  </data>
+  <data name="Routes.ApiResources" xml:space="preserve">
+    <value>Πόροι API</value>
+  </data>
+  <data name="Routes.ApiScopes" xml:space="preserve">
+    <value>Εμβέλειες API</value>
+  </data>
+  <data name="Routes.Applications" xml:space="preserve">
+    <value>Εφαρμογές</value>
+  </data>
+  <data name="Routes.AppSettings" xml:space="preserve">
+    <value>Ρυθμίσεις εφαρμογής</value>
+  </data>
+  <data name="Routes.Claims" xml:space="preserve">
+    <value>Claims</value>
+  </data>
+  <data name="Routes.ClaimTypes" xml:space="preserve">
+    <value>Τύποι claims</value>
+  </data>
+  <data name="Routes.Client" xml:space="preserve">
+    <value>Εφαρμογή πελάτης</value>
+  </data>
+  <data name="Routes.Clients" xml:space="preserve">
+    <value>Εφαρμογές πελάτες</value>
+  </data>
+  <data name="Routes.Dashboard" xml:space="preserve">
+    <value>Πίνακας ελέγχου</value>
+  </data>
+  <data name="Routes.Devices" xml:space="preserve">
+    <value>Συσκευές</value>
+  </data>
+  <data name="Routes.ExternalLogins" xml:space="preserve">
+    <value>Εξωτερικές συνδέσεις</value>
+  </data>
+  <data name="Routes.IdentityResources" xml:space="preserve">
+    <value>Πόροι ταυτότητας</value>
+  </data>
+  <data name="Routes.NewClient" xml:space="preserve">
+    <value>Νέα εφαρμογή πελάτης</value>
+  </data>
+  <data name="Routes.NewResource" xml:space="preserve">
+    <value>Νέος πόρος</value>
+  </data>
+  <data name="Routes.NewUser" xml:space="preserve">
+    <value>Νέος χρήστης</value>
+  </data>
+  <data name="Routes.Roles" xml:space="preserve">
+    <value>Ρόλοι</value>
+  </data>
+  <data name="Routes.Sessions" xml:space="preserve">
+    <value>Συνεδρίες</value>
+  </data>
+  <data name="Routes.SignInLogs" xml:space="preserve">
+    <value>Αρχείο συνδέσεων</value>
+  </data>
+  <data name="Routes.User" xml:space="preserve">
+    <value>Χρήστης</value>
+  </data>
+  <data name="Routes.Users" xml:space="preserve">
+    <value>Χρήστες</value>
+  </data>
+  <data name="Settings.Delete.Message" xml:space="preserve">
+    <value>Η ρύθμιση '{{name}}' θα διαγραφεί οριστικά.</value>
+  </data>
+  <data name="Settings.Delete.Title" xml:space="preserve">
+    <value>Διαγραφή ρύθμισης;</value>
+  </data>
+  <data name="Settings.Edit.Create" xml:space="preserve">
+    <value>Δημιουργία ρύθμισης</value>
+  </data>
+  <data name="Settings.Edit.KeyImmutable" xml:space="preserve">
+    <value>Το κλειδί δεν μπορεί να αλλάξει· διαγράψτε τη ρύθμιση και δημιουργήστε μια νέα.</value>
+  </data>
+  <data name="Settings.Edit.KeyPlaceholder" xml:space="preserve">
+    <value>π.χ. General:Host</value>
+  </data>
+  <data name="Settings.Edit.KeyRequired" xml:space="preserve">
+    <value>Το κλειδί είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Settings.Edit.Subtitle" xml:space="preserve">
+    <value>Τα κλειδιά ακολουθούν τη σύνταξη διαδρομής διαμόρφωσης, π.χ. Section:Subsection:Name.</value>
+  </data>
+  <data name="Settings.Edit.Title" xml:space="preserve">
+    <value>Επεξεργασία ρύθμισης</value>
+  </data>
+  <data name="Settings.Edit.ValueRequired" xml:space="preserve">
+    <value>Η τιμή είναι υποχρεωτική.</value>
+  </data>
+  <data name="Settings.Fields.Key" xml:space="preserve">
+    <value>Κλειδί</value>
+  </data>
+  <data name="Settings.Import.Confirm" xml:space="preserve">
+    <value>Εισαγωγή</value>
+  </data>
+  <data name="Settings.Import.ReplaceConfirm" xml:space="preserve">
+    <value>Αντικατάσταση ρυθμίσεων</value>
+  </data>
+  <data name="Settings.Import.ReplaceMessage" xml:space="preserve">
+    <value>Οι ρυθμίσεις που είναι αποθηκευμένες στη βάση δεδομένων θα αντικατασταθούν από τις τιμές του αρχείου appsettings.json του διακομιστή.</value>
+  </data>
+  <data name="Settings.Import.SaveMessage" xml:space="preserve">
+    <value>Οι τιμές του αρχείου appsettings.json του διακομιστή θα αποθηκευτούν στη βάση δεδομένων.</value>
+  </data>
+  <data name="Settings.Import.SuccessMessage" xml:space="preserve">
+    <value>Το appsettings.json φορτώθηκε στη βάση δεδομένων.</value>
+  </data>
+  <data name="Settings.Import.SuccessTitle" xml:space="preserve">
+    <value>Οι ρυθμίσεις εισήχθησαν</value>
+  </data>
+  <data name="Settings.Import.Title" xml:space="preserve">
+    <value>Εισαγωγή appsettings.json;</value>
+  </data>
+  <data name="Settings.List.CopyValueLabel" xml:space="preserve">
+    <value>τιμή</value>
+  </data>
+  <data name="Settings.List.Empty" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη ρυθμίσεις</value>
+  </data>
+  <data name="Settings.List.EmptyHint" xml:space="preserve">
+    <value>Προσθέστε μια ρύθμιση ή εισαγάγετε αυτές του appsettings.json.</value>
+  </data>
+  <data name="Settings.List.Import" xml:space="preserve">
+    <value>Εισαγωγή appsettings.json</value>
+  </data>
+  <data name="Settings.List.NoMatches" xml:space="preserve">
+    <value>Δεν βρέθηκαν ρυθμίσεις</value>
+  </data>
+  <data name="Settings.List.NoMatchesHint" xml:space="preserve">
+    <value>Δοκιμάστε διαφορετικό όρο αναζήτησης.</value>
+  </data>
+  <data name="Settings.List.Open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="Settings.List.OpenItem" xml:space="preserve">
+    <value>Άνοιγμα {{name}}</value>
+  </data>
+  <data name="Settings.List.SearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση ρυθμίσεων</value>
+  </data>
+  <data name="Settings.List.Subtitle" xml:space="preserve">
+    <value>Τιμές διαμόρφωσης που διαβάζει ο identity server από τη βάση δεδομένων κατά την εκτέλεση.</value>
+  </data>
+  <data name="Settings.New" xml:space="preserve">
+    <value>Νέα ρύθμιση</value>
+  </data>
+  <data name="Settings.Toast.CreatedMessage" xml:space="preserve">
+    <value>Η ρύθμιση '{{name}}' δημιουργήθηκε.</value>
+  </data>
+  <data name="Settings.Toast.CreatedTitle" xml:space="preserve">
+    <value>Η ρύθμιση δημιουργήθηκε</value>
+  </data>
+  <data name="Settings.Toast.DeletedMessage" xml:space="preserve">
+    <value>Η ρύθμιση '{{name}}' διαγράφηκε.</value>
+  </data>
+  <data name="Settings.Toast.DeletedTitle" xml:space="preserve">
+    <value>Η ρύθμιση διαγράφηκε</value>
+  </data>
+  <data name="Settings.Toast.UpdatedMessage" xml:space="preserve">
+    <value>Η ρύθμιση '{{name}}' ενημερώθηκε.</value>
+  </data>
+  <data name="Settings.Toast.UpdatedTitle" xml:space="preserve">
+    <value>Η ρύθμιση ενημερώθηκε</value>
+  </data>
+  <data name="Shell.Breadcrumb" xml:space="preserve">
+    <value>Διαδρομή πλοήγησης</value>
+  </data>
+  <data name="Shell.CloseMenu" xml:space="preserve">
+    <value>Κλείσιμο μενού</value>
+  </data>
+  <data name="Shell.Create" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="Shell.CreateApiResource" xml:space="preserve">
+    <value>Πόρος API</value>
+  </data>
+  <data name="Shell.CreateClaimType" xml:space="preserve">
+    <value>Τύπος claim</value>
+  </data>
+  <data name="Shell.CreateClient" xml:space="preserve">
+    <value>Εφαρμογή πελάτη</value>
+  </data>
+  <data name="Shell.CreateIdentityResource" xml:space="preserve">
+    <value>Πόρος ταυτότητας</value>
+  </data>
+  <data name="Shell.CreateRole" xml:space="preserve">
+    <value>Ρόλος</value>
+  </data>
+  <data name="Shell.CreateUser" xml:space="preserve">
+    <value>Χρήστης</value>
+  </data>
+  <data name="Shell.Language" xml:space="preserve">
+    <value>Γλώσσα</value>
+  </data>
+  <data name="Shell.MainNavigation" xml:space="preserve">
+    <value>Κύρια πλοήγηση</value>
+  </data>
+  <data name="Shell.OpenMenu" xml:space="preserve">
+    <value>Άνοιγμα μενού</value>
+  </data>
+  <data name="Shell.SignOut" xml:space="preserve">
+    <value>Αποσύνδεση</value>
+  </data>
+  <data name="Shell.Theme" xml:space="preserve">
+    <value>Θέμα</value>
+  </data>
+  <data name="Shell.ThemeDark" xml:space="preserve">
+    <value>Σκοτεινό</value>
+  </data>
+  <data name="Shell.ThemeLight" xml:space="preserve">
+    <value>Φωτεινό</value>
+  </data>
+  <data name="Shell.ThemeSystem" xml:space="preserve">
+    <value>Συστήματος</value>
+  </data>
+  <data name="SignInLogs.Details.DefaultTitle" xml:space="preserve">
+    <value>Συμβάν σύνδεσης</value>
+  </data>
+  <data name="SignInLogs.Details.RawMetadata" xml:space="preserve">
+    <value>Ακατέργαστα μεταδεδομένα</value>
+  </data>
+  <data name="SignInLogs.Details.Request" xml:space="preserve">
+    <value>Αίτημα</value>
+  </data>
+  <data name="SignInLogs.Details.Tokens" xml:space="preserve">
+    <value>Tokens</value>
+  </data>
+  <data name="SignInLogs.Details.WhoAndWhere" xml:space="preserve">
+    <value>Ποιος &amp; πού</value>
+  </data>
+  <data name="SignInLogs.Empty.LoadFailed" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η φόρτωση του αρχείου συνδέσεων</value>
+  </data>
+  <data name="SignInLogs.Empty.Message" xml:space="preserve">
+    <value>Τα συμβάντα σύνδεσης θα εμφανίζονται εδώ καθώς οι χρήστες ταυτοποιούνται.</value>
+  </data>
+  <data name="SignInLogs.Empty.Title" xml:space="preserve">
+    <value>Δεν υπάρχουν συμβάντα σύνδεσης</value>
+  </data>
+  <data name="SignInLogs.Fields.AuthMethods" xml:space="preserve">
+    <value>Μέθοδοι ταυτοποίησης</value>
+  </data>
+  <data name="SignInLogs.Fields.Endpoint" xml:space="preserve">
+    <value>Endpoint</value>
+  </data>
+  <data name="SignInLogs.Fields.GrantType" xml:space="preserve">
+    <value>Grant type</value>
+  </data>
+  <data name="SignInLogs.Fields.IdentityProvider" xml:space="preserve">
+    <value>Πάροχος ταυτότητας</value>
+  </data>
+  <data name="SignInLogs.Fields.RedirectUri" xml:space="preserve">
+    <value>Redirect URI</value>
+  </data>
+  <data name="SignInLogs.Fields.Scope" xml:space="preserve">
+    <value>Scope</value>
+  </data>
+  <data name="SignInLogs.Fields.SignInType" xml:space="preserve">
+    <value>Τύπος σύνδεσης</value>
+  </data>
+  <data name="SignInLogs.Filters.AllSignInTypes" xml:space="preserve">
+    <value>Όλοι οι τύποι σύνδεσης</value>
+  </data>
+  <data name="SignInLogs.Filters.SearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση στο αρχείο</value>
+  </data>
+  <data name="SignInLogs.Page.Subtitle" xml:space="preserve">
+    <value>Κάθε απόπειρα ταυτοποίησης στον identity server, επιτυχημένη ή όχι.</value>
+  </data>
+  <data name="SignInLogs.SignInTypes.Interactive" xml:space="preserve">
+    <value>Διαδραστική</value>
+  </data>
+  <data name="SignInLogs.SignInTypes.NonInteractive" xml:space="preserve">
+    <value>Μη διαδραστική</value>
+  </data>
+  <data name="SignInLogs.Warnings.ImpossibleTravel" xml:space="preserve">
+    <value>Αδύνατη μετακίνηση</value>
+  </data>
+  <data name="Ui.Avatar.Alt" xml:space="preserve">
+    <value>Εικόνα προφίλ {{name}}</value>
+  </data>
+  <data name="Ui.CopyButton.CopyLabel" xml:space="preserve">
+    <value>Αντιγραφή: {{label}}</value>
+  </data>
+  <data name="Ui.CopyButton.CopyToClipboard" xml:space="preserve">
+    <value>Αντιγραφή στο πρόχειρο</value>
+  </data>
+  <data name="Ui.Pagination.NextPage" xml:space="preserve">
+    <value>Επόμενη σελίδα</value>
+  </data>
+  <data name="Ui.Pagination.NoResults" xml:space="preserve">
+    <value>Κανένα αποτέλεσμα</value>
+  </data>
+  <data name="Ui.Pagination.Of" xml:space="preserve">
+    <value>από</value>
+  </data>
+  <data name="Ui.Pagination.PerPage" xml:space="preserve">
+    <value>Ανά σελίδα</value>
+  </data>
+  <data name="Ui.Pagination.PreviousPage" xml:space="preserve">
+    <value>Προηγούμενη σελίδα</value>
+  </data>
+  <data name="Ui.Toast.Dismiss" xml:space="preserve">
+    <value>Κλείσιμο ειδοποίησης</value>
+  </data>
+  <data name="Ui.TransferList.AddItem" xml:space="preserve">
+    <value>Προσθήκη: {{label}}</value>
+  </data>
+  <data name="Ui.TransferList.Assigned" xml:space="preserve">
+    <value>Ανατεθειμένα</value>
+  </data>
+  <data name="Ui.TransferList.Available" xml:space="preserve">
+    <value>Διαθέσιμα</value>
+  </data>
+  <data name="Ui.TransferList.EmptyAvailable" xml:space="preserve">
+    <value>Δεν απομένει τίποτα για προσθήκη.</value>
+  </data>
+  <data name="Ui.TransferList.EmptySelected" xml:space="preserve">
+    <value>Δεν έχει ανατεθεί τίποτα ακόμη.</value>
+  </data>
+  <data name="Ui.TransferList.FilterPlaceholder" xml:space="preserve">
+    <value>Φιλτράρισμα…</value>
+  </data>
+  <data name="Ui.TransferList.NoMatches" xml:space="preserve">
+    <value>Δεν βρέθηκαν αντιστοιχίες.</value>
+  </data>
+  <data name="Ui.TransferList.RemoveItem" xml:space="preserve">
+    <value>Αφαίρεση: {{label}}</value>
+  </data>
+  <data name="Users.Actions.Block" xml:space="preserve">
+    <value>Αποκλεισμός</value>
+  </data>
+  <data name="Users.Actions.ClearActionLimits" xml:space="preserve">
+    <value>Εκκαθάριση ορίων ενεργειών</value>
+  </data>
+  <data name="Users.Actions.DeleteUser" xml:space="preserve">
+    <value>Διαγραφή χρήστη</value>
+  </data>
+  <data name="Users.Actions.RemovePassword" xml:space="preserve">
+    <value>Αφαίρεση κωδικού πρόσβασης</value>
+  </data>
+  <data name="Users.Actions.ResendConfirmation" xml:space="preserve">
+    <value>Επαναποστολή email επιβεβαίωσης</value>
+  </data>
+  <data name="Users.Actions.ResetMfa" xml:space="preserve">
+    <value>Επαναφορά MFA</value>
+  </data>
+  <data name="Users.Actions.SetPassword" xml:space="preserve">
+    <value>Ορισμός κωδικού πρόσβασης</value>
+  </data>
+  <data name="Users.Actions.Unblock" xml:space="preserve">
+    <value>Άρση αποκλεισμού</value>
+  </data>
+  <data name="Users.Actions.Unlock" xml:space="preserve">
+    <value>Ξεκλείδωμα</value>
+  </data>
+  <data name="Users.Add.ClaimsIntro" xml:space="preserve">
+    <value>Προαιρετικά στοιχεία που αποθηκεύονται ως claims του χρήστη. Μπορείτε να τα προσθέσετε και αργότερα.</value>
+  </data>
+  <data name="Users.Add.CreateAndConfigure" xml:space="preserve">
+    <value>Δημιουργία &amp; ρύθμιση</value>
+  </data>
+  <data name="Users.Add.CreatedMessage" xml:space="preserve">
+    <value>Ο χρήστης «{{name}}» δημιουργήθηκε.</value>
+  </data>
+  <data name="Users.Add.CreatedTitle" xml:space="preserve">
+    <value>Ο χρήστης δημιουργήθηκε</value>
+  </data>
+  <data name="Users.Add.EmailAsUserName" xml:space="preserve">
+    <value>Χρήση του email ως ονόματος χρήστη</value>
+  </data>
+  <data name="Users.Add.NoClaims" xml:space="preserve">
+    <value>Δεν υπάρχουν πρόσθετα claims.</value>
+  </data>
+  <data name="Users.Add.NoRolesAssigned" xml:space="preserve">
+    <value>Δεν έχουν ανατεθεί ακόμη ρόλοι.</value>
+  </data>
+  <data name="Users.Add.Subtitle" xml:space="preserve">
+    <value>Δημιουργήστε έναν λογαριασμό που μπορεί να συνδεθεί μέσω του διακομιστή ταυτότητας.</value>
+  </data>
+  <data name="Users.Applications.AccessRevoked" xml:space="preserve">
+    <value>Η πρόσβαση ανακλήθηκε</value>
+  </data>
+  <data name="Users.Applications.AccessRevokedMessage" xml:space="preserve">
+    <value>Η εφαρμογή «{{app}}» δεν έχει πλέον πρόσβαση.</value>
+  </data>
+  <data name="Users.Applications.AllRevokedMessage" xml:space="preserve">
+    <value>Όλα τα grants των εφαρμογών διαγράφηκαν.</value>
+  </data>
+  <data name="Users.Applications.EmptyMessage" xml:space="preserve">
+    <value>Ο χρήστης δεν έχει παραχωρήσει πρόσβαση σε καμία εφαρμογή.</value>
+  </data>
+  <data name="Users.Applications.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν εφαρμογές</value>
+  </data>
+  <data name="Users.Applications.Expires" xml:space="preserve">
+    <value>Λήγει</value>
+  </data>
+  <data name="Users.Applications.Granted" xml:space="preserve">
+    <value>Χορηγήθηκε</value>
+  </data>
+  <data name="Users.Applications.Intro" xml:space="preserve">
+    <value>Εφαρμογές που διαθέτουν grants για αυτόν τον χρήστη. Η ανάκληση διαγράφει τα grants, οπότε η εφαρμογή θα πρέπει να ζητήσει ξανά συναίνεση.</value>
+  </data>
+  <data name="Users.Applications.OpenApplication" xml:space="preserve">
+    <value>Άνοιγμα εφαρμογής</value>
+  </data>
+  <data name="Users.Applications.Revoke" xml:space="preserve">
+    <value>Ανάκληση</value>
+  </data>
+  <data name="Users.Applications.RevokeAccess" xml:space="preserve">
+    <value>Ανάκληση πρόσβασης</value>
+  </data>
+  <data name="Users.Applications.RevokeAll" xml:space="preserve">
+    <value>Ανάκληση όλων</value>
+  </data>
+  <data name="Users.Applications.RevokeAllMessage" xml:space="preserve">
+    <value>Όλα τα grants του χρήστη {{name}} θα διαγραφούν, για κάθε εφαρμογή.</value>
+  </data>
+  <data name="Users.Applications.RevokeAllTitle" xml:space="preserve">
+    <value>Ανάκληση όλων των εφαρμογών;</value>
+  </data>
+  <data name="Users.Applications.RevokeMessage" xml:space="preserve">
+    <value>Όλα τα grants του χρήστη {{name}} για την εφαρμογή «{{app}}» θα διαγραφούν.</value>
+  </data>
+  <data name="Users.Applications.RevokeTitle" xml:space="preserve">
+    <value>Ανάκληση πρόσβασης;</value>
+  </data>
+  <data name="Users.ClaimEdit.Added" xml:space="preserve">
+    <value>Το claim προστέθηκε</value>
+  </data>
+  <data name="Users.ClaimEdit.AddSubtitle" xml:space="preserve">
+    <value>Αποθηκεύστε ένα επιπλέον στοιχείο για τον χρήστη.</value>
+  </data>
+  <data name="Users.ClaimEdit.EditSubtitle" xml:space="preserve">
+    <value>Αλλάξτε την τιμή αυτού του claim.</value>
+  </data>
+  <data name="Users.ClaimEdit.EditTitle" xml:space="preserve">
+    <value>Επεξεργασία claim</value>
+  </data>
+  <data name="Users.ClaimEdit.SavedMessage" xml:space="preserve">
+    <value>Το claim «{{type}}» αποθηκεύτηκε.</value>
+  </data>
+  <data name="Users.ClaimEdit.Updated" xml:space="preserve">
+    <value>Το claim ενημερώθηκε</value>
+  </data>
+  <data name="Users.Claims.AddClaim" xml:space="preserve">
+    <value>Προσθήκη claim</value>
+  </data>
+  <data name="Users.Claims.Claim" xml:space="preserve">
+    <value>Claim</value>
+  </data>
+  <data name="Users.Claims.Deleted" xml:space="preserve">
+    <value>Το claim διαγράφηκε</value>
+  </data>
+  <data name="Users.Claims.DeletedMessage" xml:space="preserve">
+    <value>Το claim «{{type}}» αφαιρέθηκε.</value>
+  </data>
+  <data name="Users.Claims.DeleteMessage" xml:space="preserve">
+    <value>Το claim «{{type}}» θα αφαιρεθεί από τον χρήστη {{name}}.</value>
+  </data>
+  <data name="Users.Claims.DeleteTitle" xml:space="preserve">
+    <value>Διαγραφή claim;</value>
+  </data>
+  <data name="Users.Claims.EmptyMessage" xml:space="preserve">
+    <value>Ο χρήστης δεν έχει ακόμη claims.</value>
+  </data>
+  <data name="Users.Claims.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν claims</value>
+  </data>
+  <data name="Users.Claims.Intro" xml:space="preserve">
+    <value>Τα claims περιγράφουν τον χρήστη στις εφαρμογές, π.χ. το όνομα, την ημερομηνία γέννησης ή τη γλώσσα του.</value>
+  </data>
+  <data name="Users.Claims.SelectClaim" xml:space="preserve">
+    <value>Επιλέξτε claim…</value>
+  </data>
+  <data name="Users.ClaimValue.SelectValue" xml:space="preserve">
+    <value>Επιλέξτε τιμή…</value>
+  </data>
+  <data name="Users.Details.Account" xml:space="preserve">
+    <value>Λογαριασμός</value>
+  </data>
+  <data name="Users.Details.AccountHint" xml:space="preserve">
+    <value>Πώς συνδέεται ο χρήστης και πώς μπορείτε να επικοινωνήσετε μαζί του.</value>
+  </data>
+  <data name="Users.Details.Activity" xml:space="preserve">
+    <value>Δραστηριότητα</value>
+  </data>
+  <data name="Users.Details.BypassEmailPolicy" xml:space="preserve">
+    <value>Παράκαμψη της πολιτικής «email ως όνομα χρήστη»</value>
+  </data>
+  <data name="Users.Details.CurrentPasswordExpires" xml:space="preserve">
+    <value>Ο τρέχων κωδικός πρόσβασης λήγει στις {{date}}</value>
+  </data>
+  <data name="Users.Details.FailedAttempts" xml:space="preserve">
+    <value>Αποτυχημένες προσπάθειες σύνδεσης</value>
+  </data>
+  <data name="Users.Details.Lockout" xml:space="preserve">
+    <value>Κλείδωμα λογαριασμού</value>
+  </data>
+  <data name="Users.Details.MfaPolicy" xml:space="preserve">
+    <value>Πολιτική MFA</value>
+  </data>
+  <data name="Users.Details.NotSet" xml:space="preserve">
+    <value>Δεν έχει οριστεί</value>
+  </data>
+  <data name="Users.Details.PasswordExpires" xml:space="preserve">
+    <value>Λήξη κωδικού πρόσβασης</value>
+  </data>
+  <data name="Users.Details.PasswordNeverExpires" xml:space="preserve">
+    <value>Ο τρέχων κωδικός πρόσβασης δεν λήγει.</value>
+  </data>
+  <data name="Users.Details.RequiredDetails" xml:space="preserve">
+    <value>Υποχρεωτικά στοιχεία</value>
+  </data>
+  <data name="Users.Details.RequiredDetailsHint" xml:space="preserve">
+    <value>Claims που πρέπει να έχει κάθε χρήστης.</value>
+  </data>
+  <data name="Users.Details.SavedMessage" xml:space="preserve">
+    <value>Ο χρήστης «{{name}}» αποθηκεύτηκε.</value>
+  </data>
+  <data name="Users.Details.Security" xml:space="preserve">
+    <value>Ασφάλεια</value>
+  </data>
+  <data name="Users.Details.SecurityHint" xml:space="preserve">
+    <value>Πολυπαραγοντική αυθεντικοποίηση και ανανέωση κωδικού πρόσβασης.</value>
+  </data>
+  <data name="Users.Devices.Blocked" xml:space="preserve">
+    <value>Αποκλεισμένη</value>
+  </data>
+  <data name="Users.Devices.Deleted" xml:space="preserve">
+    <value>Η συσκευή διαγράφηκε</value>
+  </data>
+  <data name="Users.Devices.DeleteDevice" xml:space="preserve">
+    <value>Διαγραφή συσκευής</value>
+  </data>
+  <data name="Users.Devices.DeleteMessage" xml:space="preserve">
+    <value>Η συσκευή «{{device}}» θα αφαιρεθεί από τις συσκευές του χρήστη {{name}}.</value>
+  </data>
+  <data name="Users.Devices.DeleteTitle" xml:space="preserve">
+    <value>Διαγραφή συσκευής;</value>
+  </data>
+  <data name="Users.Devices.Device" xml:space="preserve">
+    <value>Συσκευή</value>
+  </data>
+  <data name="Users.Devices.DeviceIdLabel" xml:space="preserve">
+    <value>αναγνωριστικό συσκευής</value>
+  </data>
+  <data name="Users.Devices.EmptyMessage" xml:space="preserve">
+    <value>Ο χρήστης δεν έχει καταχωρίσει καμία συσκευή.</value>
+  </data>
+  <data name="Users.Devices.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν συσκευές</value>
+  </data>
+  <data name="Users.Devices.Fingerprint" xml:space="preserve">
+    <value>Δακτυλικό αποτύπωμα</value>
+  </data>
+  <data name="Users.Devices.Intro" xml:space="preserve">
+    <value>Προγράμματα περιήγησης και εφαρμογές που έχει καταχωρίσει ο χρήστης, για ροές αξιόπιστων συσκευών και ειδοποιήσεων push.</value>
+  </data>
+  <data name="Users.Devices.Pin" xml:space="preserve">
+    <value>PIN</value>
+  </data>
+  <data name="Users.Devices.Platform" xml:space="preserve">
+    <value>Πλατφόρμα</value>
+  </data>
+  <data name="Users.Devices.Push" xml:space="preserve">
+    <value>Push</value>
+  </data>
+  <data name="Users.Devices.Trusted" xml:space="preserve">
+    <value>Αξιόπιστη</value>
+  </data>
+  <data name="Users.Devices.Unnamed" xml:space="preserve">
+    <value>Συσκευή χωρίς όνομα</value>
+  </data>
+  <data name="Users.Edit.BackToUsers" xml:space="preserve">
+    <value>Επιστροφή στους χρήστες</value>
+  </data>
+  <data name="Users.Edit.BlockedAlert" xml:space="preserve">
+    <value>Ο χρήστης είναι αποκλεισμένος και δεν μπορεί να συνδεθεί μέχρι να άρει τον αποκλεισμό ένας διαχειριστής.</value>
+  </data>
+  <data name="Users.Edit.BlockedToast" xml:space="preserve">
+    <value>Ο χρήστης αποκλείστηκε</value>
+  </data>
+  <data name="Users.Edit.BlockMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} δεν θα μπορεί να συνδεθεί μέχρι να αρθεί ο αποκλεισμός.</value>
+  </data>
+  <data name="Users.Edit.BlockTitle" xml:space="preserve">
+    <value>Αποκλεισμός χρήστη;</value>
+  </data>
+  <data name="Users.Edit.ClearLimitsMessage" xml:space="preserve">
+    <value>Οι μετρητές ορίων ενεργειών του χρήστη {{name}} θα μηδενιστούν.</value>
+  </data>
+  <data name="Users.Edit.ClearLimitsTitle" xml:space="preserve">
+    <value>Εκκαθάριση ορίων ενεργειών;</value>
+  </data>
+  <data name="Users.Edit.DeletedToast" xml:space="preserve">
+    <value>Ο χρήστης διαγράφηκε</value>
+  </data>
+  <data name="Users.Edit.DeleteMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} θα διαγραφεί οριστικά, μαζί με τα claims, τους ρόλους και τις συνδέσεις του. Η ενέργεια δεν μπορεί να αναιρεθεί.</value>
+  </data>
+  <data name="Users.Edit.DeleteTitle" xml:space="preserve">
+    <value>Διαγραφή χρήστη;</value>
+  </data>
+  <data name="Users.Edit.EmailSentMessage" xml:space="preserve">
+    <value>Στάλθηκε νέο email επιβεβαίωσης στη διεύθυνση {{email}}.</value>
+  </data>
+  <data name="Users.Edit.EmailSentTitle" xml:space="preserve">
+    <value>Το email στάλθηκε</value>
+  </data>
+  <data name="Users.Edit.LastSignIn" xml:space="preserve">
+    <value>Τελευταία σύνδεση {{date}}</value>
+  </data>
+  <data name="Users.Edit.LimitsClearedToast" xml:space="preserve">
+    <value>Τα όρια ενεργειών εκκαθαρίστηκαν</value>
+  </data>
+  <data name="Users.Edit.LockedOutAlert" xml:space="preserve">
+    <value>Ο χρήστης είναι κλειδωμένος έως {{date}} μετά από {{count}} αποτυχημένες προσπάθειες σύνδεσης.</value>
+  </data>
+  <data name="Users.Edit.MfaResetToast" xml:space="preserve">
+    <value>Έγινε επαναφορά του MFA</value>
+  </data>
+  <data name="Users.Edit.MoreActions" xml:space="preserve">
+    <value>Περισσότερες ενέργειες</value>
+  </data>
+  <data name="Users.Edit.Never" xml:space="preserve">
+    <value>ποτέ</value>
+  </data>
+  <data name="Users.Edit.NotFoundMessage" xml:space="preserve">
+    <value>Ο χρήστης μπορεί να έχει διαγραφεί ή ακολουθήσατε έναν μη έγκυρο σύνδεσμο.</value>
+  </data>
+  <data name="Users.Edit.NotFoundTitle" xml:space="preserve">
+    <value>Ο χρήστης δεν βρέθηκε</value>
+  </data>
+  <data name="Users.Edit.PasswordRemovedToast" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασης αφαιρέθηκε</value>
+  </data>
+  <data name="Users.Edit.RemovePasswordMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} θα μπορεί να συνδεθεί μόνο με εξωτερική σύνδεση ή με μέθοδο χωρίς κωδικό πρόσβασης.</value>
+  </data>
+  <data name="Users.Edit.RemovePasswordTitle" xml:space="preserve">
+    <value>Αφαίρεση κωδικού πρόσβασης;</value>
+  </data>
+  <data name="Users.Edit.ResetMfaMessage" xml:space="preserve">
+    <value>Οι ρυθμίσεις πολυπαραγοντικής αυθεντικοποίησης του χρήστη {{name}}, συμπεριλαμβανομένων των κλειδιών της εφαρμογής authenticator, θα διαγραφούν. Ανάλογα με την πολιτική MFA, θα του ζητηθεί να εγγραφεί ξανά.</value>
+  </data>
+  <data name="Users.Edit.ResetMfaTitle" xml:space="preserve">
+    <value>Επαναφορά MFA;</value>
+  </data>
+  <data name="Users.Edit.TheUser" xml:space="preserve">
+    <value>χωρίς όνομα</value>
+  </data>
+  <data name="Users.Edit.UnblockedToast" xml:space="preserve">
+    <value>Ο αποκλεισμός του χρήστη άρθηκε</value>
+  </data>
+  <data name="Users.Edit.UnblockMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} θα μπορεί να συνδεθεί ξανά.</value>
+  </data>
+  <data name="Users.Edit.UnblockTitle" xml:space="preserve">
+    <value>Άρση αποκλεισμού χρήστη;</value>
+  </data>
+  <data name="Users.Edit.UnlockedToast" xml:space="preserve">
+    <value>Ο χρήστης ξεκλειδώθηκε</value>
+  </data>
+  <data name="Users.Edit.UnlockMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} θα μπορεί να συνδεθεί ξανά αμέσως.</value>
+  </data>
+  <data name="Users.Edit.UnlockTitle" xml:space="preserve">
+    <value>Ξεκλείδωμα χρήστη;</value>
+  </data>
+  <data name="Users.Edit.UserIdLabel" xml:space="preserve">
+    <value>αναγνωριστικό χρήστη</value>
+  </data>
+  <data name="Users.Fields.BypassPasswordValidation" xml:space="preserve">
+    <value>Παράλειψη ελέγχου πολιτικής κωδικών πρόσβασης</value>
+  </data>
+  <data name="Users.Fields.ChangePasswordAtFirstSignIn" xml:space="preserve">
+    <value>Απαίτηση νέου κωδικού πρόσβασης στην πρώτη σύνδεση</value>
+  </data>
+  <data name="Users.Fields.EmailVerified" xml:space="preserve">
+    <value>Το email είναι επιβεβαιωμένο</value>
+  </data>
+  <data name="Users.Fields.FirstName" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Users.Fields.LastName" xml:space="preserve">
+    <value>Επώνυμο</value>
+  </data>
+  <data name="Users.Fields.LastSignIn" xml:space="preserve">
+    <value>Τελευταία σύνδεση</value>
+  </data>
+  <data name="Users.Fields.Password" xml:space="preserve">
+    <value>Κωδικός πρόσβασης</value>
+  </data>
+  <data name="Users.Fields.PhoneVerified" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου είναι επιβεβαιωμένος</value>
+  </data>
+  <data name="Users.Fields.UserName" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="Users.Filters.Blocked" xml:space="preserve">
+    <value>Αποκλεισμένοι</value>
+  </data>
+  <data name="Users.Filters.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Users.Filters.LockedOut" xml:space="preserve">
+    <value>Κλειδωμένοι</value>
+  </data>
+  <data name="Users.Filters.Mfa" xml:space="preserve">
+    <value>MFA</value>
+  </data>
+  <data name="Users.Filters.Phone" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="Users.List.Any" xml:space="preserve">
+    <value>Οποιοδήποτε</value>
+  </data>
+  <data name="Users.List.ClearAll" xml:space="preserve">
+    <value>Εκκαθάριση όλων</value>
+  </data>
+  <data name="Users.List.ClearFilters" xml:space="preserve">
+    <value>Καθαρισμός φίλτρων</value>
+  </data>
+  <data name="Users.List.ColumnPhone" xml:space="preserve">
+    <value>Τηλέφωνο</value>
+  </data>
+  <data name="Users.List.EmptyFilteredMessage" xml:space="preserve">
+    <value>Δοκιμάστε διαφορετικό όρο αναζήτησης ή καθαρίστε τα φίλτρα.</value>
+  </data>
+  <data name="Users.List.EmptyFilteredTitle" xml:space="preserve">
+    <value>Δεν βρέθηκαν χρήστες</value>
+  </data>
+  <data name="Users.List.EmptyMessage" xml:space="preserve">
+    <value>Δημιουργήστε τον πρώτο χρήστη για να ξεκινήσετε.</value>
+  </data>
+  <data name="Users.List.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη χρήστες</value>
+  </data>
+  <data name="Users.List.FilterByStatus" xml:space="preserve">
+    <value>Φιλτράρισμα κατά κατάσταση</value>
+  </data>
+  <data name="Users.List.Open" xml:space="preserve">
+    <value>Άνοιγμα</value>
+  </data>
+  <data name="Users.List.OpenUser" xml:space="preserve">
+    <value>Άνοιγμα {{name}}</value>
+  </data>
+  <data name="Users.List.RemoveFilter" xml:space="preserve">
+    <value>Αφαίρεση φίλτρου {{name}}</value>
+  </data>
+  <data name="Users.List.SearchPlaceholder" xml:space="preserve">
+    <value>Αναζήτηση με όνομα, email ή όνομα χρήστη</value>
+  </data>
+  <data name="Users.List.Subtitle" xml:space="preserve">
+    <value>Όλοι όσοι μπορούν να συνδεθούν μέσω του διακομιστή ταυτότητας.</value>
+  </data>
+  <data name="Users.Logins.EmptyMessage" xml:space="preserve">
+    <value>Ο χρήστης συνδέεται μόνο με τοπικό λογαριασμό.</value>
+  </data>
+  <data name="Users.Logins.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν εξωτερικές συνδέσεις</value>
+  </data>
+  <data name="Users.Logins.Intro" xml:space="preserve">
+    <value>Εξωτερικοί πάροχοι ταυτότητας με τους οποίους μπορεί να συνδεθεί ο χρήστης.</value>
+  </data>
+  <data name="Users.Logins.Provider" xml:space="preserve">
+    <value>Πάροχος</value>
+  </data>
+  <data name="Users.Logins.ProviderKey" xml:space="preserve">
+    <value>Κλειδί παρόχου</value>
+  </data>
+  <data name="Users.Logins.Removed" xml:space="preserve">
+    <value>Η εξωτερική σύνδεση αφαιρέθηκε</value>
+  </data>
+  <data name="Users.Logins.RemovedMessage" xml:space="preserve">
+    <value>Η σύνδεση «{{provider}}» αποσυνδέθηκε.</value>
+  </data>
+  <data name="Users.Logins.RemoveMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} δεν θα μπορεί πλέον να συνδεθεί με {{provider}}.</value>
+  </data>
+  <data name="Users.Logins.RemoveTitle" xml:space="preserve">
+    <value>Αφαίρεση εξωτερικής σύνδεσης;</value>
+  </data>
+  <data name="Users.Password.DoNotNotify" xml:space="preserve">
+    <value>Να μην ειδοποιηθεί ο χρήστης</value>
+  </data>
+  <data name="Users.Password.Hide" xml:space="preserve">
+    <value>Απόκρυψη κωδικού πρόσβασης</value>
+  </data>
+  <data name="Users.Password.NewPassword" xml:space="preserve">
+    <value>Νέος κωδικός πρόσβασης</value>
+  </data>
+  <data name="Users.Password.RequireChange" xml:space="preserve">
+    <value>Απαίτηση επιλογής νέου κωδικού πρόσβασης κατά την επόμενη σύνδεση του χρήστη</value>
+  </data>
+  <data name="Users.Password.RuleMet" xml:space="preserve">
+    <value>ικανοποιείται</value>
+  </data>
+  <data name="Users.Password.RuleNotMet" xml:space="preserve">
+    <value>δεν ικανοποιείται</value>
+  </data>
+  <data name="Users.Password.Rules" xml:space="preserve">
+    <value>Απαιτήσεις κωδικού πρόσβασης</value>
+  </data>
+  <data name="Users.Password.SetMessage" xml:space="preserve">
+    <value>Ο νέος κωδικός πρόσβασης είναι ενεργός.</value>
+  </data>
+  <data name="Users.Password.SetToast" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασης ορίστηκε</value>
+  </data>
+  <data name="Users.Password.Show" xml:space="preserve">
+    <value>Εμφάνιση κωδικού πρόσβασης</value>
+  </data>
+  <data name="Users.Password.Subtitle" xml:space="preserve">
+    <value>Αντικαθιστά τον τρέχοντα κωδικό πρόσβασης του χρήστη.</value>
+  </data>
+  <data name="Users.Picture.Change" xml:space="preserve">
+    <value>Αλλαγή εικόνας προφίλ</value>
+  </data>
+  <data name="Users.Picture.ChooseAnother" xml:space="preserve">
+    <value>Επιλογή άλλης</value>
+  </data>
+  <data name="Users.Picture.CurrentAlt" xml:space="preserve">
+    <value>Τρέχουσα εικόνα προφίλ</value>
+  </data>
+  <data name="Users.Picture.DragHint" xml:space="preserve">
+    <value>Σύρετε για αλλαγή θέσης</value>
+  </data>
+  <data name="Users.Picture.Removed" xml:space="preserve">
+    <value>Η εικόνα προφίλ αφαιρέθηκε</value>
+  </data>
+  <data name="Users.Picture.Title" xml:space="preserve">
+    <value>Εικόνα προφίλ</value>
+  </data>
+  <data name="Users.Picture.Updated" xml:space="preserve">
+    <value>Η εικόνα προφίλ ενημερώθηκε</value>
+  </data>
+  <data name="Users.Picture.Upload" xml:space="preserve">
+    <value>Μεταφόρτωση εικόνας</value>
+  </data>
+  <data name="Users.Picture.Zoom" xml:space="preserve">
+    <value>Μεγέθυνση</value>
+  </data>
+  <data name="Users.Policies.Mfa.Default" xml:space="preserve">
+    <value>Προεπιλογή</value>
+  </data>
+  <data name="Users.Policies.Mfa.Enforced" xml:space="preserve">
+    <value>Υποχρεωτικό</value>
+  </data>
+  <data name="Users.Policies.Mfa.Optional" xml:space="preserve">
+    <value>Προαιρετικό</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Annually" xml:space="preserve">
+    <value>Ετήσια</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Biannually" xml:space="preserve">
+    <value>Ανά διετία</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Monthly" xml:space="preserve">
+    <value>Μηνιαία</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Never" xml:space="preserve">
+    <value>Ποτέ</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Quarterly" xml:space="preserve">
+    <value>Ανά τρίμηνο</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Semesterly" xml:space="preserve">
+    <value>Ανά εξάμηνο</value>
+  </data>
+  <data name="Users.Roles.AssignedTitle" xml:space="preserve">
+    <value>Ανατεθειμένοι ρόλοι</value>
+  </data>
+  <data name="Users.Roles.AvailableTitle" xml:space="preserve">
+    <value>Διαθέσιμοι ρόλοι</value>
+  </data>
+  <data name="Users.Roles.EmptyAvailable" xml:space="preserve">
+    <value>Δεν υπάρχουν άλλοι ρόλοι προς ανάθεση.</value>
+  </data>
+  <data name="Users.Roles.EmptySelected" xml:space="preserve">
+    <value>Ο χρήστης δεν έχει ρόλους.</value>
+  </data>
+  <data name="Users.Roles.GlobalAdminHint" xml:space="preserve">
+    <value>Οι διαχειριστές έχουν πλήρη πρόσβαση στο IAM UI και σε κάθε API διαχείρισης, ανεξάρτητα από τους ρόλους.</value>
+  </data>
+  <data name="Users.Roles.MakeAdmin" xml:space="preserve">
+    <value>Ορισμός ως διαχειριστή</value>
+  </data>
+  <data name="Users.Roles.MakeAdminMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} θα αποκτήσει πλήρη πρόσβαση σε κάθε λειτουργία διαχείρισης.</value>
+  </data>
+  <data name="Users.Roles.MakeAdminTitle" xml:space="preserve">
+    <value>Ορισμός ως γενικού διαχειριστή;</value>
+  </data>
+  <data name="Users.Roles.NoLongerAdmin" xml:space="preserve">
+    <value>Ο χρήστης δεν είναι πλέον γενικός διαχειριστής.</value>
+  </data>
+  <data name="Users.Roles.NowAdmin" xml:space="preserve">
+    <value>Ο χρήστης είναι πλέον γενικός διαχειριστής.</value>
+  </data>
+  <data name="Users.Roles.RemoveAdminMessage" xml:space="preserve">
+    <value>Ο χρήστης {{name}} θα διατηρήσει μόνο την πρόσβαση που του παρέχουν οι ρόλοι του.</value>
+  </data>
+  <data name="Users.Roles.RemoveAdminTitle" xml:space="preserve">
+    <value>Αφαίρεση γενικού διαχειριστή;</value>
+  </data>
+  <data name="Users.Roles.RoleAssigned" xml:space="preserve">
+    <value>Ο ρόλος ανατέθηκε</value>
+  </data>
+  <data name="Users.Roles.RoleAssignedMessage" xml:space="preserve">
+    <value>Ο ρόλος «{{role}}» ανατέθηκε στον χρήστη {{name}}.</value>
+  </data>
+  <data name="Users.Roles.RoleRemoved" xml:space="preserve">
+    <value>Ο ρόλος αφαιρέθηκε</value>
+  </data>
+  <data name="Users.Roles.RoleRemovedMessage" xml:space="preserve">
+    <value>Ο ρόλος «{{role}}» αφαιρέθηκε από τον χρήστη {{name}}.</value>
+  </data>
+  <data name="Users.Sessions.EmptyMessage" xml:space="preserve">
+    <value>Ο χρήστης δεν είναι συνδεδεμένος πουθενά αυτή τη στιγμή.</value>
+  </data>
+  <data name="Users.Sessions.EmptyTitle" xml:space="preserve">
+    <value>Δεν υπάρχουν ενεργές συνεδρίες</value>
+  </data>
+  <data name="Users.Sessions.End" xml:space="preserve">
+    <value>Τερματισμός</value>
+  </data>
+  <data name="Users.Sessions.Ended" xml:space="preserve">
+    <value>Η συνεδρία τερματίστηκε</value>
+  </data>
+  <data name="Users.Sessions.EndMessage" xml:space="preserve">
+    <value>Η συνεδρία θα διαγραφεί. Αν ο χρήστης τη χρησιμοποιεί, θα αποσυνδεθεί.</value>
+  </data>
+  <data name="Users.Sessions.EndSession" xml:space="preserve">
+    <value>Τερματισμός συνεδρίας</value>
+  </data>
+  <data name="Users.Sessions.EndTitle" xml:space="preserve">
+    <value>Τερματισμός συνεδρίας;</value>
+  </data>
+  <data name="Users.Sessions.Expires" xml:space="preserve">
+    <value>Λήγει</value>
+  </data>
+  <data name="Users.Sessions.Intro" xml:space="preserve">
+    <value>Συνεδρίες που διατηρεί ο διακομιστής ταυτότητας για αυτόν τον χρήστη. Ο τερματισμός μιας συνεδρίας αποσυνδέει τον χρήστη από αυτήν.</value>
+  </data>
+  <data name="Users.Sessions.Renewed" xml:space="preserve">
+    <value>Ανανεώθηκε</value>
+  </data>
+  <data name="Users.Sessions.Scheme" xml:space="preserve">
+    <value>Σχήμα</value>
+  </data>
+  <data name="Users.Sessions.Session" xml:space="preserve">
+    <value>Συνεδρία</value>
+  </data>
+  <data name="Users.Sessions.SessionIdLabel" xml:space="preserve">
+    <value>αναγνωριστικό συνεδρίας</value>
+  </data>
+  <data name="Users.Shared.DeleteItem" xml:space="preserve">
+    <value>Διαγραφή {{name}}</value>
+  </data>
+  <data name="Users.Shared.EditItem" xml:space="preserve">
+    <value>Επεξεργασία {{name}}</value>
+  </data>
+  <data name="Users.Shared.RemoveItem" xml:space="preserve">
+    <value>Αφαίρεση {{name}}</value>
+  </data>
+  <data name="Users.Status.Active" xml:space="preserve">
+    <value>Ενεργός</value>
+  </data>
+  <data name="Users.Status.Admin" xml:space="preserve">
+    <value>Διαχειριστής</value>
+  </data>
+  <data name="Users.Status.Blocked" xml:space="preserve">
+    <value>Αποκλεισμένος</value>
+  </data>
+  <data name="Users.Status.EmailUnverified" xml:space="preserve">
+    <value>Μη επιβεβαιωμένο email</value>
+  </data>
+  <data name="Users.Status.EmailVerified" xml:space="preserve">
+    <value>Επιβεβαιωμένο email</value>
+  </data>
+  <data name="Users.Status.GlobalAdmin" xml:space="preserve">
+    <value>Γενικός διαχειριστής</value>
+  </data>
+  <data name="Users.Status.Locked" xml:space="preserve">
+    <value>Κλειδωμένος</value>
+  </data>
+  <data name="Users.Status.LockedOut" xml:space="preserve">
+    <value>Κλειδωμένος</value>
+  </data>
+  <data name="Users.Status.Mfa" xml:space="preserve">
+    <value>MFA</value>
+  </data>
+  <data name="Users.Status.MfaDisabled" xml:space="preserve">
+    <value>MFA ανενεργό</value>
+  </data>
+  <data name="Users.Status.MfaEnabled" xml:space="preserve">
+    <value>MFA ενεργό</value>
+  </data>
+  <data name="Users.Status.NotBlocked" xml:space="preserve">
+    <value>Μη αποκλεισμένος</value>
+  </data>
+  <data name="Users.Status.NotLockedOut" xml:space="preserve">
+    <value>Μη κλειδωμένος</value>
+  </data>
+  <data name="Users.Status.PhoneUnverified" xml:space="preserve">
+    <value>Μη επιβεβαιωμένο τηλέφωνο</value>
+  </data>
+  <data name="Users.Status.PhoneVerified" xml:space="preserve">
+    <value>Επιβεβαιωμένο τηλέφωνο</value>
+  </data>
+  <data name="Users.Toasts.UserUpdated" xml:space="preserve">
+    <value>Ο χρήστης ενημερώθηκε</value>
+  </data>
+  <data name="Users.Validation.EmailInvalid" xml:space="preserve">
+    <value>Εισαγάγετε μια έγκυρη διεύθυνση email.</value>
+  </data>
+  <data name="Users.Validation.EmailRequired" xml:space="preserve">
+    <value>Το email είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Users.Validation.FirstNameRequired" xml:space="preserve">
+    <value>Το όνομα είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Users.Validation.LastNameRequired" xml:space="preserve">
+    <value>Το επώνυμο είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Users.Validation.PasswordRequired" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασης είναι υποχρεωτικός.</value>
+  </data>
+  <data name="Users.Validation.UserNameRequired" xml:space="preserve">
+    <value>Το όνομα χρήστη είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Users.Validation.ValueFormat" xml:space="preserve">
+    <value>Η τιμή δεν έχει την αναμενόμενη μορφή.</value>
+  </data>
+  <data name="Users.Validation.ValueRequired" xml:space="preserve">
+    <value>Η τιμή είναι υποχρεωτική.</value>
+  </data>
+</root>

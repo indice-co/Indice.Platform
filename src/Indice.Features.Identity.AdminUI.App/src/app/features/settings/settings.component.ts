@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { filter, switchMap } from 'rxjs';
 import { LucideChevronRight, LucideFileUp, LucidePlus, LucideSlidersHorizontal } from '@lucide/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppSettingInfo, IdentityApiService } from 'src/app/core/services/identity-api.service';
 import { CopyButtonComponent } from 'src/app/ui/copy/copy-button.component';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
@@ -23,30 +24,30 @@ export const SETTINGS_REFRESH = 'settings';
   selector: 'app-settings',
   imports: [
     RouterLink, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, SortHeaderComponent, CopyButtonComponent,
-    LucideChevronRight, LucideFileUp, LucidePlus, LucideSlidersHorizontal
+    LucideChevronRight, LucideFileUp, LucidePlus, LucideSlidersHorizontal, TranslatePipe
   ],
   template: `
-    <app-page-header title="App settings" subtitle="Configuration values the identity server reads from the database at runtime.">
+    <app-page-header [title]="'Routes.AppSettings' | translate" [subtitle]="'Settings.List.Subtitle' | translate">
       <div actions class="flex flex-wrap gap-2">
         <button type="button" class="btn btn-ghost btn-sm" [disabled]="importing()" (click)="import()">
           @if (importing()) { <span class="loading loading-spinner loading-xs"></span> } @else { <svg lucideFileUp class="size-4"></svg> }
-          Import appsettings.json
+          {{ 'Settings.List.Import' | translate }}
         </button>
-        <a class="btn btn-primary btn-sm" [routerLink]="pane.link('setting-add')"><svg lucidePlus class="size-4"></svg>New setting</a>
+        <a class="btn btn-primary btn-sm" [routerLink]="pane.link('setting-add')"><svg lucidePlus class="size-4"></svg>{{ 'Settings.New' | translate }}</a>
       </div>
     </app-page-header>
 
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-      <app-search-input class="sm:w-72" [value]="list.search()" placeholder="Search settings" (search)="list.setSearch($event)" />
+      <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Settings.List.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
     </div>
 
     <div class="panel overflow-x-auto">
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="key">Key</app-sort-header></th>
-            <th>Value</th>
-            <th class="w-12"><span class="sr-only">Open</span></th>
+            <th><app-sort-header [list]="list" field="key">{{ 'Settings.Fields.Key' | translate }}</app-sort-header></th>
+            <th>{{ 'Common.Value' | translate }}</th>
+            <th class="w-12"><span class="sr-only">{{ 'Settings.List.Open' | translate }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -63,11 +64,11 @@ export const SETTINGS_REFRESH = 'settings';
                 <td class="max-w-xl">
                   <span class="flex items-center gap-1">
                     <span class="line-clamp-2 font-mono text-xs break-all text-base-content/75">{{ setting.value || '—' }}</span>
-                    @if (setting.value) { <app-copy-button [value]="setting.value" label="value" /> }
+                    @if (setting.value) { <app-copy-button [value]="setting.value" [label]="'Settings.List.CopyValueLabel' | translate" /> }
                   </span>
                 </td>
                 <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['setting', setting.key!])" [attr.aria-label]="'Open ' + setting.key">
+                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['setting', setting.key!])" [attr.aria-label]="'Settings.List.OpenItem' | translate: { name: setting.key }">
                     <svg lucideChevronRight class="size-4"></svg>
                   </a>
                 </td>
@@ -75,11 +76,11 @@ export const SETTINGS_REFRESH = 'settings';
             } @empty {
               <tr>
                 <td colspan="3">
-                  <app-empty-state [title]="list.hasFilters() ? 'No matching settings' : 'No settings yet'"
-                    [message]="list.hasFilters() ? 'Try a different search term.' : 'Add a setting, or import the ones in appsettings.json.'">
+                  <app-empty-state [title]="(list.hasFilters() ? 'Settings.List.NoMatches' : 'Settings.List.Empty') | translate"
+                    [message]="(list.hasFilters() ? 'Settings.List.NoMatchesHint' : 'Settings.List.EmptyHint') | translate">
                     <svg icon lucideSlidersHorizontal class="size-5"></svg>
                     @if (!list.hasFilters()) {
-                      <a actions class="btn btn-sm" [routerLink]="pane.link('setting-add')"><svg lucidePlus class="size-4"></svg>New setting</a>
+                      <a actions class="btn btn-sm" [routerLink]="pane.link('setting-add')"><svg lucidePlus class="size-4"></svg>{{ 'Settings.New' | translate }}</a>
                     }
                   </app-empty-state>
                 </td>
@@ -99,6 +100,7 @@ export class SettingsComponent implements OnInit {
   private readonly _api = inject(IdentityApiService);
   private readonly _dialog = inject(DialogService);
   private readonly _toast = inject(ToastService);
+  private readonly _translate = inject(TranslateService);
   protected readonly pane = inject(SidePaneService);
   protected readonly importing = signal(false);
 
@@ -121,11 +123,9 @@ export class SettingsComponent implements OnInit {
     const hardRefresh = this.list.count() > 0 || this.list.hasFilters();
     this._dialog
       .confirm({
-        title: 'Import appsettings.json?',
-        message: hardRefresh
-          ? 'The settings stored in the database will be replaced by the values in the server\'s appsettings.json file.'
-          : 'The values in the server\'s appsettings.json file will be saved to the database.',
-        confirmLabel: hardRefresh ? 'Replace settings' : 'Import',
+        title: this._translate.instant('Settings.Import.Title'),
+        message: this._translate.instant(hardRefresh ? 'Settings.Import.ReplaceMessage' : 'Settings.Import.SaveMessage'),
+        confirmLabel: this._translate.instant(hardRefresh ? 'Settings.Import.ReplaceConfirm' : 'Settings.Import.Confirm'),
         tone: hardRefresh ? 'danger' : 'default'
       })
       .pipe(
@@ -138,7 +138,7 @@ export class SettingsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.importing.set(false);
-          this._toast.success('Settings imported', 'appsettings.json was loaded into the database.');
+          this._toast.success(this._translate.instant('Settings.Import.SuccessTitle'), this._translate.instant('Settings.Import.SuccessMessage'));
           this.list.refresh();
         },
         error: () => this.importing.set(false)

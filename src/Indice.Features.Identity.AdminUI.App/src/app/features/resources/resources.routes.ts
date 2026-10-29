@@ -7,11 +7,11 @@ const list = () => import('./resource-list.component').then(m => m.ResourceListC
 export const RESOURCE_ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'identity' },
   {
-    path: 'add', data: { breadcrumb: 'New resource' }, canActivate: [permissionGuard('clientsWriter')],
+    path: 'add', data: { breadcrumb: 'Routes.NewResource' }, canActivate: [permissionGuard('clientsWriter')],
     loadComponent: () => import('./add/resource-add.component').then(m => m.ResourceAddComponent)
   },
   {
-    path: 'identity', data: { breadcrumb: 'Identity resources' }, children: [
+    path: 'identity', data: { breadcrumb: 'Routes.IdentityResources' }, children: [
       { path: '', pathMatch: 'full', loadComponent: list, data: { kind: 'identity' } },
       {
         path: ':id', loadComponent: () => import('./identity/identity-resource-edit.component').then(m => m.IdentityResourceEditComponent),
@@ -24,7 +24,7 @@ export const RESOURCE_ROUTES: Routes = [
     ]
   },
   {
-    path: 'api', data: { breadcrumb: 'API resources' }, children: [
+    path: 'api', data: { breadcrumb: 'Routes.ApiResources' }, children: [
       { path: '', pathMatch: 'full', loadComponent: list, data: { kind: 'api' } },
       {
         path: ':id', loadComponent: () => import('./api/api-resource-edit.component').then(m => m.ApiResourceEditComponent),
@@ -39,7 +39,7 @@ export const RESOURCE_ROUTES: Routes = [
     ]
   },
   {
-    path: 'scopes', data: { breadcrumb: 'API scopes' }, children: [
+    path: 'scopes', data: { breadcrumb: 'Routes.ApiScopes' }, children: [
       { path: '', pathMatch: 'full', loadComponent: list, data: { kind: 'scope' } },
       { path: ':name', loadComponent: () => import('./scopes/scope-edit.component').then(m => m.ScopeEditComponent) }
     ]

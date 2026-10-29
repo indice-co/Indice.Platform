@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormRecord, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideSave } from '@lucide/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import {
   BasicClaimInfo, ClaimTypeInfo, IdentityApiService, MfaPolicy, PasswordExpirationPolicy, SingleUserInfo, UpdateUserRequest
@@ -15,64 +16,66 @@ import { MFA_POLICIES, PASSWORD_EXPIRATION_POLICIES, claimValueValidators } from
 /** Account fields of the user plus the claims every user is required to have. */
 @Component({
   selector: 'app-user-details',
-  imports: [DatePipe, ReactiveFormsModule, ClaimValueInputComponent, LucideSave],
+  imports: [DatePipe, ReactiveFormsModule, TranslatePipe, ClaimValueInputComponent, LucideSave],
   template: `
     @if (store.user(); as user) {
       <form [formGroup]="form" (ngSubmit)="save()" class="grid gap-6 xl:grid-cols-[1fr_20rem]">
         <div class="space-y-6">
           <section class="panel p-5 sm:p-6">
-            <h2 class="mb-1 font-semibold">Account</h2>
-            <p class="mb-4 text-sm text-base-content/65">How the user signs in and how you can reach them.</p>
+            <h2 class="mb-1 font-semibold">{{ 'Users.Details.Account' | translate }}</h2>
+            <p class="mb-4 text-sm text-base-content/65">{{ 'Users.Details.AccountHint' | translate }}</p>
             <div class="grid gap-x-6 gap-y-2 md:grid-cols-2">
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Username *</legend>
+                <legend class="fieldset-legend">{{ 'Users.Fields.UserName' | translate }} *</legend>
                 <input class="input w-full font-mono" formControlName="userName" maxlength="256" autocomplete="off"
                   [class.input-error]="invalid(form.controls.userName)" />
-                @if (invalid(form.controls.userName)) { <p class="label text-error">A username is required.</p> }
+                @if (invalid(form.controls.userName)) { <p class="label text-error">{{ 'Users.Validation.UserNameRequired' | translate }}</p> }
               </fieldset>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Email *</legend>
+                <legend class="fieldset-legend">{{ 'Common.Email' | translate }} *</legend>
                 <input type="email" class="input w-full" formControlName="email" maxlength="256" autocomplete="off"
                   [class.input-error]="invalid(form.controls.email)" />
                 @if (invalid(form.controls.email)) {
-                  <p class="label text-error">{{ form.controls.email.hasError('email') ? 'Enter a valid email address.' : 'An email is required.' }}</p>
+                  <p class="label text-error">{{ (form.controls.email.hasError('email') ? 'Users.Validation.EmailInvalid' : 'Users.Validation.EmailRequired') | translate }}</p>
                 }
                 <label class="label mt-1 cursor-pointer gap-2 text-sm text-base-content">
-                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" formControlName="emailConfirmed" />Email is verified
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" formControlName="emailConfirmed" />{{ 'Users.Fields.EmailVerified' | translate }}
                 </label>
               </fieldset>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Phone number</legend>
+                <legend class="fieldset-legend">{{ 'Common.PhoneNumber' | translate }}</legend>
                 <input type="tel" class="input w-full tabular" formControlName="phoneNumber" autocomplete="off" />
                 <label class="label mt-1 cursor-pointer gap-2 text-sm text-base-content">
-                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" formControlName="phoneNumberConfirmed" />Phone number is verified
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" formControlName="phoneNumberConfirmed" />{{ 'Users.Fields.PhoneVerified' | translate }}
                 </label>
               </fieldset>
             </div>
           </section>
 
           <section class="panel p-5 sm:p-6">
-            <h2 class="mb-1 font-semibold">Security</h2>
-            <p class="mb-4 text-sm text-base-content/65">Multi-factor authentication and password rotation.</p>
+            <h2 class="mb-1 font-semibold">{{ 'Users.Details.Security' | translate }}</h2>
+            <p class="mb-4 text-sm text-base-content/65">{{ 'Users.Details.SecurityHint' | translate }}</p>
             <div class="grid gap-x-6 gap-y-2 md:grid-cols-2">
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">MFA policy</legend>
+                <legend class="fieldset-legend">{{ 'Users.Details.MfaPolicy' | translate }}</legend>
                 <select class="select w-full" formControlName="twoFactorPolicy">
-                  <option value="">Not set</option>
-                  @for (policy of mfaPolicies; track policy) { <option [value]="policy">{{ policy }}</option> }
+                  <option value="">{{ 'Users.Details.NotSet' | translate }}</option>
+                  @for (policy of mfaPolicies; track policy.value) { <option [value]="policy.value">{{ policy.label | translate }}</option> }
                 </select>
                 <label class="label mt-1 cursor-pointer gap-2 text-sm text-base-content">
-                  <input type="checkbox" class="toggle toggle-sm toggle-primary" formControlName="twoFactorEnabled" />MFA enabled
+                  <input type="checkbox" class="toggle toggle-sm toggle-primary" formControlName="twoFactorEnabled" />{{ 'Users.Status.MfaEnabled' | translate }}
                 </label>
               </fieldset>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Password expires</legend>
+                <legend class="fieldset-legend">{{ 'Users.Details.PasswordExpires' | translate }}</legend>
                 <select class="select w-full" formControlName="passwordExpirationPolicy">
-                  <option value="">Not set</option>
-                  @for (policy of passwordPolicies; track policy) { <option [value]="policy">{{ policy }}</option> }
+                  <option value="">{{ 'Users.Details.NotSet' | translate }}</option>
+                  @for (policy of passwordPolicies; track policy.value) { <option [value]="policy.value">{{ policy.label | translate }}</option> }
                 </select>
                 <p class="label">
-                  {{ user.passwordExpirationDate ? 'Current password expires ' + (user.passwordExpirationDate | date: 'medium') : 'The current password does not expire.' }}
+                  {{ user.passwordExpirationDate
+                    ? ('Users.Details.CurrentPasswordExpires' | translate: { date: (user.passwordExpirationDate | date: 'medium') })
+                    : ('Users.Details.PasswordNeverExpires' | translate) }}
                 </p>
               </fieldset>
             </div>
@@ -80,8 +83,8 @@ import { MFA_POLICIES, PASSWORD_EXPIRATION_POLICIES, claimValueValidators } from
 
           @if (requiredClaims().length) {
             <section class="panel p-5 sm:p-6">
-              <h2 class="mb-1 font-semibold">Required details</h2>
-              <p class="mb-4 text-sm text-base-content/65">Claims every user must have.</p>
+              <h2 class="mb-1 font-semibold">{{ 'Users.Details.RequiredDetails' | translate }}</h2>
+              <p class="mb-4 text-sm text-base-content/65">{{ 'Users.Details.RequiredDetailsHint' | translate }}</p>
               <div class="grid gap-x-6 gap-y-2 md:grid-cols-2" formGroupName="claims">
                 @for (claim of requiredClaims(); track claim.name) {
                   <fieldset class="fieldset">
@@ -89,7 +92,7 @@ import { MFA_POLICIES, PASSWORD_EXPIRATION_POLICIES, claimValueValidators } from
                     <app-claim-value-input [formControlName]="claim.name!" [valueType]="claim.valueType"
                       [invalid]="invalid(form.controls.claims.controls[claim.name!])" />
                     @if (invalid(form.controls.claims.controls[claim.name!])) {
-                      <p class="label text-error">{{ form.controls.claims.controls[claim.name!].hasError('pattern') ? 'The value does not have the expected format.' : 'A value is required.' }}</p>
+                      <p class="label text-error">{{ (form.controls.claims.controls[claim.name!].hasError('pattern') ? 'Users.Validation.ValueFormat' : 'Users.Validation.ValueRequired') | translate }}</p>
                     }
                   </fieldset>
                 }
@@ -101,12 +104,12 @@ import { MFA_POLICIES, PASSWORD_EXPIRATION_POLICIES, claimValueValidators } from
             <div class="flex flex-wrap items-center gap-4">
               <button type="submit" class="btn btn-primary" [disabled]="saving()">
                 @if (saving()) { <span class="loading loading-spinner loading-sm"></span> } @else { <svg lucideSave class="size-4"></svg> }
-                Save changes
+                {{ 'Common.SaveChanges' | translate }}
               </button>
               @if (showBypass()) {
                 <label class="flex cursor-pointer items-center gap-2 text-sm">
                   <input type="checkbox" class="checkbox checkbox-sm checkbox-warning" formControlName="bypassEmailAsUserNamePolicy" />
-                  Bypass the "email as username" policy
+                  {{ 'Users.Details.BypassEmailPolicy' | translate }}
                 </label>
               }
             </div>
@@ -114,12 +117,13 @@ import { MFA_POLICIES, PASSWORD_EXPIRATION_POLICIES, claimValueValidators } from
         </div>
 
         <aside class="panel h-fit p-5 text-sm">
-          <h2 class="mb-3 font-semibold">Activity</h2>
+          <h2 class="mb-3 font-semibold">{{ 'Users.Details.Activity' | translate }}</h2>
           <dl class="space-y-3">
-            <div><dt class="text-base-content/60">Created</dt><dd class="tabular">{{ user.createDate | date: 'medium' }}</dd></div>
-            <div><dt class="text-base-content/60">Last sign-in</dt><dd class="tabular">{{ user.lastSignInDate ? (user.lastSignInDate | date: 'medium') : 'Never' }}</dd></div>
-            <div><dt class="text-base-content/60">Failed sign-in attempts</dt><dd class="tabular">{{ user.accessFailedCount ?? 0 }}</dd></div>
-            <div><dt class="text-base-content/60">Lockout</dt><dd>{{ user.lockoutEnabled ? 'Enabled' : 'Disabled' }}</dd></div>
+            <div><dt class="text-base-content/60">{{ 'Common.CreatedAt' | translate }}</dt><dd class="tabular">{{ user.createDate | date: 'medium' }}</dd></div>
+            <div><dt class="text-base-content/60">{{ 'Users.Fields.LastSignIn' | translate }}</dt>
+              <dd class="tabular">{{ user.lastSignInDate ? (user.lastSignInDate | date: 'medium') : ('Common.Never' | translate) }}</dd></div>
+            <div><dt class="text-base-content/60">{{ 'Users.Details.FailedAttempts' | translate }}</dt><dd class="tabular">{{ user.accessFailedCount ?? 0 }}</dd></div>
+            <div><dt class="text-base-content/60">{{ 'Users.Details.Lockout' | translate }}</dt><dd>{{ (user.lockoutEnabled ? 'Common.Enabled' : 'Common.Disabled') | translate }}</dd></div>
           </dl>
         </aside>
       </form>
@@ -134,6 +138,7 @@ export class UserDetailsComponent {
   private readonly _api = inject(IdentityApiService);
   private readonly _toast = inject(ToastService);
   private readonly _fb = inject(NonNullableFormBuilder);
+  private readonly _translate = inject(TranslateService);
   protected readonly store = inject(UserStore);
   protected readonly canEdit = inject(AuthService).isAdminUIUsersWriter();
   protected readonly mfaPolicies = MFA_POLICIES;
@@ -200,7 +205,7 @@ export class UserDetailsComponent {
         this.saving.set(false);
         this.showBypass.set(false);
         this.store.user.set(updated);
-        this._toast.success('User updated', `'${updated.email || updated.userName}' was saved.`);
+        this._toast.success(this._translate.instant('Users.Toasts.UserUpdated'), this._translate.instant('Users.Details.SavedMessage', { name: updated.email || updated.userName }));
       },
       error: () => {
         this.saving.set(false);

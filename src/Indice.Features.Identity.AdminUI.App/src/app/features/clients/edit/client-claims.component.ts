@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
 import { LucideListChecks, LucidePlus, LucideTrash } from '@lucide/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -12,17 +13,17 @@ import { ClientStore } from './client-store.service';
 /** Claims issued for the client itself (not the user), and how they are sent. */
 @Component({
   selector: 'app-client-claims',
-  imports: [ReactiveFormsModule, EmptyStateComponent, LucideListChecks, LucidePlus, LucideTrash],
+  imports: [ReactiveFormsModule, TranslatePipe, EmptyStateComponent, LucideListChecks, LucidePlus, LucideTrash],
   template: `
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
       <div class="panel overflow-hidden">
         @if (canEdit) {
           <form class="grid gap-2 border-b border-base-300 p-4 sm:grid-cols-[1fr_1fr_auto]" [formGroup]="claimForm" (ngSubmit)="add()">
-            <input class="input w-full font-mono text-sm" formControlName="type" placeholder="Claim type" aria-label="Claim type" />
-            <input class="input w-full" formControlName="value" placeholder="Value" aria-label="Claim value" />
+            <input class="input w-full font-mono text-sm" formControlName="type" [placeholder]="'Clients.Claims.ClaimType' | translate" [attr.aria-label]="'Clients.Claims.ClaimType' | translate" />
+            <input class="input w-full" formControlName="value" [placeholder]="'Common.Value' | translate" [attr.aria-label]="'Clients.Claims.ClaimValue' | translate" />
             <button type="submit" class="btn btn-primary" [disabled]="claimForm.invalid || adding()">
               @if (adding()) { <span class="loading loading-spinner loading-sm"></span> } @else { <svg lucidePlus class="size-4"></svg> }
-              Add claim
+              {{ 'Clients.Claims.AddClaim' | translate }}
             </button>
           </form>
         }
@@ -30,9 +31,9 @@ import { ClientStore } from './client-store.service';
           <table class="table">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Value</th>
-                @if (canEdit) { <th class="w-12"><span class="sr-only">Delete</span></th> }
+                <th>{{ 'Common.Type' | translate }}</th>
+                <th>{{ 'Common.Value' | translate }}</th>
+                @if (canEdit) { <th class="w-12"><span class="sr-only">{{ 'Common.Delete' | translate }}</span></th> }
               </tr>
             </thead>
             <tbody>
@@ -42,7 +43,7 @@ import { ClientStore } from './client-store.service';
                   <td class="break-all">{{ claim.value }}</td>
                   @if (canEdit) {
                     <td class="text-right">
-                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" [attr.aria-label]="'Delete claim ' + claim.type" (click)="remove(claim)">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" [attr.aria-label]="'Clients.Claims.DeleteLabel' | translate: { type: claim.type }" (click)="remove(claim)">
                         <svg lucideTrash class="size-4"></svg>
                       </button>
                     </td>
@@ -51,7 +52,7 @@ import { ClientStore } from './client-store.service';
               } @empty {
                 <tr>
                   <td [attr.colspan]="canEdit ? 3 : 2">
-                    <app-empty-state title="No client claims" message="Client claims are added to tokens issued to this client.">
+                    <app-empty-state [title]="'Clients.Claims.EmptyTitle' | translate" [message]="'Clients.Claims.EmptyMessage' | translate">
                       <svg icon lucideListChecks class="size-5"></svg>
                     </app-empty-state>
                   </td>
@@ -63,23 +64,23 @@ import { ClientStore } from './client-store.service';
       </div>
 
       <form class="panel h-fit space-y-4 p-6" [formGroup]="settings" (ngSubmit)="saveSettings()">
-        <h2 class="font-semibold">Issuing</h2>
+        <h2 class="font-semibold">{{ 'Clients.Claims.Issuing' | translate }}</h2>
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">Claim type prefix</legend>
+          <legend class="fieldset-legend">{{ 'Clients.Claims.Prefix' | translate }}</legend>
           <input class="input w-full font-mono text-sm" formControlName="clientClaimsPrefix" placeholder="client_" />
-          <p class="label whitespace-normal">Prepended to client claim types. Leave empty for no prefix.</p>
+          <p class="label whitespace-normal">{{ 'Clients.Claims.PrefixHint' | translate }}</p>
         </fieldset>
         <label class="flex cursor-pointer items-start gap-3">
           <input type="checkbox" class="toggle toggle-primary toggle-sm mt-0.5" formControlName="alwaysSendClientClaims" />
           <span>
-            <span class="block text-sm font-medium">Always send client claims</span>
-            <span class="block text-xs text-base-content/60">Include them in every flow, not only client credentials.</span>
+            <span class="block text-sm font-medium">{{ 'Clients.Claims.AlwaysSend' | translate }}</span>
+            <span class="block text-xs text-base-content/60">{{ 'Clients.Claims.AlwaysSendHint' | translate }}</span>
           </span>
         </label>
         @if (canEdit) {
           <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving() || settings.pristine">
             @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
-            Save
+            {{ 'Common.Save' | translate }}
           </button>
         }
       </form>
@@ -91,6 +92,7 @@ export class ClientClaimsComponent implements OnInit {
   private readonly _dialog = inject(DialogService);
   private readonly _toast = inject(ToastService);
   private readonly _fb = inject(NonNullableFormBuilder);
+  private readonly _translate = inject(TranslateService);
   protected readonly canEdit = inject(AuthService).isAdminUIClientsWriter();
 
   protected readonly claims = computed(() => [...(this._store.client()?.claims ?? [])].sort((a, b) => (a.type ?? '').localeCompare(b.type ?? '')));
@@ -120,7 +122,7 @@ export class ClientClaimsComponent implements OnInit {
       next: () => {
         this.adding.set(false);
         this.claimForm.reset();
-        this._toast.success('Claim added', `Claim '${type}' was added to the client.`);
+        this._toast.success(this._translate.instant('Clients.Claims.AddedTitle'), this._translate.instant('Clients.Claims.AddedMessage', { type }));
       },
       error: () => this.adding.set(false)
     });
@@ -128,9 +130,14 @@ export class ClientClaimsComponent implements OnInit {
 
   protected remove(claim: ClaimInfo): void {
     this._dialog
-      .confirm({ title: 'Delete claim?', message: `Claim '${claim.type}' will no longer be issued to this client.`, confirmLabel: 'Delete', tone: 'danger' })
+      .confirm({
+        title: this._translate.instant('Clients.Claims.DeleteTitle'),
+        message: this._translate.instant('Clients.Claims.DeleteMessage', { type: claim.type }),
+        confirmLabel: this._translate.instant('Common.Delete'),
+        tone: 'danger'
+      })
       .pipe(filter(Boolean), switchMap(() => this._store.removeClaim(claim.id!)))
-      .subscribe(() => this._toast.success('Claim deleted', `Claim '${claim.type}' was removed.`));
+      .subscribe(() => this._toast.success(this._translate.instant('Clients.Claims.DeletedTitle'), this._translate.instant('Clients.Claims.DeletedMessage', { type: claim.type })));
   }
 
   protected saveSettings(): void {
@@ -140,7 +147,7 @@ export class ClientClaimsComponent implements OnInit {
       next: () => {
         this.saving.set(false);
         this.settings.markAsPristine();
-        this._toast.success('Claim settings saved');
+        this._toast.success(this._translate.instant('Clients.Claims.SettingsSaved'));
       },
       error: () => this.saving.set(false)
     });

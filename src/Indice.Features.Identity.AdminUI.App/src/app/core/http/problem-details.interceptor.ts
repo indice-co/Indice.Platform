@@ -1,5 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, throwError } from 'rxjs';
 import { ToastService } from 'src/app/ui/toast/toast.service';
 
@@ -16,10 +17,11 @@ interface Problem {
  */
 export const problemDetailsInterceptor: HttpInterceptorFn = (request, next) => {
   const toasts = inject(ToastService);
+  const translate = inject(TranslateService);
   return next(request).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && error.status !== 401 && (request.method !== 'GET' || error.status === 400)) {
-        readProblem(error.error).then(problem => toasts.error('Something went wrong', toMessage(error.status, problem)));
+        readProblem(error.error).then(problem => toasts.error(translate.instant('Core.Http.ErrorTitle'), toMessage(translate, error.status, problem)));
       }
       return throwError(() => error);
     })
@@ -37,7 +39,7 @@ async function readProblem(body: unknown): Promise<Problem | null> {
   }
 }
 
-function toMessage(status: number, problem: Problem | null): string {
+function toMessage(translate: TranslateService, status: number, problem: Problem | null): string {
   const errors = Object.entries(problem?.errors ?? {}).flatMap(([field, messages]) =>
     (Array.isArray(messages) ? messages : [messages]).map(message => withField(field, String(message))));
   if (errors.length > 0) {
@@ -47,12 +49,12 @@ function toMessage(status: number, problem: Problem | null): string {
     return problem.detail;
   }
   if (status === 0) {
-    return 'The server could not be reached. Check your connection and try again.';
+    return translate.instant('Core.Http.Unreachable');
   }
   if (status === 403) {
-    return 'You do not have permission to perform this action.';
+    return translate.instant('Core.Http.Forbidden');
   }
-  return problem?.title || 'The request could not be completed.';
+  return problem?.title || translate.instant('Core.Http.RequestFailed');
 }
 
 /** Prefixes the field name unless the message already mentions it (e.g. "'Code' must not be empty."). */

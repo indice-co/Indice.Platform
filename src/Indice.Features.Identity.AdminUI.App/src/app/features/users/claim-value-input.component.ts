@@ -1,11 +1,13 @@
 import { Component, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ClaimValueType } from 'src/app/core/services/identity-api.service';
 import { claimDateToInput, inputDateToClaim } from './user-utils';
 
 /** Form control for a claim value that renders the input matching the claim's value type. Values are always strings. */
 @Component({
   selector: 'app-claim-value-input',
+  imports: [TranslatePipe],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => ClaimValueInputComponent), multi: true }],
   host: { class: 'block' },
   template: `
@@ -13,9 +15,9 @@ import { claimDateToInput, inputDateToClaim } from './user-utils';
       @case ('Boolean') {
         <select class="select w-full" [class.select-error]="invalid()" [disabled]="disabled()" [attr.id]="inputId()"
           (change)="update($any($event.target).value)" (blur)="touched()">
-          <option value="" [selected]="!value()">Select a value…</option>
-          <option value="true" [selected]="value() === 'true'">Yes</option>
-          <option value="false" [selected]="value() === 'false'">No</option>
+          <option value="" [selected]="!value()">{{ 'Users.ClaimValue.SelectValue' | translate }}</option>
+          <option value="true" [selected]="value() === 'true'">{{ 'Common.Yes' | translate }}</option>
+          <option value="false" [selected]="value() === 'false'">{{ 'Common.No' | translate }}</option>
         </select>
       }
       @case ('Int') {

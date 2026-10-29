@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnDestroy, inject, signal, viewChild } from '@angular/core';
 import { LucideImageUp, LucideTrash, LucideZoomIn } from '@lucide/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IdentityApiService } from 'src/app/core/services/identity-api.service';
 import { ImgUserPictureDirective } from 'src/app/ui/avatar/user-picture.directive';
 import { DIALOG_DATA, DialogRef } from 'src/app/ui/dialog/dialog-ref';
@@ -20,9 +21,9 @@ type Orientation = 'landscape' | 'portrait' | 'square';
  */
 @Component({
   selector: 'app-profile-picture-dialog',
-  imports: [ImgUserPictureDirective, LucideImageUp, LucideTrash, LucideZoomIn],
+  imports: [TranslatePipe, ImgUserPictureDirective, LucideImageUp, LucideTrash, LucideZoomIn],
   template: `
-    <h3 class="text-lg font-semibold">Profile picture</h3>
+    <h3 class="text-lg font-semibold">{{ 'Users.Picture.Title' | translate }}</h3>
     <p class="mt-1 text-sm text-base-content/70">{{ data.displayName }}</p>
 
     <div class="mt-5 flex flex-col items-center gap-4">
@@ -34,11 +35,11 @@ type Orientation = 'landscape' | 'portrait' | 'square';
         <img #preview class="size-full object-contain" [class.hidden]="!fileUrl()" [src]="fileUrl() ?? ''" alt="" draggable="false" (load)="onPreviewLoaded()" />
         @if (!fileUrl()) {
           <img class="size-full object-cover" [userPicture]="data.userId" [displayName]="data.displayName" [size]="256" [version]="data.version"
-            alt="Current profile picture" />
+            [alt]="'Users.Picture.CurrentAlt' | translate" />
         }
         @if (hint()) {
           <span class="pointer-events-none absolute inset-0 grid place-items-center bg-neutral/55 text-sm font-medium text-neutral-content">
-            Drag to reposition
+            {{ 'Users.Picture.DragHint' | translate }}
           </span>
         }
       </div>
@@ -47,7 +48,7 @@ type Orientation = 'landscape' | 'portrait' | 'square';
         <label class="flex w-full max-w-xs items-center gap-3 text-sm text-base-content/70">
           <svg lucideZoomIn class="size-4 shrink-0"></svg>
           <input type="range" class="range range-xs range-primary" [min]="minScale" [max]="maxScale" [step]="step" [value]="scale"
-            [disabled]="maxScale <= minScale" (input)="onScale(+$any($event.target).value)" aria-label="Zoom" />
+            [disabled]="maxScale <= minScale" (input)="onScale(+$any($event.target).value)" [attr.aria-label]="'Users.Picture.Zoom' | translate" />
         </label>
       }
     </div>
@@ -56,19 +57,19 @@ type Orientation = 'landscape' | 'portrait' | 'square';
     <div class="modal-action flex-wrap">
       @if (data.editable && !fileUrl()) {
         <button type="button" class="btn btn-ghost text-error" [disabled]="busy()" (click)="remove()">
-          <svg lucideTrash class="size-4"></svg>Remove
+          <svg lucideTrash class="size-4"></svg>{{ 'Common.Remove' | translate }}
         </button>
       }
       <span class="flex-1"></span>
-      <button type="button" class="btn btn-ghost" (click)="ref.close(false)">{{ data.editable ? 'Cancel' : 'Close' }}</button>
+      <button type="button" class="btn btn-ghost" (click)="ref.close(false)">{{ (data.editable ? 'Common.Cancel' : 'Common.Close') | translate }}</button>
       @if (data.editable) {
         <button type="button" class="btn" [class.btn-primary]="!fileUrl()" (click)="fileInput().nativeElement.click()">
-          <svg lucideImageUp class="size-4"></svg>{{ fileUrl() ? 'Choose another' : 'Upload picture' }}
+          <svg lucideImageUp class="size-4"></svg>{{ (fileUrl() ? 'Users.Picture.ChooseAnother' : 'Users.Picture.Upload') | translate }}
         </button>
         @if (fileUrl()) {
           <button type="button" class="btn btn-primary" [disabled]="busy() || !interactive()" (click)="save()">
             @if (busy()) { <span class="loading loading-spinner loading-sm"></span> }
-            Save
+            {{ 'Common.Save' | translate }}
           </button>
         }
       }
@@ -78,6 +79,7 @@ type Orientation = 'landscape' | 'portrait' | 'square';
 export class ProfilePictureDialogComponent implements OnDestroy {
   private readonly _api = inject(IdentityApiService);
   private readonly _toast = inject(ToastService);
+  private readonly _translate = inject(TranslateService);
   private readonly _preview = viewChild.required<ElementRef<HTMLImageElement>>('preview');
   protected readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('file');
   protected readonly data = inject<ProfilePictureDialogData>(DIALOG_DATA);
@@ -184,7 +186,7 @@ export class ProfilePictureDialogComponent implements OnDestroy {
     this._api.saveUserPicture(this.data.userId, { fileName: this._file.name, data: this._file }, this.scale, this._translateX, this._translateY, this.viewPort)
       .subscribe({
         next: () => {
-          this._toast.success('Profile picture updated');
+          this._toast.success(this._translate.instant('Users.Picture.Updated'));
           this.ref.close(true);
         },
         error: () => this.busy.set(false)
@@ -195,7 +197,7 @@ export class ProfilePictureDialogComponent implements OnDestroy {
     this.busy.set(true);
     this._api.clearUserPicture(this.data.userId).subscribe({
       next: () => {
-        this._toast.success('Profile picture removed');
+        this._toast.success(this._translate.instant('Users.Picture.Removed'));
         this.ref.close(true);
       },
       error: () => this.busy.set(false)

@@ -94,6 +94,8 @@ export class StackedLineChartComponent implements OnDestroy {
           tooltip: {
             titleFont: { family: chrome.font },
             bodyFont: { family: chrome.font },
+            // list the series top to bottom, the way they are stacked
+            itemSort: (a, b) => b.datasetIndex - a.datasetIndex,
             callbacks: { label: ctx => ` ${ctx.dataset.label}: ${(ctx.parsed.y ?? 0).toLocaleString()}` }
           }
         }

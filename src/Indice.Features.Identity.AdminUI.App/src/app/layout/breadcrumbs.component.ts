@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map, startWith } from 'rxjs';
 
 interface Crumb {
@@ -8,19 +9,19 @@ interface Crumb {
   url: string;
 }
 
-/** Breadcrumbs built from `data.breadcrumb` titles along the primary route. */
+/** Breadcrumbs built from `data.breadcrumb` translation keys along the primary route. */
 @Component({
   selector: 'app-breadcrumbs',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
-    <nav class="breadcrumbs truncate py-0 text-sm" aria-label="Breadcrumb">
+    <nav class="breadcrumbs truncate py-0 text-sm" [attr.aria-label]="'Shell.Breadcrumb' | translate">
       <ul>
         @for (crumb of crumbs(); track $index; let last = $last) {
           <li>
             @if (last) {
-              <span class="font-medium" aria-current="page">{{ crumb.title }}</span>
+              <span class="font-medium" aria-current="page">{{ crumb.title | translate }}</span>
             } @else {
-              <a class="text-base-content/65" [routerLink]="crumb.url">{{ crumb.title }}</a>
+              <a class="text-base-content/65" [routerLink]="crumb.url">{{ crumb.title | translate }}</a>
             }
           </li>
         }

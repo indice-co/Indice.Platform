@@ -21,7 +21,7 @@ public class AdminUIOptions : SpaUIOptions
         DocumentTitle = "IAM UI";
         ConfigureIndexParameters = args => {
             args[$"%({nameof(Lang)})"] = Lang;
-            //args[$"%({nameof(I18nAssets)})"] = I18nAssets;
+            args[$"%({nameof(I18nAssets)})"] = I18nAssets;
         };
     }
 }

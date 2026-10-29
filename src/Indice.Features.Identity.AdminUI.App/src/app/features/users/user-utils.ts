@@ -5,8 +5,21 @@ import { StatusTone } from 'src/app/ui/badges/badges';
 /** Claims that are managed through dedicated user fields and should not be added as additional details. */
 export const DISCOURAGED_CLAIMS = ['sub', 'email', 'email_verified', 'phone_number', 'phone_number_verified', 'name'];
 
-export const MFA_POLICIES = Object.values(MfaPolicy);
-export const PASSWORD_EXPIRATION_POLICIES = Object.values(PasswordExpirationPolicy);
+/** MFA policy options; `label` is a translation key. */
+export const MFA_POLICIES: { value: MfaPolicy; label: string }[] = [
+  { value: MfaPolicy.Optional, label: 'Users.Policies.Mfa.Optional' },
+  { value: MfaPolicy.Default, label: 'Users.Policies.Mfa.Default' },
+  { value: MfaPolicy.Enforced, label: 'Users.Policies.Mfa.Enforced' }
+];
+/** Password expiration policy options; `label` is a translation key. */
+export const PASSWORD_EXPIRATION_POLICIES: { value: PasswordExpirationPolicy; label: string }[] = [
+  { value: PasswordExpirationPolicy.Monthly, label: 'Users.Policies.PasswordExpiration.Monthly' },
+  { value: PasswordExpirationPolicy.Quarterly, label: 'Users.Policies.PasswordExpiration.Quarterly' },
+  { value: PasswordExpirationPolicy.Semesterly, label: 'Users.Policies.PasswordExpiration.Semesterly' },
+  { value: PasswordExpirationPolicy.Annually, label: 'Users.Policies.PasswordExpiration.Annually' },
+  { value: PasswordExpirationPolicy.Biannually, label: 'Users.Policies.PasswordExpiration.Biannually' },
+  { value: PasswordExpirationPolicy.Never, label: 'Users.Policies.PasswordExpiration.Never' }
+];
 
 /** Claim types an administrator may add as additional details. */
 export function isAssignableClaimType(type: ClaimTypeInfo): boolean {
@@ -47,6 +60,7 @@ export function inputDateToClaim(value: string | null | undefined): string {
 export interface StatusFilter {
   /** Query param (and API filter) name. */
   param: 'blocked' | 'lockedOut' | 'emailConfirmed' | 'phoneNumberConfirmed' | 'twoFactorEnabled';
+  /** Translation keys. */
   label: string;
   yes: string;
   no: string;
@@ -56,9 +70,9 @@ export interface StatusFilter {
 
 /** The status filters of the users list, in display order. */
 export const STATUS_FILTERS: StatusFilter[] = [
-  { param: 'blocked', label: 'Blocked', yes: 'Blocked', no: 'Not blocked', yesTone: 'error', noTone: 'neutral' },
-  { param: 'lockedOut', label: 'Locked out', yes: 'Locked out', no: 'Not locked out', yesTone: 'warning', noTone: 'neutral' },
-  { param: 'emailConfirmed', label: 'Email', yes: 'Email verified', no: 'Email unverified', yesTone: 'success', noTone: 'warning' },
-  { param: 'phoneNumberConfirmed', label: 'Phone', yes: 'Phone verified', no: 'Phone unverified', yesTone: 'success', noTone: 'warning' },
-  { param: 'twoFactorEnabled', label: 'MFA', yes: 'MFA enabled', no: 'MFA disabled', yesTone: 'success', noTone: 'neutral' }
+  { param: 'blocked', label: 'Users.Filters.Blocked', yes: 'Users.Status.Blocked', no: 'Users.Status.NotBlocked', yesTone: 'error', noTone: 'neutral' },
+  { param: 'lockedOut', label: 'Users.Filters.LockedOut', yes: 'Users.Status.LockedOut', no: 'Users.Status.NotLockedOut', yesTone: 'warning', noTone: 'neutral' },
+  { param: 'emailConfirmed', label: 'Users.Filters.Email', yes: 'Users.Status.EmailVerified', no: 'Users.Status.EmailUnverified', yesTone: 'success', noTone: 'warning' },
+  { param: 'phoneNumberConfirmed', label: 'Users.Filters.Phone', yes: 'Users.Status.PhoneVerified', no: 'Users.Status.PhoneUnverified', yesTone: 'success', noTone: 'warning' },
+  { param: 'twoFactorEnabled', label: 'Users.Filters.Mfa', yes: 'Users.Status.MfaEnabled', no: 'Users.Status.MfaDisabled', yesTone: 'success', noTone: 'neutral' }
 ];

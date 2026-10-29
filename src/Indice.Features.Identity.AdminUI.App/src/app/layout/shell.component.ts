@@ -1,11 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map } from 'rxjs';
 import {
-  LucideBookOpen, LucideChevronsUpDown, LucideDynamicIcon, LucideExternalLink, LucideHeart, LucideLogOut, LucideMenu, LucideMonitor,
-  LucideMoon, LucidePlus, LucideSun
+  LucideBookOpen, LucideChevronsUpDown, LucideDynamicIcon, LucideExternalLink, LucideHeart, LucideLanguages, LucideLogOut, LucideMenu,
+  LucideMonitor, LucideMoon, LucidePlus, LucideSun
 } from '@lucide/angular';
+import { AppLanguagesService } from '../core/i18n/app-languages.service';
 import { settings } from '../core/models/settings';
 import { AuthService } from '../core/services/auth.service';
 import { ImgUserPictureDirective } from '../ui/avatar/user-picture.directive';
@@ -15,6 +17,7 @@ import { NavService } from './nav.service';
 import { ThemeMode, ThemeService } from './theme.service';
 
 interface CreateAction {
+  /** Translation key. */
   label: string;
   link: string;
   state?: Record<string, string>;
@@ -24,9 +27,9 @@ interface CreateAction {
 @Component({
   selector: 'app-shell',
   imports: [
-    RouterOutlet, RouterLink, RouterLinkActive, ImgUserPictureDirective, LogoComponent, BreadcrumbsComponent, LucideDynamicIcon,
+    RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, ImgUserPictureDirective, LogoComponent, BreadcrumbsComponent, LucideDynamicIcon,
     LucideMenu, LucideSun, LucideMoon, LucideMonitor, LucideLogOut, LucideChevronsUpDown, LucideHeart, LucidePlus, LucideBookOpen,
-    LucideExternalLink
+    LucideExternalLink, LucideLanguages
   ],
   styles: `
     .nav-link {
@@ -61,7 +64,7 @@ interface CreateAction {
 
       <div class="drawer-content flex min-h-dvh min-w-0 flex-col">
         <header class="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-base-300 bg-base-100/85 px-3 backdrop-blur sm:px-4 lg:px-8">
-          <label for="app-drawer" class="btn btn-ghost btn-sm btn-square lg:hidden" aria-label="Open menu">
+          <label for="app-drawer" class="btn btn-ghost btn-sm btn-square lg:hidden" [attr.aria-label]="'Shell.OpenMenu' | translate">
             <svg lucideMenu class="size-5"></svg>
           </label>
           <app-breadcrumbs class="min-w-0 flex-1" />
@@ -69,18 +72,36 @@ interface CreateAction {
           @if (createActions().length > 0) {
             <div class="dropdown dropdown-end">
               <button type="button" tabindex="0" class="btn btn-primary btn-sm gap-1.5">
-                <svg lucidePlus class="size-4"></svg><span class="hidden sm:inline">Create</span>
+                <svg lucidePlus class="size-4"></svg><span class="hidden sm:inline">{{ 'Shell.Create' | translate }}</span>
               </button>
               <ul tabindex="0" class="dropdown-content menu z-40 mt-2 w-52 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg">
                 @for (action of createActions(); track action.label) {
-                  <li><a [routerLink]="action.link" [state]="action.state" (click)="blur()">{{ action.label }}</a></li>
+                  <li><a [routerLink]="action.link" [state]="action.state" (click)="blur()">{{ action.label | translate }}</a></li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (languages.languages().length > 1) {
+            <div class="dropdown dropdown-end">
+              <button type="button" tabindex="0" class="btn btn-ghost btn-sm gap-1 px-2" [attr.aria-label]="'Shell.Language' | translate">
+                <svg lucideLanguages class="size-4"></svg><span class="text-xs font-semibold uppercase">{{ languages.current() }}</span>
+              </button>
+              <ul tabindex="0" class="dropdown-content menu z-40 mt-2 w-44 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg">
+                @for (language of languages.languages(); track language.code) {
+                  <li>
+                    <button type="button" [class.menu-active]="languages.current() === language.code" [attr.lang]="language.code"
+                      (click)="languages.use(language.code); blur()">
+                      <span class="w-6 text-xs font-semibold uppercase opacity-60">{{ language.code }}</span>{{ language.name }}
+                    </button>
+                  </li>
                 }
               </ul>
             </div>
           }
 
           <div class="dropdown dropdown-end">
-            <button type="button" tabindex="0" class="btn btn-ghost btn-sm btn-square" aria-label="Theme">
+            <button type="button" tabindex="0" class="btn btn-ghost btn-sm btn-square" [attr.aria-label]="'Shell.Theme' | translate">
               @if (theme.isDark()) { <svg lucideMoon class="size-4"></svg> } @else { <svg lucideSun class="size-4"></svg> }
             </button>
             <ul tabindex="0" class="dropdown-content menu z-40 mt-2 w-40 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg">
@@ -92,7 +113,7 @@ interface CreateAction {
                       @case ('dark') { <svg lucideMoon class="size-4"></svg> }
                       @default { <svg lucideMonitor class="size-4"></svg> }
                     }
-                    {{ option.label }}
+                    {{ option.label | translate }}
                   </button>
                 </li>
               }
@@ -106,18 +127,18 @@ interface CreateAction {
       </div>
 
       <div class="drawer-side z-40">
-        <label for="app-drawer" class="drawer-overlay" aria-label="Close menu"></label>
+        <label for="app-drawer" class="drawer-overlay" [attr.aria-label]="'Shell.CloseMenu' | translate"></label>
         <aside class="flex min-h-full flex-col border-r"
           style="width: var(--app-sidebar-width); background: var(--app-sidebar-bg); color: var(--app-sidebar-content); border-color: var(--app-sidebar-border)">
           <a routerLink="/dashboard" class="flex h-16 items-center px-5" style="color: var(--app-sidebar-content-strong)">
             <app-logo [size]="30" ring="var(--app-sidebar-bg)" />
           </a>
 
-          <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4" aria-label="Main">
+          <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4" [attr.aria-label]="'Shell.MainNavigation' | translate">
             @for (section of nav.sections(); track $index) {
               <div>
                 @if (section.label) {
-                  <p class="mb-1.5 px-3 text-[0.7rem] font-semibold tracking-wider uppercase opacity-55">{{ section.label }}</p>
+                  <p class="mb-1.5 px-3 text-[0.7rem] font-semibold tracking-wider uppercase opacity-55">{{ section.label | translate }}</p>
                 }
                 <ul class="space-y-0.5">
                   @for (item of section.items; track item.link) {
@@ -125,7 +146,7 @@ interface CreateAction {
                       <a class="nav-link" [routerLink]="item.link" routerLinkActive="active"
                         [routerLinkActiveOptions]="{ paths: 'subset', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }">
                         <svg [lucideIcon]="item.icon" class="size-[1.125rem] shrink-0"></svg>
-                        <span class="truncate">{{ item.label }}</span>
+                        <span class="truncate">{{ item.label | translate }}</span>
                       </a>
                     </li>
                   }
@@ -133,19 +154,19 @@ interface CreateAction {
               </div>
             }
             <div>
-              <p class="mb-1.5 px-3 text-[0.7rem] font-semibold tracking-wider uppercase opacity-55">Developers</p>
+              <p class="mb-1.5 px-3 text-[0.7rem] font-semibold tracking-wider uppercase opacity-55">{{ 'Nav.Developers' | translate }}</p>
               <ul class="space-y-0.5">
                 <li>
                   <a class="nav-link" [href]="apiDocsUrl" target="_blank" rel="noopener">
                     <svg lucideBookOpen class="size-[1.125rem] shrink-0"></svg>
-                    <span class="flex-1 truncate">API docs</span>
+                    <span class="flex-1 truncate">{{ 'Nav.ApiDocs' | translate }}</span>
                     <svg lucideExternalLink class="size-3.5 opacity-50"></svg>
                   </a>
                 </li>
                 <li>
                   <a class="nav-link" [href]="discoveryUrl" target="_blank" rel="noopener">
                     <svg lucideExternalLink class="size-[1.125rem] shrink-0"></svg>
-                    <span class="flex-1 truncate">Discovery document</span>
+                    <span class="flex-1 truncate">{{ 'Nav.DiscoveryDocument' | translate }}</span>
                   </a>
                 </li>
               </ul>
@@ -170,7 +191,7 @@ interface CreateAction {
               </button>
               <ul tabindex="0" class="dropdown-content menu z-50 mb-2 w-full rounded-box border border-base-300 bg-base-100 p-1 text-base-content shadow-lg">
                 <li>
-                  <a routerLink="/logout"><svg lucideLogOut class="size-4"></svg>Sign out</a>
+                  <a routerLink="/logout"><svg lucideLogOut class="size-4"></svg>{{ 'Shell.SignOut' | translate }}</a>
                 </li>
               </ul>
             </div>
@@ -189,14 +210,15 @@ export class ShellComponent {
   private readonly _auth = inject(AuthService);
   protected readonly nav = inject(NavService);
   protected readonly theme = inject(ThemeService);
+  protected readonly languages = inject(AppLanguagesService);
   protected readonly version = settings.version;
   protected readonly apiDocsUrl = settings.api_docs;
   protected readonly discoveryUrl = `${settings.auth_settings.authority}/.well-known/openid-configuration`;
   protected readonly drawerOpen = signal(false);
   protected readonly themeOptions: { mode: ThemeMode; label: string }[] = [
-    { mode: 'light', label: 'Light' },
-    { mode: 'dark', label: 'Dark' },
-    { mode: 'system', label: 'System' }
+    { mode: 'light', label: 'Shell.ThemeLight' },
+    { mode: 'dark', label: 'Shell.ThemeDark' },
+    { mode: 'system', label: 'Shell.ThemeSystem' }
   ];
 
   protected readonly userId = computed(() => this._auth.currentUser()?.profile?.sub);
@@ -210,13 +232,13 @@ export class ShellComponent {
     const users = this._auth.isAdminUIUsersWriter();
     const clients = this._auth.isAdminUIClientsWriter();
     return [
-      ...(users ? [{ label: 'User', link: '/users/add' }, { label: 'Role', link: '/roles/add' }] : []),
+      ...(users ? [{ label: 'Shell.CreateUser', link: '/users/add' }, { label: 'Shell.CreateRole', link: '/roles/add' }] : []),
       ...(clients ? [
-        { label: 'Client', link: '/clients/add' },
-        { label: 'Identity resource', link: '/resources/add', state: { origin: 'identity' } },
-        { label: 'API resource', link: '/resources/add', state: { origin: 'api' } }
+        { label: 'Shell.CreateClient', link: '/clients/add' },
+        { label: 'Shell.CreateIdentityResource', link: '/resources/add', state: { origin: 'identity' } },
+        { label: 'Shell.CreateApiResource', link: '/resources/add', state: { origin: 'api' } }
       ] : []),
-      ...(users || clients ? [{ label: 'Claim type', link: '/claim-types/add' }] : [])
+      ...(users || clients ? [{ label: 'Shell.CreateClaimType', link: '/claim-types/add' }] : [])
     ];
   });
 

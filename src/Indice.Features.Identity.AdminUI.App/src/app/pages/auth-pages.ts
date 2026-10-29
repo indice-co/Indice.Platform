@@ -1,32 +1,34 @@
 import { Component, OnInit, inject, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowRight, LucideKeyRound, LucideShieldCheck, LucideUsers } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
 import { LogoComponent } from '../ui/logo/logo.component';
 
 /** Full screen brand splash used while authentication redirects are in flight. */
 @Component({
   selector: 'app-splash',
-  imports: [LogoComponent],
+  imports: [LogoComponent, TranslatePipe],
   host: { class: 'grid min-h-dvh place-items-center bg-base-200 px-6' },
   template: `
     <div class="flex flex-col items-center gap-6 text-center">
       <app-logo [size]="48" ring="var(--color-base-200)" />
       <div class="flex items-center gap-3 text-base-content/75">
         <span class="loading loading-dots loading-sm text-primary"></span>
-        <span>{{ message() }}</span>
+        <span>{{ message() || ('Pages.Splash.PleaseWait' | translate) }}</span>
       </div>
     </div>
   `
 })
 export class SplashComponent {
-  public readonly message = input('Please wait…');
+  /** Already translated text; defaults to the translated `Please wait…`. */
+  public readonly message = input('');
 }
 
 /** Public landing page: signed-in users go straight to the dashboard, everyone else gets a sign in call to action. */
 @Component({
   selector: 'app-home',
-  imports: [LogoComponent, LucideArrowRight, LucideKeyRound, LucideShieldCheck, LucideUsers],
+  imports: [LogoComponent, LucideArrowRight, LucideKeyRound, LucideShieldCheck, LucideUsers, TranslatePipe],
   host: { class: 'relative grid min-h-dvh place-items-center overflow-hidden bg-neutral px-6 text-neutral-content' },
   template: `
     <div class="pointer-events-none absolute inset-0 opacity-60"
@@ -36,16 +38,16 @@ export class SplashComponent {
     <div class="relative flex w-full max-w-md flex-col items-center gap-8 text-center">
       <app-logo [size]="56" ring="var(--color-neutral)" class="text-white" />
       <div class="space-y-3">
-        <h1 class="text-3xl font-semibold tracking-tight text-balance text-white sm:text-4xl">Identity administration</h1>
-        <p class="text-neutral-content/75">Manage users, roles, client applications and the resources they can reach, all in one place.</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-balance text-white sm:text-4xl">{{ 'Pages.Home.Title' | translate }}</h1>
+        <p class="text-neutral-content/75">{{ 'Pages.Home.Subtitle' | translate }}</p>
       </div>
       <ul class="flex flex-wrap justify-center gap-2 text-sm">
-        <li class="badge border-white/10 bg-white/5 py-3 text-neutral-content"><svg lucideUsers class="size-3.5"></svg> Users & roles</li>
-        <li class="badge border-white/10 bg-white/5 py-3 text-neutral-content"><svg lucideKeyRound class="size-3.5"></svg> Clients & scopes</li>
-        <li class="badge border-white/10 bg-white/5 py-3 text-neutral-content"><svg lucideShieldCheck class="size-3.5"></svg> Audit logs</li>
+        <li class="badge border-white/10 bg-white/5 py-3 text-neutral-content"><svg lucideUsers class="size-3.5"></svg> {{ 'Pages.Home.UsersAndRoles' | translate }}</li>
+        <li class="badge border-white/10 bg-white/5 py-3 text-neutral-content"><svg lucideKeyRound class="size-3.5"></svg> {{ 'Pages.Home.ClientsAndScopes' | translate }}</li>
+        <li class="badge border-white/10 bg-white/5 py-3 text-neutral-content"><svg lucideShieldCheck class="size-3.5"></svg> {{ 'Pages.Home.AuditLogs' | translate }}</li>
       </ul>
       <button type="button" class="btn btn-accent btn-wide gap-2" (click)="signIn()">
-        Sign in <svg lucideArrowRight class="size-4"></svg>
+        {{ 'Pages.Home.SignIn' | translate }} <svg lucideArrowRight class="size-4"></svg>
       </button>
     </div>
   `
@@ -69,8 +71,8 @@ export class HomeComponent implements OnInit {
 
 @Component({
   selector: 'app-auth-callback',
-  imports: [SplashComponent],
-  template: `<app-splash message="Signing you in…" />`
+  imports: [SplashComponent, TranslatePipe],
+  template: `<app-splash [message]="'Pages.Auth.SigningIn' | translate" />`
 })
 export class AuthCallbackComponent implements OnInit {
   private readonly _auth = inject(AuthService);
@@ -99,8 +101,8 @@ export class AuthRenewComponent implements OnInit {
 
 @Component({
   selector: 'app-logout',
-  imports: [SplashComponent],
-  template: `<app-splash message="Signing you out…" />`
+  imports: [SplashComponent, TranslatePipe],
+  template: `<app-splash [message]="'Pages.Auth.SigningOut' | translate" />`
 })
 export class LogoutComponent implements OnInit {
   private readonly _auth = inject(AuthService);
@@ -110,23 +112,23 @@ export class LogoutComponent implements OnInit {
   }
 }
 
-/** Forbidden / not found page. `code`, `title` and `message` are bound from route data. */
+/** Forbidden / not found page. `code`, `title` and `message` are bound from route data; `title` and `message` are translation keys. */
 @Component({
   selector: 'app-status-page',
-  imports: [RouterLink, LogoComponent],
+  imports: [RouterLink, LogoComponent, TranslatePipe],
   host: { class: 'grid min-h-dvh place-items-center bg-base-200 px-6' },
   template: `
     <div class="flex max-w-md flex-col items-center gap-6 text-center">
       <app-logo [size]="40" ring="var(--color-base-200)" />
       <p class="tabular text-7xl font-bold tracking-tight text-base-content/15">{{ code() }}</p>
       <div class="space-y-2">
-        <h1 class="text-2xl font-bold">{{ title() }}</h1>
-        <p class="text-base-content/70">{{ message() }}</p>
+        <h1 class="text-2xl font-bold">{{ title() | translate }}</h1>
+        <p class="text-base-content/70">{{ message() | translate }}</p>
       </div>
       <div class="flex gap-2">
-        <a routerLink="/dashboard" class="btn btn-primary">Back to dashboard</a>
+        <a routerLink="/dashboard" class="btn btn-primary">{{ 'Pages.Status.BackToDashboard' | translate }}</a>
         @if (code() === '403') {
-          <a routerLink="/logout" class="btn btn-ghost">Sign out</a>
+          <a routerLink="/logout" class="btn btn-ghost">{{ 'Shell.SignOut' | translate }}</a>
         }
       </div>
     </div>
@@ -134,8 +136,8 @@ export class LogoutComponent implements OnInit {
 })
 export class StatusPageComponent {
   public readonly code = input('404');
-  public readonly title = input('Page not found');
-  public readonly message = input('The page you are looking for does not exist or has been moved.');
+  public readonly title = input('Pages.NotFound.Title');
+  public readonly message = input('Pages.NotFound.Message');
 }
 
 /** Sign in state urls saved by the previous UI started with `/app/`; strip that so old links still land correctly. */

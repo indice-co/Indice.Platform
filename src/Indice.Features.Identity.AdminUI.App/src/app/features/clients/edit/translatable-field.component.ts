@@ -1,6 +1,7 @@
 import { Component, computed, input, model } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { LucideLanguages } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Text field with a culture switcher. The first culture edits `control` (the value stored on the entity itself);
@@ -9,12 +10,13 @@ import { LucideLanguages } from '@lucide/angular';
  */
 @Component({
   selector: 'app-translatable-field',
-  imports: [ReactiveFormsModule, LucideLanguages],
+  imports: [ReactiveFormsModule, TranslatePipe, LucideLanguages],
   template: `
-    <div class="join w-full" [class.items-start]="multiline()">
-      <div class="dropdown join-item">
-        <button type="button" tabindex="0" class="btn join-item gap-1 px-3 font-mono text-xs" [attr.aria-label]="'Language: ' + culture()"
-          [class.btn-primary]="!isPrimary()" [class.btn-soft]="!isPrimary()">
+    <!-- only the button is a join-item: marking the dropdown wrapper as one too draws a second (currentColor) border around it -->
+    <div class="join w-full">
+      <div class="dropdown flex">
+        <button type="button" tabindex="0" class="btn join-item gap-1 px-3 font-mono text-xs" [attr.aria-label]="'Clients.TranslatableField.Language' | translate: { culture: culture() }"
+          [class.h-auto]="multiline()" [class]="isPrimary() ? 'border-base-content/20' : 'btn-primary btn-soft'">
           <svg lucideLanguages class="size-3.5"></svg>{{ culture() }}
         </button>
         <ul tabindex="0" class="dropdown-content menu z-30 mt-1 w-36 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg">
@@ -22,7 +24,7 @@ import { LucideLanguages } from '@lucide/angular';
             <li>
               <button type="button" [class.menu-active]="item === culture()" (click)="culture.set(item); blur()">
                 <span class="font-mono text-xs">{{ item }}</span>
-                @if (first) { <span class="text-xs text-base-content/60">default</span> }
+                @if (first) { <span class="text-xs text-base-content/60">{{ 'Clients.TranslatableField.Default' | translate }}</span> }
               </button>
             </li>
           }

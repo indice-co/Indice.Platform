@@ -4,11 +4,11 @@ import { permissionGuard } from 'src/app/core/services/auth.guards';
 export const CLIENT_ROUTES: Routes = [
   { path: '', pathMatch: 'full', loadComponent: () => import('./clients.component').then(m => m.ClientsComponent) },
   {
-    path: 'add', data: { breadcrumb: 'New client' }, canActivate: [permissionGuard('clientsWriter')],
+    path: 'add', data: { breadcrumb: 'Routes.NewClient' }, canActivate: [permissionGuard('clientsWriter')],
     loadComponent: () => import('./add/client-add.component').then(m => m.ClientAddComponent)
   },
   {
-    path: ':id', data: { breadcrumb: 'Client' },
+    path: ':id', data: { breadcrumb: 'Routes.Client' },
     loadComponent: () => import('./edit/client-edit.component').then(m => m.ClientEditComponent),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'details' },
