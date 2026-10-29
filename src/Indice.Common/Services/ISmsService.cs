@@ -58,8 +58,6 @@ public class SmsServiceSettings
     public int Validity { get; set; } = 4320;
     /// <summary>The base URL to be used for callback events.</summary>
     public string? CallbackUrl { get; set; }
-    /// <summary>Flag indicating whether delivery reports should be requested.</summary>
-    public bool Dlr { get; set; }
 }
 
 /// <summary> The send receipt object representing a send message by either the <see cref="IEmailService"/> or the <see cref="ISmsService"/>. </summary>

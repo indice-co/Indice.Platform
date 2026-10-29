@@ -107,7 +107,7 @@ public abstract class SmsServiceYubotoOmniBase
     #region Models
     internal class SendRequest
     {
-        public static SendRequest CreateSms(string[] phoneNumbers, string sender, string message, int validity) => new SendRequest {
+        public static SendRequest CreateSms(string[] phoneNumbers, string sender, string message, int validity, string? callbackUrl = null, bool dlr = false) => new SendRequest {
             PhoneNumbers = phoneNumbers,
             Sms = new SmsObj {
                 Sender = sender,
@@ -115,10 +115,12 @@ public abstract class SmsServiceYubotoOmniBase
                 TypeSms = "sms",
                 LongSms = message.Length > 160,
                 Validity = validity
-            }
+            },
+            CallbackUrl = callbackUrl,
+            Dlr = dlr
         };
 
-        public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, bool viberFallbackEnabled, int validity, string expiredMessage = "Message is expired.") => new SendRequest {
+        public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, bool viberFallbackEnabled, int validity, string expiredMessage = "Message is expired.", string? callbackUrl = null, bool dlr = false) => new SendRequest {
             PhoneNumbers = phoneNumbers,
             Viber = new ViberObj {
                 Sender = sender,
@@ -134,13 +136,10 @@ public abstract class SmsServiceYubotoOmniBase
                 LongSms = message.Length > 160,
                 Priority = 1,
                 Validity = validity
-            } : default
+            } : default,
+            CallbackUrl = callbackUrl,
+            Dlr = dlr
         };
-
-        public SendRequest WithDeliveryReport(bool dlr) {
-            Dlr = dlr;
-            return this;
-        }
 
         /// <summary>
         /// Refers to the phone number of the recipient or recipients of the text message (use array for multiple recipients).
@@ -260,6 +259,20 @@ public abstract class SmsServiceYubotoOmniBase
             /// </summary>
             [JsonPropertyName("TwoFa")]
             public TwoFaObj? TwoFa { get; set; }
+
+            /// <summary>
+            /// Callback URL that Yuboto invokes with delivery details when the message reaches a final state.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("CallbackUrl")]
+            public string? CallbackUrl { get; set; }
+
+            /// <summary>
+            /// Indicates whether delivery receipt notifications are requested for this message.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("Dlr")]
+            public bool? Dlr { get; set; }
         }
 
         /// <summary>The Viber Object of SendRequest</summary>
@@ -322,6 +335,20 @@ public abstract class SmsServiceYubotoOmniBase
             /// </summary>
             [JsonPropertyName("TwoFa")]
             public TwoFaObj? TwoFa { get; set; }
+
+            /// <summary>
+            /// Callback URL that Yuboto invokes with delivery details when the message reaches a final state.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("CallbackUrl")]
+            public string? CallbackUrl { get; set; }
+
+            /// <summary>
+            /// Indicates whether delivery receipt notifications are requested for this message.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("Dlr")]
+            public bool? Dlr { get; set; }
         }
 
         /// <summary>The Two Factor Object of ViberObj | SmsObj.</summary>

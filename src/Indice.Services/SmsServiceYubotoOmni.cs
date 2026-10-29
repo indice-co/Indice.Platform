@@ -22,9 +22,10 @@ public class SmsServiceYubotoOmni : SmsServiceYubotoOmniBase, ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         var messageId = Guid.NewGuid().ToString();
         var phoneNumbers = GetRecipientsFromDestination(destination);
+        var callbackUrl = Settings.CallbackUrl ?? null;
+        var dlr = string.IsNullOrWhiteSpace(Settings.CallbackUrl) ? false : true;
         var requestBody = SendRequest
-            .CreateSms(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.Validity)
-            .WithDeliveryReport(Settings.Dlr);
+            .CreateSms(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.Validity, callbackUrl : callbackUrl, dlr: dlr);
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
         var httpResponseMessage = await HttpClient.PostAsync("Send", data);
