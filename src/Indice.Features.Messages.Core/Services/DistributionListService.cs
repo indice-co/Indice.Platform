@@ -28,6 +28,7 @@ public class DistributionListService : IDistributionListService
             Id = Guid.NewGuid(),
             Name = request.Name,
             Alias = request.Alias,
+            SystemGenerated = request.IsSystemGenerated,
             CreatedBy = request.IsSystemGenerated ? "system" : null
         };
         // The following code will try at its best effort to create contacts without making duplicates.
@@ -102,7 +103,7 @@ public class DistributionListService : IDistributionListService
         var list = idValue.IsGuid ?
             await DbContext.DistributionLists.FindAsync(idValue.Uuid) :
             await DbContext.DistributionLists.FirstOrDefaultAsync(x => x.Alias == idValue.Value);
-        
+
         if (list is null) {
             return default;
         }
@@ -144,13 +145,14 @@ public class DistributionListService : IDistributionListService
                 UpdatedAt = list.UpdatedAt,
                 Id = list.Id,
                 Name = list.Name,
-                Alias = list.Alias
+                Alias = list.Alias,
+                SystemGenerated = list.SystemGenerated
             });
         if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
             query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));
         }
         if (filter?.IsSystemGenerated is not null) {
-            query = query.Where(x => filter.IsSystemGenerated == (x.CreatedBy!.ToLower() == "system"));
+            query = query.Where(x => x.SystemGenerated == filter.IsSystemGenerated);
         }
         return query.ToResultSetAsync(options);
     }

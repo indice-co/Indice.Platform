@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.62.0] - 
+### Added flag for system generated distribution lists
+
+Run the following migration script.<br/>
+**Caution!** Update table schema if not [cmp]
+```sql
+ALTER TABLE  [cmp].[DistributionList] 
+    ADD [SystemGenerated] BIT DEFAULT (0) NOT NULL;
+GO
+
+CREATE NONCLUSTERED INDEX [IX_DistributionList_SystemGenerated]
+    ON [cmp].[DistributionList]([SystemGenerated] ASC);
+GO
+
+UPDATE [cmp].[DistributionList]
+  SET SystemGenerated = 1
+WHERE CreatedBy = 'system'
+GO
+```
+
 ## [8.47.0] - 2026-05-13
 ### Added partial template functionality
 
