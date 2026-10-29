@@ -11,15 +11,17 @@ import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { ListSortComponent, SortOption } from '../../list-sort.component';
 import { ContactStore } from '../contact-store.service';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** "Campaigns" tab of the contact detail page: the campaigns the contact received. */
 @Component({
   selector: 'app-contact-campaigns',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent,
     BoolIconComponent, ChannelIconComponent, MessageTypeBadgeComponent, LucideMegaphone
   ],
   template: `
+    <app-list-count class="mb-3" [count]="list.items() ? list.count() : null" one="Campaigns.CountOne" other="Campaigns.CountOther" />
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
       <app-list-sort [list]="list" [options]="sortOptions" />

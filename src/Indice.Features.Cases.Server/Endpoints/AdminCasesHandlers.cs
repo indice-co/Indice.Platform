@@ -94,8 +94,8 @@ internal static class AdminCasesHandlers
         Dictionary<string, string> metadata,
         IAdminCaseService adminCaseService
         ) {
-        if (CaseMetadataValidation.Validate(metadata) is { } errors) {
-            return TypedResults.ValidationProblem(errors);
+        if (new CaseMetadataValidator().Validate(metadata) is { IsValid: false } errors) { 
+            return TypedResults.ValidationProblem(errors.ToDictionary());
         }
         var result = await adminCaseService.PatchCaseMetadata(caseId, metadata);
         if (!result) {

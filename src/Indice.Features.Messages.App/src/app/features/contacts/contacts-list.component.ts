@@ -16,15 +16,17 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { contactChannels } from './contact-channels';
 import { ListSortComponent, SortOption } from './list-sort.component';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 @Component({
   selector: 'app-contacts',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent,
     ContactAvatarComponent, ChannelIconComponent, BoolIconComponent, LucideContactRound, LucideUserPlus
   ],
   template: `
     <app-page-header [title]="'Contacts.ListTitle' | translate" [subtitle]="'Contacts.Subtitle' | translate">
+      <app-list-count class="mt-0.5" [count]="list.items() ? list.count() : null" one="Contacts.CountOne" other="Contacts.CountOther" />
       <div actions>
         <a class="btn btn-primary btn-sm" [routerLink]="pane.link('create-new-contact')">
           <svg lucideUserPlus class="size-4"></svg>{{ 'Contacts.AddContacts' | translate }}

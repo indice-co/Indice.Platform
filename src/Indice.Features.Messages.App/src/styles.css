@@ -9,7 +9,7 @@
 }
 
 /*
- * Messages UI themes.
+ * Messaging UI themes.
  * daisyUI semantic tokens are the primary theming surface. The `--app-*` variables further down only cover what
  * daisyUI has no token for: sidebar chrome, channel colors, message type classifications and chart series.
  */
