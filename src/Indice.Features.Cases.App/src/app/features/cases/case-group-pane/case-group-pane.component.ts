@@ -1,18 +1,21 @@
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideFolder, LucideTriangleAlert } from '@lucide/angular';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { Case, CasesApiService, UpdateCaseGroupRequest } from 'src/app/core/services/cases-api.service';
+import { CasesApiService, UpdateCaseGroupRequest } from 'src/app/core/services/cases-api.service';
+import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
 import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { ToastService } from 'src/app/ui/toast/toast.service';
 
 /** Side pane (administrators): the group of a case. The group takes part in the access rules. */
 @Component({
   selector: 'app-case-group-pane',
-  imports: [TranslatePipe, SidePaneLayoutComponent, LucideFolder, LucideTriangleAlert],
+  imports: [TranslatePipe, EmptyStateComponent, SidePaneLayoutComponent, LucideFolder, LucideTriangleAlert],
   template: `
     <app-side-pane-layout [title]="'caseDetails.groupId' | translate" [subtitle]="'caseGroup.subtitle' | translate">
-      @if (case()) {
+      @if (case.hasValue()) {
         <form id="case-group-form" class="space-y-4" (submit)="$event.preventDefault(); save()">
           <label class="input w-full">
             <svg lucideFolder class="size-4 opacity-60"></svg>
@@ -24,6 +27,11 @@ import { ToastService } from 'src/app/ui/toast/toast.service';
             <span>{{ 'caseGroup.accessWarning' | translate }}</span>
           </div>
         </form>
+      } @else if (case.error()) {
+        <app-empty-state [title]="'caseDetails.loadError.title' | translate" [message]="'caseDetails.loadError.message' | translate">
+          <svg icon lucideTriangleAlert class="size-6"></svg>
+          <button actions type="button" class="btn btn-sm" (click)="case.reload()">{{ 'common.retry' | translate }}</button>
+        </app-empty-state>
       } @else {
         <div class="skeleton h-11 w-full"></div>
       }
@@ -46,36 +54,27 @@ export class CaseGroupPaneComponent {
   /** The case whose group is edited (`case-group;caseId=X`). */
   public readonly caseId = input.required<string>();
 
-  protected readonly case = signal<Case | undefined>(undefined);
-  protected readonly groupId = signal('');
-  protected readonly changed = computed(() => !!this.case() && this.groupId().trim() !== (this.case()!.groupId ?? ''));
+  protected readonly case = rxResource({
+    params: () => this.caseId(),
+    stream: ({ params }) => this._api.getCaseById(params)
+  });
+  /** The edited group; the stored one again whenever the case (re)loads. */
+  protected readonly groupId = linkedSignal(() => this.case.hasValue() ? this.case.value().groupId ?? '' : '');
+  protected readonly changed = computed(() => this.case.hasValue() && this.groupId().trim() !== (this.case.value().groupId ?? ''));
   protected readonly saving = signal(false);
 
-  constructor() {
-    effect(() => {
-      const caseId = this.caseId();
-      untracked(() => {
-        this.case.set(undefined);
-        this._api.getCaseById(caseId).subscribe(caseModel => {
-          this.case.set(caseModel);
-          this.groupId.set(caseModel.groupId ?? '');
-        });
-      });
-    });
-  }
-
   protected save(): void {
-    if (!this.changed()) {
+    if (!this.changed() || this.saving()) {
       return;
     }
+    const caseId = this.caseId();
     this.saving.set(true);
-    this._api.updateCaseGroup(this.caseId(), new UpdateCaseGroupRequest({ groupId: this.groupId().trim() || undefined })).subscribe({
-      next: () => {
+    this._api.updateCaseGroup(caseId, new UpdateCaseGroupRequest({ groupId: this.groupId().trim() || undefined }))
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe(() => {
         this._toast.success('toasts.success.title', 'caseGroup.saved');
-        this._caseDetails.notifyCaseChanged(this.caseId());
+        this._caseDetails.notifyCaseChanged(caseId);
         this.pane.close();
-      },
-      error: () => this.saving.set(false)
-    });
+      });
   }
 }

@@ -1,12 +1,14 @@
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Observable, filter, forkJoin, of, switchMap } from 'rxjs';
-import { LucideLink, LucidePlus, LucideSearch, LucideUnlink } from '@lucide/angular';
+import { Observable, filter, finalize, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { LucideLink, LucidePlus, LucideSearch, LucideTriangleAlert, LucideUnlink } from '@lucide/angular';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import {
-  AddRelatedCasesRequest, Case, CasePartial, CasesApiService, UpdateCaseRelationKeyRequest
+  AddRelatedCasesRequest, CasePartial, CasesApiService, UpdateCaseRelationKeyRequest
 } from 'src/app/core/services/cases-api.service';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
+import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
 import { SidePaneLayoutComponent } from 'src/app/ui/side-pane/side-pane';
 import { ToastService } from 'src/app/ui/toast/toast.service';
 
@@ -16,7 +18,7 @@ import { ToastService } from 'src/app/ui/toast/toast.service';
  */
 @Component({
   selector: 'app-case-relations-pane',
-  imports: [TranslatePipe, SidePaneLayoutComponent, LucideLink, LucidePlus, LucideSearch, LucideUnlink],
+  imports: [TranslatePipe, EmptyStateComponent, SidePaneLayoutComponent, LucideLink, LucidePlus, LucideSearch, LucideTriangleAlert, LucideUnlink],
   template: `
     <app-side-pane-layout [title]="'caseDetails.related.title' | translate" [subtitle]="'caseRelations.subtitle' | translate">
       @if (case(); as caseModel) {
@@ -30,7 +32,7 @@ import { ToastService } from 'src/app/ui/toast/toast.service';
                 <input type="text" class="docket grow" name="relationKey" maxlength="256" [value]="relationKey()"
                   (input)="relationKey.set($any($event.target).value)" [attr.aria-label]="'caseDetails.relationKey' | translate" />
               </label>
-              <button type="submit" class="btn btn-primary join-item" [disabled]="!keyChanged() || busy()">
+              <button type="submit" class="btn btn-primary join-item" [disabled]="!keyChanged() || locked()">
                 @if (busy() === 'key') { <span class="loading loading-spinner loading-xs"></span> }
                 {{ 'common.save' | translate }}
               </button>
@@ -50,7 +52,7 @@ import { ToastService } from 'src/app/ui/toast/toast.service';
                       <span class="docket block font-semibold">{{ caseLabel(relatedCase) }}</span>
                       <span class="block truncate text-sm text-base-content/70">{{ caseLine(relatedCase) }}</span>
                     </span>
-                    <button type="button" class="btn btn-ghost btn-sm btn-square text-error" [disabled]="!!busy()" (click)="remove(relatedCase)"
+                    <button type="button" class="btn btn-ghost btn-sm btn-square text-error" [disabled]="locked()" (click)="remove(relatedCase)"
                       [title]="'caseRelations.remove' | translate" [attr.aria-label]="('caseRelations.remove' | translate) + ' ' + caseLabel(relatedCase)">
                       @if (busy() === relatedCase.id) { <span class="loading loading-spinner loading-xs"></span> } @else { <svg lucideUnlink class="size-4"></svg> }
                     </button>
@@ -72,16 +74,16 @@ import { ToastService } from 'src/app/ui/toast/toast.service';
                   <input type="search" class="grow" name="term" minlength="3" [placeholder]="'caseRelations.add.placeholder' | translate"
                     [value]="term()" (input)="term.set($any($event.target).value)" />
                 </label>
-                <button type="submit" class="btn btn-primary join-item" [disabled]="term().trim().length < 3 || searching()">
-                  @if (searching()) { <span class="loading loading-spinner loading-xs"></span> }
+                <button type="submit" class="btn btn-primary join-item" [disabled]="term().trim().length < 3 || results.isLoading()">
+                  @if (results.isLoading()) { <span class="loading loading-spinner loading-xs"></span> }
                   {{ 'common.search' | translate }}
                 </button>
               </form>
 
-              @if (results(); as results) {
-                @if (results.length) {
+              @if (found(); as found) {
+                @if (found.length) {
                   <ul class="mt-4 divide-y divide-base-300 overflow-hidden rounded-box border border-base-300">
-                    @for (result of results; track result.id) {
+                    @for (result of found; track result.id) {
                       @let alreadyRelated = result.relationKey === caseModel.relationKey;
                       <li class="flex items-center gap-3 py-2.5 pl-4 pr-2">
                         <span class="min-w-0 flex-1">
@@ -96,7 +98,7 @@ import { ToastService } from 'src/app/ui/toast/toast.service';
                         @if (alreadyRelated) {
                           <span class="badge badge-sm badge-ghost shrink-0">{{ 'caseRelations.add.alreadyRelated' | translate }}</span>
                         } @else {
-                          <button type="button" class="btn btn-ghost btn-sm shrink-0" [disabled]="!!busy()" (click)="add(result)">
+                          <button type="button" class="btn btn-ghost btn-sm shrink-0" [disabled]="locked()" (click)="add(result)">
                             @if (busy() === result.id) { <span class="loading loading-spinner loading-xs"></span> } @else { <svg lucidePlus class="size-4"></svg> }
                             {{ 'caseRelations.add.action' | translate }}
                           </button>
@@ -107,12 +109,19 @@ import { ToastService } from 'src/app/ui/toast/toast.service';
                 } @else {
                   <p class="mt-4 rounded-box bg-base-200 px-4 py-3 text-sm text-base-content/70">{{ 'caseRelations.add.noResults' | translate }}</p>
                 }
+              } @else if (results.error()) {
+                <p role="alert" class="mt-4 rounded-box bg-error/10 px-4 py-3 text-sm text-error">{{ 'cases.loadError.title' | translate }}</p>
               }
             } @else {
               <p class="rounded-box bg-base-200 px-4 py-3 text-sm text-base-content/70">{{ 'caseRelations.add.setKeyFirst' | translate }}</p>
             }
           </section>
         </div>
+      } @else if (data.error()) {
+        <app-empty-state [title]="'caseDetails.loadError.title' | translate" [message]="'caseDetails.loadError.message' | translate">
+          <svg icon lucideTriangleAlert class="size-6"></svg>
+          <button actions type="button" class="btn btn-sm" (click)="data.reload()">{{ 'common.retry' | translate }}</button>
+        </app-empty-state>
       } @else {
         <div class="space-y-3">
           @for (i of [1, 2, 3]; track i) { <div class="skeleton h-11 w-full"></div> }
@@ -130,26 +139,35 @@ export class CaseRelationsPaneComponent {
   /** The case whose relations are edited (`case-relations;caseId=X`). */
   public readonly caseId = input.required<string>();
 
-  protected readonly case = signal<Case | undefined>(undefined);
-  protected readonly related = signal<CasePartial[]>([]);
-  protected readonly relationKey = signal('');
-  protected readonly keyChanged = computed(() => this.relationKey().trim() !== (this.case()?.relationKey ?? ''));
-  protected readonly term = signal('');
-  protected readonly searching = signal(false);
-  protected readonly results = signal<CasePartial[] | undefined>(undefined);
+  /** The case and the cases sharing its relation key, loaded together so they never disagree. */
+  protected readonly data = rxResource({
+    params: () => this.caseId(),
+    stream: ({ params }) => forkJoin({
+      case: this._api.getCaseById(params),
+      related: this._api.getRelatedCases(params).pipe(map(related => related ?? []))
+    })
+  });
+  protected readonly case = computed(() => this.data.hasValue() ? this.data.value().case : undefined);
+  protected readonly related = computed(() => this.data.hasValue() ? this.data.value().related : []);
+  /** The edited key; the stored one again whenever the case (re)loads. */
+  protected readonly relationKey = linkedSignal(() => this.case()?.relationKey ?? '');
+  protected readonly keyChanged = computed(() => !!this.case() && this.relationKey().trim() !== (this.case()!.relationKey ?? ''));
+
+  protected readonly term = linkedSignal({ source: this.caseId, computation: () => '' });
+  /** The submitted search: a new object on every submit, so searching the same term again reruns it. */
+  private readonly _query = linkedSignal<string, { term: string } | undefined>({ source: this.caseId, computation: () => undefined });
+  protected readonly results = rxResource({
+    params: () => this._query(),
+    stream: ({ params }) => this._api.getCases(1, 10, undefined, params.term)
+  });
+  protected readonly found = computed(() => this.results.hasValue()
+    ? (this.results.value().items ?? []).filter(item => item.id !== this.caseId())
+    : undefined);
+
   /** What is being saved: 'key', or the id of the case being added or removed. */
   protected readonly busy = signal<string | undefined>(undefined);
-
-  constructor() {
-    effect(() => {
-      const caseId = this.caseId();
-      untracked(() => {
-        this.case.set(undefined);
-        this.results.set(undefined);
-        this.load(caseId);
-      });
-    });
-  }
+  /** No new change while one is saved or the pane reloads after it. */
+  protected readonly locked = computed(() => !!this.busy() || this.data.isLoading());
 
   /** The case number, or the case id when it has none. */
   protected caseLabel(item: CasePartial): string {
@@ -161,86 +179,62 @@ export class CaseRelationsPaneComponent {
   }
 
   protected saveKey(): void {
+    const caseId = this.caseId();
     const relationKey = this.relationKey().trim();
+    const related = this.related().length;
     // changing or clearing the key takes the case out of its relation: confirm when there is one
-    const confirmed$: Observable<boolean> = this.related().length
+    const confirmed$ = related
       ? this._dialog.confirm({
         title: 'caseRelations.leaveConfirm.title',
         message: 'caseRelations.leaveConfirm.message',
-        messageParams: { count: this.related().length },
+        messageParams: { count: related },
         tone: 'danger'
       })
       : of(true);
-    this.save('key', confirmed$.pipe(
-      filter(Boolean),
-      switchMap(() => this._api.updateCaseRelationKey(this.caseId(), new UpdateCaseRelationKeyRequest({ relationKey: relationKey || undefined })))
-    ));
+    this.save('key', confirmed$, () => this._api.updateCaseRelationKey(caseId, new UpdateCaseRelationKeyRequest({ relationKey: relationKey || undefined })));
   }
 
   protected remove(relatedCase: CasePartial): void {
-    this.save(relatedCase.id!, this._dialog.confirm({
+    const caseId = this.caseId();
+    const confirmed$ = this._dialog.confirm({
       title: 'caseRelations.remove',
       message: 'caseRelations.removeConfirm',
       messageParams: { referenceNumber: this.caseLabel(relatedCase) },
       tone: 'danger'
-    }).pipe(
-      filter(Boolean),
-      switchMap(() => this._api.removeRelatedCase(this.caseId(), relatedCase.id!))
-    ));
+    });
+    this.save(relatedCase.id!, confirmed$, () => this._api.removeRelatedCase(caseId, relatedCase.id!));
   }
 
   protected add(result: CasePartial): void {
+    const caseId = this.caseId();
     // the case leaves the relation it is in: warn first
-    const confirmed$: Observable<boolean> = result.relationKey
+    const confirmed$ = result.relationKey
       ? this._dialog.confirm({
         title: 'caseRelations.moveConfirm.title',
         message: 'caseRelations.moveConfirm.message',
         messageParams: { referenceNumber: this.caseLabel(result), relationKey: result.relationKey }
       })
       : of(true);
-    this.save(result.id!, confirmed$.pipe(
-      filter(Boolean),
-      switchMap(() => this._api.addRelatedCases(this.caseId(), new AddRelatedCasesRequest({ caseIds: [result.id!] })))
-    ));
+    this.save(result.id!, confirmed$, () => this._api.addRelatedCases(caseId, new AddRelatedCasesRequest({ caseIds: [result.id!] })));
   }
 
   protected search(): void {
-    this.searching.set(true);
-    this._api.getCases(1, 10, undefined, this.term().trim()).subscribe({
-      next: page => {
-        this.results.set((page.items ?? []).filter(item => item.id !== this.caseId()));
-        this.searching.set(false);
-      },
-      error: () => {
-        this.results.set([]);
-        this.searching.set(false);
-      }
-    });
+    this._query.set({ term: this.term().trim() });
   }
 
-  /** Runs a change; once it is saved, reloads the pane and tells the details page. A cancelled dialog completes without a value. */
-  private save(what: string, change$: Observable<void>): void {
-    this.busy.set(what);
-    change$.subscribe({
-      next: () => {
-        this._toast.success('toasts.success.title', 'caseRelations.saved');
-        this._caseDetails.notifyCaseChanged(this.caseId());
-        this.load(this.caseId(), true);
-      },
-      error: () => this.busy.set(undefined),
-      complete: () => this.busy.set(undefined)
-    });
-  }
-
-  private load(caseId: string, refreshResults = false): void {
-    forkJoin([this._api.getCaseById(caseId), this._api.getRelatedCases(caseId)]).subscribe(([caseModel, related]) => {
-      this.case.set(caseModel);
-      this.related.set(related ?? []);
-      this.relationKey.set(caseModel.relationKey ?? '');
-      // the search results show the relation each case is in: keep them current
-      if (refreshResults && this.results()) {
-        this.search();
-      }
+  /** Once confirmed, saves a change, then reloads the pane (and the search results, which show each case's relation) and tells the details page. */
+  private save(what: string, confirmed$: Observable<boolean>, change: () => Observable<void>): void {
+    const caseId = this.caseId();
+    confirmed$.pipe(
+      filter(Boolean),
+      tap(() => this.busy.set(what)),
+      switchMap(change),
+      finalize(() => this.busy.set(undefined))
+    ).subscribe(() => {
+      this._toast.success('toasts.success.title', 'caseRelations.saved');
+      this._caseDetails.notifyCaseChanged(caseId);
+      this.data.reload();
+      this.results.reload();
     });
   }
 }

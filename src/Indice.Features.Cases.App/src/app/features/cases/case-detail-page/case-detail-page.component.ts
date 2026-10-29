@@ -1,11 +1,11 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, computed, inject, linkedSignal, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '@indice/ng-auth';
-import { Observable, Subscription, of } from 'rxjs';
-import { distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
+import { EMPTY, Observable, Subscription, of } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import {
   LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
 } from '@lucide/angular';
@@ -55,8 +55,30 @@ export class CaseDetailPageComponent {
   protected readonly model = signal<Case | undefined>(undefined);
   protected readonly caseActions = signal<CaseActions | undefined>(undefined);
   protected readonly timelineEntries = signal<TimelineEntry[] | undefined>(undefined);
-  protected readonly relatedCases = signal<CasePartial[]>([]);
   protected readonly loadFailed = signal(false);
+
+  /**
+   * The fields the admin side panes change. Every load of the case resets them; after a pane saves only they are refreshed,
+   * as reloading the whole case would rebuild the form and drop its unsaved edits.
+   */
+  protected readonly adminFields = linkedSignal(() => ({ groupId: this.model()?.groupId, relationKey: this.model()?.relationKey }));
+  /** The case and its relation key; equal while both stay the same, so refreshing the case does not reload its related cases. */
+  private readonly _relation = computed(
+    () => {
+      const caseId = this.model()?.id;
+      return caseId ? { caseId, relationKey: this.adminFields().relationKey } : undefined;
+    },
+    { equal: (a, b) => a?.caseId === b?.caseId && a?.relationKey === b?.relationKey }
+  );
+  private readonly _related = rxResource({
+    params: () => this._relation(),
+    stream: ({ params }) => params.relationKey ? this._api.getRelatedCases(params.caseId).pipe(map(related => related ?? [])) : of([])
+  });
+  /** The related cases, kept while they reload so the tab does not flash empty. */
+  protected readonly relatedCases = linkedSignal<CasePartial[] | undefined, CasePartial[]>({
+    source: () => this._related.hasValue() ? this._related.value() : undefined,
+    computation: (related, previous) => related ?? previous?.value ?? []
+  });
 
   protected readonly formValid = signal(false);
   protected readonly formUnSavedChanges = signal(false);
@@ -100,11 +122,12 @@ export class CaseDetailPageComponent {
 
   protected readonly caseFacts = computed<InfoEntry[]>(() => {
     const model = this.model();
+    const adminFields = this.adminFields();
     return [
       { key: 'caseDetails.caseId', value: model?.id, mono: true },
       { key: 'caseDetails.referenceNumber', value: model?.referenceNumber?.toString(), mono: true },
-      { key: 'caseDetails.groupId', value: model?.groupId, mono: true, alwaysShow: this.canAdminister, editLink: this.paneLink('case-group') },
-      { key: 'caseDetails.relationKey', value: model?.relationKey, mono: true },
+      { key: 'caseDetails.groupId', value: adminFields.groupId, mono: true, alwaysShow: this.canAdminister, editLink: this.paneLink('case-group') },
+      { key: 'caseDetails.relationKey', value: adminFields.relationKey, mono: true },
       {
         key: 'caseDetails.related.title', value: this.relatedCases().length.toString(), mono: true, alwaysShow: true,
         editLink: this.relationsLink()
@@ -146,14 +169,21 @@ export class CaseDetailPageComponent {
         this.caseActions.set(undefined);
         this.relatedCases.set([]);
         this.loadFailed.set(false);
-        this.requestModel(true);
+        this.requestModel();
         this.getCaseActions();
         this.getTimeline();
       });
-    // a side pane changed the relations or the group of this case
+    // a side pane changed the relations or the group of this case: refresh just those
     this._caseDetailsService.caseChanged$
-      .pipe(filter(caseId => caseId === this._caseId), takeUntilDestroyed())
-      .subscribe(() => this.requestModel(true));
+      .pipe(
+        filter(caseId => caseId === this._caseId),
+        switchMap(caseId => this._api.getCaseById(caseId).pipe(catchError(() => EMPTY))),
+        takeUntilDestroyed()
+      )
+      .subscribe(caseModel => {
+        this.adminFields.set({ groupId: caseModel.groupId, relationKey: caseModel.relationKey });
+        this._related.reload();
+      });
   }
 
   public updateData(): void {
@@ -222,7 +252,7 @@ export class CaseDetailPageComponent {
     return action.id ?? action.label ?? '';
   }
 
-  private requestModel(loadRelated = false): void {
+  private requestModel(): void {
     this._modelSub?.unsubscribe();
     this._modelSub = this._api.getCaseById(this._caseId)
       .pipe(
@@ -235,9 +265,6 @@ export class CaseDetailPageComponent {
           // set before the form renders: the JSON Forms renderers read the case channel from it
           this._caseDetailsService.setCaseDetails(caseDetails);
           this.model.set(caseDetails);
-          if (loadRelated) {
-            this.getRelatedCases(caseDetails);
-          }
         },
         error: () => this.loadFailed.set(true)
       });
@@ -279,16 +306,6 @@ export class CaseDetailPageComponent {
   private paneLink(path: string): any[] | undefined {
     const caseId = this.model()?.id;
     return this.canAdminister && caseId ? this._pane.link(path, { caseId }) : undefined;
-  }
-
-  private getRelatedCases(model: Case): void {
-    if (!model.relationKey) {
-      this.relatedCases.set([]);
-      return;
-    }
-    this._api.getRelatedCases(this._caseId)
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(related => this.relatedCases.set(related ?? []));
   }
 }
 
