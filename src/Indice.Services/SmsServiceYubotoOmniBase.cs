@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -21,7 +22,7 @@ public abstract class SmsServiceYubotoOmniBase
     /// <param name="logger">Represents a type used to perform logging.</param>
     public SmsServiceYubotoOmniBase(
         HttpClient httpClient, 
-        IOptionsSnapshot<SmsServiceSettings> settings, 
+        IOptionsSnapshot<SmsServiceYubotoOmniSettings> settings, 
         ILogger<SmsServiceYubotoOmniBase> logger
     ) {
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -36,7 +37,7 @@ public abstract class SmsServiceYubotoOmniBase
     }
 
     /// <summary>The settings required to configure the service.</summary>
-    protected SmsServiceSettings Settings { get; }
+    protected SmsServiceYubotoOmniSettings Settings { get; }
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
     protected HttpClient HttpClient { get; }
     /// <summary>Represents a type used to perform logging.</summary>
@@ -421,14 +422,32 @@ public abstract class SmsServiceYubotoOmniBase
     #endregion
 }
 
+/// <summary>Extra settings class for configuring Yuboto Omni SMS service client.</summary>
+public class SmsServiceYubotoOmniSettings : SmsServiceSettings
+{
+    /// <summary>The optional secret to be used for producing the callback URL signature.</summary>
+    public string? WebhookSecret { get; set; } = string.Empty;
+}
+
 /// <inheritdoc/>
 public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
+    private readonly SmsServiceYubotoOmniSettings _settings;
+
+    /// <inheritdoc/>
+    public YubotoWebhookHttpHandler(IOptionsSnapshot<SmsServiceYubotoOmniSettings> settings) {
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+    }
+
     /// <inheritdoc/>
     public async Task<WebhookHttpResult> ParseAsync(
         IDictionary<string, StringValues> requestHeaders,
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
         Stream requestBody,
         CancellationToken cancellationToken) {
+        if (IsSignatureInvalid(requestParameters)) {
+            return WebhookHttpResult.BadRequest();
+        }
+
         var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
 
         var messageId = parameters.GetValueOrDefault("smsid").ToString();
@@ -479,5 +498,118 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
 
         await Task.CompletedTask;
         return WebhookHttpResult.Ok(incomingEvents);
+    }
+
+    private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
+            return false;
+        }
+
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+        var hmacToken = parameters.GetValueOrDefault("h").ToString();
+        var reference = parameters.GetValueOrDefault("r").ToString();
+        var timestamp = parameters.GetValueOrDefault("t").ToString();
+
+        if (string.IsNullOrWhiteSpace(hmacToken) ||
+            string.IsNullOrWhiteSpace(reference) ||
+            string.IsNullOrWhiteSpace(timestamp)) {
+            var option1 = parameters.GetValueOrDefault("option1").ToString();
+            var option1Parameters = ParseQuery(option1);
+            if (string.IsNullOrWhiteSpace(hmacToken)) {
+                hmacToken = option1Parameters.GetValueOrDefault("h");
+            }
+            if (string.IsNullOrWhiteSpace(reference)) {
+                reference = option1Parameters.GetValueOrDefault("r");
+            }
+            if (string.IsNullOrWhiteSpace(timestamp)) {
+                timestamp = option1Parameters.GetValueOrDefault("t");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(hmacToken) ||
+            string.IsNullOrWhiteSpace(reference) ||
+            string.IsNullOrWhiteSpace(timestamp)) {
+            return true;
+        }
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_settings.WebhookSecret));
+        var expectedHmac = hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"));
+
+        try {
+            if (TryDecodeCompactToken(hmacToken, out var compactToken)) {
+                if (compactToken.Length == expectedHmac.Length) {
+                    return !CryptographicOperations.FixedTimeEquals(compactToken, expectedHmac);
+                }
+                if (compactToken.Length > 0 && compactToken.Length < expectedHmac.Length) {
+                    return !CryptographicOperations.FixedTimeEquals(compactToken, expectedHmac.AsSpan(0, compactToken.Length));
+                }
+            }
+            return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken), expectedHmac);
+        } catch {
+            return true;
+        }
+    }
+
+    private static bool TryDecodeCompactToken(string token, out byte[] bytes) {
+        bytes = [];
+        if (string.IsNullOrWhiteSpace(token)) {
+            return false;
+        }
+
+        var base64 = token.Replace('-', '+').Replace('_', '/');
+        var remainder = base64.Length % 4;
+        if (remainder != 0) {
+            base64 = base64.PadRight(base64.Length + (4 - remainder), '=');
+        }
+
+        try {
+            bytes = Convert.FromBase64String(base64);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    private static Dictionary<string, string> ParseQuery(string? query) {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(query)) {
+            return result;
+        }
+
+        foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries)) {
+            var separatorIndex = part.IndexOf('=');
+            if (separatorIndex <= 0) {
+                continue;
+            }
+
+            var key = Uri.UnescapeDataString(part[..separatorIndex]);
+            var value = Uri.UnescapeDataString(part[(separatorIndex + 1)..]);
+            result[key] = value;
+        }
+
+        return result;
+    }
+}
+
+internal static class YubotoSmsServiceExtensions {
+    private const int OPTION1_MAX_LENGTH = 50;
+
+    /// <summary>Generates a callback URL with a reference identifier for a Yuboto request.</summary>
+    public static TRequest SetCallBackSignature<TRequest>(this TRequest request, string secretKey) where TRequest : SmsServiceYubotoOmniBase.SendRequest {
+        if (string.IsNullOrWhiteSpace(secretKey)) {
+            return request;
+        }
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var referenceId = Convert.ToHexString(RandomNumberGenerator.GetBytes(4));
+        var payload = $"{referenceId}:{timestamp}";
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
+        var signature = Convert.ToBase64String(hash.AsSpan(0, 16)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var option1 = $"h={signature}&r={referenceId}&t={timestamp}";
+        if (option1.Length > OPTION1_MAX_LENGTH) {
+            throw new InvalidOperationException($"Generated callback signature for option1 exceeds {OPTION1_MAX_LENGTH} characters.");
+        }
+        request.Option1 = option1;
+        return request;
     }
 }

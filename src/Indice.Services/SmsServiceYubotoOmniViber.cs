@@ -14,7 +14,7 @@ public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
     /// <param name="logger">Represents a type used to perform logging.</param>
     public SmsServiceYubotoOmniViber(
         HttpClient httpClient, 
-        IOptionsSnapshot<SmsServiceSettings> settings, 
+        IOptionsSnapshot<SmsServiceYubotoOmniSettings> settings, 
         ILogger<SmsServiceYubotoOmniViber> logger
     ) : base(httpClient, settings, logger) { }
 
@@ -22,10 +22,15 @@ public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         var messageId = Guid.NewGuid().ToString();
         var phoneNumbers = GetRecipientsFromDestination(destination);
-        var callbackUrl = Settings.CallbackUrl ?? null;
-        var dlr = string.IsNullOrWhiteSpace(Settings.CallbackUrl) ? false : true;
         var requestBody = SendRequest
-            .CreateViber(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.ViberFallbackEnabled, Settings.Validity, callbackUrl: callbackUrl, dlr: dlr);
+            .CreateViber(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.ViberFallbackEnabled, Settings.Validity);
+        if (!string.IsNullOrWhiteSpace(Settings.CallbackUrl)) {
+            requestBody.CallbackUrl = Settings.CallbackUrl;
+            requestBody.Dlr = true;
+            if (!string.IsNullOrWhiteSpace(Settings.WebhookSecret)) {
+                requestBody.SetCallBackSignature(Settings.WebhookSecret);
+            }
+        }
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         Logger.LogDebug("The following payload was sent to Yuboto: {requestBody}", jsonData);
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");

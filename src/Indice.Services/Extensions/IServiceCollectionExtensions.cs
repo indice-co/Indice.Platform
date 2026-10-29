@@ -345,7 +345,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
-        services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, SmsServiceYubotoOmni>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
@@ -355,8 +355,8 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYubotoOmniViber(this IServiceCollection services, IConfiguration configuration) {
-        services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
-        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+        services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceYubotoOmniSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, SmsServiceYubotoOmniViber>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
@@ -584,6 +584,7 @@ public static class IndiceServicesServiceCollectionExtensions
             case "yuboto_viber":
             case "yubotoviber":
             case "yuboto_omni_viber":
+                services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
                 services.AddWebhookServices<THandler, YubotoWebhookHttpHandler>(configuration, provider);
                 break;
         }
