@@ -6,15 +6,17 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs';
 import { IdentityApiService, SetPasswordRequest } from 'src/app/core/services/identity-api.service';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
+import { CopyButtonComponent } from 'src/app/ui/copy/copy-button.component';
 import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { ToastService } from 'src/app/ui/toast/toast.service';
+import { GeneratePasswordButtonComponent } from '../generate-password-button.component';
 import { PasswordRulesComponent } from '../password-rules.component';
 import { USER_REFRESH_SCOPE } from '../user-store';
 
 /** Side pane that sets a new password for the user in `userId`. */
 @Component({
   selector: 'app-user-password',
-  imports: [ReactiveFormsModule, TranslatePipe, SidePaneLayoutComponent, PasswordRulesComponent, LucideEye, LucideEyeOff],
+  imports: [ReactiveFormsModule, TranslatePipe, SidePaneLayoutComponent, PasswordRulesComponent, GeneratePasswordButtonComponent, CopyButtonComponent, LucideEye, LucideEyeOff],
   template: `
     <app-side-pane-layout [title]="'Users.Actions.SetPassword' | translate" [subtitle]="'Users.Password.Subtitle' | translate">
       <form id="user-password-form" class="space-y-4" [formGroup]="form" (ngSubmit)="submit()" autocomplete="off">
@@ -22,6 +24,8 @@ import { USER_REFRESH_SCOPE } from '../user-store';
           <legend class="fieldset-legend">{{ 'Users.Password.NewPassword' | translate }} *</legend>
           <label class="input w-full" [class.input-error]="form.controls.password.invalid && form.controls.password.touched">
             <input [type]="reveal() ? 'text' : 'password'" class="grow [&::-ms-reveal]:hidden" formControlName="password" autocomplete="new-password" />
+            <app-generate-password-button [userId]="userId()" (generated)="usePassword($event)" />
+            @if (value().password) { <app-copy-button [value]="value().password" [label]="'Users.Password.NewPassword' | translate" /> }
             <button type="button" class="btn btn-ghost btn-xs btn-square" [attr.aria-label]="(reveal() ? 'Users.Password.Hide' : 'Users.Password.Show') | translate"
               (click)="reveal.set(!reveal())">
               @if (reveal()) { <svg lucideEyeOff class="size-4"></svg> } @else { <svg lucideEye class="size-4"></svg> }
@@ -76,6 +80,14 @@ export class UserPasswordComponent {
     suppressNotification: [false]
   });
   protected readonly value = toSignal(this.form.valueChanges.pipe(map(() => this.form.getRawValue())), { initialValue: this.form.getRawValue() });
+
+  protected usePassword(password: string): void {
+    const control = this.form.controls.password;
+    control.setValue(password);
+    control.markAsDirty();
+    control.markAsTouched();
+    this.reveal.set(true);
+  }
 
   protected submit(): void {
     if (this.form.invalid) {

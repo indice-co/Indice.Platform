@@ -377,6 +377,64 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.IsType<ValidationProblem>(selfRemovePasswordResult.Result);
     }
 
+    [Fact]
+    public async Task GeneratePassword_ShouldSatisfyConfiguredPasswordRules_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user6@indice.gr",
+            Email = "test.user6@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ]
+        });
+        var user = await identityDbContext.Users.SingleAsync(u => u.Email == "test.user6@indice.gr", TestContext.Current.CancellationToken);
+        var options = userManager.Options.Password;
+        var passwords = new HashSet<string>();
+        for (var i = 0; i < 20; i++) {
+            var result = await UserHandlers.GeneratePassword(userManager, configuration, new GeneratePasswordRequest { UserId = i % 2 == 0 ? user.Id : null, UserName = "new.user@indice.gr" });
+            var password = Assert.IsType<Ok<GeneratedPasswordInfo>>(result.Result).Value!.Password;
+            Assert.True(password.Length >= Math.Max(16, options.RequiredLength));
+            Assert.Contains(password, char.IsLower);
+            Assert.Contains(password, char.IsUpper);
+            Assert.Contains(password, char.IsDigit);
+            Assert.Contains(password, c => "!#$%&*+-=?@^_".Contains(c));
+            foreach (var validator in userManager.PasswordValidators) {
+                Assert.True((await validator.ValidateAsync(userManager, user, password)).Succeeded);
+            }
+            passwords.Add(password);
+        }
+        Assert.Equal(20, passwords.Count);
+    }
+
+    [Fact]
+    public async Task GeneratePassword_ShouldOnlyUseAllowedSpecialCharacters_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
+            ["IdentityOptions:Password:AllowedCharacters"] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.~"
+        }).Build();
+        for (var i = 0; i < 20; i++) {
+            var result = await UserHandlers.GeneratePassword(userManager, configuration, null);
+            var password = Assert.IsType<Ok<GeneratedPasswordInfo>>(result.Result).Value!.Password;
+            Assert.All(password, c => Assert.True(char.IsAsciiLetterOrDigit(c) || c is '.' or '~', $"Unexpected character '{c}' in '{password}'."));
+            Assert.Contains(password, c => c is '.' or '~');
+        }
+    }
+
+    [Fact]
+    public async Task GeneratePassword_UnknownUser_ShouldReturnNotFound_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
+        var result = await UserHandlers.GeneratePassword(userManager, configuration, new GeneratePasswordRequest { UserId = Guid.NewGuid().ToString() });
+        Assert.IsType<NotFound>(result.Result);
+    }
+
     public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>
     {
         public Task Handle(UserCreatedEvent @event, PlatformEventArgs args) {

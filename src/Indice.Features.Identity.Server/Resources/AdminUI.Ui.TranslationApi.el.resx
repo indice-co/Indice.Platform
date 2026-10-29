@@ -2864,6 +2864,9 @@
   <data name="Users.Password.DoNotNotify" xml:space="preserve">
     <value>Να μην ειδοποιηθεί ο χρήστης</value>
   </data>
+  <data name="Users.Password.Generate" xml:space="preserve">
+    <value>Δημιουργία ισχυρού κωδικού</value>
+  </data>
   <data name="Users.Password.Hide" xml:space="preserve">
     <value>Απόκρυψη κωδικού πρόσβασης</value>
   </data>

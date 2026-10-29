@@ -4,15 +4,17 @@ import { FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } 
 import { Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { LucideArrowLeft, LucidePlus, LucideTrash } from '@lucide/angular';
+import { LucideArrowLeft, LucideEye, LucideEyeOff, LucidePlus, LucideTrash } from '@lucide/angular';
 import { BasicClaimInfo, ClaimTypeInfo, CreateUserRequest, IdentityApiService, RoleInfo } from 'src/app/core/services/identity-api.service';
 import { UiFeaturesService } from 'src/app/core/services/ui-features.service';
+import { CopyButtonComponent } from 'src/app/ui/copy/copy-button.component';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 import { StepperComponent } from 'src/app/ui/stepper/stepper.component';
 import { ToastService } from 'src/app/ui/toast/toast.service';
 import { TransferListComponent } from 'src/app/ui/transfer/transfer-list.component';
 import { ClaimValueInputComponent } from '../claim-value-input.component';
+import { GeneratePasswordButtonComponent } from '../generate-password-button.component';
 import { PasswordRulesComponent } from '../password-rules.component';
 import { USERS_REFRESH_SCOPE } from '../users.component';
 import { claimValueValidators, isAssignableClaimType } from '../user-utils';
@@ -22,7 +24,7 @@ import { claimValueValidators, isAssignableClaimType } from '../user-utils';
   selector: 'app-user-add',
   imports: [
     ReactiveFormsModule, RouterLink, TranslatePipe, PageHeaderComponent, StepperComponent, TransferListComponent, ClaimValueInputComponent,
-    PasswordRulesComponent, LucideArrowLeft, LucidePlus, LucideTrash
+    PasswordRulesComponent, GeneratePasswordButtonComponent, CopyButtonComponent, LucideArrowLeft, LucideEye, LucideEyeOff, LucidePlus, LucideTrash
   ],
   template: `
     <app-page-header [title]="'Routes.NewUser' | translate" [subtitle]="'Users.Add.Subtitle' | translate">
@@ -82,8 +84,16 @@ import { claimValueValidators, isAssignableClaimType } from '../user-utils';
               </fieldset>
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">{{ 'Users.Fields.Password' | translate }} *</legend>
-                <input type="password" class="input w-full" formControlName="password" autocomplete="new-password"
-                  [class.input-error]="invalid('password')" />
+                <label class="input w-full" [class.input-error]="invalid('password')">
+                  <input [type]="revealPassword() ? 'text' : 'password'" class="grow [&::-ms-reveal]:hidden" formControlName="password" autocomplete="new-password" />
+                  <app-generate-password-button [userName]="detailsValue().emailAsUserName ? detailsValue().email : detailsValue().userName"
+                    (generated)="usePassword($event)" />
+                  @if (detailsValue().password) { <app-copy-button [value]="detailsValue().password" [label]="'Users.Fields.Password' | translate" /> }
+                  <button type="button" class="btn btn-ghost btn-xs btn-square" [attr.aria-label]="(revealPassword() ? 'Users.Password.Hide' : 'Users.Password.Show') | translate"
+                    (click)="revealPassword.set(!revealPassword())">
+                    @if (revealPassword()) { <svg lucideEyeOff class="size-4"></svg> } @else { <svg lucideEye class="size-4"></svg> }
+                  </button>
+                </label>
                 @if (invalid('password')) { <p class="label text-error">{{ 'Users.Validation.PasswordRequired' | translate }}</p> }
                 @if (!detailsValue().bypassPasswordValidation) {
                   <app-password-rules class="mt-2 block" [password]="detailsValue().password"
@@ -196,6 +206,15 @@ export class UserAddComponent {
     bypassPasswordValidation: [false]
   });
   protected readonly detailsValue = toSignal(this.details.valueChanges.pipe(map(() => this.details.getRawValue())), { initialValue: this.details.getRawValue() });
+  protected readonly revealPassword = signal(false);
+
+  protected usePassword(password: string): void {
+    const control = this.details.controls.password;
+    control.setValue(password);
+    control.markAsDirty();
+    control.markAsTouched();
+    this.revealPassword.set(true);
+  }
 
   private readonly _claimTypes = toSignal(
     this._api.getClaimTypes(1, 2147483647, 'name+', undefined).pipe(map(result => result.items ?? [])), { initialValue: [] as ClaimTypeInfo[] });

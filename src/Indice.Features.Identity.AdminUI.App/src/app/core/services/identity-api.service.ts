@@ -903,6 +903,12 @@ export interface IIdentityApiService {
      */
     setPassword(userId: string, body: SetPasswordRequest): Observable<void>;
     /**
+     * Generates a random password that satisfies the configured password options and validators.
+     * @param body (optional) 
+     * @return OK
+     */
+    generatePassword(body?: GeneratePasswordRequest | undefined): Observable<GeneratedPasswordInfo>;
+    /**
      * Unlocks a user.
      * @return No Content
      */
@@ -13103,6 +13109,88 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Generates a random password that satisfies the configured password options and validators.
+     * @param body (optional) 
+     * @return OK
+     */
+    generatePassword(body?: GeneratePasswordRequest | undefined): Observable<GeneratedPasswordInfo> {
+        let url_ = this.baseUrl + "/api/users/generate-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGeneratePassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGeneratePassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GeneratedPasswordInfo>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GeneratedPasswordInfo>;
+        }));
+    }
+
+    protected processGeneratePassword(response: HttpResponseBase): Observable<GeneratedPasswordInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GeneratedPasswordInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Unlocks a user.
      * @return No Content
      */
@@ -17430,6 +17518,92 @@ export interface ISetPasswordRequest {
     changePasswordAfterFirstSignIn?: boolean | undefined;
     bypassPasswordValidation?: boolean | undefined;
     suppressNotification?: boolean | undefined;
+}
+
+/** Models a request to generate a random password that satisfies the configured password rules. */
+export class GeneratePasswordRequest implements IGeneratePasswordRequest {
+    /** The id of an existing user the password is generated for, so that user-specific validators also apply. */
+    userId?: string | undefined;
+    /** The user name of a user that is about to be created, for validators that compare the password with it. */
+    userName?: string | undefined;
+
+    constructor(data?: IGeneratePasswordRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.userName = _data["userName"];
+        }
+    }
+
+    static fromJS(data: any): GeneratePasswordRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new GeneratePasswordRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["userName"] = this.userName;
+        return data;
+    }
+}
+
+/** Models a request to generate a random password that satisfies the configured password rules. */
+export interface IGeneratePasswordRequest {
+    /** The id of an existing user the password is generated for, so that user-specific validators also apply. */
+    userId?: string | undefined;
+    /** The user name of a user that is about to be created, for validators that compare the password with it. */
+    userName?: string | undefined;
+}
+
+/** A password generated by the server. */
+export class GeneratedPasswordInfo implements IGeneratedPasswordInfo {
+    /** The generated password. */
+    password?: string | undefined;
+
+    constructor(data?: IGeneratedPasswordInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): GeneratedPasswordInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new GeneratedPasswordInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+/** A password generated by the server. */
+export interface IGeneratedPasswordInfo {
+    /** The generated password. */
+    password?: string | undefined;
 }
 
 export class SetUserBlockRequest implements ISetUserBlockRequest {

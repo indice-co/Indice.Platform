@@ -2864,6 +2864,9 @@
   <data name="Users.Password.DoNotNotify" xml:space="preserve">
     <value>Do not notify the user</value>
   </data>
+  <data name="Users.Password.Generate" xml:space="preserve">
+    <value>Generate a strong password</value>
+  </data>
   <data name="Users.Password.Hide" xml:space="preserve">
     <value>Hide password</value>
   </data>

@@ -160,6 +160,11 @@ public static class UsersApi
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .WithParameterValidation<SetPasswordRequest>();
 
+        group.MapPost("generate-password", UserHandlers.GeneratePassword)
+             .WithName(nameof(UserHandlers.GeneratePassword))
+             .WithSummary("Generates a random password that satisfies the configured password options and validators.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapDelete("{userId}/password", UserHandlers.RemovePassword)
              .WithName(nameof(UserHandlers.RemovePassword))
              .WithSummary("Removes the last password for the given user.")

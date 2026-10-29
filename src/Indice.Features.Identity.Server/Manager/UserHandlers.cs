@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
@@ -761,6 +762,72 @@ internal static class UserHandlers
             await userManager.SetPasswordExpiredAsync(user, true);
         }
         return TypedResults.NoContent();
+    }
+
+    /// <summary>Special characters used by generated passwords: easy to read out and type, no quotes, slashes or spaces.</summary>
+    private const string GeneratedPasswordSpecialChars = "!#$%&*+-=?@^_";
+    private const int GeneratedPasswordMinLength = 16;
+    private const int GeneratedPasswordMaxAttempts = 10;
+
+    internal static async Task<Results<Ok<GeneratedPasswordInfo>, NotFound, ValidationProblem>> GeneratePassword(
+        ExtendedUserManager<User> userManager,
+        IConfiguration configuration,
+        GeneratePasswordRequest? request
+    ) {
+        User? user = null;
+        if (!string.IsNullOrWhiteSpace(request?.UserId)) {
+            user = await userManager.FindByIdAsync(request.UserId);
+            if (user == null) {
+                return TypedResults.NotFound();
+            }
+        }
+        user ??= new User { UserName = request?.UserName };
+        var options = userManager.Options.Password;
+        // Same setting the AllowedCharactersPasswordValidator reads; when present only its symbols may be used.
+        var allowedCharacters = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<string>("AllowedCharacters") ??
+                                configuration.GetSection(nameof(PasswordOptions)).GetValue<string>("AllowedCharacters");
+        var specialChars = string.IsNullOrEmpty(allowedCharacters)
+            ? GeneratedPasswordSpecialChars
+            : new string(allowedCharacters.Where(c => c < 128 && !char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c)).Distinct().ToArray());
+        var includeSpecial = options.RequireNonAlphanumeric || specialChars.Length > 0;
+        var length = Math.Min(256, Math.Max(GeneratedPasswordMinLength, Math.Max(options.RequiredLength, options.RequiredUniqueChars)));
+        using var generator = new PasswordGenerator.Password(includeLowercase: true, includeUppercase: true, includeNumeric: true, includeSpecial: false, passwordLength: length);
+        generator.ExcludeAmbiguous();
+        if (includeSpecial && specialChars.Length > 0) {
+            generator.IncludeSpecial(specialChars);
+        }
+        if (options.RequireLowercase) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Lowercase, 1);
+        }
+        if (options.RequireUppercase) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Uppercase, 1);
+        }
+        if (options.RequireDigit) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Numeric, 1);
+        }
+        if (options.RequireNonAlphanumeric && specialChars.Length > 0) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Special, 1);
+        }
+        // The generator covers the composition rules; the configured validators (history, common passwords, allowed characters etc.) have the final say.
+        IEnumerable<IdentityError> errors = [];
+        for (var attempt = 0; attempt < GeneratedPasswordMaxAttempts; attempt++) {
+            if (!generator.TryNext(out var password) || string.IsNullOrEmpty(password)) {
+                break;
+            }
+            errors = [];
+            foreach (var validator in userManager.PasswordValidators) {
+                var result = await validator.ValidateAsync(userManager, user, password);
+                if (!result.Succeeded) {
+                    errors = errors.Concat(result.Errors);
+                }
+            }
+            if (!errors.Any()) {
+                return TypedResults.Ok(new GeneratedPasswordInfo { Password = password });
+            }
+        }
+        return TypedResults.ValidationProblem(errors.Any()
+            ? errors.ToDictionary()
+            : ValidationErrors.AddError("password", "A password that satisfies the configured password options could not be generated."));
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemovePassword(
