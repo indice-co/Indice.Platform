@@ -45,7 +45,7 @@ export const SETTINGS_REFRESH = 'settings';
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="key">{{ 'Settings.Fields.Key' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="key">{{ 'Settings.Fields.Key' | translate }}</th>
             <th>{{ 'Common.Value' | translate }}</th>
             <th class="w-12"><span class="sr-only">{{ 'Settings.List.Open' | translate }}</span></th>
           </tr>

@@ -19,6 +19,10 @@ import { routes } from './app.routes';
 registerLocaleData(localeGreek);
 registerLocaleData(localeEn);
 
+const translationPrefix = settings.i18n_assets
+  ? `${settings.i18n_assets.replace(/\/+$/u, '')}/`
+  : `${settings.api_url}/api/iam-i18n.`;
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -29,7 +33,7 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useFactory: () => localeOf(initialLanguage()) },
     // translations are the server side resx resources exposed by the identity server's translation graph endpoint
     provideTranslateService({
-        loader: provideTranslateHttpLoader({ prefix: `${settings.api_url}/api/iam-i18n.`, suffix: '.json', useHttpBackend: true }),
+        loader: provideTranslateHttpLoader({ prefix: translationPrefix, suffix: '.json', useHttpBackend: true }),
       fallbackLang: DEFAULT_LANGUAGE
     }),
     provideAppInitializer(() => inject(AppLanguagesService).init()),
