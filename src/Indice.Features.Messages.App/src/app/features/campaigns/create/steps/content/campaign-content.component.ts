@@ -109,13 +109,7 @@ export class CampaignContentComponent {
   }
 
   constructor() {
-    this.form.controls.data.valueChanges.subscribe(value => {
-      this._dataText.set(value);
-      const active = this.channelsContent.at(this.activeTab() - 1);
-      if (active) {
-        this.renderPreview(active);
-      }
-    });
+    this.form.controls.data.valueChanges.subscribe(value => this._dataText.set(value));
     effect(() => {
       const value = this.data();
       untracked(() => this.form.controls.data.setValue(value instanceof Object ? JSON.stringify(value, undefined, 2) : (value ?? null)));
@@ -140,6 +134,17 @@ export class CampaignContentComponent {
           this.mediaBaseHref.set(href);
         } else {
           this.resolveDefaultMediaBaseHref();
+        }
+      });
+    });
+    effect(() => {
+      // re-render when the preview data changes (JSON data, media base href resolved after the content loaded, ...)
+      this.samplePayload();
+      untracked(() => {
+        const tab = this.activeTab();
+        const active = tab > 0 ? this.channelsContent.at(tab - 1) : undefined;
+        if (active) {
+          this.renderPreview(active);
         }
       });
     });
