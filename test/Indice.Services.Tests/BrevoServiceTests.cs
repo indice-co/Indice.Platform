@@ -17,8 +17,8 @@ public class BrevoServiceTests
 
         mockSettings.Setup(x => x.Value)
             .Returns(new EmailServiceBrevoSettings {
-                Sender = "noreply@indice.gr",
-                SenderName = "INDICE",
+                Sender = "noreply@example.gr",
+                SenderName = "Example",
                 ApiKey = Guid.NewGuid().ToString()
             });
 
@@ -39,7 +39,7 @@ public class BrevoServiceTests
         );
 
         // Act
-        await service.SendAsync([ "user@indice.gr" ], "Email Subject", "This is the body");
+        await service.SendAsync([ "someone@example.gr" ], "Email Subject", "This is the body");
 
         // Assert
         Assert.True(true); // actually, no exception means that the test has passed
@@ -58,7 +58,7 @@ public class BrevoServiceTests
         [
           {
             "id": 2636078,
-            "email": "angelosvraimakis@gmail.com",
+            "email": "someone@example.com",
             "message-id": "<202610261127.96771796084@smtp-relay.mailin.fr>",
             "date": "2026-10-26 13:27:36",
             "event": "request",
@@ -73,7 +73,7 @@ public class BrevoServiceTests
           },
           {
             "id": 2636078,
-            "email": "angelosvraimakis@gmail.com",
+            "email": "someone@example.com",
             "message-id": "<202610261127.96771796084@smtp-relay.mailin.fr>",
             "date": "2026-10-26 13:27:37",
             "event": "delivered",
@@ -88,7 +88,7 @@ public class BrevoServiceTests
           },
           {
             "id": 2636078,
-            "email": "angelosvraimakis@gmail.com",
+            "email": "someone@example.com",
             "message-id": "<202610261127.96771796084@smtp-relay.mailin.fr>",
             "date": "2026-10-26 13:29:16",
             "event": "unique_opened",
@@ -122,20 +122,20 @@ public class BrevoServiceTests
         Assert.Collection(result.Events,
             first => {
                 Assert.Equal("request", first.EventType);
-                Assert.Equal("<202610261127.96771796084@smtp-relay.mailin.fr>", first.MessageId);
-                Assert.Equal("angelosvraimakis@gmail.com", first.Recipient);
+                Assert.Equal("24f35486-8384-4129-88c5-0de983e3b841", first.MessageId);
+                Assert.Equal("someone@example.com", first.Recipient);
                 Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1793014056520), first.Timestamp);
             },
             second => {
                 Assert.Equal("delivered", second.EventType);
-                Assert.Equal("<202610261127.96771796084@smtp-relay.mailin.fr>", second.MessageId);
-                Assert.Equal("angelosvraimakis@gmail.com", second.Recipient);
+                Assert.Equal("24f35486-8384-4129-88c5-0de983e3b841", second.MessageId);
+                Assert.Equal("someone@example.com", second.Recipient);
                 Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1793014057000), second.Timestamp);
             },
             third => {
                 Assert.Equal("unique_opened", third.EventType);
-                Assert.Equal("<202610261127.96771796084@smtp-relay.mailin.fr>", third.MessageId);
-                Assert.Equal("angelosvraimakis@gmail.com", third.Recipient);
+                Assert.Equal("24f35486-8384-4129-88c5-0de983e3b841", third.MessageId);
+                Assert.Equal("someone@example.com", third.Recipient);
                 Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1793014156083), third.Timestamp);
             });
 
