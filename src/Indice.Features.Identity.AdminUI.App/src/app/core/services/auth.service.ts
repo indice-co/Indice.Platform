@@ -181,7 +181,7 @@ export class AuthService {
             return true;
         }
         if (!this.isAdmin() && !this.isAdminUIUsersReader() && !this.isAdminUIClientsReader()) {
-            this._logger.log('User is not authorized to access Admin UI. Access is forbidden.');
+            this._logger.log('User is not authorized to access IAM UI. Access is forbidden.');
             this._router.navigate(['/forbidden']);
             return false;
         }

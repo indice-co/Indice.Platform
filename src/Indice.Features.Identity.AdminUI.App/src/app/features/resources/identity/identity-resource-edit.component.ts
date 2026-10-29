@@ -58,7 +58,8 @@ export class IdentityResourceStore {
         }
       </app-page-header>
       <app-route-tabs class="mb-6" [tabs]="tabs" />
-      <router-outlet />
+      <!-- Keep the outlet inside an HTML element: as a direct child of a control flow block it can inherit the SVG namespace of a preceding icon, which makes the routed tab render as an (invisible) SVG element. -->
+      <div><router-outlet /></div>
     } @else {
       <div class="space-y-4">
         <div class="skeleton h-10 w-72"></div>

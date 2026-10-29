@@ -20,7 +20,7 @@ export const routes: Routes = [
   { path: 'logout', component: LogoutComponent },
   {
     path: 'forbidden', component: StatusPageComponent,
-    data: { code: '403', title: 'Access denied', message: 'Your account is not allowed to use this part of the Admin UI. Ask an administrator for access.' }
+    data: { code: '403', title: 'Access denied', message: 'Your account is not allowed to use this part of the IAM UI. Ask an administrator for access.' }
   },
   // links of the previous UI lived under /app
   { path: 'app', redirectTo: 'dashboard', pathMatch: 'full' },

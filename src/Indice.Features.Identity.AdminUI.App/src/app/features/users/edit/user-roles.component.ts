@@ -19,7 +19,7 @@ import { UserStore } from '../user-store';
         <span class="grid size-10 shrink-0 place-items-center rounded-field bg-primary/10 text-primary"><svg lucideCrown class="size-5"></svg></span>
         <div class="min-w-0 flex-1">
           <h2 class="font-semibold">Global administrator</h2>
-          <p class="text-sm text-base-content/65">Administrators have full access to the Admin UI and every management API, regardless of roles.</p>
+          <p class="text-sm text-base-content/65">Administrators have full access to the IAM UI and every management API, regardless of roles.</p>
         </div>
         <input type="checkbox" class="toggle toggle-primary" aria-label="Global administrator" [checked]="user.isAdmin"
           [disabled]="!canEdit || isSelf() || busy()" (change)="toggleAdmin($event)" />

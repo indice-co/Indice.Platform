@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 
 /**
- * "Admin UI" brand: a shield with a keyhole and a status dot. Colors come from theme tokens (`--color-primary`,
+ * "IAM UI" brand: a shield with a keyhole and a status dot. Colors come from theme tokens (`--color-primary`,
  * `--color-primary-content`, `--color-accent`, `--app-sidebar-bg`), so the mark follows the active theme.
  */
 @Component({
@@ -17,7 +17,7 @@ import { Component, input } from '@angular/core';
     </svg>
     @if (wordmark()) {
       <span class="flex items-baseline gap-1.5 leading-none">
-        <span class="text-lg font-bold tracking-tight">Admin</span>
+        <span class="text-lg font-bold tracking-tight">IAM</span>
         <span class="rounded-md bg-accent px-1.5 py-0.5 text-[0.65rem] font-extrabold tracking-wide text-accent-content">UI</span>
       </span>
     }

@@ -65,6 +65,15 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
             if (!string.IsNullOrWhiteSpace(filter.ActionName)) {
                 query = query.Where(log => log.ActionName == filter.ActionName);
             }
+            if (!string.IsNullOrWhiteSpace(filter.ApplicationId)) {
+                query = query.Where(log => log.ApplicationId == filter.ApplicationId);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.SessionId)) {
+                query = query.Where(log => log.SessionId == filter.SessionId);
+            }
+            if (filter.MarkForReview is bool markForReview) {
+                query = query.Where(log => log.Review == markForReview);
+            }
         }
         return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options, cancellationToken);
     }

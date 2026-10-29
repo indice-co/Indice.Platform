@@ -75,7 +75,8 @@ import { ClientStore } from './client-store.service';
       </header>
 
       <app-route-tabs class="mb-6" [tabs]="tabs()" />
-      <router-outlet />
+      <!-- Keep the outlet inside an HTML element: as a direct child of a control flow block it can inherit the SVG namespace of a preceding icon, which makes the routed tab render as an (invisible) SVG element. -->
+      <div><router-outlet /></div>
     } @else {
       <div class="panel mb-6 flex items-center gap-4 p-5">
         <div class="skeleton size-14"></div>
