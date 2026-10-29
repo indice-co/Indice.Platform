@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 import { Case } from './cases-api.service';
 
 @Injectable({
@@ -7,7 +7,10 @@ import { Case } from './cases-api.service';
 })
 export class CaseDetailsService {
     private _caseDetails: ReplaySubject<Case> = new ReplaySubject(1);
+    private _caseChanged = new Subject<string>();
     public caseDetails$ = this._caseDetails.asObservable();
+    /** Emits the id of a case changed outside the details page (e.g. from a side pane), so the page reloads it. */
+    public caseChanged$ = this._caseChanged.asObservable();
     public caseDetails: Case | undefined;
 
     constructor() { }
@@ -15,5 +18,9 @@ export class CaseDetailsService {
     public setCaseDetails(caseDetails: Case) {
         this.caseDetails = caseDetails;
         this._caseDetails.next(caseDetails);
+    }
+
+    public notifyCaseChanged(caseId: string) {
+        this._caseChanged.next(caseId);
     }
 }

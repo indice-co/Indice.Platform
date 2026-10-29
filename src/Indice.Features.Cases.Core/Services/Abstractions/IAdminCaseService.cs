@@ -119,6 +119,35 @@ public interface IAdminCaseService
     /// <returns>A list of <seealso cref="CasePartial"/></returns>
     Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId);
 
+    /// <summary>
+    /// Changes the relation key of a case, moving it to the cases with the new key. It leaves the cases of its old key,
+    /// which stay related to each other; an empty key takes it out of any relation.
+    /// </summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="relationKey">The new relation key.</param>
+    /// <returns>False when the case does not exist.</returns>
+    Task<bool> UpdateRelationKey(Guid caseId, string? relationKey);
+
+    /// <summary>
+    /// Relates cases to a case by giving them its relation key. A case that shared another key leaves that relation.
+    /// </summary>
+    /// <param name="caseId">The Id of the case. It must have a relation key.</param>
+    /// <param name="relatedCaseIds">The Ids of the cases to relate.</param>
+    /// <returns>False when the case does not exist.</returns>
+    Task<bool> AddRelatedCases(Guid caseId, IEnumerable<Guid> relatedCaseIds);
+
+    /// <summary>Removes a case from the relation of another case by clearing its relation key.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="relatedCaseId">The Id of the related case to remove.</param>
+    /// <returns>False when either case does not exist or they are not related.</returns>
+    Task<bool> RemoveRelatedCase(Guid caseId, Guid relatedCaseId);
+
+    /// <summary>Changes the group of a case. The group takes part in the access rules, so this changes who can access the case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="groupId">The new group id. Empty clears it.</param>
+    /// <returns>False when the case does not exist.</returns>
+    Task<bool> UpdateGroup(Guid caseId, string? groupId);
+
     /// <summary>Get a list of attachments by CaseId</summary>
     /// <param name="caseId"></param>
     /// <returns>A list of <seealso cref="CaseAttachment"/></returns>

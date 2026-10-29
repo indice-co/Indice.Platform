@@ -2,6 +2,7 @@
 using Indice.Events;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services;
@@ -96,6 +97,117 @@ public class AdminCaseServiceTests : IAsyncLifetime
 
         Assert.Null(exception);
     }
+
+    [Fact]
+    public async Task UpdateRelationKey_MovesOnlyThatCase() {
+        var service = CreateService();
+        var a = await AddCase("K1");
+        var b = await AddCase("K1");
+        var c = await AddCase("K1");
+
+        Assert.True(await service.UpdateRelationKey(a.Id, "K2"));
+
+        var moved = await GetCase(a.Id);
+        Assert.Equal("K2", moved.RelationKey);
+        Assert.Equal("K2", moved.Metadata![CasesCoreConstants.MetadataKeys.ExternalCorrelationKey]);
+        Assert.Equal("K1", (await GetCase(b.Id)).RelationKey);
+        Assert.Equal("K1", (await GetCase(c.Id)).RelationKey);
+    }
+
+    [Fact]
+    public async Task UpdateRelationKey_Empty_LeavesTheRelation() {
+        var service = CreateService();
+        var a = await AddCase("K1");
+        var b = await AddCase("K1");
+
+        Assert.True(await service.UpdateRelationKey(a.Id, ""));
+
+        var left = await GetCase(a.Id);
+        Assert.Null(left.RelationKey);
+        Assert.False(left.Metadata?.ContainsKey(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey) ?? false);
+        Assert.Equal("K1", (await GetCase(b.Id)).RelationKey);
+    }
+
+    [Fact]
+    public async Task AddRelatedCases_MovesCasesOutOfTheirRelation() {
+        var service = CreateService();
+        var a = await AddCase("K1");
+        var d = await AddCase("K2");
+        var e = await AddCase("K2");
+        var f = await AddCase(null);
+
+        Assert.True(await service.AddRelatedCases(a.Id, [d.Id, f.Id]));
+
+        Assert.Equal("K1", (await GetCase(d.Id)).RelationKey);
+        Assert.Equal("K1", (await GetCase(f.Id)).RelationKey);
+        Assert.Equal("K2", (await GetCase(e.Id)).RelationKey);
+    }
+
+    [Fact]
+    public async Task AddRelatedCases_WithoutRelationKey_Throws() {
+        var service = CreateService();
+        var a = await AddCase(null);
+        var b = await AddCase(null);
+
+        await Assert.ThrowsAsync<BusinessException>(() => service.AddRelatedCases(a.Id, [b.Id]));
+    }
+
+    [Fact]
+    public async Task RemoveRelatedCase_ClearsOnlyThatCase() {
+        var service = CreateService();
+        var a = await AddCase("K1");
+        var b = await AddCase("K1");
+        var c = await AddCase("K1");
+        var unrelated = await AddCase("K2");
+
+        Assert.True(await service.RemoveRelatedCase(a.Id, b.Id));
+        Assert.False(await service.RemoveRelatedCase(a.Id, unrelated.Id));
+
+        Assert.Null((await GetCase(b.Id)).RelationKey);
+        Assert.Equal("K1", (await GetCase(a.Id)).RelationKey);
+        Assert.Equal("K1", (await GetCase(c.Id)).RelationKey);
+        Assert.Equal("K2", (await GetCase(unrelated.Id)).RelationKey);
+    }
+
+    [Fact]
+    public async Task UpdateGroup_SetsAndClears() {
+        var service = CreateService();
+        var a = await AddCase(null);
+
+        Assert.True(await service.UpdateGroup(a.Id, " 010 "));
+        Assert.Equal("010", (await GetCase(a.Id)).GroupId);
+
+        Assert.True(await service.UpdateGroup(a.Id, ""));
+        Assert.Null((await GetCase(a.Id)).GroupId);
+
+        Assert.False(await service.UpdateGroup(Guid.NewGuid(), "010"));
+    }
+
+    private AdminCaseService CreateService() => new(
+        ServiceProvider.GetRequiredService<CasesDbContext>(),
+        ServiceProvider.GetRequiredService<IOptions<CasesOptions>>(),
+        Substitute.For<ICaseAuthorizationProvider>(),
+        Substitute.For<IAdminCaseMessageService>(),
+        Substitute.For<IPlatformEventService>()
+    );
+
+    private async Task<DbCase> AddCase(string? relationKey) {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var @case = new DbCase {
+            CaseTypeId = (await dbContext.CaseTypes.FirstAsync()).Id,
+            Channel = "web",
+            CreatedBy = new AuditMeta { Id = "tester", Name = "tester", Email = "tester@test.gr" },
+            RelationKey = relationKey,
+            Metadata = relationKey is null ? null : new() { [CasesCoreConstants.MetadataKeys.ExternalCorrelationKey] = relationKey }
+        };
+        dbContext.Cases.Add(@case);
+        await dbContext.SaveChangesAsync();
+        return @case;
+    }
+
+    /// <summary>Reads the stored case, bypassing the tracked instances.</summary>
+    private Task<DbCase> GetCase(Guid id) =>
+        ServiceProvider.GetRequiredService<CasesDbContext>().Cases.AsNoTracking().SingleAsync(c => c.Id == id);
 
     private static ClaimsPrincipal User() {
         var claims = new List<Claim> {

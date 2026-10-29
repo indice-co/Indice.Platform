@@ -6,6 +6,7 @@ using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Server.Authorization;
@@ -146,6 +147,18 @@ internal static class AdminCasesHandlers
         var cases = await adminCaseService.GetRelatedCases(currentUser.UserToActor(casesOptions.Value), caseId);
         return TypedResults.Ok(cases);
     }
+
+    public static async Task<Results<NoContent, NotFound>> UpdateCaseRelationKey(Guid caseId, UpdateCaseRelationKeyRequest request, IAdminCaseService adminCaseService) =>
+        await adminCaseService.UpdateRelationKey(caseId, request.RelationKey) ? TypedResults.NoContent() : TypedResults.NotFound();
+
+    public static async Task<Results<NoContent, NotFound>> AddRelatedCases(Guid caseId, AddRelatedCasesRequest request, IAdminCaseService adminCaseService) =>
+        await adminCaseService.AddRelatedCases(caseId, request.CaseIds) ? TypedResults.NoContent() : TypedResults.NotFound();
+
+    public static async Task<Results<NoContent, NotFound>> RemoveRelatedCase(Guid caseId, Guid relatedCaseId, IAdminCaseService adminCaseService) =>
+        await adminCaseService.RemoveRelatedCase(caseId, relatedCaseId) ? TypedResults.NoContent() : TypedResults.NotFound();
+
+    public static async Task<Results<NoContent, NotFound>> UpdateCaseGroup(Guid caseId, UpdateCaseGroupRequest request, IAdminCaseService adminCaseService) =>
+        await adminCaseService.UpdateGroup(caseId, request.GroupId) ? TypedResults.NoContent() : TypedResults.NotFound();
 
     public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(
         Guid caseId,
