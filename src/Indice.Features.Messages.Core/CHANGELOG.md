@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Run the following migration script.<br/>
 **Caution!** Update table schema if not [cmp]
-```sql
+```tsql
 ALTER TABLE  [cmp].[DistributionList] 
     ADD [SystemGenerated] BIT DEFAULT (0) NOT NULL;
 GO
@@ -24,6 +24,13 @@ UPDATE [cmp].[DistributionList]
 WHERE CreatedBy = 'system'
 GO
 ```
+
+### Added the `concat` Handlebars helper
+Message templates (and the partials/layouts they use) can join values into one string, e.g. to build a link passed to a partial:
+```handlebars
+{{> text_link url=(concat data.uiBaseUrl "/my-profile/buying/" data.propertyInfo.code "/documents") text="My documents"}}
+```
+Missing values render as empty. The helper is registered on every server render and in the admin UI preview. Templates that use it fail to render on servers running an older version, so deploy this version before authoring them.
 
 ## [8.47.0] - 2026-05-13
 ### Added partial template functionality
