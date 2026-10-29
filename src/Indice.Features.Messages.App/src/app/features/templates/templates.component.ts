@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
-import { LucideArrowDown, LucideArrowUp, LucideFileText, LucidePencil, LucidePlus, LucideTrash } from '@lucide/angular';
+import { LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideFileText, LucidePencil, LucidePlus, LucideTrash } from '@lucide/angular';
 import { MessagesApiClient, TemplateListItem, TemplateType } from 'src/app/core/services/messages-api.service';
 import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
 import { CHANNEL_KINDS, ChannelIconComponent, MessageTypeBadgeComponent } from 'src/app/ui/badges/badges';
@@ -21,7 +21,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
   selector: 'app-templates',
   imports: [
     ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
-    ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideFileText, LucidePencil, LucidePlus, LucideTrash
+    ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideFileText, LucidePencil, LucidePlus, LucideTrash
   ],
   template: `
     <app-page-header [title]="'Templates.Title' | translate" [subtitle]="'Templates.Subtitle' | translate">
@@ -51,25 +51,22 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
       <table class="table">
         <thead>
           <tr>
-            <th>
-              <button type="button" class="inline-flex items-center gap-1 uppercase" (click)="list.setSort('name')">
-                {{ 'Templates.NameColumn' | translate }}
-                @if (list.sort() === 'name') {
-                  @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+            @for (column of columns; track column.label) {
+              <th [class]="column.class ?? ''">
+                @if (column.sort) {
+                  <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+                    {{ column.label | translate }}
+                    @if (list.sort() === column.sort) {
+                      @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                    } @else {
+                      <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                    }
+                  </button>
+                } @else {
+                  {{ column.label | translate }}
                 }
-              </button>
-            </th>
-            <th>
-              <button type="button" class="inline-flex items-center gap-1 uppercase" (click)="list.setSort('type')">
-                {{ 'Templates.TypeColumn' | translate }}
-                @if (list.sort() === 'type') {
-                  @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
-                }
-              </button>
-            </th>
-            <th>{{ 'Templates.ChannelsColumn' | translate }}</th>
-            <th>{{ 'Templates.MessageTypeColumn' | translate }}</th>
-            <th>{{ 'Templates.UpdatedAtColumn' | translate }}</th>
+              </th>
+            }
             <th class="w-24 text-right"><span class="sr-only">{{ 'Templates.ActionsColumn' | translate }}</span></th>
           </tr>
         </thead>
@@ -151,6 +148,13 @@ export class TemplatesComponent implements OnInit {
   protected readonly channelKinds = CHANNEL_KINDS;
   protected readonly typeLabel = templateTypeLabel;
   protected readonly typeBadge = templateTypeBadge;
+  protected readonly columns: { label: string; sort?: string; class?: string }[] = [
+    { label: 'Templates.NameColumn', sort: 'name' },
+    { label: 'Templates.TypeColumn', sort: 'type' },
+    { label: 'Templates.ChannelsColumn' },
+    { label: 'Templates.MessageTypeColumn', sort: 'messageType.name' },
+    { label: 'Templates.UpdatedAtColumn', sort: 'updatedAt' }
+  ];
 
   protected readonly list = new ListState<TemplateListItem>({
     pageSize: 20,
