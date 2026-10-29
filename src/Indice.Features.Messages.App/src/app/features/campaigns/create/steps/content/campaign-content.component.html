@@ -1,8 +1,10 @@
 <form [formGroup]="form" class="block space-y-5">
   <div role="tablist" class="tabs tabs-border overflow-x-auto flex-nowrap">
-    <button type="button" role="tab" class="tab gap-2 whitespace-nowrap" [class.tab-active]="activeTab() === 0" (click)="selectTab(0)">
-      <svg lucideLayers class="size-4"></svg>{{ 'Campaigns.CommunicationChannelsLabel' | translate }}
-    </button>
+    @if (!readonly()) {
+      <button type="button" role="tab" class="tab gap-2 whitespace-nowrap" [class.tab-active]="activeTab() === 0" (click)="selectTab(0)">
+        <svg lucideLayers class="size-4"></svg>{{ 'Campaigns.CommunicationChannelsLabel' | translate }}
+      </button>
+    }
     @for (contentForm of channelsContent.controls; track contentForm; let i = $index) {
       <button type="button" role="tab" class="tab gap-2 whitespace-nowrap" [class.tab-active]="activeTab() === i + 1" (click)="selectTab(i + 1)">
         <app-channel-icon [kind]="channelOf(contentForm.controls.channel.value)?.kind" />
@@ -12,15 +14,19 @@
         }
       </button>
     }
+    <button type="button" role="tab" class="tab ml-auto gap-2 whitespace-nowrap" [class.tab-active]="activeTab() === dataTab" (click)="selectTab(dataTab)">
+      <svg lucideBraces class="size-4"></svg>{{ 'Campaigns.MetadataLabel' | translate }}
+      @if (form.controls.data.invalid) { <span class="status status-error"></span> }
+    </button>
   </div>
 
-  @if (activeTab() === 0) {
+  @if (activeTab() === 0 && !readonly()) {
     <fieldset class="fieldset">
       <legend class="fieldset-legend">{{ 'Campaigns.CommunicationChannelsLabelRequired' | translate }}</legend>
       <div class="grid gap-3 sm:grid-cols-2">
         @for (channel of channels; track channel.key) {
           @let checked = isChecked(channel);
-          @let locked = readonly() || (checked && channelsContent.length <= 1);
+          @let locked = checked && channelsContent.length <= 1;
           <label class="flex items-start gap-3 rounded-box border border-base-300 p-4 transition-colors has-checked:border-primary has-checked:bg-primary/5"
             [class.cursor-pointer]="!locked">
             <app-channel-icon class="mt-0.5" [kind]="channel.kind" [muted]="!checked" />
@@ -43,7 +49,7 @@
         @if (channel.toLowerCase() === 'email') {
           <fieldset class="fieldset max-w-md">
             <legend class="fieldset-legend">{{ 'Campaigns.SenderLabelRequired' | translate }}</legend>
-            <select class="select w-full" [value]="selectedSenderId()" (change)="onSenderChanged($any($event.target).value, contentForm)">
+            <select class="select w-full" [value]="selectedSenderId()" [disabled]="readonly()" (change)="onSenderChanged($any($event.target).value, contentForm)">
               <option value="" disabled>{{ 'Campaigns.SelectSenderPlaceholder' | translate }}</option>
               @for (sender of senders(); track sender.id) {
                 <option [value]="sender.id" [selected]="sender.id === selectedSenderId()">{{ sender.displayName }} &lt;{{ sender.sender }}&gt;</option>
@@ -52,54 +58,68 @@
           </fieldset>
         }
 
-        <div class="grid gap-4 lg:grid-cols-2">
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">{{ 'Campaigns.SubjectLabelRequired' | translate }}</legend>
-            <input class="input w-full" formControlName="subject" [placeholder]="'Campaigns.SubjectPlaceholder' | translate"
-              [class.input-error]="contentForm.controls.subject.invalid && contentForm.controls.subject.touched" (input)="renderPreview(contentForm)" />
-            @if (contentForm.controls.subject.touched && contentForm.controls.subject.hasError('required')) {
-              <p class="label text-error">{{ 'Campaigns.SubjectRequiredError' | translate }}</p>
-            }
-          </fieldset>
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend flex items-center gap-1.5"><svg lucideEye class="size-3.5"></svg>{{ 'Campaigns.PreviewLabel' | translate }}</legend>
-            <div class="flex min-h-10 items-center rounded-field border border-dashed border-base-300 bg-base-200/50 px-3 text-sm">
-              @if (subjectPreview()) { {{ subjectPreview() }} } @else { <span class="text-base-content/40">—</span> }
+        @if (readonly()) {
+          <div>
+            <p class="mb-2 flex items-center gap-2 text-sm font-semibold">
+              <svg lucideEye class="size-4 text-base-content/60"></svg>{{ 'Campaigns.PreviewLabel' | translate }}
+            </p>
+            <div class="overflow-hidden rounded-box border border-base-300">
+              <div class="border-b border-base-300 bg-base-200 px-4 py-2.5 text-sm">
+                @if (subjectPreview()) { <span class="font-semibold">{{ subjectPreview() }}</span> } @else { <span class="text-base-content/40">—</span> }
+              </div>
+              <iframe class="block h-[60vh] w-full" [title]="'Campaigns.PreviewLabel' | translate" [srcdoc]="previewDocument() | safe: 'html'"></iframe>
             </div>
-          </fieldset>
-        </div>
+          </div>
+        } @else {
+          <div class="grid gap-4 lg:grid-cols-2">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'Campaigns.SubjectLabelRequired' | translate }}</legend>
+              <input class="input w-full" formControlName="subject" [placeholder]="'Campaigns.SubjectPlaceholder' | translate"
+                [class.input-error]="contentForm.controls.subject.invalid && contentForm.controls.subject.touched" (input)="renderPreview(contentForm)" />
+              @if (contentForm.controls.subject.touched && contentForm.controls.subject.hasError('required')) {
+                <p class="label text-error">{{ 'Campaigns.SubjectRequiredError' | translate }}</p>
+              }
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend flex items-center gap-1.5"><svg lucideEye class="size-3.5"></svg>{{ 'Campaigns.PreviewLabel' | translate }}</legend>
+              <div class="flex min-h-10 items-center rounded-field border border-dashed border-base-300 bg-base-200/50 px-3 text-sm">
+                @if (subjectPreview()) { {{ subjectPreview() }} } @else { <span class="text-base-content/40">—</span> }
+              </div>
+            </fieldset>
+          </div>
 
-        <div class="grid gap-4 lg:grid-cols-2">
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">{{ 'Campaigns.BodyLabelRequired' | translate }}</legend>
-            <code-editor class="code-editor-ritch h-[50vh] w-full [&_.cm-editor]:h-full" formControlName="body"
-              [class.border-error]="contentForm.controls.body.invalid && contentForm.controls.body.touched"
-              [theme]="theme.isDark() ? 'dark' : 'light'" [setup]="'basic'" [placeholder]="'Campaigns.BodyPlaceholder' | translate"
-              [indentWithTab]="false" [indentUnit]="''" [lineWrapping]="true" [highlightWhitespace]="false"
-              [language]="'html'" [languages]="languages" (change)="renderPreview(contentForm)" />
-            @if (contentForm.controls.body.touched && contentForm.controls.body.hasError('required')) {
-              <p class="label text-error">{{ 'Campaigns.BodyRequiredError' | translate }}</p>
-            }
-          </fieldset>
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend flex items-center gap-1.5"><svg lucideEye class="size-3.5"></svg>{{ 'Campaigns.PreviewLabel' | translate }}</legend>
-            <iframe class="h-[50vh] w-full rounded-field border border-dashed border-base-300" [title]="'Campaigns.PreviewLabel' | translate"
-              [srcdoc]="previewDocument() | safe: 'html'"></iframe>
-          </fieldset>
-        </div>
+          <div class="grid gap-4 lg:grid-cols-2">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'Campaigns.BodyLabelRequired' | translate }}</legend>
+              <code-editor class="code-editor-ritch h-[50vh] w-full [&_.cm-editor]:h-full" formControlName="body"
+                [class.border-error]="contentForm.controls.body.invalid && contentForm.controls.body.touched"
+                [theme]="theme.isDark() ? 'dark' : 'light'" [setup]="'basic'" [placeholder]="'Campaigns.BodyPlaceholder' | translate"
+                [indentWithTab]="false" [indentUnit]="''" [lineWrapping]="true" [highlightWhitespace]="false"
+                [language]="'html'" [languages]="languages" (change)="renderPreview(contentForm)" />
+              @if (contentForm.controls.body.touched && contentForm.controls.body.hasError('required')) {
+                <p class="label text-error">{{ 'Campaigns.BodyRequiredError' | translate }}</p>
+              }
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend flex items-center gap-1.5"><svg lucideEye class="size-3.5"></svg>{{ 'Campaigns.PreviewLabel' | translate }}</legend>
+              <iframe class="h-[50vh] w-full rounded-field border border-dashed border-base-300" [title]="'Campaigns.PreviewLabel' | translate"
+                [srcdoc]="previewDocument() | safe: 'html'"></iframe>
+            </fieldset>
+          </div>
+        }
       </div>
     }
   }
 
-  @if (activeTab() > 0) {
-    <div class="grid gap-4 border-t border-base-300 pt-5 lg:grid-cols-2">
+  @if (activeTab() === dataTab) {
+    <div class="grid gap-4 lg:grid-cols-2">
       <fieldset class="fieldset">
         <legend class="fieldset-legend flex items-center gap-1.5"><svg lucideBraces class="size-3.5"></svg>{{ 'Campaigns.MetadataLabel' | translate }}</legend>
         <code-editor class="code-editor-ritch h-[40vh] w-full [&_.cm-editor]:h-full" formControlName="data"
           [class.border-error]="form.controls.data.invalid"
           [theme]="theme.isDark() ? 'dark' : 'light'" [setup]="'basic'" [placeholder]="'Campaigns.MetadataPlaceholder' | translate"
           [indentWithTab]="false" [indentUnit]="''" [lineWrapping]="true" [highlightWhitespace]="false"
-          [language]="'json'" [languages]="languages" />
+          [language]="'json'" [languages]="languages" [readonly]="readonly()" />
         @if (form.controls.data.hasError('invalidJson')) {
           <p class="label text-error">{{ 'Campaigns.MetadataInvalidJsonError' | translate }}</p>
         }
