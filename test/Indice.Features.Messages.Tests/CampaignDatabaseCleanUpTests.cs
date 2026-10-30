@@ -79,6 +79,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
                 Id = Guid.NewGuid(),
                 Name = $"Test List {i}",
                 CreatedBy = "system",
+                SystemGenerated = true,
                 ContactDistributionLists = new List<DbDistributionListContact>()
             });
         }
@@ -129,6 +130,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
                 Id = Guid.NewGuid(),
                 Name = $"Test List {i}",
                 CreatedBy = "system",
+                SystemGenerated = true,
                 ContactDistributionLists = new List<DbDistributionListContact>()
             });
         }
@@ -184,7 +186,8 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         var distributionList = new DbDistributionList {
             Id = Guid.NewGuid(),
             Name = "Test List",
-            CreatedBy = "system"
+            CreatedBy = "system",
+            SystemGenerated = true
         };
         db.DistributionLists.Add(distributionList);
 

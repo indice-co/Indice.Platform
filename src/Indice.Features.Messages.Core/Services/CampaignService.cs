@@ -249,11 +249,8 @@ public class CampaignService : ICampaignService
             query = query.Where(x => x.CampaignId == campaignId);
         }
 
-        query = query.Where(x => {
-            var isSent = x.Type == nameof(MessageEventType.Sent);
-            var isInboxCreated = x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created);
-            return isSent || isInboxCreated;
-        });
+        query = query.Where(x => x.Type == nameof(MessageEventType.Sent) ||
+                                 (x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created)));
 
         var metrics = await query
             .GroupBy(x => new { x.Channel, x.CampaignId, x.MessageId, x.ContactId })
