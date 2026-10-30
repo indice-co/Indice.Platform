@@ -56,6 +56,16 @@ WHERE LEN(m.[Value]) > 256;
   Needs read access to the case. `IAdminCaseService.GetDataVersions(caseId, options)` backs it.
 - `GET /manage/reports` takes an optional `channel`
   The `Agent*` / `Customer*` report tags remain, as the `Managed` / `External` channel reports.
+- Administrators (`CasesAdministrator`, admins and system clients) edit case relations and groups:
+  - `PUT /manage/cases/{caseId}/relation-key` (`relationKey`) changes the key of the case only: it joins the cases with the new key
+    and leaves the cases of its old key, which stay related to each other. An empty key takes it out of any relation; unlike the
+    metadata `PATCH`, it also clears the `ExternalCorrelationKey` entry.
+  - `POST /manage/cases/{caseId}/related-cases` (`caseIds`) gives those cases the key of the case; a case that shared another key
+    leaves that relation. The case must have a key (business error otherwise).
+  - `DELETE /manage/cases/{caseId}/related-cases/{relatedCaseId}` clears the key of a related case.
+  - `PUT /manage/cases/{caseId}/group` (`groupId`, up to 128 characters, empty clears it) changes the group of the case.
+    The group takes part in the access rules, so this changes who can access the case.
+  - `IAdminCaseService.UpdateRelationKey`, `AddRelatedCases`, `RemoveRelatedCase` and `UpdateGroup` back them.
 ### Changed
 - The default case channels are renamed: `Agent` is now `Managed` (cases created through the manage API) and `Customer`
   is now `External` (cases created through the my API). No migration: the old names stay on the cases already stored

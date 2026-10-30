@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.62.0]
+### Changed
+- Improved the performance of the Admin UI dashboard (`/api/dashboard/metrics`). The user counts (blocked, locked out, two factor enabled, email/phone confirmed, password expired) no longer scan the whole `[auth].[User]` table. They now use a narrow covering index, `IX_User_DashboardFlags`.
+- The index is part of the EF Core mapping (`UserMap`) for both SQL Server and PostgreSQL, so new databases created by `EnsureCreated()` get it automatically. **Existing databases** need the script below.
+
+SQL Server: run this migration script to update the database
+```tsql
+-- [auth].[User]: covering index for the dashboard user counts.
+-- On large tables, consider adding WITH (ONLINE = ON) (Enterprise, Developer or Azure SQL) to avoid blocking writes.
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE [name] = N'IX_User_DashboardFlags' AND [object_id] = OBJECT_ID(N'[auth].[User]'))
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_User_DashboardFlags]
+        ON [auth].[User]([Blocked] ASC)
+        INCLUDE ([TwoFactorEnabled], [EmailConfirmed], [PhoneNumberConfirmed], [PasswordExpired], [PasswordExpirationDate], [LockoutEnabled], [LockoutEnd]);
+END
+GO
+```
+
+PostgreSQL: run this migration script to update the database
+```sql
+-- Run outside of a transaction block (CREATE INDEX CONCURRENTLY does not block writes).
+CREATE INDEX CONCURRENTLY IF NOT EXISTS "IX_User_DashboardFlags"
+    ON auth."User" ("Blocked")
+    INCLUDE ("TwoFactorEnabled", "EmailConfirmed", "PhoneNumberConfirmed", "PasswordExpired", "PasswordExpirationDate", "LockoutEnabled", "LockoutEnd");
+
+ANALYZE auth."User";
+```
+> If a concurrent build fails it leaves an invalid index behind (`SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid;`). Drop it with `DROP INDEX CONCURRENTLY` and run the script again, because `IF NOT EXISTS` skips invalid indexes too.
+> PostgreSQL can only answer these counts from the index alone (index-only scan) when the table is well vacuumed. `auth."User"` is updated on every sign in, so make sure autovacuum keeps up with it.
+
 ## [8.56.0]
 - Add UserRateCounter-backed action rate limiter with limits and guard
 Run this Migration script to update the database

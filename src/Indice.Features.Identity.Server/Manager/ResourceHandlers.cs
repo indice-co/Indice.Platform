@@ -148,13 +148,16 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound>> DeleteIdentityResource(
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteIdentityResource(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId
     ) {
         var resource = await configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
+        }
+        if (resource.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(resourceId).ToLower(), "Cannot delete a reserved identity resource."));
         }
         configurationDbContext.IdentityResources.Remove(resource);
         await configurationDbContext.SaveChangesAsync();
@@ -198,6 +201,11 @@ internal static class ResourceHandlers
             Description = apiScope.Description,
             DisplayName = apiScope.DisplayName,
             Emphasize = apiScope.Emphasize,
+#if NET9_0_OR_GREATER
+            NonEditable = apiScope.NonEditable,
+#else
+            NonEditable = false,
+#endif
             UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
             ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
             Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
@@ -264,6 +272,11 @@ internal static class ResourceHandlers
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
+#if NET9_0_OR_GREATER
+        if (apiScope.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Cannot delete a reserved API scope."));
+        }
+#endif
         var isInUse = await configurationDbContext.ApiResources.AnyAsync(x => x.Scopes.Any(s => s.Scope == scopeName));
         if (isInUse) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Cannot delete API scope as it is in use."));
@@ -385,6 +398,11 @@ internal static class ResourceHandlers
                     Description = result.ApiScope.Description,
                     DisplayName = result.ApiScope.DisplayName,
                     Emphasize = result.ApiScope.Emphasize,
+#if NET9_0_OR_GREATER
+                    NonEditable = result.ApiScope.NonEditable,
+#else
+                    NonEditable = false,
+#endif
                     UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                     ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
                     Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(result.ApiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
@@ -646,7 +664,7 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound>> DeleteApiResourceScope(
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteApiResourceScope(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId, int scopeId) {
         var apiResource = await configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
@@ -657,11 +675,16 @@ internal static class ResourceHandlers
         if (apiResourceScope == null) {
             return TypedResults.NotFound();
         }
-        apiResource.Scopes!.Remove(apiResourceScope);
         var apiScope = await configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
+#if NET9_0_OR_GREATER
+        if (apiScope.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeId).ToLower(), "Cannot delete a reserved API scope."));
+        }
+#endif
+        apiResource.Scopes!.Remove(apiResourceScope);
         configurationDbContext.ApiScopes.Remove(apiScope);
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
@@ -721,12 +744,15 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound>> DeleteApiResource(
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteApiResource(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId) {
         var apiResource = await configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
         if (apiResource == null) {
             return TypedResults.NotFound();
+        }
+        if (apiResource.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(resourceId).ToLower(), "Cannot delete a reserved API resource."));
         }
         configurationDbContext.ApiResources.Remove(apiResource);
         var apiScopes = await configurationDbContext.ApiScopes.Where(apiScope => apiResource.Scopes.Select(apiResourceScope => apiResourceScope.Scope).Contains(apiScope.Name)).ToListAsync();
