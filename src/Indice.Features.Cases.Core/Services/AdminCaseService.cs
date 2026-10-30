@@ -697,10 +697,70 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             Filter = new GetCasesListFilter {
                 RelationKeys = [new FilterClause(nameof(GetCasesListFilter.RelationKeys), @case.RelationKey, FilterOperator.Eq, JsonDataType.String)]
             },
-            Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
+            Sort = $"{nameof(CasePartial.CreatedByWhen)}-",
+            // the whole relation, not the default page: the relations editor removes cases from this list
+            Size = int.MaxValue
         });
 
         return result.Items.Where(x => x.Id != caseId).ToList();
+    }
+
+    public async Task<bool> UpdateRelationKey(Guid caseId, string? relationKey) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        ReplaceRelationKey(@case, relationKey);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> AddRelatedCases(Guid caseId, IEnumerable<Guid> relatedCaseIds) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        if (@case.RelationKey is null) {
+            throw new BusinessException("The case has no relation key.");
+        }
+        var ids = relatedCaseIds.Where(id => id != caseId).Distinct().ToList();
+        var cases = await DbContext.Cases.Where(c => ids.Contains(c.Id)).ToListAsync();
+        foreach (var related in cases) {
+            SetRelationKey(related, @case.RelationKey);
+        }
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveRelatedCase(Guid caseId, Guid relatedCaseId) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case?.RelationKey is null || relatedCaseId == caseId) {
+            return false;
+        }
+        // compare the keys in the database, like GetRelatedCases does, so both follow its collation
+        var related = await DbContext.Cases.FirstOrDefaultAsync(c => c.Id == relatedCaseId && c.RelationKey == @case.RelationKey);
+        if (related is null) {
+            return false;
+        }
+        ReplaceRelationKey(related, null);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateGroup(Guid caseId, string? groupId) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        @case.GroupId = string.IsNullOrWhiteSpace(groupId) ? null : groupId.Trim();
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    /// <summary>Sets the relation key and its metadata entry. Unlike <see cref="BaseCaseService.SetRelationKey"/>, an empty value clears both.</summary>
+    private static void ReplaceRelationKey(Data.Models.DbCase @case, string? value) {
+        @case.Metadata?.Remove(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey);
+        SetRelationKey(@case, value?.Trim());
     }
 
     private async Task<FilterClause[]> MapCheckpointTypeCodeToId(FilterClause[] checkpointTypeCodeFilterClauses) {
