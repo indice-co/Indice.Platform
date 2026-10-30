@@ -445,7 +445,7 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         Stream requestBody,
         CancellationToken cancellationToken) {
         if (IsSignatureInvalid(requestParameters)) {
-            return WebhookHttpResult.BadRequest();
+            return WebhookHttpResult.BadRequest("Invalid Yuboto webhook signature.");
         }
 
         var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
