@@ -116,7 +116,7 @@ export class ClaimTypesComponent implements OnInit {
   private readonly _api = inject(IdentityApiService);
   private readonly _auth = inject(AuthService);
   protected readonly pane = inject(SidePaneService);
-  protected readonly canEdit = this._auth.isAdminUIUsersWriter() || this._auth.isAdminUIClientsWriter();
+  protected readonly canEdit = this._auth.isAdmin();
 
   protected readonly list = new ListState<ClaimTypeInfo>({
     sort: 'name',

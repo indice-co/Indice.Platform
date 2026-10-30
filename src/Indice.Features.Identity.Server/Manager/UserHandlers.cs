@@ -35,6 +35,9 @@ using System.Security.Cryptography;
 using System.Text;
 using Indice.Security;
 using Indice.Features.Identity.Core.Guards;
+using Indice.Services;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Routing;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -379,7 +382,11 @@ internal static class UserHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResendConfirmationEmail(
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
+        HttpContext httpContext,
+        LinkGenerator linkGenerator,
         IPlatformEventService eventService,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        IEmailService emailService,
         string userId
     ) {
         var user = await dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
@@ -391,6 +398,24 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        await emailService.SendAsync(message => {
+            var builder = message
+                .To(user.Email!)
+                .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
+            if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
+                var data = new EmailChangeEmailModel {
+                    DisplayName = user.UserName,
+                    Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
+                    Token = token,
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmail", values: new { userId = user.Id, token, email = user.Email}),
+                    User = user
+                };
+                builder.UsingTemplate(endpointOptions.Value.Email.UpdateEmailTemplate)
+                       .WithData(data);
+            } else {
+                builder.WithBody(userManager.MessageDescriber.UpdateEmailMessageBody(user, token, null));
+            }
+        });
         await eventService.Publish(new UserRequestForEmailConfirmationEvent(UserEventContext.InitializeFromUser(user), token));
         return TypedResults.NoContent();
     }
