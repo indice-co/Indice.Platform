@@ -6,6 +6,8 @@ using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Endpoints.Validators;
 using Indice.Features.Cases.Server.Integration;
+using Indice.Features.Cases.Core.Services;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -77,6 +79,14 @@ public static class CaseServerFeatureExtensions
             })
             .ClearResilienceHandlers()
             .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("cases"));
+        builder.Services.AddHttpClient<ElsaClient, ElsaClient>((serviceProvider, httpClient) => {
+                var loopbackUri = builder.Configuration.TryGetEndpoint("ServerLoopbackUri");
+                httpClient.BaseAddress = string.IsNullOrWhiteSpace(loopbackUri) ?
+                                            serviceProvider.GetServerLoopbackUri() :
+                                            new (loopbackUri);
+            })
+            .ClearResilienceHandlers()
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("cases"));
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
@@ -113,6 +123,7 @@ public static class CaseServerFeatureExtensions
         routes.MapAdminReports();
         routes.MapAdminDashboard();
         routes.MapAdminWorkflowInvoker();
+        routes.MapCallbackWorkflow();
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapIntegration();
