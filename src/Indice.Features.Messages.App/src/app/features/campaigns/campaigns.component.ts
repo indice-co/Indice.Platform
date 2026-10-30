@@ -13,6 +13,7 @@ import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 const TYPE_FILTER = 'type.id';
 const PUBLISHED_FILTER = 'published';
@@ -20,11 +21,12 @@ const PUBLISHED_FILTER = 'published';
 @Component({
   selector: 'app-campaigns',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
     ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideMegaphone, LucidePlus
   ],
   template: `
     <app-page-header [title]="'Campaigns.Title' | translate" [subtitle]="'Campaigns.Subtitle' | translate">
+      <app-list-count class="mt-0.5" [count]="list.items() ? list.count() : null" one="Campaigns.CountOne" other="Campaigns.CountOther" />
       <div actions>
         <a class="btn btn-primary btn-sm" routerLink="add-campaign">
           <svg lucidePlus class="size-4"></svg>{{ 'Campaigns.CreateCampaignAction' | translate }}

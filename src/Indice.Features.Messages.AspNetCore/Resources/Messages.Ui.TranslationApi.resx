@@ -2793,4 +2793,64 @@ user_code_2</value>
   <data name="Events.Types.Deleted" xml:space="preserve">
     <value>Deleted</value>
   </data>
+  <data name="Campaigns.CountOne" xml:space="preserve">
+    <value>campaign</value>
+  </data>
+  <data name="Campaigns.CountOther" xml:space="preserve">
+    <value>campaigns</value>
+  </data>
+  <data name="Campaigns.RecipientsCountOne" xml:space="preserve">
+    <value>recipient</value>
+  </data>
+  <data name="Campaigns.RecipientsCountOther" xml:space="preserve">
+    <value>recipients</value>
+  </data>
+  <data name="Contacts.CountOne" xml:space="preserve">
+    <value>contact</value>
+  </data>
+  <data name="Contacts.CountOther" xml:space="preserve">
+    <value>contacts</value>
+  </data>
+  <data name="DistributionLists.CountOne" xml:space="preserve">
+    <value>distribution list</value>
+  </data>
+  <data name="DistributionLists.CountOther" xml:space="preserve">
+    <value>distribution lists</value>
+  </data>
+  <data name="Events.CountOne" xml:space="preserve">
+    <value>event</value>
+  </data>
+  <data name="Events.CountOther" xml:space="preserve">
+    <value>events</value>
+  </data>
+  <data name="MessageTypes.CountOne" xml:space="preserve">
+    <value>message type</value>
+  </data>
+  <data name="MessageTypes.CountOther" xml:space="preserve">
+    <value>message types</value>
+  </data>
+  <data name="Templates.CountOne" xml:space="preserve">
+    <value>template</value>
+  </data>
+  <data name="Templates.CountOther" xml:space="preserve">
+    <value>templates</value>
+  </data>
+  <data name="MediaLibrary.CountOne" xml:space="preserve">
+    <value>item</value>
+  </data>
+  <data name="MediaLibrary.CountOther" xml:space="preserve">
+    <value>items</value>
+  </data>
+  <data name="Settings.SendersCountOne" xml:space="preserve">
+    <value>sender</value>
+  </data>
+  <data name="Settings.SendersCountOther" xml:space="preserve">
+    <value>senders</value>
+  </data>
+  <data name="Settings.MediaSettingsCountOne" xml:space="preserve">
+    <value>setting</value>
+  </data>
+  <data name="Settings.MediaSettingsCountOther" xml:space="preserve">
+    <value>settings</value>
+  </data>
 </root>

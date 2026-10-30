@@ -15,15 +15,17 @@ import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 @Component({
   selector: 'app-distribution-lists',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
     LucideListPlus, LucideTrash, LucideUsers
   ],
   template: `
     <app-page-header [title]="'DistributionLists.ListsTitle' | translate" [subtitle]="'DistributionLists.Subtitle' | translate">
+      <app-list-count class="mt-0.5" [count]="list.items() ? list.count() : null" one="DistributionLists.CountOne" other="DistributionLists.CountOther" />
       <div actions>
         <a class="btn btn-primary btn-sm" [routerLink]="pane.link('create-distribution-list')">
           <svg lucideListPlus class="size-4"></svg>{{ 'DistributionLists.CreateTitle' | translate }}
