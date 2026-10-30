@@ -1,28 +1,33 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 /**
- * "Risk UI" brand: a shield carrying a risk gauge whose needle leans toward the high end. Colors come from theme tokens
- * (`--color-primary`, `--color-primary-content`, `--color-accent`), so the mark follows the active theme.
+ * "Risk UI by INDICE" brand: a rounded warning diamond carrying a pulse line and an alert dot, followed by the wordmark.
+ * It matches `favicon.svg` as a single SVG so the layout never shifts, but takes its colors from theme tokens
+ * (`--color-primary`, `--color-primary-content`, `--color-accent`, `--color-accent-content`) and the text from
+ * `currentColor`, so it follows the active theme and the surface it sits on.
  */
 @Component({
   selector: 'app-logo',
-  host: { class: 'inline-flex items-center gap-2.5' },
+  host: { class: 'inline-flex' },
   template: `
-    <svg viewBox="0 0 32 32" [style.width.px]="size()" [style.height.px]="size()" aria-hidden="true">
-      <path d="M16 2.5 27.5 6.6V15c0 7.1-4.9 12-11.5 14.6C9.4 27 4.5 22.1 4.5 15V6.6Z" style="fill: var(--color-primary)" />
-      <path d="M10 19.5a6 6 0 0 1 12 0" fill="none" stroke-width="2" stroke-linecap="round" style="stroke: var(--color-primary-content)" />
-      <path d="m16 19.5 3.6-4.4" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke: var(--color-accent)" />
-      <circle cx="16" cy="19.5" r="1.7" style="fill: var(--color-primary-content)" />
+    <svg viewBox="0 0 112 32" [style.width.px]="width()" [style.height.px]="size()" role="img" aria-label="Risk UI by INDICE"
+      style="font-family: inherit; overflow: visible">
+      <rect x="6" y="7" width="18" height="18" rx="4.5" transform="rotate(45 15 16)" style="fill: var(--color-primary)" />
+      <path d="M7 16.5h4l2-5 3.5 9.5 2.5-6.5 1.5 2H23" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        style="stroke: var(--color-primary-content)" />
+      <circle cx="26" cy="6" r="4.5" stroke-width="2" [style.fill]="'var(--color-accent)'" [style.stroke]="ring()" />
+      <text x="38" y="19.5" font-size="18" font-weight="700" fill="currentColor" letter-spacing="-0.3">Risk</text>
+      <rect x="77" y="6" width="22" height="15" rx="3" style="fill: var(--color-accent)" />
+      <text x="88" y="17.5" text-anchor="middle" font-size="10" font-weight="700"
+        style="fill: var(--color-accent-content)">UI</text>
+      <text x="38.5" y="28.5" font-size="6.5" font-weight="500" fill="currentColor" fill-opacity="0.55" letter-spacing="0.4">by <tspan font-weight="700" letter-spacing="0.9">INDICE</tspan></text>
     </svg>
-    @if (wordmark()) {
-      <span class="flex items-baseline gap-1.5 leading-none">
-        <span class="text-lg font-bold tracking-tight">Risk</span>
-        <span class="rounded-md bg-accent px-1.5 py-0.5 text-[0.65rem] font-bold text-accent-content">UI</span>
-      </span>
-    }
   `
 })
 export class LogoComponent {
+  /** Height of the logo in pixels; the width follows the 112:32 aspect ratio of the artwork. */
   public readonly size = input(32);
-  public readonly wordmark = input(true);
+  /** Color of the ring around the alert dot; match it to the surface the logo sits on. */
+  public readonly ring = input('var(--color-base-100)');
+  protected readonly width = computed(() => (this.size() * 112) / 32);
 }

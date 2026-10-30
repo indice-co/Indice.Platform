@@ -84,7 +84,7 @@ interface NavItem {
         <aside class="flex min-h-full flex-col border-r"
           style="width: var(--app-sidebar-width); background: var(--app-sidebar-bg); color: var(--app-sidebar-content); border-color: var(--app-sidebar-border)">
           <a routerLink="/risk-events" class="flex h-16 items-center px-5" style="color: var(--app-sidebar-content-strong)">
-            <app-logo [size]="30" />
+            <app-logo [size]="30" ring="var(--app-sidebar-bg)" />
           </a>
 
           <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Main">

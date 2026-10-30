@@ -141,7 +141,13 @@ public class TemplateService : ITemplateService
             query = query.Where(x => x.Type == options.Filter.Type);
         }
 
-        var result = await query.ToResultSetAsync(options);
+        // Never edited templates show their creation date as the update date, so they sort by it too.
+        var sortByUpdate = options.GetSortings().FirstOrDefault(x => x.Path.Equals(nameof(DbTemplate.UpdatedAt), StringComparison.OrdinalIgnoreCase));
+        var result = sortByUpdate.Path is null
+            ? await query.ToResultSetAsync(options)
+            : await (sortByUpdate.Direction == SortByClause.DESC
+                ? query.OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
+                : query.OrderBy(x => x.UpdatedAt ?? x.CreatedAt)).ToResultSetAsync(options.Page!.Value, options.Size!.Value);
         var templateItems = result.Items.Select(x => new TemplateListItem {
             Channels = x.Content.Select(x => Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true)).ToList(),
             CreatedAt = x.CreatedAt,

@@ -34,7 +34,7 @@ export class SidePaneService {
 @Component({
   selector: 'app-side-pane-layout',
   imports: [LucideX],
-  host: { class: 'flex h-full flex-col' },
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
   template: `
     <header class="border-b border-base-300 px-6 py-5">
       <div class="flex items-start justify-between gap-4">
@@ -53,7 +53,7 @@ export class SidePaneService {
       </div>
       <ng-content select="[header]" />
     </header>
-    <div class="flex-1 overflow-y-auto px-6 py-5">
+    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">
       <ng-content />
     </div>
     <ng-content select="[footer]" />

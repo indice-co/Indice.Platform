@@ -9,7 +9,7 @@ import { LogoComponent } from '../ui/logo/logo.component';
   host: { class: 'grid min-h-dvh place-items-center bg-base-200 px-6' },
   template: `
     <div class="flex max-w-md flex-col items-center gap-6 text-center">
-      <app-logo [size]="40" />
+      <app-logo [size]="40" ring="var(--color-base-200)" />
       <p class="tabular text-7xl font-bold tracking-tight text-base-content/15">{{ code() }}</p>
       <div class="space-y-2">
         <h1 class="text-2xl font-semibold">{{ title() }}</h1>
