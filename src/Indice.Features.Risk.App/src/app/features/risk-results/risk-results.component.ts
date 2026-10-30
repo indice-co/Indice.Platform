@@ -20,7 +20,8 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
     RiskLevelBadgeComponent, LucideActivity, LucideChevronRight, LucideGauge, LucideRefreshCw, LucideTriangleAlert
   ],
   template: `
-    <app-page-header title="Risk results" subtitle="The outcome of every risk evaluation, with the score each rule contributed." />
+    <app-page-header title="Risk results" subtitle="The outcome of every risk evaluation, with the score each rule contributed."
+      [count]="list.count()" />
 
     <section class="panel">
       <app-filter-bar class="border-b border-base-300 p-4" [fields]="fields" [filters]="list.filters()" (filtersChange)="list.setFilters($event)">

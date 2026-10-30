@@ -16,7 +16,8 @@ export const RULES_SCOPE = 'rules';
   selector: 'app-rules',
   imports: [RouterLink, PageHeaderComponent, EmptyStateComponent, LucideListChecks, LucidePencil, LucideRefreshCw, LucideSearch, LucideTriangleAlert],
   template: `
-    <app-page-header title="Rules" subtitle="Rules registered with the risk engine. Enable, describe and tune each one.">
+    <app-page-header title="Rules" subtitle="Rules registered with the risk engine. Enable, describe and tune each one."
+      [count]="rules.hasValue() ? rules.value().length : null">
       @if (rules.hasValue()) {
         <p class="mt-2 flex items-center gap-3 text-sm text-base-content/70">
           <span><span class="font-semibold text-base-content tabular">{{ enabledCount() }}</span> enabled</span>

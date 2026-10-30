@@ -19,7 +19,8 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
     LucideActivity, LucideChevronRight, LucideRefreshCw, LucideTriangleAlert
   ],
   template: `
-    <app-page-header title="Risk events" subtitle="Transactions and user actions reported to the risk engine for evaluation." />
+    <app-page-header title="Risk events" subtitle="Transactions and user actions reported to the risk engine for evaluation."
+      [count]="list.count()" />
 
     <section class="panel">
       <app-filter-bar class="border-b border-base-300 p-4" [fields]="fields" [filters]="list.filters()" (filtersChange)="list.setFilters($event)">

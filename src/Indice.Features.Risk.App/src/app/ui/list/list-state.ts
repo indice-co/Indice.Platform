@@ -77,7 +77,7 @@ export class ListState<T> {
       )
       .subscribe(result => {
         this.items.set(result?.items ?? []);
-        this.count.set(result?.count ?? 0);
+        this.count.set(result ? result.count ?? 0 : null);
         this.loading.set(false);
       });
   }
