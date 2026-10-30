@@ -10,6 +10,7 @@ import { DateControlComponent } from './controls/date.control';
 import { EnumArrayControlComponent, isEnumArrayControl } from './controls/enum-array.control';
 import { FileControlComponent } from './controls/file.control';
 import { HrefControlComponent } from './controls/href.control';
+import { ImageUriControlComponent } from './controls/image-uri.control';
 import { InputControlComponent } from './controls/input.control';
 import { LookupSelectorControlComponent } from './controls/lookup-selector.control';
 import { LookupControlComponent } from './controls/lookup.control';
@@ -18,7 +19,7 @@ import { SelectControlComponent } from './controls/select.control';
 import { TextareaControlComponent } from './controls/textarea.control';
 import { WysiwygControlComponent } from './controls/wysiwyg.control';
 import { DisplayLayoutRendererComponent } from './display/display-layout.renderer';
-import { DisplayFileControlComponent, DisplayLookupControlComponent, DisplayLookupSelectorControlComponent } from './display/display-widgets';
+import { DisplayFileControlComponent, DisplayImageUriControlComponent, DisplayLookupControlComponent, DisplayLookupSelectorControlComponent } from './display/display-widgets';
 import { DisplayControlComponent } from './display/display.control';
 import { HtmlRendererComponent } from './elements/html.renderer';
 import { LabelOnlyRendererComponent } from './elements/label-only.renderer';
@@ -85,6 +86,7 @@ export const tailwindRenderers: JsonFormsRendererRegistryEntry[] = [
     { tester: rankWith(10, widgetIs('lookup-selector')), renderer: LookupSelectorControlComponent },
     { tester: rankWith(10, widgetIs('wysiwyg')), renderer: WysiwygControlComponent },
     { tester: rankWith(10, widgetIs('href')), renderer: HrefControlComponent },
+    { tester: rankWith(10, and(isStringControl, widgetIs('imageUri'))), renderer: ImageUriControlComponent },
 ];
 
 /**
@@ -104,4 +106,5 @@ export const displayRenderers: JsonFormsRendererRegistryEntry[] = [
     { tester: rankWith(10, widgetIs('file')), renderer: DisplayFileControlComponent },
     { tester: rankWith(10, widgetIs('lookup')), renderer: DisplayLookupControlComponent },
     { tester: rankWith(10, widgetIs('lookup-selector')), renderer: DisplayLookupSelectorControlComponent },
+    { tester: rankWith(10, and(isStringControl, widgetIs('imageUri'))), renderer: DisplayImageUriControlComponent },
 ];

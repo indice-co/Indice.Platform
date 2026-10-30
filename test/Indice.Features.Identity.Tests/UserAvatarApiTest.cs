@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Indice.Security;
 using Duende.IdentityModel.Client;
@@ -40,7 +41,8 @@ public class UserAvatarApiTest : IAsyncLifetime
 {
     // Private fields
     private readonly HttpClient _httpClient;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private readonly IServiceProvider _serviceProvider;
     private const string BASE_URL = "https://server";
     private const string CLIENT_ID = "api-user-client";
     private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
@@ -48,7 +50,8 @@ public class UserAvatarApiTest : IAsyncLifetime
     private string _signInLogDatabaseName = $"SignInLogDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
 
     public UserAvatarApiTest() {
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["test:key"] = "20"
@@ -121,9 +124,11 @@ public class UserAvatarApiTest : IAsyncLifetime
                 idbuilder.MapProfilePictures();
             });   
         });
-        var server = new TestServer(builder);
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
@@ -252,7 +257,8 @@ public class UserAvatarApiTest : IAsyncLifetime
     #endregion
 
     public async ValueTask DisposeAsync() {
-        await _serviceProvider.DisposeAsync();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 
     public ValueTask InitializeAsync() {

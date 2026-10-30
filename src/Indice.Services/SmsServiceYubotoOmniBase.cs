@@ -1,10 +1,13 @@
 ﻿using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -19,7 +22,7 @@ public abstract class SmsServiceYubotoOmniBase
     /// <param name="logger">Represents a type used to perform logging.</param>
     public SmsServiceYubotoOmniBase(
         HttpClient httpClient, 
-        IOptionsSnapshot<SmsServiceSettings> settings, 
+        IOptionsSnapshot<SmsServiceYubotoOmniSettings> settings, 
         ILogger<SmsServiceYubotoOmniBase> logger
     ) {
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -34,7 +37,7 @@ public abstract class SmsServiceYubotoOmniBase
     }
 
     /// <summary>The settings required to configure the service.</summary>
-    protected SmsServiceSettings Settings { get; }
+    protected SmsServiceYubotoOmniSettings Settings { get; }
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
     protected HttpClient HttpClient { get; }
     /// <summary>Represents a type used to perform logging.</summary>
@@ -105,7 +108,7 @@ public abstract class SmsServiceYubotoOmniBase
     #region Models
     internal class SendRequest
     {
-        public static SendRequest CreateSms(string[] phoneNumbers, string sender, string message, int validity) => new SendRequest {
+        public static SendRequest CreateSms(string[] phoneNumbers, string sender, string message, int validity, string? callbackUrl = null, bool dlr = false) => new SendRequest {
             PhoneNumbers = phoneNumbers,
             Sms = new SmsObj {
                 Sender = sender,
@@ -113,10 +116,12 @@ public abstract class SmsServiceYubotoOmniBase
                 TypeSms = "sms",
                 LongSms = message.Length > 160,
                 Validity = validity
-            }
+            },
+            CallbackUrl = callbackUrl,
+            Dlr = dlr
         };
 
-        public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, bool viberFallbackEnabled, int validity, string expiredMessage = "Message is expired.") => new SendRequest {
+        public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, bool viberFallbackEnabled, int validity, string expiredMessage = "Message is expired.", string? callbackUrl = null, bool dlr = false) => new SendRequest {
             PhoneNumbers = phoneNumbers,
             Viber = new ViberObj {
                 Sender = sender,
@@ -132,7 +137,9 @@ public abstract class SmsServiceYubotoOmniBase
                 LongSms = message.Length > 160,
                 Priority = 1,
                 Validity = validity
-            } : default
+            } : default,
+            CallbackUrl = callbackUrl,
+            Dlr = dlr
         };
 
         /// <summary>
@@ -253,6 +260,20 @@ public abstract class SmsServiceYubotoOmniBase
             /// </summary>
             [JsonPropertyName("TwoFa")]
             public TwoFaObj? TwoFa { get; set; }
+
+            /// <summary>
+            /// Callback URL that Yuboto invokes with delivery details when the message reaches a final state.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("CallbackUrl")]
+            public string? CallbackUrl { get; set; }
+
+            /// <summary>
+            /// Indicates whether delivery receipt notifications are requested for this message.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("Dlr")]
+            public bool? Dlr { get; set; }
         }
 
         /// <summary>The Viber Object of SendRequest</summary>
@@ -315,6 +336,20 @@ public abstract class SmsServiceYubotoOmniBase
             /// </summary>
             [JsonPropertyName("TwoFa")]
             public TwoFaObj? TwoFa { get; set; }
+
+            /// <summary>
+            /// Callback URL that Yuboto invokes with delivery details when the message reaches a final state.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("CallbackUrl")]
+            public string? CallbackUrl { get; set; }
+
+            /// <summary>
+            /// Indicates whether delivery receipt notifications are requested for this message.
+            /// Not Required
+            /// </summary>
+            [JsonPropertyName("Dlr")]
+            public bool? Dlr { get; set; }
         }
 
         /// <summary>The Two Factor Object of ViberObj | SmsObj.</summary>
@@ -385,4 +420,165 @@ public abstract class SmsServiceYubotoOmniBase
         }
     }
     #endregion
+}
+
+/// <summary>Extra settings class for configuring Yuboto Omni SMS service client.</summary>
+public class SmsServiceYubotoOmniSettings : SmsServiceSettings
+{
+    /// <summary>The optional secret to be used for producing the callback URL signature.</summary>
+    public string? WebhookSecret { get; set; } = string.Empty;
+}
+
+/// <inheritdoc/>
+public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
+    private readonly SmsServiceYubotoOmniSettings _settings;
+
+    /// <inheritdoc/>
+    public YubotoWebhookHttpHandler(IOptionsSnapshot<SmsServiceYubotoOmniSettings> settings) {
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        if (IsSignatureInvalid(requestParameters)) {
+            return WebhookHttpResult.BadRequest("Invalid Yuboto webhook signature.");
+        }
+
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+
+        var messageId = parameters.GetValueOrDefault("smsid").ToString();
+        var recipient = parameters.GetValueOrDefault("receiver").ToString();
+        var sender = parameters.GetValueOrDefault("sender").ToString();
+        var status = parameters.GetValueOrDefault("status").ToString();
+        var statusDescription = parameters.GetValueOrDefault("statusDescription").ToString();
+        var channel = parameters.GetValueOrDefault("channel").ToString();
+        var dlrDate = parameters.GetValueOrDefault("dlrDate").ToString();
+
+        if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(recipient)) {
+            return WebhookHttpResult.BadRequest("Yuboto webhook requires 'smsid' and 'receiver' query parameters.");
+        }
+
+        var timestamp = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrWhiteSpace(dlrDate) && !DateTimeOffset.TryParse(dlrDate, out timestamp)) {
+            return WebhookHttpResult.BadRequest("Invalid 'dlrDate' value in Yuboto webhook payload.");
+        }
+
+        var payload = new JsonObject();
+        foreach (var parameter in parameters) {
+            payload[parameter.Key] = parameter.Value.ToString();
+        }
+        var eventid = !string.IsNullOrWhiteSpace(statusDescription) ? $"{messageId}:{statusDescription}:{timestamp}" : $"{messageId}:{timestamp}";
+        var eventType = "";
+        if (!string.IsNullOrWhiteSpace(statusDescription)) {
+            eventType = statusDescription;
+        } else if (!string.IsNullOrWhiteSpace(status)) {
+            eventType = $"Status:{status}";
+        } else if (!string.IsNullOrWhiteSpace(channel)) {
+            eventType = $"{channel}Delivery";
+        }
+
+        var incomingEvents = new List<WebhookEvent> {
+            new() {
+                Provider = "Yuboto",
+                EventType = eventType,
+                EventId = eventid,
+                MessageId = messageId,
+                Recipient = recipient,
+                Subject = sender,
+                Timestamp = timestamp,
+                Payload = payload
+            }
+        };
+
+        await Task.CompletedTask;
+        return WebhookHttpResult.Ok(incomingEvents);
+    }
+
+    private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
+            return false;
+        }
+
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+        var hmacToken = parameters.GetValueOrDefault("option1").ToString();
+        var option2 = parameters.GetValueOrDefault("option2").ToString();
+        var reference = string.Empty;
+        var timestamp = string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(option2)) {
+            var values = option2.Split('_');
+            if (values.Length == 2) {
+                reference = values[0];
+                timestamp = values[1];
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(hmacToken) ||
+            string.IsNullOrWhiteSpace(reference) ||
+            string.IsNullOrWhiteSpace(timestamp)) {
+            return true;
+        }
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_settings.WebhookSecret));
+        var expectedHmac = hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"));
+
+        try {
+            if (!TryDecodeCompactToken(hmacToken, out var providedHmac)) {
+                return true;
+            }
+            return !CryptographicOperations.FixedTimeEquals(providedHmac, expectedHmac);
+        } catch (FormatException) {
+            return true;
+        } catch (ArgumentException) {
+            return true;
+        }
+    }
+
+    private static bool TryDecodeCompactToken(string token, out byte[] bytes) {
+        bytes = [];
+        if (string.IsNullOrWhiteSpace(token)) {
+            return false;
+        }
+
+        var base64 = token.Replace('-', '+').Replace('_', '/');
+        var remainder = base64.Length % 4;
+        if (remainder != 0) {
+            base64 = base64.PadRight(base64.Length + (4 - remainder), '=');
+        }
+
+        try {
+            bytes = Convert.FromBase64String(base64);
+            return true;
+        } catch (FormatException) {
+            return false;
+        } catch (ArgumentException) {
+            return false;
+        }
+    }
+}
+
+internal static class YubotoSmsServiceExtensions {
+    private const int OPTION1_MAX_LENGTH = 50;
+
+    /// <summary>Generates a callback URL with a reference identifier for a Yuboto request.</summary>
+    public static TRequest SetCallBackSignature<TRequest>(this TRequest request, string secretKey) where TRequest : SmsServiceYubotoOmniBase.SendRequest {
+        if (string.IsNullOrWhiteSpace(secretKey)) {
+            return request;
+        }
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var referenceId = Convert.ToHexString(RandomNumberGenerator.GetBytes(4));
+        var payload = $"{referenceId}:{timestamp}";
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
+        var signature = Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var option1 = signature;
+        request.Option1 = option1;
+        var option2 = payload.Replace(":", "_");
+        request.Option2 = option2;
+        return request;
+    }
 }

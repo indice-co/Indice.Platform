@@ -1,8 +1,13 @@
 ﻿using System.Net.Mime;
+using System.Net.Http.Headers;
+using System.Globalization;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -87,6 +92,170 @@ public class EmailServiceBrevo : IEmailService
     }
 }
 
+/// <inheritdoc/>
+public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> options) : IWebhookHttpHandler
+{
+    private readonly EmailServiceBrevoSettings _options = options.Value;
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
+        if (!IsAuthorized(requestHeaders)) {
+            return WebhookHttpResult.UnauthorizedRequest("Invalid webhook credentials");
+        }
+
+        JsonNode? payload;
+        try {
+            payload = await JsonNode.ParseAsync(requestBody, cancellationToken: cancellationToken);
+        } catch (JsonException) {
+            return WebhookHttpResult.BadRequest("Invalid JSON payload");
+        }
+
+        if (payload is not JsonArray and not JsonObject) {
+            return WebhookHttpResult.BadRequest("Expected a JSON object or array of webhook events");
+        }
+
+        var events = ParseEvents(payload).ToList();
+        return WebhookHttpResult.Ok(events);
+    }
+
+    private IEnumerable<WebhookEvent> ParseEvents(JsonNode payload) {
+        var items = payload switch {
+            JsonObject item => new[] { item },
+            JsonArray array => array.OfType<JsonObject>(),
+            _ => Enumerable.Empty<JsonObject>()
+        };
+
+        foreach (var item in items) {
+            var messageId = GetString(item, "uuid");
+            if (string.IsNullOrWhiteSpace(messageId)) {
+                continue;
+            }
+            var id = GetString(item, "id");
+
+            var eventType = GetString(item, "event")
+                            ?? GetString(item, "msg_status")
+                            ?? GetString(item, "status")
+                            ?? "unknown";
+
+            var eventMoment = GetString(item, "ts_epoch")
+                              ?? GetString(item, "ts_event")
+                              ?? GetString(item, "ts")
+                              ?? GetString(item, "date")
+                              ?? string.Empty;
+            var recipient = GetString(item, "email") ?? GetString(item, "to") ?? string.Empty;
+
+            var eventId = $"{id}:{eventType}:{eventMoment}";
+
+            yield return new WebhookEvent {
+                Provider = EmailServiceBrevo.ServiceName,
+                EventType = eventType,
+                EventId = eventId,
+                MessageId = messageId,
+                Timestamp = GetTimestamp(item),
+                Recipient = recipient,
+                Subject = GetString(item, "subject"),
+                Payload = item
+            };
+        }
+    }
+
+    private static string? GetString(JsonObject data, string propertyName) {
+        var value = data[propertyName];
+
+        if (value is JsonObject jsonObject) {
+            var firstValue = jsonObject
+                .Select(x => x.Value)
+                .FirstOrDefault(x => x is not null);
+
+            if (firstValue is JsonValue nestedJsonValue && nestedJsonValue.TryGetValue<string>(out var nestedText)) {
+                return nestedText;
+            }
+
+            return firstValue?.ToString();
+        }
+
+        return value is JsonValue jsonValue &&
+               jsonValue.TryGetValue<string>(out var text)
+            ? text
+            : value?.ToString();
+    }
+
+    private static DateTimeOffset GetTimestamp(JsonObject data) {
+        var timestampMs = GetString(data, "ts_epoch");
+        if (long.TryParse(timestampMs, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0) {
+            return epoch > 9_999_999_999
+                ? DateTimeOffset.FromUnixTimeMilliseconds(epoch)
+                : DateTimeOffset.FromUnixTimeSeconds(epoch);
+        }
+
+        var timestampSeconds = GetString(data, "ts_event") ?? GetString(data, "ts");
+        if (long.TryParse(timestampSeconds, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds) && seconds > 0) {
+            return DateTimeOffset.FromUnixTimeSeconds(seconds);
+        }
+
+        var date = GetString(data, "date");
+        if (DateTimeOffset.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var parsed)) {
+            return parsed;
+        }
+
+        return DateTimeOffset.UtcNow;
+    }
+
+    private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders) {
+        var hasUsername = !string.IsNullOrWhiteSpace(_options.WebhookUsername);
+        var hasPassword = !string.IsNullOrWhiteSpace(_options.WebhookPassword);
+        bool incompleteCredentials = hasUsername != hasPassword;
+        bool noAuth = !hasUsername && !hasPassword;
+
+        if (incompleteCredentials) {
+            return false;
+        }
+
+        if (noAuth) {
+            return true;
+        }
+
+        var authorization = requestHeaders
+            .FirstOrDefault(header =>
+                string.Equals(header.Key, "Authorization", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+
+        if (!AuthenticationHeaderValue.TryParse(
+                authorization,
+                out var headerValue) ||
+            !string.Equals(
+                headerValue.Scheme,
+                "Basic",
+                StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
+            return false;
+        }
+
+        byte[] credentials;
+
+        try {
+            credentials = Convert.FromBase64String(headerValue.Parameter);
+        } catch (FormatException) {
+            return false;
+        }
+
+        var separator = Array.IndexOf(credentials, (byte)':');
+
+        if (separator < 0) {
+            return false;
+        }
+
+        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookUsername!));
+        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookPassword!));
+        var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
+        var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
+
+        var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
+        var passwordMatches = CryptographicOperations.FixedTimeEquals(passwordHash, expectedPasswordHash);
+
+        return usernameMatches & passwordMatches;
+    }
+}
+
 /// <summary>Custom settings that are used to send emails via Brevo.</summary>
 public class EmailServiceBrevoSettings
 {
@@ -102,6 +271,10 @@ public class EmailServiceBrevoSettings
     public string? ApiKey { get; set; }
     /// <summary>The Brevo API URL (ex. https://api.brevo.com/v3/).</summary>
     public string Api { get; set; } = "https://api.brevo.com/v3/";
+    /// <summary>The username used to authenticate incoming Brevo webhook requests.</summary>
+    public string? WebhookUsername { get; set; }
+    /// <summary>The password used to authenticate incoming Brevo webhook requests.</summary>
+    public string? WebhookPassword { get; set; }
 }
 
 #region Brevo models

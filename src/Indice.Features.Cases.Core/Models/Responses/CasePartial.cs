@@ -14,6 +14,9 @@ public class CasePartial
     /// <remarks>To enable set to <see langword="true"/> the <strong>ReferenceNumberEnabled</strong> flag</remarks>
     public string? ReferenceNumber { get; set; }
 
+    /// <summary>The key that correlates this case with other cases. Also found in <see cref="Metadata"/> under <c>ExternalCorrelationKey</c>.</summary>
+    public string? RelationKey { get; set; }
+
     /// <summary>The Id of the customer/ or contact as provided from integration services (core or 3rd party).</summary>
     /// <remarks>Correlation reference.</remarks>
     public string? OwnerId { get; set; }

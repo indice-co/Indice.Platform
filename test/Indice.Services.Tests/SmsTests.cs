@@ -13,8 +13,8 @@ public class SmsTests
     public async Task TestYubotoOmniSms(string apiKey, string phoneNumber, string sender, string senderName, string subject, string body) {
         var exception = default(Exception);
         try {
-            var optionsSnapshotMock = new Mock<IOptionsSnapshot<SmsServiceSettings>>();
-            optionsSnapshotMock.Setup(x => x.Value).Returns(new SmsServiceSettings {
+            var optionsSnapshotMock = new Mock<IOptionsSnapshot<SmsServiceYubotoOmniSettings>>();
+            optionsSnapshotMock.Setup(x => x.Value).Returns(new SmsServiceYubotoOmniSettings {
                 ApiKey = apiKey,
                 Sender = sender,
                 SenderName = senderName,

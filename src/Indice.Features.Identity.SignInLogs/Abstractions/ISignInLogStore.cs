@@ -35,4 +35,11 @@ public interface ISignInLogStore
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>A <see cref="SignInLocationSet"/> instance containing the sign in log map data.</returns>
     Task<SignInLocationSet> GetSignInLocationsAsync(SignInLogMapFilter filter, CancellationToken cancellationToken = default);
+
+    /// <summary>Gets the number of successful and failed sign in events per day.</summary>
+    /// <param name="filter">The filter options to apply, such as the time frame.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>One entry per day of the time frame, oldest first; days without events have zero counts.</returns>
+    Task<ResultSet<SignInDailyCount>> GetSignInSeriesAsync(SignInSeriesFilter filter, CancellationToken cancellationToken = default) =>
+        Task.FromResult(new ResultSet<SignInDailyCount>([], 0));
 }

@@ -9,6 +9,7 @@ using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Server.Endpoints.Validators;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -154,11 +155,14 @@ internal static class IntegrationHandlers
     }
 
     /// <summary>Patch Case Metadata</summary>
-    public static async Task<NoContent> PatchMetadata(
+    public static async Task<Results<NoContent, ValidationProblem>> PatchMetadata(
         Guid caseId,
         Dictionary<string, string> metadata,
         IAdminCaseService adminCaseService
     ) {
+        if (new CaseMetadataValidator().Validate(metadata) is { IsValid: false } errors) {
+            return TypedResults.ValidationProblem(errors.ToDictionary());
+        }
         await adminCaseService.PatchCaseMetadata(caseId, metadata);
         return TypedResults.NoContent();
     }
@@ -428,6 +432,7 @@ _casesApiClient.JsonPatchAdminCaseDataAsync(caseId, null, new PatchJsonPathReque
 Patches the Metadata of the Case from a Dictionary<string, string>
 Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
 This should return a boolean response indicating if the Metadata was actually updated.
+An ExternalCorrelationKey entry also sets the case's relationKey (up to 256 characters).
 ";
 
     #endregion

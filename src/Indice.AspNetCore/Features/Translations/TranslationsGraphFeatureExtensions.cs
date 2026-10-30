@@ -25,7 +25,8 @@ public static class TranslationsGraphFeatureExtensions
     /// <returns>The service collection for further configuration</returns>
     public static IServiceCollection AddTranslationGraph(this IServiceCollection services, Action<TranslationsGraphOptions>? configureAction = null) {
         services.AddLocalization();
-        services.Configure<RouteOptions>(options => options.ConstraintMap.Add("culture", typeof(CultureRouteConstraint)));
+        // several features (e.g. identity, messages, cases) may register their translations in the same host
+        services.Configure<RouteOptions>(options => options.ConstraintMap.TryAdd("culture", typeof(CultureRouteConstraint)));
         var options = new TranslationsGraphOptions();
         configureAction?.Invoke(options);
         services.Configure<TranslationsGraphOptions>((o) => {

@@ -20,10 +20,7 @@ internal static class AnalyticsHandlers
                 Known = (await contactService.GetList(new() { Page = 1, Size = 0, Filter = new() { Anonymous = false } })).Count
             },
             Recipient = (await campaignService.GetRecipientMetrics())!,
-            PerChannel = (await campaignService.GetChannelMetrics()).Select(x => new ChannelMetrics { 
-                Kind = Enum.Parse<MessageChannelKind>(x.Key), 
-                Total = x.Value 
-            }).ToList(),
+            PerChannel = await campaignService.GetChannelMetrics(),
             PerType = (await campaignService.GetMessageTypeMetrics(limit: 5)),
             PerTypeToday = (await campaignService.GetMessageTypeMetrics(asOfDate ?? DateTimeOffset.UtcNow, limit: 5)),
             LastUpdateDate = DateTimeOffset.UtcNow
@@ -43,6 +40,13 @@ internal static class AnalyticsHandlers
         IMessageEventService messageEventService,
         [AsParameters] MessageEventSeriesFilter filter) {
         var result = await messageEventService.GetSeriesAsync(filter);
+        return TypedResults.Ok(result);
+    }
+
+    public static async Task<Ok<DeliveryMetrics>> GetDeliveryMetrics(
+        IMessageEventService messageEventService,
+        [AsParameters] DeliveryMetricsFilter filter) {
+        var result = await messageEventService.GetDeliveryMetricsAsync(filter);
         return TypedResults.Ok(result);
     }
 

@@ -51,6 +51,16 @@ internal class RuleStoreEntityFrameworkCore : IRuleOptionsStore
         var keys = settings
             .Select(item => $"{Constants.RuleOptionsSectionName}:{ruleName}:{item.Key}")
             .ToList();
+        var submittedKeys = keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var ruleSettingsPrefix = $"{Constants.RuleOptionsSectionName}:{ruleName}:";
+        var eligibleEventsPrefix = $"{ruleSettingsPrefix}{nameof(RuleOptions.EligibleEvents)}";
+        var existingEligibleEvents = (await _context.AppSettings
+            .Where(x => x.Key.StartsWith(ruleSettingsPrefix))
+            .ToListAsync())
+            .Where(x => x.Key.Equals(eligibleEventsPrefix, StringComparison.OrdinalIgnoreCase) ||
+                        x.Key.StartsWith($"{eligibleEventsPrefix}:", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        _context.AppSettings.RemoveRange(existingEligibleEvents.Where(x => !submittedKeys.Contains(x.Key)));
 
         var existingSettings = await _context.AppSettings
             .Where(x => keys.Contains(x.Key))

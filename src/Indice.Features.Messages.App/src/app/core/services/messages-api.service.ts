@@ -45,6 +45,13 @@ export interface IMessagesApiClient {
      */
     getOverview(asOfDate?: Date | undefined): Observable<OverviewMetrics>;
     /**
+     * Gets dispatched vs failed message metrics for a time frame.
+     * @param timeFrame (optional) The time frame to aggregate. Defaults to the last 30 days.
+     * @param channel (optional) Limits the metrics to a single channel.
+     * @return OK
+     */
+    getDeliveryMetrics(timeFrame?: SeriesTimeFrame | undefined, channel?: MessageChannelKind | undefined): Observable<DeliveryMetrics>;
+    /**
      * Gets the list of all campaigns using the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
@@ -614,6 +621,95 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = OverviewMetrics.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets dispatched vs failed message metrics for a time frame.
+     * @param asOfDate (optional) 
+     * @return OK
+     */
+    getDeliveryMetrics(timeFrame?: SeriesTimeFrame | undefined, channel?: MessageChannelKind | undefined): Observable<DeliveryMetrics> {
+        let url_ = this.baseUrl + "/analytics/delivery?";
+        if (timeFrame === null)
+            throw new globalThis.Error("The parameter 'timeFrame' cannot be null.");
+        else if (timeFrame !== undefined)
+            url_ += "TimeFrame=" + encodeURIComponent("" + timeFrame) + "&";
+        if (channel === null)
+            throw new globalThis.Error("The parameter 'channel' cannot be null.");
+        else if (channel !== undefined)
+            url_ += "Channel=" + encodeURIComponent("" + channel) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDeliveryMetrics(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDeliveryMetrics(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DeliveryMetrics>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DeliveryMetrics>;
+        }));
+    }
+
+    protected processGetDeliveryMetrics(response: HttpResponseBase): Observable<DeliveryMetrics> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DeliveryMetrics.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -7035,6 +7131,220 @@ export class MessageTypeResultSet implements IMessageTypeResultSet {
 export interface IMessageTypeResultSet {
     count?: number;
     items?: MessageType[];
+}
+
+export class DeliveryMetrics implements IDeliveryMetrics {
+    timeFrame?: SeriesTimeFrame;
+    rangeStart?: Date;
+    rangeEnd?: Date;
+    /** The granularity of the series items. */
+    interval?: DeliveryInterval;
+    items?: DeliverySeriesItem[];
+    current?: DeliveryTotals;
+    previous?: DeliveryTotals;
+    perChannel?: ChannelDeliveryTotals[];
+
+    constructor(data?: IDeliveryMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.timeFrame = _data["timeFrame"];
+            this.rangeStart = _data["rangeStart"] ? new Date(_data["rangeStart"].toString()) : undefined as any;
+            this.rangeEnd = _data["rangeEnd"] ? new Date(_data["rangeEnd"].toString()) : undefined as any;
+            this.interval = _data["interval"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(DeliverySeriesItem.fromJS(item));
+            }
+            this.current = _data["current"] ? DeliveryTotals.fromJS(_data["current"]) : undefined as any;
+            this.previous = _data["previous"] ? DeliveryTotals.fromJS(_data["previous"]) : undefined as any;
+            if (Array.isArray(_data["perChannel"])) {
+                this.perChannel = [] as any;
+                for (let item of _data["perChannel"])
+                    this.perChannel!.push(ChannelDeliveryTotals.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DeliveryMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeliveryMetrics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["timeFrame"] = this.timeFrame;
+        data["rangeStart"] = this.rangeStart ? this.rangeStart.toISOString() : undefined as any;
+        data["rangeEnd"] = this.rangeEnd ? this.rangeEnd.toISOString() : undefined as any;
+        data["interval"] = this.interval;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["current"] = this.current ? this.current.toJSON() : undefined as any;
+        data["previous"] = this.previous ? this.previous.toJSON() : undefined as any;
+        if (Array.isArray(this.perChannel)) {
+            data["perChannel"] = [];
+            for (let item of this.perChannel)
+                data["perChannel"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IDeliveryMetrics {
+    timeFrame?: SeriesTimeFrame;
+    rangeStart?: Date;
+    rangeEnd?: Date;
+    /** The granularity of the series items. */
+    interval?: DeliveryInterval;
+    items?: DeliverySeriesItem[];
+    current?: DeliveryTotals;
+    previous?: DeliveryTotals;
+    perChannel?: ChannelDeliveryTotals[];
+}
+
+export class DeliverySeriesItem implements IDeliverySeriesItem {
+    date?: Date;
+    dispatched?: number;
+    failed?: number;
+
+    constructor(data?: IDeliverySeriesItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.dispatched = _data["dispatched"];
+            this.failed = _data["failed"];
+        }
+    }
+
+    static fromJS(data: any): DeliverySeriesItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeliverySeriesItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : undefined as any;
+        data["dispatched"] = this.dispatched;
+        data["failed"] = this.failed;
+        return data;
+    }
+}
+
+export interface IDeliverySeriesItem {
+    date?: Date;
+    dispatched?: number;
+    failed?: number;
+}
+
+export class DeliveryTotals implements IDeliveryTotals {
+    dispatched?: number;
+    failed?: number;
+    readonly total?: number;
+    readonly successRate?: number;
+
+    constructor(data?: IDeliveryTotals) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.dispatched = _data["dispatched"];
+            this.failed = _data["failed"];
+            (this as any).total = _data["total"];
+            (this as any).successRate = _data["successRate"];
+        }
+    }
+
+    static fromJS(data: any): DeliveryTotals {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeliveryTotals();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["dispatched"] = this.dispatched;
+        data["failed"] = this.failed;
+        data["total"] = this.total;
+        data["successRate"] = this.successRate;
+        return data;
+    }
+}
+
+export interface IDeliveryTotals {
+    dispatched?: number;
+    failed?: number;
+    total?: number;
+    successRate?: number;
+}
+
+export class ChannelDeliveryTotals extends DeliveryTotals implements IChannelDeliveryTotals {
+    kind?: MessageChannelKind;
+
+    constructor(data?: IChannelDeliveryTotals) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.kind = _data["kind"];
+        }
+    }
+
+    static override fromJS(data: any): ChannelDeliveryTotals {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChannelDeliveryTotals();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["kind"] = this.kind;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IChannelDeliveryTotals extends IDeliveryTotals {
+    kind?: MessageChannelKind;
+}
+
+/** The granularity of a delivery series. */
+export enum DeliveryInterval {
+    Hour = "Hour",
+    Day = "Day",
+    Month = "Month",
 }
 
 export class OverviewMetrics implements IOverviewMetrics {

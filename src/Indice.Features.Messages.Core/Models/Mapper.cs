@@ -28,7 +28,8 @@ internal static class Mapper
             UpdatedAt = campaign.DistributionList.UpdatedAt,
             UpdatedBy = campaign.DistributionList.UpdatedBy,
             Id = campaign.DistributionList.Id,
-            Name = campaign.DistributionList.Name
+            Name = campaign.DistributionList.Name,
+            SystemGenerated = campaign.DistributionList.SystemGenerated
         } : null,
         Id = campaign.Id,
         IsGlobal = campaign.IsGlobal,
@@ -97,7 +98,8 @@ internal static class Mapper
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,
             Id = campaign.DistributionList.Id,
-            Name = campaign.DistributionList.Name
+            Name = campaign.DistributionList.Name,
+            SystemGenerated = campaign.DistributionList.SystemGenerated
         } : null,
         Id = campaign.Id,
         Published = campaign.Published,

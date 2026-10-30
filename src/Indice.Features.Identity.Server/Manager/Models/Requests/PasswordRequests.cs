@@ -30,6 +30,15 @@ public class SetPasswordRequest
     public bool? SuppressNotification { get; set; }
 }
 
+/// <summary>Models a request to generate a random password that satisfies the configured password rules.</summary>
+public class GeneratePasswordRequest
+{
+    /// <summary>The id of an existing user the password is generated for, so that user-specific validators also apply.</summary>
+    public string? UserId { get; set; }
+    /// <summary>The user name of a user that is about to be created, for validators that compare the password with it.</summary>
+    public string? UserName { get; set; }
+}
+
 /// <summary>Triggers the initiation for a password reset.</summary>
 public class ForgotPasswordRequest
 {
