@@ -14,7 +14,7 @@ public class SmsServiceYubotoOmni : SmsServiceYubotoOmniBase, ISmsService
     /// <param name="logger">Represents a type used to perform logging.</param>
     public SmsServiceYubotoOmni(
         HttpClient httpClient, 
-        IOptionsSnapshot<SmsServiceSettings> settings, 
+        IOptionsSnapshot<SmsServiceYubotoOmniSettings> settings, 
         ILogger<SmsServiceYubotoOmni> logger
     ) : base(httpClient, settings, logger) { }
 
@@ -22,7 +22,15 @@ public class SmsServiceYubotoOmni : SmsServiceYubotoOmniBase, ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         var messageId = Guid.NewGuid().ToString();
         var phoneNumbers = GetRecipientsFromDestination(destination);
-        var requestBody = SendRequest.CreateSms(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.Validity);
+        var requestBody = SendRequest
+            .CreateSms(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.Validity);
+        if (!string.IsNullOrWhiteSpace(Settings.CallbackUrl)) {
+            requestBody.CallbackUrl = Settings.CallbackUrl;
+            requestBody.Dlr = true;
+            if (!string.IsNullOrWhiteSpace(Settings.WebhookSecret)) {
+                requestBody.SetCallBackSignature(Settings.WebhookSecret);
+            }
+        }
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
         var httpResponseMessage = await HttpClient.PostAsync("Send", data);
