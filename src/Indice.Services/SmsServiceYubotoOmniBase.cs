@@ -506,23 +506,17 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         }
 
         var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
-        var hmacToken = parameters.GetValueOrDefault("h").ToString();
-        var reference = parameters.GetValueOrDefault("r").ToString();
-        var timestamp = parameters.GetValueOrDefault("t").ToString();
+        var hmacToken = parameters.GetValueOrDefault("option1").ToString();
+        var option2 = parameters.GetValueOrDefault("option2").ToString();
+        var reference = string.Empty;
+        var timestamp = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(hmacToken) ||
-            string.IsNullOrWhiteSpace(reference) ||
-            string.IsNullOrWhiteSpace(timestamp)) {
-            var option1 = parameters.GetValueOrDefault("option1").ToString();
-            var option1Parameters = ParseQuery(option1);
-            if (string.IsNullOrWhiteSpace(hmacToken)) {
-                hmacToken = option1Parameters.GetValueOrDefault("h");
-            }
-            if (string.IsNullOrWhiteSpace(reference)) {
-                reference = option1Parameters.GetValueOrDefault("r");
-            }
-            if (string.IsNullOrWhiteSpace(timestamp)) {
-                timestamp = option1Parameters.GetValueOrDefault("t");
+        if (!string.IsNullOrWhiteSpace(option2)) {
+            var separator = option2.IndexOf('_');
+            if (separator > 0 && separator < option2.Length - 1) {
+                var parts = option2.Split('_');
+                reference = parts[0];
+                timestamp = parts[1];
             }
         }
 
@@ -540,9 +534,7 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
                 if (compactToken.Length == expectedHmac.Length) {
                     return !CryptographicOperations.FixedTimeEquals(compactToken, expectedHmac);
                 }
-                if (compactToken.Length > 0 && compactToken.Length < expectedHmac.Length) {
-                    return !CryptographicOperations.FixedTimeEquals(compactToken, expectedHmac.AsSpan(0, compactToken.Length));
-                }
+                return true;
             }
             return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken), expectedHmac);
         } catch {
@@ -569,26 +561,6 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
             return false;
         }
     }
-
-    private static Dictionary<string, string> ParseQuery(string? query) {
-        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        if (string.IsNullOrWhiteSpace(query)) {
-            return result;
-        }
-
-        foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries)) {
-            var separatorIndex = part.IndexOf('=');
-            if (separatorIndex <= 0) {
-                continue;
-            }
-
-            var key = Uri.UnescapeDataString(part[..separatorIndex]);
-            var value = Uri.UnescapeDataString(part[(separatorIndex + 1)..]);
-            result[key] = value;
-        }
-
-        return result;
-    }
 }
 
 internal static class YubotoSmsServiceExtensions {
@@ -604,12 +576,11 @@ internal static class YubotoSmsServiceExtensions {
         var payload = $"{referenceId}:{timestamp}";
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-        var signature = Convert.ToBase64String(hash.AsSpan(0, 16)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        var option1 = $"h={signature}&r={referenceId}&t={timestamp}";
-        if (option1.Length > OPTION1_MAX_LENGTH) {
-            throw new InvalidOperationException($"Generated callback signature for option1 exceeds {OPTION1_MAX_LENGTH} characters.");
-        }
+        var signature = Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var option1 = signature;
         request.Option1 = option1;
+        var option2 = payload.Replace(":", "_");
+        request.Option2 = option2;
         return request;
     }
 }
