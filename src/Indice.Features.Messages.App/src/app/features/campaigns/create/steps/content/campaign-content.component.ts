@@ -24,6 +24,9 @@ export type ChannelContentForm = FormGroup<{
   body: FormControl<string>;
 }>;
 
+/** Tab id of the shared JSON data (metadata) tab. */
+const DATA_TAB = -1;
+
 const SAMPLE_CONTACT = {
   id: 'FA24F7D6-332F-4E17-8E43-A111DB32E7CC',
   recipientId: '05B7B29D-8969-425A-A1FC-D5222553336F',
@@ -59,7 +62,7 @@ export class CampaignContentComponent {
   public readonly content = input<{ [key: string]: MessageContent } | undefined>(undefined);
   /** Initial JSON data (object or JSON text). */
   public readonly data = input<any>(undefined);
-  /** Locks the channel selection (e.g. for a published campaign). */
+  /** Preview only (e.g. a published campaign): no channel selection or editors, the first channel opens instead. */
   public readonly readonly = input(false);
 
   public readonly form = this._fb.group({
@@ -72,8 +75,9 @@ export class CampaignContentComponent {
 
   protected readonly channels = CONTENT_CHANNELS;
   protected readonly languages = languages;
-  /** 0 = channel selection, n = content of the (n - 1)th channel. */
+  /** 0 = channel selection, n = content of the (n - 1)th channel, {@link DATA_TAB} = the JSON data. */
   protected readonly activeTab = signal(0);
+  protected readonly dataTab = DATA_TAB;
   protected readonly channelKeys = signal<string[]>([]);
   protected readonly subjectPreview = signal('');
   protected readonly bodyPreview = signal('');
@@ -105,13 +109,7 @@ export class CampaignContentComponent {
   }
 
   constructor() {
-    this.form.controls.data.valueChanges.subscribe(value => {
-      this._dataText.set(value);
-      const active = this.channelsContent.at(this.activeTab() - 1);
-      if (active) {
-        this.renderPreview(active);
-      }
-    });
+    this.form.controls.data.valueChanges.subscribe(value => this._dataText.set(value));
     effect(() => {
       const value = this.data();
       untracked(() => this.form.controls.data.setValue(value instanceof Object ? JSON.stringify(value, undefined, 2) : (value ?? null)));
@@ -123,6 +121,12 @@ export class CampaignContentComponent {
       }
     });
     effect(() => {
+      // there is no channel selection tab in preview mode
+      if (this.readonly() && this.channelKeys().length > 0 && untracked(this.activeTab) === 0) {
+        untracked(() => this.selectTab(1));
+      }
+    });
+    effect(() => {
       const href = this.additionalData()?.['mediaBaseHref'];
       untracked(() => {
         if (href) {
@@ -130,6 +134,17 @@ export class CampaignContentComponent {
           this.mediaBaseHref.set(href);
         } else {
           this.resolveDefaultMediaBaseHref();
+        }
+      });
+    });
+    effect(() => {
+      // re-render when the preview data changes (JSON data, media base href resolved after the content loaded, ...)
+      this.samplePayload();
+      untracked(() => {
+        const tab = this.activeTab();
+        const active = tab > 0 ? this.channelsContent.at(tab - 1) : undefined;
+        if (active) {
+          this.renderPreview(active);
         }
       });
     });
@@ -169,7 +184,7 @@ export class CampaignContentComponent {
 
   protected selectTab(index: number): void {
     this.activeTab.set(index);
-    const form = this.channelsContent.at(index - 1);
+    const form = index > 0 ? this.channelsContent.at(index - 1) : undefined;
     if (form) {
       this.renderPreview(form);
     }
