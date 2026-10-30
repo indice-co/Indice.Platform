@@ -1,5 +1,7 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { AppLanguagesService } from '../core/i18n/app-languages.service';
+import { LocaleScopeDirective } from '../core/i18n/locale-scope.directive';
 import { SIDE_PANE_OUTLET, SidePaneService, SidePaneSize } from '../ui/side-pane/side-pane';
 import { ToasterComponent } from '../ui/toast/toaster.component';
 
@@ -9,13 +11,17 @@ import { ToasterComponent } from '../ui/toast/toaster.component';
  */
 @Component({
   selector: 'app-side-pane-host',
-  imports: [RouterOutlet, ToasterComponent],
+  imports: [RouterOutlet, ToasterComponent, LocaleScopeDirective],
   template: `
     <dialog #panel
       class="fixed inset-y-0 right-0 left-auto m-0 h-full max-h-none w-full max-w-full overflow-hidden bg-base-100 p-0 shadow-2xl backdrop:bg-neutral/40"
       [class]="widthClass()" (cancel)="onCancel($event)" (click)="onClick($event)">
       <div class="flex h-full flex-col">
-        <router-outlet [name]="outlet" (activate)="onActivate()" (deactivate)="onDeactivate()" />
+        @for (language of [languages.current()]; track language) {
+          <ng-container appLocaleScope>
+            <router-outlet [name]="outlet" (activate)="onActivate()" (deactivate)="onDeactivate()" />
+          </ng-container>
+        }
       </div>
       <app-toaster />
     </dialog>
@@ -26,6 +32,7 @@ export class SidePaneHostComponent {
   private readonly _panel = viewChild.required<ElementRef<HTMLDialogElement>>('panel');
   private _returnFocus: HTMLElement | null = null;
   protected readonly pane = inject(SidePaneService);
+  protected readonly languages = inject(AppLanguagesService);
   protected readonly outlet = SIDE_PANE_OUTLET;
   protected readonly widthClass = signal('sm:max-w-md');
 

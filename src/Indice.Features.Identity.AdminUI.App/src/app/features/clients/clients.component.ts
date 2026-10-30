@@ -22,7 +22,7 @@ import { ClientLogoComponent } from './client-logo.component';
     CopyButtonComponent, ClientLogoComponent, LucideAppWindow, LucideChevronRight, LucideLock, LucidePlus
   ],
   template: `
-    <app-page-header [title]="'Routes.Clients' | translate" [subtitle]="'Clients.List.Subtitle' | translate">
+    <app-page-header [title]="'Routes.Clients' | translate" [subtitle]="'Clients.List.Subtitle' | translate" [count]="list.total()">
       @if (canEdit) {
         <div actions>
           <a class="btn btn-primary btn-sm" routerLink="add"><svg lucidePlus class="size-4"></svg>{{ 'Routes.NewClient' | translate }}</a>

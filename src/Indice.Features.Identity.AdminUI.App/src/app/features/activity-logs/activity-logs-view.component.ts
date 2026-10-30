@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LucideActivity, LucideFlag, LucideRotateCcw, LucideSlidersHorizontal } from '@lucide/angular';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -192,6 +192,9 @@ export class ActivityLogsViewComponent implements OnInit {
       );
     }
   });
+
+  /** Total number of entries matching the current filters, `undefined` until the first page has loaded. */
+  public readonly total = computed(() => this.list.total());
 
   protected readonly showAdvanced = signal(false);
 

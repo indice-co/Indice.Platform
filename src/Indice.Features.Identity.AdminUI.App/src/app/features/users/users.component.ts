@@ -28,7 +28,7 @@ export const USERS_REFRESH_SCOPE = 'users';
     StatusBadgeComponent, ImgUserPictureDirective, LucideChevronRight, LucideListFilter, LucideUserPlus, LucideUsers, LucideX
   ],
   template: `
-    <app-page-header [title]="'Routes.Users' | translate" [subtitle]="'Users.List.Subtitle' | translate">
+    <app-page-header [title]="'Routes.Users' | translate" [subtitle]="'Users.List.Subtitle' | translate" [count]="list.total()">
       @if (canEdit) {
         <div actions>
           <a class="btn btn-primary btn-sm" routerLink="/users/add"><svg lucideUserPlus class="size-4"></svg>{{ 'Routes.NewUser' | translate }}</a>

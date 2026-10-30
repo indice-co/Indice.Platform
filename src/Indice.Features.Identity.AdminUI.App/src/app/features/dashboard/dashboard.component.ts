@@ -2,7 +2,7 @@ import { Component, LOCALE_ID, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe, NgTemplateOutlet, PercentPipe } from '@angular/common';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { Observable, catchError, combineLatest, filter, map, of, switchMap, take } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, combineLatest, filter, map, of, switchMap, take } from 'rxjs';
 import {
   LucideAppWindow, LucideArrowDownRight, LucideArrowRight, LucideArrowUpRight, LucideBan, LucideBoxes, LucideClockAlert, LucideDynamicIcon,
   LucideExternalLink, LucideFlag, LucideIcon, LucideIdCard, LucideKeyRound, LucideLock, LucideLogIn, LucideMinus, LucideRefreshCw,
@@ -296,6 +296,7 @@ export class DashboardComponent {
   private readonly _features = inject(UiFeaturesService);
   private readonly _translate = inject(TranslateService);
   private readonly _date = new DatePipe(inject(LOCALE_ID));
+  private readonly _refresh$ = new BehaviorSubject<void>(undefined);
 
   protected readonly icons = {
     users: LucideUsers, activity: LucideLogIn, clients: LucideAppWindow, failed: LucideShieldAlert, roles: LucideShieldCheck
@@ -359,24 +360,26 @@ export class DashboardComponent {
 
   protected readonly attention = computed<AttentionItem[]>(() => {
     const users = this.users();
+    // blank the figures while refreshing, so it is visible that they are being recalculated
+    const value = (count: number | undefined) => this.loading() ? undefined : count;
     const items: AttentionItem[] = [];
     if (users) {
       items.push(
         {
           label: this._translate.instant('Dashboard.Attention.LockedOut'), hint: this._translate.instant('Dashboard.Attention.LockedOutHint'),
-          value: users.lockedOut, icon: LucideLock, tone: 'bg-warning/15 text-warning', link: '/users', queryParams: { lockedOut: 'true' }
+          value: value(users.lockedOut), icon: LucideLock, tone: 'bg-warning/15 text-warning', link: '/users', queryParams: { lockedOut: 'true' }
         },
         {
           label: this._translate.instant('Dashboard.Attention.Blocked'), hint: this._translate.instant('Dashboard.Attention.BlockedHint'),
-          value: users.blocked, icon: LucideBan, tone: 'bg-error/10 text-error', link: '/users', queryParams: { blocked: 'true' }
+          value: value(users.blocked), icon: LucideBan, tone: 'bg-error/10 text-error', link: '/users', queryParams: { blocked: 'true' }
         },
         {
           label: this._translate.instant('Dashboard.Attention.ExpiredPasswords'), hint: this._translate.instant('Dashboard.Attention.ExpiredPasswordsHint'),
-          value: users.passwordExpired, icon: LucideClockAlert, tone: 'bg-info/10 text-info'
+          value: value(users.passwordExpired), icon: LucideClockAlert, tone: 'bg-info/10 text-info'
         },
         {
           label: this._translate.instant('Dashboard.Attention.NeverSignedIn'), hint: this._translate.instant('Dashboard.Attention.NeverSignedInHint'),
-          value: users.neverSignedIn, icon: LucideUserX, tone: 'bg-base-200 text-base-content/70'
+          value: value(users.neverSignedIn), icon: LucideUserX, tone: 'bg-base-200 text-base-content/70'
         }
       );
     }
@@ -416,11 +419,23 @@ export class DashboardComponent {
   });
 
   constructor() {
-    this.reload();
     this._api.getNews(1, 3).pipe(catchError(() => of(null)), takeUntilDestroyed()).subscribe(news => this.news.set(news?.items ?? []));
 
+    this._refresh$
+      .pipe(
+        switchMap(() => {
+          this.loading.set(true);
+          return this._api.getDashboardMetrics().pipe(catchError(() => of(undefined)));
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe(metrics => {
+        this.metrics.set(metrics);
+        this.loading.set(false);
+      });
+
     const logsAllowed$ = toObservable(this.canSeeLogs).pipe(filter(Boolean), take(1));
-    combineLatest([logsAllowed$, toObservable(this.timeFrame)])
+    combineLatest([logsAllowed$, toObservable(this.timeFrame), this._refresh$])
       .pipe(
         switchMap(([, timeFrame]) => {
           this.series.set(undefined);
@@ -429,13 +444,17 @@ export class DashboardComponent {
         takeUntilDestroyed()
       )
       .subscribe(series => this.series.set(series));
-    logsAllowed$
+    combineLatest([logsAllowed$, this._refresh$])
       .pipe(
-        switchMap(() => combineLatest([
-          this.countSignIns({ succeeded: false, from: daysAgo(1) }),
-          this.countSignIns({ markForReview: true }),
-          this._api.getSignInLocations(SeriesTimeFrame.Last7Days).pipe(catchError(() => of(undefined)))
-        ])),
+        switchMap(() => {
+          this.failedSignIns.set(undefined);
+          this.flaggedSignIns.set(undefined);
+          return combineLatest([
+            this.countSignIns({ succeeded: false, from: daysAgo(1) }),
+            this.countSignIns({ markForReview: true }),
+            this._api.getSignInLocations(SeriesTimeFrame.Last7Days).pipe(catchError(() => of(undefined)))
+          ]);
+        }),
         takeUntilDestroyed()
       )
       .subscribe(([failed, flagged, locations]) => {
@@ -445,12 +464,9 @@ export class DashboardComponent {
       });
   }
 
+  /** Reloads every figure on the page: the metrics and, when visible, the sign in log figures. */
   protected reload(): void {
-    this.loading.set(true);
-    this._api.getDashboardMetrics().pipe(catchError(() => of(undefined))).subscribe(metrics => {
-      this.metrics.set(metrics);
-      this.loading.set(false);
-    });
+    this._refresh$.next();
   }
 
   protected ratio(count: number | undefined): number {

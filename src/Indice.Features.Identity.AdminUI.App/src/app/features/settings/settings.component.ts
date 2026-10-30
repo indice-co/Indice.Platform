@@ -27,7 +27,7 @@ export const SETTINGS_REFRESH = 'settings';
     LucideChevronRight, LucideFileUp, LucidePlus, LucideSlidersHorizontal, TranslatePipe
   ],
   template: `
-    <app-page-header [title]="'Routes.AppSettings' | translate" [subtitle]="'Settings.List.Subtitle' | translate">
+    <app-page-header [title]="'Routes.AppSettings' | translate" [subtitle]="'Settings.List.Subtitle' | translate" [count]="list.total()">
       <div actions class="flex flex-wrap gap-2">
         <button type="button" class="btn btn-ghost btn-sm" [disabled]="importing()" (click)="import()">
           @if (importing()) { <span class="loading loading-spinner loading-xs"></span> } @else { <svg lucideFileUp class="size-4"></svg> }

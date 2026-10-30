@@ -5,6 +5,7 @@ import {
 import { NgComponentOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, map, take } from 'rxjs';
+import { provideCurrentLocale } from '../../core/i18n/app-languages.service';
 import { DIALOG_DATA, DialogRef } from './dialog-ref';
 import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.component';
 
@@ -69,7 +70,8 @@ export class DialogService {
     const injector = Injector.create({
       providers: [
         { provide: DialogRef, useValue: ref },
-        { provide: DIALOG_DATA, useValue: config.data }
+        { provide: DIALOG_DATA, useValue: config.data },
+        provideCurrentLocale()
       ],
       parent: this._environmentInjector
     });
