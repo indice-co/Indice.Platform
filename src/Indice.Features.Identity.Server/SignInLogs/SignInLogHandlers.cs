@@ -54,4 +54,12 @@ internal class SignInLogHandlers
         var perCountry = await signInLogStore.GetSignInLocationsAsync(filter);
         return TypedResults.Ok(perCountry);
     }
+
+    public static async Task<Ok<ResultSet<SignInDailyCount>>> GetSignInSeries(
+            ISignInLogStore signInLogStore,
+            [AsParameters] SignInSeriesFilter filter
+        ) {
+        var series = await signInLogStore.GetSignInSeriesAsync(filter);
+        return TypedResults.Ok(series);
+    }
 }

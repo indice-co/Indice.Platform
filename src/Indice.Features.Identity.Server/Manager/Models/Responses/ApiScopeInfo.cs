@@ -18,6 +18,8 @@ public class ApiScopeInfo
     public bool? Emphasize { get; set; }
     /// <summary>Determines whether this scope should be displayed in the discovery document or not.</summary>
     public bool? ShowInDiscoveryDocument { get; set; }
+    /// <summary>Determines whether this scope is reserved by the system and cannot be deleted.</summary>
+    public bool NonEditable { get; set; }
     /// <summary>Translations.</summary>
     public TranslationDictionary<ApiScopeTranslation>? Translations { get; set; }
     /// <summary>List of associated user claims that should be included when a resource is requested.</summary>

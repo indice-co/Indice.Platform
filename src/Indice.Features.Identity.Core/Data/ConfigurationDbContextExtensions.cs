@@ -92,6 +92,10 @@ public static class ConfigurationExtensions
         if (!context.ApiScopes.Any() && apiScopes != null) {
             foreach (var apiScope in apiScopes) {
                 var apiScopeEntity = apiScope.ToEntity();
+#if NET9_0_OR_GREATER
+                // Make initial system resources non-editable.
+                apiScopeEntity.NonEditable = true;
+#endif
                 context.ApiScopes.Add(apiScopeEntity);
             }
             context.SaveChanges();
@@ -99,6 +103,7 @@ public static class ConfigurationExtensions
         if (!context.ApiResources.Any() && apis != null) {
             foreach (var resource in apis) {
                 var resourceEntity = resource.ToEntity();
+                // Make initial system resources non-editable.
                 resourceEntity.NonEditable = true;
                 context.ApiResources.Add(resourceEntity);
             }

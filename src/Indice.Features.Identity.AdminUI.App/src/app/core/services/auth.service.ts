@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { map } from 'rxjs/operators';
@@ -39,7 +39,17 @@ export class AuthService {
         });
     }
 
-    public user: User = null;
+    private readonly _user = signal<User | null>(null);
+    /** The signed-in user as a signal, for templates that react to sign in and silent renew. */
+    public readonly currentUser = this._user.asReadonly();
+
+    public get user(): User | null {
+        return this._user();
+    }
+
+    public set user(value: User | null) {
+        this._user.set(value);
+    }
 
     public loadUser(): Observable<User> {
         return from(this._userManager.getUser()).pipe(map((user: User) => {
@@ -171,7 +181,7 @@ export class AuthService {
             return true;
         }
         if (!this.isAdmin() && !this.isAdminUIUsersReader() && !this.isAdminUIClientsReader()) {
-            this._logger.log('User is not authorized to access Admin UI. Access is forbidden.');
+            this._logger.log('User is not authorized to access IAM UI. Access is forbidden.');
             this._router.navigate(['/forbidden']);
             return false;
         }

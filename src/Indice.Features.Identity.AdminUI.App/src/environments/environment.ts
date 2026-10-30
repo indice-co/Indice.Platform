@@ -14,7 +14,7 @@ export const environment = {
         filterProtocolClaims: true,
         loadUserInfo: true,
         monitorSession: true,
-        post_logout_redirect_uri: 'http://localhost:4200/admin',
+        post_logout_redirect_uri: 'http://localhost:4200',
         redirect_uri: 'http://localhost:4200/auth-callback',
         response_type: 'code',
         revokeAccessTokenOnSignout: true,
@@ -22,6 +22,7 @@ export const environment = {
         silent_redirect_uri: 'http://localhost:4200/auth-renew'
     },
     culture: 'en-GB',
+    i18n_assets: '/assets/i18n/',
     isTemplate: false,
     production: false
 }

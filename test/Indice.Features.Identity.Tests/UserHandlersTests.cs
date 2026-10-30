@@ -109,6 +109,25 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.True(true);
     }
 
+    [Fact]
+    public async Task GetUsers_FiltersByAdmin_Test() {
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        foreach (var (name, admin) in new[] { ("admin.user@indice.gr", true), ("plain.user@indice.gr", false) }) {
+            identityDbContext.Users.Add(new User(name) { Email = name, NormalizedUserName = name.ToUpperInvariant(), NormalizedEmail = name.ToUpperInvariant(), Admin = admin });
+        }
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var options = new ListOptions { Page = 1, Size = 10 };
+
+        var admins = await UserHandlers.GetUsers(identityDbContext, options, new UserListFilter { Admin = true }, null);
+        var others = await UserHandlers.GetUsers(identityDbContext, options, new UserListFilter { Admin = false }, null);
+
+        var adminItems = Assert.IsType<Ok<ResultSet<UserInfo>>>(admins.Result).Value!.Items;
+        var otherItems = Assert.IsType<Ok<ResultSet<UserInfo>>>(others.Result).Value!.Items;
+        Assert.Equal("admin.user@indice.gr", Assert.Single(adminItems).UserName);
+        Assert.True(adminItems[0].IsAdmin);
+        Assert.Equal("plain.user@indice.gr", Assert.Single(otherItems).UserName);
+    }
+
 
     [Fact]
     public void CreateUserDevice_ConvertDbPublicKeyToJsonWebKey_Test() {
@@ -375,6 +394,64 @@ public class UserHandlersTests : IAsyncLifetime
         // Verify that trying to remove password for self returns bad request since user cannot remove his own password.
         var selfRemovePasswordResult = await UserHandlers.RemovePassword(userManager, self, updatedUser.Id);
         Assert.IsType<ValidationProblem>(selfRemovePasswordResult.Result);
+    }
+
+    [Fact]
+    public async Task GeneratePassword_ShouldSatisfyConfiguredPasswordRules_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user6@indice.gr",
+            Email = "test.user6@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ]
+        });
+        var user = await identityDbContext.Users.SingleAsync(u => u.Email == "test.user6@indice.gr", TestContext.Current.CancellationToken);
+        var options = userManager.Options.Password;
+        var passwords = new HashSet<string>();
+        for (var i = 0; i < 20; i++) {
+            var result = await UserHandlers.GeneratePassword(userManager, configuration, new GeneratePasswordRequest { UserId = i % 2 == 0 ? user.Id : null, UserName = "new.user@indice.gr" });
+            var password = Assert.IsType<Ok<GeneratedPasswordInfo>>(result.Result).Value!.Password;
+            Assert.True(password.Length >= Math.Max(16, options.RequiredLength));
+            Assert.Contains(password, char.IsLower);
+            Assert.Contains(password, char.IsUpper);
+            Assert.Contains(password, char.IsDigit);
+            Assert.Contains(password, c => "!#$%&*+-=?@^_".Contains(c));
+            foreach (var validator in userManager.PasswordValidators) {
+                Assert.True((await validator.ValidateAsync(userManager, user, password)).Succeeded);
+            }
+            passwords.Add(password);
+        }
+        Assert.Equal(20, passwords.Count);
+    }
+
+    [Fact]
+    public async Task GeneratePassword_ShouldOnlyUseAllowedSpecialCharacters_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
+            ["IdentityOptions:Password:AllowedCharacters"] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.~"
+        }).Build();
+        for (var i = 0; i < 20; i++) {
+            var result = await UserHandlers.GeneratePassword(userManager, configuration, null);
+            var password = Assert.IsType<Ok<GeneratedPasswordInfo>>(result.Result).Value!.Password;
+            Assert.All(password, c => Assert.True(char.IsAsciiLetterOrDigit(c) || c is '.' or '~', $"Unexpected character '{c}' in '{password}'."));
+            Assert.Contains(password, c => c is '.' or '~');
+        }
+    }
+
+    [Fact]
+    public async Task GeneratePassword_UnknownUser_ShouldReturnNotFound_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
+        var result = await UserHandlers.GeneratePassword(userManager, configuration, new GeneratePasswordRequest { UserId = Guid.NewGuid().ToString() });
+        Assert.IsType<NotFound>(result.Result);
     }
 
     public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>
