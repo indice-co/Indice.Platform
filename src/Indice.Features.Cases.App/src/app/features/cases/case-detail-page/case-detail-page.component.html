@@ -94,17 +94,33 @@
             </ng-template>
           </app-tab>
         }
-        @if (relatedCases().length) {
-          <app-tab id="related-cases" [label]="'caseDetails.related.title' | translate">
-            <ng-template appTabLabel>
-              {{ 'caseDetails.related.title' | translate }}
-              <span class="badge badge-sm badge-ghost">{{ relatedCases().length }}</span>
-            </ng-template>
-            <ng-template appTabContent>
+        <app-tab id="related-cases" [label]="'caseDetails.related.title' | translate">
+          <ng-template appTabLabel>
+            {{ 'caseDetails.related.title' | translate }}
+            <span class="badge badge-sm badge-ghost">{{ relatedCases().length }}</span>
+          </ng-template>
+          <ng-template appTabContent>
+            @if (relatedCases().length) {
+              @if (relationsLink(); as link) {
+                <div class="flex justify-end pb-2">
+                  <a class="btn btn-ghost btn-sm" [routerLink]="link" queryParamsHandling="preserve">
+                    <svg lucidePlus class="size-4"></svg>{{ 'caseRelations.add.title' | translate }}
+                  </a>
+                </div>
+              }
               <app-case-related [relatedCases]="relatedCases()" [currentCaseId]="caseModel.id" />
-            </ng-template>
-          </app-tab>
-        }
+            } @else {
+              <app-empty-state [title]="'caseRelations.noRelated' | translate">
+                <svg icon lucideLink class="size-5"></svg>
+                @if (relationsLink(); as link) {
+                  <a actions class="btn btn-primary btn-sm" [routerLink]="link" queryParamsHandling="preserve">
+                    <svg lucidePlus class="size-4"></svg>{{ 'caseRelations.add.title' | translate }}
+                  </a>
+                }
+              </app-empty-state>
+            }
+          </ng-template>
+        </app-tab>
       </app-tab-group>
 
       @if (actions.hasApproval || panelActions().length) {

@@ -123,10 +123,7 @@ internal static class CampaignsHandlers
         }
         var metrics = new CampaignDetailsMetrics {
             Recipient = statistics,
-            Channels = (await campaignService.GetChannelMetrics(campaignId)).Select(x => new ChannelMetrics {
-                Kind = Enum.Parse<MessageChannelKind>(x.Key),
-                Total = x.Value
-            }).ToList(),
+            Channels = await campaignService.GetChannelMetrics(campaignId),
         };
         return TypedResults.Ok(metrics);
     }

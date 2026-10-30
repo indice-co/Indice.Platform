@@ -94,6 +94,15 @@ export const routes: Routes = [
     path: 'queries', outlet: SIDE_PANE_OUTLET, data: { paneSize: 'sm', breadcrumb: { title: 'breadcrumb.queries' } },
     loadComponent: () => import('./features/cases/queries-page/queries-page.component').then(m => m.QueriesPageComponent)
   },
+  // administrators only (Administer access, enforced by the API); the details page shows their links to administrators
+  {
+    path: 'case-relations', outlet: SIDE_PANE_OUTLET, data: { paneSize: 'md', breadcrumb: { title: 'breadcrumb.caseRelations' } },
+    loadComponent: () => import('./features/cases/case-relations-pane/case-relations-pane.component').then(m => m.CaseRelationsPaneComponent)
+  },
+  {
+    path: 'case-group', outlet: SIDE_PANE_OUTLET, data: { paneSize: 'sm', breadcrumb: { title: 'breadcrumb.caseGroup' } },
+    loadComponent: () => import('./features/cases/case-group-pane/case-group-pane.component').then(m => m.CaseGroupPaneComponent)
+  },
 
   {
     path: '**', component: StatusPageComponent,
