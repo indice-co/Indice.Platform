@@ -7,11 +7,18 @@ namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
 internal class DbSignInLogEntryMap : IEntityTypeConfiguration<DbSignInLogEntry>
 {
-    public DbSignInLogEntryMap(string schema) {
+    public DbSignInLogEntryMap(string schema, string? providerName = null) {
         Schema = schema ?? throw new ArgumentNullException(nameof(schema));
+        IsNpgsql = NpgsqlProviderName.Equals(providerName, StringComparison.OrdinalIgnoreCase);
     }
 
+    private const string NpgsqlProviderName = "Npgsql.EntityFrameworkCore.PostgreSQL";
+    // Provider specific annotation names for INCLUDE columns. Each provider ignores the annotations of the other.
+    private const string SqlServerIncludeAnnotation = "SqlServer:Include";
+    private const string NpgsqlIncludeAnnotation = "Npgsql:IndexInclude";
+
     public string Schema { get; }
+    public bool IsNpgsql { get; }
 
     public void Configure(EntityTypeBuilder<DbSignInLogEntry> builder) {
         // Configure table name and schema.
@@ -21,7 +28,19 @@ internal class DbSignInLogEntryMap : IEntityTypeConfiguration<DbSignInLogEntry>
         // Configure indexes.
         builder.HasIndex(x => x.ApplicationId);
         builder.HasIndex(x => x.EventType);
-        builder.HasIndex(x => x.CreatedAt);
+        // Covers the daily sign in series and the failed sign in counts of the dashboard.
+        string[] seriesColumns = [nameof(DbSignInLogEntry.Succeeded), nameof(DbSignInLogEntry.SubjectId)];
+        builder.HasIndex(x => x.CreatedAt)
+               .HasAnnotation(SqlServerIncludeAnnotation, seriesColumns)
+               .HasAnnotation(NpgsqlIncludeAnnotation, seriesColumns);
+        // Covers the sign in locations map of the dashboard.
+        string[] locationColumns = [nameof(DbSignInLogEntry.CountryIsoCode), nameof(DbSignInLogEntry.Location), nameof(DbSignInLogEntry.Coordinates)];
+        builder.HasIndex(x => x.CreatedAt, "IX_SignInLog_CreatedAt_Geo")
+               .HasAnnotation(SqlServerIncludeAnnotation, locationColumns)
+               .HasAnnotation(NpgsqlIncludeAnnotation, locationColumns)
+               .HasFilter(IsNpgsql ? "\"CountryIsoCode\" IS NOT NULL" : "[CountryIsoCode] IS NOT NULL");
+        // Not filtered on purpose: the review flag is a query parameter, so a filtered index would not be matched.
+        builder.HasIndex(x => x.Review);
         builder.HasIndex(x => x.SessionId);
         builder.HasIndex(x => x.SubjectId);
         builder.HasIndex(x => x.SubjectName);

@@ -26,11 +26,20 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
 
     /// <inheritdoc />
     public async Task<int> Cleanup(CancellationToken cancellationToken = default) {
-        var query = _dbContext
-            .SignInLogs
-            .Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > _signInLogOptions.Cleanup.RetentionDays)
-            .Take(_signInLogOptions.Cleanup.BatchSize);
-        return await query.ExecuteDeleteAsync(cancellationToken);
+        var retentionDays = _signInLogOptions.Cleanup.RetentionDays;
+        var query = _dbContext.SignInLogs.AsQueryable();
+        switch (_dbContext.Database.ProviderName) {
+            case "Npgsql.EntityFrameworkCore.PostgreSQL":
+                // DateDiffDay is SQL Server only. Comparing against UTC midnight keeps the same day boundary semantics.
+                var cutoff = new DateTimeOffset(DateTime.UtcNow.Date.AddDays(-retentionDays), TimeSpan.Zero);
+                query = query.Where(x => x.CreatedAt < cutoff);
+                break;
+            case "Microsoft.EntityFrameworkCore.SqlServer":
+            default:
+                query = query.Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > retentionDays);
+                break;
+        }
+        return await query.Take(_signInLogOptions.Cleanup.BatchSize).ExecuteDeleteAsync(cancellationToken);
     }
 
     /// <inheritdoc />
