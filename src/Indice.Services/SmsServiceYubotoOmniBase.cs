@@ -510,11 +510,10 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         var timestamp = string.Empty;
 
         if (!string.IsNullOrWhiteSpace(option2)) {
-            var separator = option2.IndexOf('_');
-            if (separator > 0 && separator < option2.Length - 1) {
-                var parts = option2.Split('_');
-                reference = parts[0];
-                timestamp = parts[1];
+            var values = option2.Split('_');
+            if (values.Length == 2) {
+                reference = values[0];
+                timestamp = values[1];
             }
         }
 
