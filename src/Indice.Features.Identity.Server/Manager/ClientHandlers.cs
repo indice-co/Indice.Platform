@@ -542,6 +542,9 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
+        if (client.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(clientId), "Cannot delete a reserved client."));
+        }
         configurationDbContext.Clients.Remove(client);
         await configurationDbContext.SaveChangesAsync();
         await eventService.Publish(new ClientDeletedEvent(ClientEventContext.InitializeFromClient(client)));

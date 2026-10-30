@@ -54,7 +54,8 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.UpdateUser))
              .WithSummary("Updates an existing user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<UpdateUserRequest>();
+             .WithParameterValidation<UpdateUserRequest>()
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapDelete("{userId}", UserHandlers.DeleteUser)
              .WithName(nameof(UserHandlers.DeleteUser))
@@ -147,18 +148,26 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.SetUserBlock))
              .WithSummary("Toggles user block state.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<SetUserBlockRequest>();
+             .WithParameterValidation<SetUserBlockRequest>()
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapPut("{userId}/unlock", UserHandlers.UnlockUser)
              .WithName(nameof(UserHandlers.UnlockUser))
              .WithSummary("Unlocks a user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapPut("{userId}/set-password", UserHandlers.SetPassword)
              .WithName(nameof(UserHandlers.SetPassword))
              .WithSummary("Sets the password for a given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<SetPasswordRequest>();
+             .WithParameterValidation<SetPasswordRequest>()
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
+
+        group.MapPost("generate-password", UserHandlers.GeneratePassword)
+             .WithName(nameof(UserHandlers.GeneratePassword))
+             .WithSummary("Generates a random password that satisfies the configured password options and validators.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapDelete("{userId}/password", UserHandlers.RemovePassword)
              .WithName(nameof(UserHandlers.RemovePassword))
@@ -168,7 +177,8 @@ public static class UsersApi
         group.MapDelete("{userId}/mfa", UserHandlers.ResetMfa)
              .WithName(nameof(UserHandlers.ResetMfa))
              .WithSummary("Resets the multi-factor authentication for the given user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapDelete("{userId}/action-counter", UserHandlers.ResetActionCounter)
              .WithName(nameof(UserHandlers.ResetActionCounter))

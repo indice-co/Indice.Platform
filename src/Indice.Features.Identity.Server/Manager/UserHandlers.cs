@@ -6,6 +6,7 @@ using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Stores.Serialization;
+using Microsoft.AspNetCore.Mvc;
 #else
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -28,13 +29,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using Indice.Security;
-using Microsoft.AspNetCore.Session;
-using Microsoft.AspNetCore.Mvc;
 using Indice.Features.Identity.Core.Guards;
+using Indice.Services;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Routing;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -49,6 +52,27 @@ internal static class UserHandlers
         var query = dbContext.Users.AsNoTracking();
         if (filter != null) {
             query = query.Where(x => filter.ClaimType == null || x.Claims.Any(x => x.ClaimType == filter.ClaimType && x.ClaimValue == filter.ClaimValue));
+            if (filter.Blocked is bool blocked) {
+                query = query.Where(x => x.Blocked == blocked);
+            }
+            if (filter.LockedOut is bool lockedOut) {
+                var now = DateTimeOffset.UtcNow;
+                query = lockedOut
+                    ? query.Where(x => x.LockoutEnabled && x.LockoutEnd != null && x.LockoutEnd >= now)
+                    : query.Where(x => !x.LockoutEnabled || x.LockoutEnd == null || x.LockoutEnd < now);
+            }
+            if (filter.EmailConfirmed is bool emailConfirmed) {
+                query = query.Where(x => x.EmailConfirmed == emailConfirmed);
+            }
+            if (filter.PhoneNumberConfirmed is bool phoneNumberConfirmed) {
+                query = query.Where(x => x.PhoneNumberConfirmed == phoneNumberConfirmed);
+            }
+            if (filter.TwoFactorEnabled is bool twoFactorEnabled) {
+                query = query.Where(x => x.TwoFactorEnabled == twoFactorEnabled);
+            }
+            if (filter.Admin is bool admin) {
+                query = query.Where(x => x.Admin == admin);
+            }
         }
         // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
         var usersQuery =
@@ -358,7 +382,11 @@ internal static class UserHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResendConfirmationEmail(
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
+        HttpContext httpContext,
+        LinkGenerator linkGenerator,
         IPlatformEventService eventService,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        IEmailService emailService,
         string userId
     ) {
         var user = await dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
@@ -370,6 +398,24 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        await emailService.SendAsync(message => {
+            var builder = message
+                .To(user.Email!)
+                .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
+            if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
+                var data = new EmailChangeEmailModel {
+                    DisplayName = user.UserName,
+                    Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
+                    Token = token,
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmail", values: new { userId = user.Id, token, email = user.Email}),
+                    User = user
+                };
+                builder.UsingTemplate(endpointOptions.Value.Email.UpdateEmailTemplate)
+                       .WithData(data);
+            } else {
+                builder.WithBody(userManager.MessageDescriber.UpdateEmailMessageBody(user, token, null));
+            }
+        });
         await eventService.Publish(new UserRequestForEmailConfirmationEvent(UserEventContext.InitializeFromUser(user), token));
         return TypedResults.NoContent();
     }
@@ -744,6 +790,72 @@ internal static class UserHandlers
             await userManager.SetPasswordExpiredAsync(user, true);
         }
         return TypedResults.NoContent();
+    }
+
+    /// <summary>Special characters used by generated passwords: easy to read out and type, no quotes, slashes or spaces.</summary>
+    private const string GeneratedPasswordSpecialChars = "!#$%&*+-=?@^_";
+    private const int GeneratedPasswordMinLength = 16;
+    private const int GeneratedPasswordMaxAttempts = 10;
+
+    internal static async Task<Results<Ok<GeneratedPasswordInfo>, NotFound, ValidationProblem>> GeneratePassword(
+        ExtendedUserManager<User> userManager,
+        IConfiguration configuration,
+        GeneratePasswordRequest? request
+    ) {
+        User? user = null;
+        if (!string.IsNullOrWhiteSpace(request?.UserId)) {
+            user = await userManager.FindByIdAsync(request.UserId);
+            if (user == null) {
+                return TypedResults.NotFound();
+            }
+        }
+        user ??= new User { UserName = request?.UserName };
+        var options = userManager.Options.Password;
+        // Same setting the AllowedCharactersPasswordValidator reads; when present only its symbols may be used.
+        var allowedCharacters = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<string>("AllowedCharacters") ??
+                                configuration.GetSection(nameof(PasswordOptions)).GetValue<string>("AllowedCharacters");
+        var specialChars = string.IsNullOrEmpty(allowedCharacters)
+            ? GeneratedPasswordSpecialChars
+            : new string(allowedCharacters.Where(c => c < 128 && !char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c)).Distinct().ToArray());
+        var includeSpecial = options.RequireNonAlphanumeric || specialChars.Length > 0;
+        var length = Math.Min(256, Math.Max(GeneratedPasswordMinLength, Math.Max(options.RequiredLength, options.RequiredUniqueChars)));
+        using var generator = new PasswordGenerator.Password(includeLowercase: true, includeUppercase: true, includeNumeric: true, includeSpecial: false, passwordLength: length);
+        generator.ExcludeAmbiguous();
+        if (includeSpecial && specialChars.Length > 0) {
+            generator.IncludeSpecial(specialChars);
+        }
+        if (options.RequireLowercase) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Lowercase, 1);
+        }
+        if (options.RequireUppercase) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Uppercase, 1);
+        }
+        if (options.RequireDigit) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Numeric, 1);
+        }
+        if (options.RequireNonAlphanumeric && specialChars.Length > 0) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Special, 1);
+        }
+        // The generator covers the composition rules; the configured validators (history, common passwords, allowed characters etc.) have the final say.
+        IEnumerable<IdentityError> errors = [];
+        for (var attempt = 0; attempt < GeneratedPasswordMaxAttempts; attempt++) {
+            if (!generator.TryNext(out var password) || string.IsNullOrEmpty(password)) {
+                break;
+            }
+            errors = [];
+            foreach (var validator in userManager.PasswordValidators) {
+                var result = await validator.ValidateAsync(userManager, user, password);
+                if (!result.Succeeded) {
+                    errors = errors.Concat(result.Errors);
+                }
+            }
+            if (!errors.Any()) {
+                return TypedResults.Ok(new GeneratedPasswordInfo { Password = password });
+            }
+        }
+        return TypedResults.ValidationProblem(errors.Any()
+            ? errors.ToDictionary()
+            : ValidationErrors.AddError("password", "A password that satisfies the configured password options could not be generated."));
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemovePassword(

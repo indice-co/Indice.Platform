@@ -23,6 +23,6 @@ internal class SignInLogDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         var schemaName = Database.GetService<IOptions<SignInLogOptions>>().Value.DatabaseSchema;
-        modelBuilder.ApplyConfiguration(new DbSignInLogEntryMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbSignInLogEntryMap(schemaName, Database.ProviderName));
     }
 }

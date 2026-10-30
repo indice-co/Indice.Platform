@@ -105,7 +105,7 @@ import { ThemeMode, ThemeService } from './theme.service';
         <label for="app-drawer" class="drawer-overlay" [attr.aria-label]="'nav.closeMenu' | translate"></label>
         <aside class="flex min-h-full flex-col" style="width: var(--app-sidebar-width); background: var(--app-sidebar-bg); color: var(--app-sidebar-content)">
           <a routerLink="/dashboard" class="flex h-16 items-center px-5" style="color: var(--app-sidebar-content-strong)">
-            <app-logo [size]="30" />
+            <app-logo [size]="30" ring="var(--app-sidebar-bg)" />
           </a>
 
           <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4" [attr.aria-label]="'nav.main' | translate">

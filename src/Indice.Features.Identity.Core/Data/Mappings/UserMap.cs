@@ -17,6 +17,15 @@ internal class UserMap<TUser> : IEntityTypeConfiguration<TUser> where TUser : Us
         entityBuilder.HasIndex(x => x.UserName);
         entityBuilder.HasIndex(x => x.CreateDate);
         entityBuilder.HasIndex(x => x.LastSignInDate);
+        // Narrow index for the user counts of the admin dashboard, so they avoid scanning the whole user table.
+        // Include columns are set through the provider annotations (SQL Server and PostgreSQL) to keep this assembly provider agnostic.
+        string[] dashboardColumns = [
+            nameof(User.TwoFactorEnabled), nameof(User.EmailConfirmed), nameof(User.PhoneNumberConfirmed),
+            nameof(User.PasswordExpired), nameof(User.PasswordExpirationDate), nameof(User.LockoutEnabled), nameof(User.LockoutEnd)
+        ];
+        entityBuilder.HasIndex(x => x.Blocked, "IX_User_DashboardFlags")
+                     .HasAnnotation("SqlServer:Include", dashboardColumns)
+                     .HasAnnotation("Npgsql:IndexInclude", dashboardColumns);
         // Configure relationships.
         entityBuilder.HasMany(x => x.Claims).WithOne().HasForeignKey(x => x.UserId);
         entityBuilder.HasMany(x => x.Logins).WithOne().HasForeignKey(x => x.UserId);
