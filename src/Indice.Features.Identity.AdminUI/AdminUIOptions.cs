@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.EmbeddedUI;
+﻿using System.Net;
+using Indice.AspNetCore.EmbeddedUI;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.AdminUI;
@@ -14,6 +15,13 @@ public class AdminUIOptions : SpaUIOptions
     /// <remarks>This folder contains translation files eg: el.json, en.json etc.</remarks>
     public string? I18nAssets { get; set; }
 
+    /// <summary>The url of the API documentation linked from the navigation menu. Defaults to <b>docs/index.html</b>.</summary>
+    /// <remarks>
+    /// Relative urls (e.g. <c>docs/index.html</c> or <c>/scalar</c>) are resolved against the <see cref="SpaUIOptions.Authority"/>.
+    /// Absolute urls (e.g. <c>https://developers.example.com</c>) are used as is.
+    /// </remarks>
+    public string? ApiDocsUrl { get; set; } = "docs/index.html";
+
     /// <summary>Creates a new instance <see cref="AdminUIOptions"/>.</summary>
     public AdminUIOptions() {
         ClientId = "idsrv-admin-ui";
@@ -22,6 +30,7 @@ public class AdminUIOptions : SpaUIOptions
         ConfigureIndexParameters = args => {
             args[$"%({nameof(Lang)})"] = Lang;
             args[$"%({nameof(I18nAssets)})"] = I18nAssets;
+            args[$"%({nameof(ApiDocsUrl)})"] = WebUtility.HtmlEncode(ApiDocsUrl?.Trim());
         };
     }
 }

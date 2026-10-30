@@ -8,6 +8,7 @@ import {
   LucideMonitor, LucideMoon, LucidePlus, LucideSun
 } from '@lucide/angular';
 import { AppLanguagesService } from '../core/i18n/app-languages.service';
+import { LocaleScopeDirective } from '../core/i18n/locale-scope.directive';
 import { settings } from '../core/models/settings';
 import { AuthService } from '../core/services/auth.service';
 import { ImgUserPictureDirective } from '../ui/avatar/user-picture.directive';
@@ -28,6 +29,7 @@ interface CreateAction {
   selector: 'app-shell',
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, ImgUserPictureDirective, LogoComponent, BreadcrumbsComponent, LucideDynamicIcon,
+    LocaleScopeDirective,
     LucideMenu, LucideSun, LucideMoon, LucideMonitor, LucideLogOut, LucideChevronsUpDown, LucideHeart, LucidePlus, LucideBookOpen,
     LucideExternalLink, LucideLanguages
   ],
@@ -84,8 +86,14 @@ interface CreateAction {
 
           @if (languages.languages().length > 1) {
             <div class="dropdown dropdown-end">
-              <button type="button" tabindex="0" class="btn btn-ghost btn-sm gap-1 px-2" [attr.aria-label]="'Shell.Language' | translate">
-                <svg lucideLanguages class="size-4"></svg><span class="text-xs font-semibold uppercase">{{ languages.current() }}</span>
+              <button type="button" tabindex="0" class="btn btn-ghost btn-sm gap-1 px-2" [attr.aria-label]="'Shell.Language' | translate"
+                [attr.aria-busy]="languages.switching()">
+                @if (languages.switching()) {
+                  <span class="loading loading-spinner loading-xs"></span>
+                } @else {
+                  <svg lucideLanguages class="size-4"></svg>
+                }
+                <span class="text-xs font-semibold uppercase">{{ languages.current() }}</span>
               </button>
               <ul tabindex="0" class="dropdown-content menu z-40 mt-2 w-44 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg">
                 @for (language of languages.languages(); track language.code) {
@@ -122,7 +130,10 @@ interface CreateAction {
         </header>
 
         <main class="mx-auto w-full max-w-[96rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-          <router-outlet />
+          <!-- re-created on a language switch, so the page picks up the new locale without a full reload -->
+          @for (language of [languages.current()]; track language) {
+            <ng-container appLocaleScope><router-outlet /></ng-container>
+          }
         </main>
       </div>
 

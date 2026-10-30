@@ -8,8 +8,8 @@ import { SignInLogsViewComponent } from './sign-in-logs-view.component';
   selector: 'app-sign-in-logs',
   imports: [PageHeaderComponent, SignInLogsViewComponent, TranslatePipe],
   template: `
-    <app-page-header [title]="'Routes.SignInLogs' | translate" [subtitle]="'SignInLogs.Page.Subtitle' | translate" />
-    <app-sign-in-logs-view />
+    <app-page-header [title]="'Routes.SignInLogs' | translate" [subtitle]="'SignInLogs.Page.Subtitle' | translate" [count]="view.total()" />
+    <app-sign-in-logs-view #view />
   `
 })
 export class SignInLogsComponent { }

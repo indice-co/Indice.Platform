@@ -8,8 +8,8 @@ import { ActivityLogsViewComponent } from './activity-logs-view.component';
   selector: 'app-activity-logs',
   imports: [PageHeaderComponent, ActivityLogsViewComponent, TranslatePipe],
   template: `
-    <app-page-header [title]="'Routes.ActivityLogs' | translate" [subtitle]="'ActivityLogs.Page.Subtitle' | translate" />
-    <app-activity-logs-view />
+    <app-page-header [title]="'Routes.ActivityLogs' | translate" [subtitle]="'ActivityLogs.Page.Subtitle' | translate" [count]="view.total()" />
+    <app-activity-logs-view #view />
   `
 })
 export class ActivityLogsComponent { }

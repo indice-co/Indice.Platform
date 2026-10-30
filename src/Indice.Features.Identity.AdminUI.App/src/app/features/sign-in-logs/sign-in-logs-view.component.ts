@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, input } from '@angular/core';
+import { Component, OnInit, computed, inject, input } from '@angular/core';
 import { LucideFlag, LucideLogIn, LucideRotateCcw } from '@lucide/angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IdentityApiService, SignInLogEntry, SignInType } from 'src/app/core/services/identity-api.service';
@@ -163,6 +163,9 @@ export class SignInLogsViewComponent implements OnInit {
       (query.params['signInType'] as SignInType) || undefined
     )
   });
+
+  /** Total number of entries matching the current filters, `undefined` until the first page has loaded. */
+  public readonly total = computed(() => this.list.total());
 
   protected columns(): number {
     return this.subject() ? 7 : 8;

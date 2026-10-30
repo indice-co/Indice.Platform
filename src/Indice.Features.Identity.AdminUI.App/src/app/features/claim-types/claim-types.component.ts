@@ -25,7 +25,7 @@ export const CLAIM_TYPES_REFRESH = 'claim-types';
     LucideChevronRight, LucideLock, LucidePlus, LucideTags, TranslatePipe
   ],
   template: `
-    <app-page-header [title]="'Routes.ClaimTypes' | translate" [subtitle]="'ClaimTypes.List.Subtitle' | translate">
+    <app-page-header [title]="'Routes.ClaimTypes' | translate" [subtitle]="'ClaimTypes.List.Subtitle' | translate" [count]="list.total()">
       @if (canEdit) {
         <div actions>
           <a class="btn btn-primary btn-sm" [routerLink]="pane.link('claim-type-add')"><svg lucidePlus class="size-4"></svg>{{ 'ClaimTypes.New' | translate }}</a>

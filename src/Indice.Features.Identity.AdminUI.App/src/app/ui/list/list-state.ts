@@ -67,6 +67,8 @@ export class ListState<T> {
   public readonly failed = signal(false);
 
   public readonly pageCount = computed(() => Math.max(1, Math.ceil(this.count() / this.pageSize())));
+  /** The total number of matching items reported by the server (`count`), `undefined` until the first page has loaded. */
+  public readonly total = computed(() => this.items() === null ? undefined : this.count());
   public readonly isEmpty = computed(() => !this.loading() && (this.items()?.length ?? 0) === 0);
   public readonly hasFilters = computed(() => this.search().length > 0 || Object.values(this.params()).some(v => v != null && v !== ''));
 

@@ -1,4 +1,4 @@
-import { DOCUMENT, Injectable, inject, signal } from '@angular/core';
+import { DOCUMENT, Injectable, LOCALE_ID, Provider, computed, inject, signal } from '@angular/core';
 import { HttpBackend, HttpClient } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, firstValueFrom, map, of } from 'rxjs';
@@ -28,6 +28,12 @@ export const initialLanguage = (): string => {
 /** Angular locale (dates, numbers) matching a UI language. */
 export const localeOf = (language: string): string => language === 'el' ? 'el' : 'en-GB';
 
+/**
+ * Provides `LOCALE_ID` matching the language selected when the injector is created. The root `LOCALE_ID` is fixed at bootstrap,
+ * so views that must follow a language switch (dates, numbers) are re-created under an injector carrying this provider.
+ */
+export const provideCurrentLocale = (): Provider => ({ provide: LOCALE_ID, useFactory: () => inject(AppLanguagesService).locale() });
+
 /** Loads the translations served by the identity server (resx → json) and switches the UI language. */
 @Injectable({ providedIn: 'root' })
 export class AppLanguagesService {
@@ -38,6 +44,9 @@ export class AppLanguagesService {
 
   public readonly languages = signal<AppLanguage[]>(FALLBACK_LANGUAGES);
   public readonly current = signal(initialLanguage());
+  public readonly locale = computed(() => localeOf(this.current()));
+  /** True while the translations of a newly selected language are being loaded. */
+  public readonly switching = signal(false);
 
   /** Runs as an app initializer so that the first render already has its translations. */
   public init(): Promise<unknown> {
@@ -55,13 +64,21 @@ export class AppLanguagesService {
     return firstValueFrom(this._translate.use(this.current()).pipe(catchError(() => of(null))));
   }
 
-  /** Persists the choice and reloads, so that the locale of dates and numbers follows the language too. */
+  /**
+   * Persists the choice and switches the UI language in place, once its translations are loaded. Views keyed on {@link current}
+   * are re-created so that values computed once (translated labels, dates, numbers) follow the new language too.
+   */
   public use(language: string): void {
-    if (language === this.current()) {
+    if (language === this.current() || this.switching()) {
       return;
     }
     localStorage.setItem(STORAGE_KEY, language);
-    this._document.location.reload();
+    this.switching.set(true);
+    this._translate.use(language).pipe(catchError(() => of(null))).subscribe(() => {
+      this._document.documentElement.lang = language;
+      this.current.set(language);
+      this.switching.set(false);
+    });
   }
 }
 

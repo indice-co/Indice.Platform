@@ -70,7 +70,7 @@ const KINDS: Record<ResourceKind, KindConfig> = {
     LucideBoxes, LucideChevronRight, LucideIdCard, LucideKeyRound, LucideLock, LucidePlus
   ],
   template: `
-    <app-page-header [title]="config().title | translate" [subtitle]="config().subtitle | translate">
+    <app-page-header [title]="config().title | translate" [subtitle]="config().subtitle | translate" [count]="list.total()">
       @if (canEdit) {
         <div actions>
           <a class="btn btn-primary btn-sm" routerLink="/resources/add" [state]="{ origin: kind() }">

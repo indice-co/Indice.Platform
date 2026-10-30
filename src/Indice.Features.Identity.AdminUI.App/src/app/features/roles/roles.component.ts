@@ -22,7 +22,7 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
     LucideChevronRight, LucidePlus, LucideShieldCheck, TranslatePipe
   ],
   template: `
-    <app-page-header [title]="'Routes.Roles' | translate" [subtitle]="'Roles.List.Subtitle' | translate">
+    <app-page-header [title]="'Routes.Roles' | translate" [subtitle]="'Roles.List.Subtitle' | translate" [count]="list.total()">
       @if (canEdit) {
         <div actions>
           <a class="btn btn-primary btn-sm" [routerLink]="pane.link('role-add')"><svg lucidePlus class="size-4"></svg>{{ 'Roles.New' | translate }}</a>
