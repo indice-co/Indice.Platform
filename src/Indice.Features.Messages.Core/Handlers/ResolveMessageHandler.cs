@@ -110,6 +110,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
 
     private void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
+        handlebars.RegisterMessageHelpers();
         handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
             handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
