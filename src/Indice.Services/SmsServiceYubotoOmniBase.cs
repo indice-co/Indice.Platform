@@ -528,13 +528,10 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         var expectedHmac = hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"));
 
         try {
-            if (TryDecodeCompactToken(hmacToken, out var compactToken)) {
-                if (compactToken.Length == expectedHmac.Length) {
-                    return !CryptographicOperations.FixedTimeEquals(compactToken, expectedHmac);
-                }
+            if (!TryDecodeCompactToken(hmacToken, out var providedHmac)) {
                 return true;
             }
-            return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken), expectedHmac);
+            return !CryptographicOperations.FixedTimeEquals(providedHmac, expectedHmac);
         } catch (FormatException) {
             return true;
         } catch (ArgumentException) {
