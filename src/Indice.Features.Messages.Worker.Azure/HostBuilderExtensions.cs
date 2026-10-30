@@ -117,7 +117,7 @@ public static class HostBuilderExtensions
             opt.Enabled = options.CampaignStatisticOptions.Enabled;
         });
         services.AddSingleton<MessageEventQueue>();
-        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
+        services.AddSingleton<IHostedService, MessageEventHostedService>();
         return services;
     }
 

@@ -10,11 +10,11 @@ using Open.ChannelExtensions;
 
 namespace Indice.Features.Messages.Core.Services;
 /// <summary>Background service that handles the processing of campaign events.</summary>
-public class MessageEventHostedServcie(
+public class MessageEventHostedService(
     MessageEventQueue queue,
     IServiceScopeFactory scopeFactory,
     IOptions<AnalyticsOptions> AnalyticsOptions,
-    ILogger<MessageEventHostedServcie> logger) : BackgroundService
+    ILogger<MessageEventHostedService> logger) : BackgroundService
 {
     /// <summary>Batch size for dequeuing events from the queue.</summary>
     public int DequeueBatchSize { get; set; } = 10;
