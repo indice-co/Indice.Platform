@@ -243,10 +243,19 @@ public class CampaignService : ICampaignService
     public async Task<List<ChannelMetrics>> GetChannelMetrics(Guid? campaignId = null) {
         // A failed send is retried and every attempt logs a "Sent" event, so collapse the attempts of a message on a channel
         // into one outcome: delivered when any attempt succeeded, failed otherwise.
-        var metrics = await DbContext.MessageEvents
-            .Where(x => (campaignId == null || x.CampaignId == campaignId) &&
-                        ((x.Type == nameof(MessageEventType.Sent)) ||
-                        (x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created))))
+        var query = DbContext.MessageEvents.AsQueryable();
+
+        if (campaignId != null) {
+            query = query.Where(x => x.CampaignId == campaignId);
+        }
+
+        query = query.Where(x => {
+            var isSent = x.Type == nameof(MessageEventType.Sent);
+            var isInboxCreated = x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created);
+            return isSent || isInboxCreated;
+        });
+
+        var metrics = await query
             .GroupBy(x => new { x.Channel, x.CampaignId, x.MessageId, x.ContactId })
             .Select(g => new { g.Key.Channel, Delivered = g.Max(x => x.Success ? 1 : 0) })
             .GroupBy(x => x.Channel)
