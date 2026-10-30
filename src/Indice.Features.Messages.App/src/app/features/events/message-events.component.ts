@@ -11,10 +11,11 @@ import { ListState } from 'src/app/ui/list/list-state';
 import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** Translation key and badge style per message event type (`MessageEventType` on the server). */
 const EVENT_TYPES: Record<string, { label: string; badge: string }> = {
-  Created: { label: 'Events.Types.Created', badge: 'badge-neutral badge-soft' },
+  Created: { label: 'Events.Types.Created', badge: 'badge-outline' },
   Sent: { label: 'Events.Types.Sent', badge: 'badge-info badge-soft' },
   Delivered: { label: 'Events.Types.Delivered', badge: 'badge-success badge-soft' },
   Opened: { label: 'Events.Types.Opened', badge: 'badge-accent badge-soft' },
@@ -26,11 +27,13 @@ const EVENT_TYPES: Record<string, { label: string; badge: string }> = {
 @Component({
   selector: 'app-message-events',
   imports: [
-    DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, ChannelIconComponent,
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, ChannelIconComponent,
     LucideActivity, LucideArrowDown, LucideArrowUp, LucideCircleCheck, LucideCircleX, LucideMail, LucideMegaphone, LucideUser, LucideX
   ],
   template: `
-    <app-page-header [title]="'Events.Title' | translate" [subtitle]="'Events.Subtitle' | translate" />
+    <app-page-header [title]="'Events.Title' | translate" [subtitle]="'Events.Subtitle' | translate">
+      <app-list-count class="mt-0.5" [count]="list.items() ? list.count() : null" one="Events.CountOne" other="Events.CountOther" />
+    </app-page-header>
 
     <div class="mb-3 flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
       <app-search-input class="lg:w-64" [value]="list.search()" [placeholder]="'Events.SearchRecipient' | translate" (search)="list.setSearch($event)" />

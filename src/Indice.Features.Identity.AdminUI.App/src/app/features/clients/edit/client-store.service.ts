@@ -1,292 +1,167 @@
-import { Injectable } from '@angular/core';
-
-import { AsyncSubject, Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, map, shareReplay, tap } from 'rxjs';
 import {
-    IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ClientSecretInfo, FileParameter, ClientTranslation
+  ApiScopeInfo, ClientSecretInfo, ClientTranslation, CreateClaimRequest, CreateSecretRequest, FileParameter, IdentityApiService,
+  IdentityResourceInfo, IUpdateClientRequest, SingleClientInfo, UpdateClientRequest, UpdateClientUrls
 } from 'src/app/core/services/identity-api.service';
-import { SelectableExternalProvider } from './details/selectable-external-provider.model';
-import { UrlType } from './urls/models/urlType';
 
+/**
+ * State of the client open in the edit page, shared by its tabs. Provided by `ClientEditComponent`.
+ * Every mutation goes to the API first and replaces the `client` signal with an updated copy on success.
+ */
 @Injectable()
 export class ClientStore {
-    private _client: AsyncSubject<SingleClientInfo>;
-    private _identityResources: AsyncSubject<IdentityResourceInfo[]>;
-    private _apiScopes: AsyncSubject<ApiScopeInfo[]>;
+  private readonly _api = inject(IdentityApiService);
+  private _identityResources$?: Observable<IdentityResourceInfo[]>;
+  private _apiScopes$?: Observable<ApiScopeInfo[]>;
 
-    constructor(private _api: IdentityApiService) { }
+  public readonly client = signal<SingleClientInfo | null>(null);
+  public readonly loading = signal(false);
+  public readonly failed = signal(false);
+  public readonly clientId = computed(() => this.client()?.clientId ?? '');
+  public readonly grantTypes = computed(() => this.client()?.grantTypes ?? []);
 
-    public getClient(clientId: string): Observable<SingleClientInfo> {
-        if (!this._client) {
-            this._client = new AsyncSubject<SingleClientInfo>();
-            this._api.getClient(clientId).subscribe((client: SingleClientInfo) => {
-                this._client.next(client);
-                this._client.complete();
-            });
-        }
-        return this._client;
+  public load(clientId: string): void {
+    this.loading.set(true);
+    this.failed.set(false);
+    this._api.getClient(clientId).subscribe({
+      next: client => {
+        this.client.set(client);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.failed.set(true);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  /** Saves the client with `changes` applied on top of its current state. */
+  public update(changes: Partial<SingleClientInfo>): Observable<SingleClientInfo> {
+    const client = new SingleClientInfo({ ...this.client()!, ...changes });
+    const translations: { [key: string]: ClientTranslation } = {};
+    for (const [culture, translation] of Object.entries(client.translations ?? {})) {
+      translations[culture] = new ClientTranslation(translation);
     }
+    const request: IUpdateClientRequest = {
+      accessTokenLifetime: client.accessTokenLifetime,
+      absoluteRefreshTokenLifetime: client.absoluteRefreshTokenLifetime,
+      accessTokenType: client.accessTokenType,
+      allowAccessTokensViaBrowser: client.allowAccessTokensViaBrowser,
+      allowPlainTextPkce: client.allowPlainTextPkce,
+      refreshTokenUsage: client.refreshTokenUsage,
+      refreshTokenExpiration: client.refreshTokenExpiration,
+      allowOfflineAccess: client.allowOfflineAccess,
+      updateAccessTokenClaimsOnRefresh: client.updateAccessTokenClaimsOnRefresh,
+      allowRememberConsent: client.allowRememberConsent,
+      alwaysIncludeUserClaimsInIdToken: client.alwaysIncludeUserClaimsInIdToken,
+      alwaysSendClientClaims: client.alwaysSendClientClaims,
+      authorizationCodeLifetime: client.authorizationCodeLifetime,
+      clientClaimsPrefix: client.clientClaimsPrefix,
+      clientName: client.clientName,
+      clientUri: client.clientUri,
+      consentLifetime: client.consentLifetime,
+      description: client.description,
+      frontChannelLogoutSessionRequired: client.frontChannelLogoutSessionRequired,
+      frontChannelLogoutUri: client.frontChannelLogoutUri,
+      identityTokenLifetime: client.identityTokenLifetime,
+      includeJwtId: client.includeJwtId,
+      logoUri: client.logoUri,
+      pairWiseSubjectSalt: client.pairWiseSubjectSalt,
+      requireConsent: client.requireConsent,
+      requirePkce: client.requirePkce,
+      userSsoLifetime: client.userSsoLifetime,
+      backChannelLogoutUri: client.backChannelLogoutUri,
+      backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired,
+      deviceCodeLifetime: client.deviceCodeLifetime,
+      translations,
+      userCodeType: client.userCodeType,
+      enabled: client.enabled,
+      slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime,
+      enableLocalLogin: client.enableLocalLogin,
+      identityProviderRestrictions: client.identityProviderRestrictions?.length ? client.identityProviderRestrictions : undefined
+    };
+    return this._api.updateClient(client.clientId!, new UpdateClientRequest(request)).pipe(
+      map(() => client),
+      tap(updated => this.client.set(updated))
+    );
+  }
 
-    public updateClient(client: SingleClientInfo, providers?: SelectableExternalProvider[]): Observable<void> {
-        for (const key in client.translations) {
-            if (client.translations.hasOwnProperty(key)) {
-                client.translations[key] = new ClientTranslation(client.translations[key]);
-            }
-        }
-        // Calculate identityProviderRestrictions based on provider selection
-        // If all providers are selected, save null (no restrictions)
-        // If some providers are selected, save only those (restricted to those providers)
-        // If no providers are selected, save null (will show all providers as selected on next load)
-        // If no providers are provided, keep as null
-        let identityProviderRestrictions: string[] | null = null;
-        if (providers && providers.length > 0) {
-            const selectedProviders = providers.filter(x => x.selected);
-            // Only set restrictions if some (but not all or none) providers are selected
-            if (selectedProviders.length > 0 && selectedProviders.length < providers.length) {
-                identityProviderRestrictions = selectedProviders.map(x => x.authenticationScheme);
-            }
-        }
-        return this._api.updateClient(client.clientId, new UpdateClientRequest({
-            accessTokenLifetime: client.accessTokenLifetime,
-            absoluteRefreshTokenLifetime: client.absoluteRefreshTokenLifetime,
-            accessTokenType: client.accessTokenType,
-            allowAccessTokensViaBrowser: client.allowAccessTokensViaBrowser,
-            allowPlainTextPkce: client.allowPlainTextPkce,
-            refreshTokenUsage: client.refreshTokenUsage,
-            refreshTokenExpiration: client.refreshTokenExpiration,
-            allowOfflineAccess: client.allowOfflineAccess,
-            updateAccessTokenClaimsOnRefresh: client.updateAccessTokenClaimsOnRefresh,
-            allowRememberConsent: client.allowRememberConsent,
-            alwaysIncludeUserClaimsInIdToken: client.alwaysIncludeUserClaimsInIdToken,
-            alwaysSendClientClaims: client.alwaysSendClientClaims,
-            authorizationCodeLifetime: client.authorizationCodeLifetime,
-            clientClaimsPrefix: client.clientClaimsPrefix,
-            clientName: client.clientName,
-            clientUri: client.clientUri,
-            consentLifetime: client.consentLifetime,
-            description: client.description,
-            frontChannelLogoutSessionRequired: client.frontChannelLogoutSessionRequired,
-            frontChannelLogoutUri: client.frontChannelLogoutUri,
-            identityTokenLifetime: client.identityTokenLifetime,
-            includeJwtId: client.includeJwtId,
-            logoUri: client.logoUri,
-            pairWiseSubjectSalt: client.pairWiseSubjectSalt,
-            requireConsent: client.requireConsent,
-            requirePkce: client.requirePkce,
-            userSsoLifetime: client.userSsoLifetime,
-            backChannelLogoutUri: client.backChannelLogoutUri,
-            backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired,
-            deviceCodeLifetime: client.deviceCodeLifetime,
-            translations: client.translations,
-            userCodeType: client.userCodeType,
-            enabled: client.enabled,
-            slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime,
-            enableLocalLogin: client.enableLocalLogin,
-            identityProviderRestrictions: identityProviderRestrictions
-        } as IUpdateClientRequest)).pipe(map(_ => {
-            this._client.next(client);
-            this._client.complete();
-        }));
-    }
+  public updateUrls(urls: { redirectUris: string[]; allowedCorsOrigins: string[]; postLogoutRedirectUris: string[] }): Observable<void> {
+    return this._api.updateClientUrls(this.clientId(), new UpdateClientUrls(urls)).pipe(tap(() => this.patch(urls)));
+  }
 
-    public updateClientUrl(clientId: string, url: string, added: boolean, urlType: UrlType): void {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            if (!client['deletingUrls']) {
-                client['deletingUrls'] = [];
-            }
-            switch (urlType) {
-                case UrlType.Redirect:
-                    this.updateClientUrlState(client, url, added, 'redirectUris');
-                    break;
-                case UrlType.Cors:
-                    this.updateClientUrlState(client, url, added, 'allowedCorsOrigins');
-                    break;
-                case UrlType.PostLogoutRedirect:
-                    this.updateClientUrlState(client, url, added, 'postLogoutRedirectUris');
-                    break;
-                default:
-                    break;
-            }
-            this._client.next(client);
-            this._client.complete();
-        });
-    }
+  public getIdentityResources(): Observable<IdentityResourceInfo[]> {
+    this._identityResources$ ??= this._api.getIdentityResources(1, 2147483647, 'name+', undefined).pipe(map(r => r.items ?? []), shareReplay(1));
+    return this._identityResources$;
+  }
 
-    private updateClientUrlState(client: SingleClientInfo, url: string, added: boolean, propertyName: string): void {
-        if (added) {
-            client[propertyName].push(url);
-            const index = client['deletingUrls'].findIndex((x: string) => x === url);
-            if (index > -1) {
-                client['deletingUrls'].splice(index, 1);
-            }
-        } else {
-            let index = client[propertyName].findIndex((x: string) => x === url);
-            if (index > -1) {
-                client[propertyName].splice(index, 1);
-                index = client.postLogoutRedirectUris.concat(client.allowedCorsOrigins.concat(client.redirectUris)).findIndex((x: string) => x === url);
-                if (index === -1) {
-                    client['deletingUrls'].push(url);
-                }
-            }
-        }
-    }
+  public getApiScopes(): Observable<ApiScopeInfo[]> {
+    this._apiScopes$ ??= this._api.getApiScopes(1, 2147483647, 'name+', undefined).pipe(map(r => r.items ?? []), shareReplay(1));
+    return this._apiScopes$;
+  }
 
-    public sendUpdateClientUrls(clientId: string, allowedCorsOrigins: string[], postLogoutRedirectUris: string[], redirectUris: string[]): Observable<void> {
-        return this._api.updateClientUrls(clientId, {
-            allowedCorsOrigins,
-            postLogoutRedirectUris,
-            redirectUris
-        } as UpdateClientUrls);
-    }
+  public addResource(kind: 'apiResources' | 'identityResources', name: string): Observable<void> {
+    return this._api.addClientResources(this.clientId(), [name]).pipe(
+      tap(() => this.patch({ [kind]: [...(this.client()?.[kind] ?? []), name] }))
+    );
+  }
 
-    public getIdentityResources(): Observable<IdentityResourceInfo[]> {
-        if (!this._identityResources) {
-            this._identityResources = new AsyncSubject<IdentityResourceInfo[]>();
-            this._api.getIdentityResources(1, 2147483647, 'name+', undefined).subscribe((response: IdentityResourceInfoResultSet) => {
-                this._identityResources.next(response.items);
-                this._identityResources.complete();
-            });
-        }
-        return this._identityResources;
-    }
+  public removeResource(kind: 'apiResources' | 'identityResources', name: string): Observable<void> {
+    return this._api.deleteClientResource(this.clientId(), [name]).pipe(
+      tap(() => this.patch({ [kind]: (this.client()?.[kind] ?? []).filter(x => x !== name) }))
+    );
+  }
 
-    public getApiScopes(): Observable<ApiScopeInfo[]> {
-        if (!this._apiScopes) {
-            this._apiScopes = new AsyncSubject<ApiResourceInfo[]>();
-            this._api.getApiScopes(1, 2147483647, 'name+', undefined).subscribe((response: ApiScopeInfoResultSet) => {
-                this._apiScopes.next(response.items);
-                this._apiScopes.complete();
-            });
-        }
-        return this._apiScopes;
-    }
+  public addGrantType(grantType: string): Observable<void> {
+    return this._api.addClientGrantType(this.clientId(), grantType).pipe(
+      tap(created => this.patch({ grantTypes: [...this.grantTypes(), created.name ?? grantType] })),
+      map(() => undefined)
+    );
+  }
 
-    public addClaim(clientId: string, claim: ClaimInfo): Observable<void> {
-        return this._api.addClientClaim(clientId, {
-            type: claim.type,
-            value: claim.value
-        } as CreateClaimRequest).pipe(map((createdClaim: ClaimInfo) => {
-            this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-                client.claims.push(createdClaim);
-                this._client.next(client);
-                this._client.complete();
-            });
-        }));
-    }
+  public removeGrantType(grantType: string): Observable<void> {
+    return this._api.deleteClientGrantType(this.clientId(), grantType).pipe(
+      tap(() => this.patch({ grantTypes: this.grantTypes().filter(x => x !== grantType) }))
+    );
+  }
 
-    public deleteClaim(clientId: string, claim: ClaimInfo): Observable<void> {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            const index = client.claims.findIndex(x => x.id === claim.id);
-            if (index > -1) {
-                client.claims.splice(index, 1);
-            }
-            this._client.next(client);
-            this._client.complete();
-        });
-        return this._api.deleteClientClaim(clientId, claim.id);
-    }
+  public addClaim(type: string, value: string): Observable<void> {
+    return this._api.addClientClaim(this.clientId(), new CreateClaimRequest({ type, value })).pipe(
+      tap(claim => this.patch({ claims: [...(this.client()?.claims ?? []), claim] })),
+      map(() => undefined)
+    );
+  }
 
-    public addApiResource(clientId: string, resource: ApiResourceInfo): Observable<void> {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            client.apiResources.push(resource.name);
-            this._client.next(client);
-            this._client.complete();
-        });
-        return this._api.addClientResources(clientId, [resource.name]);
-    }
+  public removeClaim(claimId: number): Observable<void> {
+    return this._api.deleteClientClaim(this.clientId(), claimId).pipe(
+      tap(() => this.patch({ claims: (this.client()?.claims ?? []).filter(x => x.id !== claimId) }))
+    );
+  }
 
-    public deleteApiResource(clientId: string, resource: ApiResourceInfo): Observable<void> {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            const index = client.apiResources.findIndex(x => x === resource.name);
-            if (index > -1) {
-                client.apiResources.splice(index, 1);
-            }
-            this._client.next(client);
-            this._client.complete();
-        });
-        return this._api.deleteClientResource(clientId, [resource.name]);
-    }
+  public addSharedSecret(secret: CreateSecretRequest): Observable<void> {
+    return this._api.addClientSecret(this.clientId(), secret).pipe(tap(added => this.pushSecret(added)), map(() => undefined));
+  }
 
-    public addIdentityResource(clientId: string, resource: IdentityResourceInfo): Observable<void> {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            client.identityResources.push(resource.name);
-            this._client.next(client);
-            this._client.complete();
-        });
-        return this._api.addClientResources(clientId, [resource.name]);
-    }
+  public addCertificate(file: File): Observable<void> {
+    const parameter: FileParameter = { data: file, fileName: file.name };
+    return this._api.uploadCertificate(this.clientId(), parameter).pipe(tap(added => this.pushSecret(added)), map(() => undefined));
+  }
 
-    public deleteIdentityResource(clientId: string, resource: IdentityResourceInfo): Observable<void> {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            const index = client.identityResources.findIndex(x => x === resource.name);
-            if (index > -1) {
-                client.identityResources.splice(index, 1);
-            }
-            this._client.next(client);
-            this._client.complete();
-        });
-        return this._api.deleteClientResource(clientId, [resource.name]);
-    }
+  public removeSecret(secretId: number): Observable<void> {
+    return this._api.deleteClientSecret(this.clientId(), secretId).pipe(
+      tap(() => this.patch({ secrets: (this.client()?.secrets ?? []).filter(x => x.id !== secretId) }))
+    );
+  }
 
-    public addGrantType(clientId: string, grantType: string): Observable<void> {
-        return this._api.addClientGrantType(clientId, grantType).pipe(map((createdGrantType: GrantTypeInfo) => {
-            this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-                client.grantTypes.push(createdGrantType.name);
-                this._client.next(client);
-                this._client.complete();
-            });
-        }));
-    }
+  private pushSecret(secret: ClientSecretInfo): void {
+    this.patch({ secrets: [...(this.client()?.secrets ?? []), secret] });
+  }
 
-    public deleteGrantType(clientId: string, grantType: string): Observable<void> {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            const index = client.grantTypes.findIndex(x => x === grantType);
-            if (index > -1) {
-                client.grantTypes.splice(index, 1);
-            }
-            this._client.next(client);
-            this._client.complete();
-        });
-        return this._api.deleteClientGrantType(clientId, grantType);
+  private patch(changes: Partial<SingleClientInfo>): void {
+    const current = this.client();
+    if (current) {
+      this.client.set(new SingleClientInfo({ ...current, ...changes }));
     }
-
-    public addSharedSecret(clientId: string, secret: CreateSecretRequest): Observable<void> {
-        return this.addSecret(clientId, this._api.addClientSecret(clientId, secret));
-    }
-
-    public addCertificate(clientId: string, file: File): Observable<void> {
-        const fileParameter: FileParameter = { data: file, fileName: file.name };
-        return this.addSecret(clientId, this._api.uploadCertificate(clientId, fileParameter));
-    }
-
-    public deleteClientSecret(clientId: string, secret: ClientSecretInfo): Observable<void> {
-        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            const index = client.secrets.indexOf(secret);
-            if (index > -1) {
-                client.secrets.splice(index, 1);
-            }
-            this._client.next(client);
-            this._client.complete();
-        });
-        return this._api.deleteClientSecret(clientId, secret.id);
-    }
-
-    public deleteClient(clientId: string): Observable<void> {
-        return this._api.deleteClient(clientId);
-    }
-
-    private addSecret(clientId: string, addSecretObservable: Observable<ClientSecretInfo>): Observable<void> {
-        const getClient = this.getClient(clientId);
-        return forkJoin([getClient, addSecretObservable]).pipe(map((responses: [SingleClientInfo, SecretInfo]) => {
-            return {
-                client: responses[0],
-                addedSecret: responses[1]
-            };
-        })).pipe(map((result: { client: SingleClientInfo, addedSecret: ClientSecretInfo }) => {
-            result.client.secrets.push(result.addedSecret);
-            this._client.next(result.client);
-            this._client.complete();
-        }));
-    }
+  }
 }

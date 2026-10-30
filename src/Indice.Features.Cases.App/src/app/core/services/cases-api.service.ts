@@ -96,12 +96,13 @@ export interface ICasesApiService {
      * @param groupIds (optional) 
      * @param metadata (optional) 
      * @param referenceNumbers (optional) 
+     * @param relationKeys (optional) 
      * @param data (optional) 
      * @param includeData (optional) 
      * @param assignedTo (optional) 
      * @return OK
      */
-    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet>;
+    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, relationKeys?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet>;
     /**
      * Create a new case in draft mode.
      * @return OK
@@ -212,10 +213,30 @@ export interface ICasesApiService {
      */
     getCaseRejectReasons(caseId: string): Observable<RejectReason[]>;
     /**
-     * Gets the cases that are related to the given id.
+     * Gets all the cases that are related to the given id, unpaged.
      * @return OK
      */
     getRelatedCases(caseId: string): Observable<CasePartial[]>;
+    /**
+     * Relates cases to the given case by giving them its relation key. A case that shared another key leaves that relation.
+     * @return No Content
+     */
+    addRelatedCases(caseId: string, body: AddRelatedCasesRequest): Observable<void>;
+    /**
+     * Removes a case from the relation of the given case by clearing its relation key.
+     * @return No Content
+     */
+    removeRelatedCase(caseId: string, relatedCaseId: string): Observable<void>;
+    /**
+     * Changes the relation key of this case only; the cases it was related to keep their key. An empty key takes the case out of any relation.
+     * @return No Content
+     */
+    updateCaseRelationKey(caseId: string, body: UpdateCaseRelationKeyRequest): Observable<void>;
+    /**
+     * Changes the group of a case. The group takes part in the access rules.
+     * @return No Content
+     */
+    updateCaseGroup(caseId: string, body: UpdateCaseGroupRequest): Observable<void>;
     /**
      * Submit the case by removing the draft mode.
      * @return No Content
@@ -1317,12 +1338,13 @@ export class CasesApiService implements ICasesApiService {
      * @param groupIds (optional) 
      * @param metadata (optional) 
      * @param referenceNumbers (optional) 
+     * @param relationKeys (optional) 
      * @param data (optional) 
      * @param includeData (optional) 
      * @param assignedTo (optional) 
      * @return OK
      */
-    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet> {
+    getCases(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, showAll?: boolean | null | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, relationKeys?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | null | undefined, assignedTo?: string | null | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/manage/cases?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -1374,6 +1396,10 @@ export class CasesApiService implements ICasesApiService {
             throw new globalThis.Error("The parameter 'referenceNumbers' cannot be null.");
         else if (referenceNumbers !== undefined)
             referenceNumbers && referenceNumbers.forEach(item => { url_ += "ReferenceNumbers=" + encodeURIComponent("" + item) + "&"; });
+        if (relationKeys === null)
+            throw new globalThis.Error("The parameter 'relationKeys' cannot be null.");
+        else if (relationKeys !== undefined)
+            relationKeys && relationKeys.forEach(item => { url_ += "RelationKeys=" + encodeURIComponent("" + item) + "&"; });
         if (data === null)
             throw new globalThis.Error("The parameter 'data' cannot be null.");
         else if (data !== undefined)
@@ -3163,6 +3189,353 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Relates cases to the given case by giving them its relation key. A case that shared another key leaves that relation.
+     * @return No Content
+     */
+    addRelatedCases(caseId: string, body: AddRelatedCasesRequest): Observable<void> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/related-cases";
+        if (caseId === undefined || caseId === null)
+            throw new globalThis.Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddRelatedCases(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddRelatedCases(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAddRelatedCases(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Removes a case from the relation of the given case by clearing its relation key.
+     * @return No Content
+     */
+    removeRelatedCase(caseId: string, relatedCaseId: string): Observable<void> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/related-cases/{relatedCaseId}";
+        if (caseId === undefined || caseId === null)
+            throw new globalThis.Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (relatedCaseId === undefined || relatedCaseId === null)
+            throw new globalThis.Error("The parameter 'relatedCaseId' must be defined.");
+        url_ = url_.replace("{relatedCaseId}", encodeURIComponent("" + relatedCaseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemoveRelatedCase(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemoveRelatedCase(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRemoveRelatedCase(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Changes the relation key of this case only; the cases it was related to keep their key. An empty key takes the case out of any relation.
+     * @return No Content
+     */
+    updateCaseRelationKey(caseId: string, body: UpdateCaseRelationKeyRequest): Observable<void> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/relation-key";
+        if (caseId === undefined || caseId === null)
+            throw new globalThis.Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateCaseRelationKey(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateCaseRelationKey(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateCaseRelationKey(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Changes the group of a case. The group takes part in the access rules.
+     * @return No Content
+     */
+    updateCaseGroup(caseId: string, body: UpdateCaseGroupRequest): Observable<void> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/group";
+        if (caseId === undefined || caseId === null)
+            throw new globalThis.Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateCaseGroup(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateCaseGroup(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateCaseGroup(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Publish private data to public data of a case.
      */
     publishCasePrivateData(caseId: string): Observable<void> {
@@ -3327,7 +3700,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Gets the cases that are related to the given id.
+     * Gets all the cases that are related to the given id, unpaged.
      * @return OK
      */
     getRelatedCases(caseId: string): Observable<CasePartial[]> {
@@ -5478,6 +5851,7 @@ export class Case implements ICase {
     approvers?: AuditMeta[];
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -5519,6 +5893,7 @@ export class Case implements ICase {
             }
             this.id = _data["id"];
             this.referenceNumber = _data["referenceNumber"];
+            this.relationKey = _data["relationKey"];
             this.ownerId = _data["ownerId"];
             this.ownerName = _data["ownerName"];
             this.ownerTin = _data["ownerTin"];
@@ -5566,6 +5941,7 @@ export class Case implements ICase {
         }
         data["id"] = this.id;
         data["referenceNumber"] = this.referenceNumber;
+        data["relationKey"] = this.relationKey;
         data["ownerId"] = this.ownerId;
         data["ownerName"] = this.ownerName;
         data["ownerTin"] = this.ownerTin;
@@ -5598,6 +5974,7 @@ export interface ICase {
     approvers?: AuditMeta[];
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -5892,6 +6269,7 @@ export interface ICaseDataVersionResultSet {
 export class CasePartial implements ICasePartial {
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -5923,6 +6301,7 @@ export class CasePartial implements ICasePartial {
         if (_data) {
             this.id = _data["id"];
             this.referenceNumber = _data["referenceNumber"];
+            this.relationKey = _data["relationKey"];
             this.ownerId = _data["ownerId"];
             this.ownerName = _data["ownerName"];
             this.ownerTin = _data["ownerTin"];
@@ -5960,6 +6339,7 @@ export class CasePartial implements ICasePartial {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["referenceNumber"] = this.referenceNumber;
+        data["relationKey"] = this.relationKey;
         data["ownerId"] = this.ownerId;
         data["ownerName"] = this.ownerName;
         data["ownerTin"] = this.ownerTin;
@@ -5990,6 +6370,7 @@ export class CasePartial implements ICasePartial {
 export interface ICasePartial {
     id?: string;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
     ownerTin?: string | undefined;
@@ -7335,6 +7716,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
     metadata?: { [key: string]: string; };
     channel?: string | undefined;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
 
     constructor(data?: ICreateDraftCaseRequest) {
         if (data) {
@@ -7359,6 +7741,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
             }
             this.channel = _data["channel"];
             this.referenceNumber = _data["referenceNumber"];
+            this.relationKey = _data["relationKey"];
         }
     }
 
@@ -7383,6 +7766,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
         }
         data["channel"] = this.channel;
         data["referenceNumber"] = this.referenceNumber;
+        data["relationKey"] = this.relationKey;
         return data;
     }
 }
@@ -7394,6 +7778,7 @@ export interface ICreateDraftCaseRequest {
     metadata?: { [key: string]: string; };
     channel?: string | undefined;
     referenceNumber?: string | undefined;
+    relationKey?: string | undefined;
 }
 
 export class CustomCaseAction implements ICustomCaseAction {
@@ -8456,6 +8841,134 @@ export class UpdateCaseRequest implements IUpdateCaseRequest {
 
 export interface IUpdateCaseRequest {
     data?: any;
+}
+
+/** Request to relate cases to a case. */
+export class AddRelatedCasesRequest implements IAddRelatedCasesRequest {
+    /** The ids of the cases to relate. */
+    caseIds?: string[];
+
+    constructor(data?: IAddRelatedCasesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["caseIds"])) {
+                this.caseIds = [] as any;
+                for (let item of _data["caseIds"])
+                    this.caseIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): AddRelatedCasesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddRelatedCasesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.caseIds)) {
+            data["caseIds"] = [];
+            for (let item of this.caseIds)
+                data["caseIds"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request to relate cases to a case. */
+export interface IAddRelatedCasesRequest {
+    /** The ids of the cases to relate. */
+    caseIds?: string[];
+}
+
+/** Request to change the relation key of a case. */
+export class UpdateCaseRelationKeyRequest implements IUpdateCaseRelationKeyRequest {
+    /** The new relation key. Empty takes the case out of any relation. */
+    relationKey?: string | undefined;
+
+    constructor(data?: IUpdateCaseRelationKeyRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.relationKey = _data["relationKey"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCaseRelationKeyRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCaseRelationKeyRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["relationKey"] = this.relationKey;
+        return data;
+    }
+}
+
+/** Request to change the relation key of a case. */
+export interface IUpdateCaseRelationKeyRequest {
+    /** The new relation key. Empty takes the case out of any relation. */
+    relationKey?: string | undefined;
+}
+
+/** Request to change the group of a case. */
+export class UpdateCaseGroupRequest implements IUpdateCaseGroupRequest {
+    /** The new group id. Empty clears it. */
+    groupId?: string | undefined;
+
+    constructor(data?: IUpdateCaseGroupRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.groupId = _data["groupId"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCaseGroupRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCaseGroupRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["groupId"] = this.groupId;
+        return data;
+    }
+}
+
+/** Request to change the group of a case. */
+export interface IUpdateCaseGroupRequest {
+    /** The new group id. Empty clears it. */
+    groupId?: string | undefined;
 }
 
 export interface FileParameter {

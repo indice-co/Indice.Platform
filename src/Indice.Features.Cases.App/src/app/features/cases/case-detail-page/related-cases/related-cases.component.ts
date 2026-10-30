@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CasePartial } from 'src/app/core/services/cases-api.service';
 
-/** Grid of the cases sharing this case's external correlation key. The open case is marked rather than linked. */
+/** Grid of the cases sharing this case's relation key. The open case is marked rather than linked. */
 @Component({
   selector: 'app-case-related',
   imports: [DatePipe, RouterLink, TranslatePipe],
@@ -28,11 +28,11 @@ import { CasePartial } from 'src/app/core/services/cases-api.service';
               (click)="current || open(relatedCase)">
               <td class="whitespace-nowrap">
                 @if (current) {
-                  <span class="docket font-semibold">{{ relatedCase.referenceNumber ?? '-' }}</span>
+                  <span class="docket font-semibold">{{ relatedCase.referenceNumber ?? relatedCase.id }}</span>
                   <span class="badge badge-sm badge-ghost ml-2">{{ 'caseDetails.related.current' | translate }}</span>
                 } @else {
                   <a class="docket font-semibold text-primary hover:underline" [routerLink]="['/cases', relatedCase.id, 'details']"
-                    (click)="$event.stopPropagation()">{{ relatedCase.referenceNumber ?? '-' }}</a>
+                    (click)="$event.stopPropagation()">{{ relatedCase.referenceNumber ?? relatedCase.id }}</a>
                 }
               </td>
               <td class="whitespace-nowrap">{{ relatedCase.caseType?.title ?? relatedCase.caseType?.code ?? '-' }}</td>

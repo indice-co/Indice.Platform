@@ -6,13 +6,66 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added the `RelationKey` column to the `Case` table in cases db.
+1. Before deploying this version, add the column and its index:
+```sql
+IF COL_LENGTH('case.Case', 'RelationKey') IS NULL
+    ALTER TABLE [case].[Case]
+    ADD [RelationKey] NVARCHAR(256) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [name] = 'IX_Case_RelationKey' AND [object_id] = OBJECT_ID('[case].[Case]'))
+    CREATE NONCLUSTERED INDEX [IX_Case_RelationKey]
+        ON [case].[Case]([RelationKey] ASC);
+GO
+```
+2. Once this version is live, fill the column from the `ExternalCorrelationKey` metadata entry of the existing cases. The metadata
+   entry stays as is. The script only fills empty columns, so it can be run again, e.g. for the cases an older instance created meanwhile.
+```sql
+UPDATE c
+SET c.[RelationKey] = m.[Value]
+FROM [case].[Case] AS c
+CROSS APPLY (SELECT CASE WHEN ISJSON(c.[Metadata]) = 1 THEN JSON_VALUE(c.[Metadata], '$.ExternalCorrelationKey') END AS [Value]) AS m
+WHERE c.[RelationKey] IS NULL
+  AND LTRIM(RTRIM(m.[Value])) <> ''
+  AND LEN(m.[Value]) <= 256;
+GO
+```
+3. Cases whose metadata entry is longer than 256 characters are left out; list them with:
+```sql
+SELECT c.[Id], m.[Value]
+FROM [case].[Case] AS c
+CROSS APPLY (SELECT CASE WHEN ISJSON(c.[Metadata]) = 1 THEN JSON_VALUE(c.[Metadata], '$.ExternalCorrelationKey') END AS [Value]) AS m
+WHERE LEN(m.[Value]) > 256;
+```
+
 ### Added
+- Cases have a `relationKey` (up to 256 characters) that relates them: `GET /manage/cases/{caseId}/related-cases` returns the
+  cases with the same key. It used to live only in the case metadata as `ExternalCorrelationKey`, and both ways keep working:
+  - `POST /manage/cases` and `POST /my/cases` take it as `relationKey` or as the `ExternalCorrelationKey` metadata entry.
+    The two are kept equal: the value lands in both, and `relationKey` wins when a request sends different values.
+  - `PATCH /manage/cases/{caseId}/metadata` and `PATCH /manage/workflow-integration/{caseId}/metadata` with an `ExternalCorrelationKey`
+    entry set it too (an empty value clears it). A key longer than 256 characters is rejected with a validation problem.
+  - `GET /manage/cases` filters it with `relationKeys` (`eq`, `neq`, `contains`). The
+    `metadata.ExternalCorrelationKey` filter clauses of `GET /manage/cases` and `GET /my/cases` are answered from the column too.
+  - `CasePartial`, `Case` and `MyCasePartial` return it as `relationKey`, next to the unchanged `metadata`.
+  - `IAdminCaseService.CreateDraft` and `IMyCaseService.CreateDraft` take an optional `relationKey`.
 - `GET /manage/cases/{caseId}/data/versions` returns the stored versions of the case data as a paged `ResultSet`, newest first, with who saved it
   and when, and whether it is the current (`isCurrent`) and the customer-visible (`isPublic`) data. It takes the plain `ListOptions`
   (`page`, `size`, and `search`, which matches the name or email of the user who saved a version). An unknown case returns an empty set.
   Needs read access to the case. `IAdminCaseService.GetDataVersions(caseId, options)` backs it.
 - `GET /manage/reports` takes an optional `channel`
   The `Agent*` / `Customer*` report tags remain, as the `Managed` / `External` channel reports.
+- Administrators (`CasesAdministrator`, admins and system clients) edit case relations and groups:
+  - `PUT /manage/cases/{caseId}/relation-key` (`relationKey`) changes the key of the case only: it joins the cases with the new key
+    and leaves the cases of its old key, which stay related to each other. An empty key takes it out of any relation; unlike the
+    metadata `PATCH`, it also clears the `ExternalCorrelationKey` entry.
+  - `POST /manage/cases/{caseId}/related-cases` (`caseIds`) gives those cases the key of the case; a case that shared another key
+    leaves that relation. The case must have a key (business error otherwise).
+  - `DELETE /manage/cases/{caseId}/related-cases/{relatedCaseId}` clears the key of a related case.
+  - `PUT /manage/cases/{caseId}/group` (`groupId`, up to 128 characters, empty clears it) changes the group of the case.
+    The group takes part in the access rules, so this changes who can access the case.
+  - `IAdminCaseService.UpdateRelationKey`, `AddRelatedCases`, `RemoveRelatedCase` and `UpdateGroup` back them.
 ### Changed
 - The default case channels are renamed: `Agent` is now `Managed` (cases created through the manage API) and `Customer`
   is now `External` (cases created through the my API). No migration: the old names stay on the cases already stored

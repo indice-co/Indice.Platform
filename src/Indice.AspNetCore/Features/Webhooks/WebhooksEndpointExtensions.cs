@@ -52,13 +52,24 @@ public static class WebhooksEndpointExtensions
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest);
 
+        group.MapGet("{provider}", HandleWebhook)
+            .WithName("ReceiveWebhookGet")
+            .WithSummary("Receive a webhook notification")
+            .WithDescription(
+                """
+                Receives a webhook notification from the specified provider, validates the request,
+                and processes the notification using the provider-specific webhook handler.
+                """)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest);
+
         return group;
     }
 
     internal static async Task<Results<ValidationProblem, NotFound, NoContent>> HandleWebhook( 
         string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
         var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
-
+        
         if (httpHandler is null) {
             return TypedResults.NotFound();
         }

@@ -24,11 +24,20 @@ public class ActivityLogStore : IActivityLogStore
 
     /// <inheritdoc />
     public async Task<int> Cleanup(CancellationToken cancellationToken = default) {
-        var query = _dbContext
-            .ActivityLogs
-            .Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > _activityLogOptions.Cleanup.RetentionDays)
-            .Take(_activityLogOptions.Cleanup.BatchSize);
-        return await query.ExecuteDeleteAsync(cancellationToken);
+        var retentionDays = _activityLogOptions.Cleanup.RetentionDays;
+        var query = _dbContext.ActivityLogs.AsQueryable();
+        switch (_dbContext.Database.ProviderName) {
+            case "Npgsql.EntityFrameworkCore.PostgreSQL":
+                // DateDiffDay is SQL Server only. Comparing against UTC midnight keeps the same day boundary semantics.
+                var cutoff = new DateTimeOffset(DateTime.UtcNow.Date.AddDays(-retentionDays), TimeSpan.Zero);
+                query = query.Where(x => x.CreatedAt < cutoff);
+                break;
+            case "Microsoft.EntityFrameworkCore.SqlServer":
+            default:
+                query = query.Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > retentionDays);
+                break;
+        }
+        return await query.Take(_activityLogOptions.Cleanup.BatchSize).ExecuteDeleteAsync(cancellationToken);
     }
 
     /// <inheritdoc />

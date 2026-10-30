@@ -1,12 +1,13 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, computed, inject, linkedSignal, signal, untracked } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { AuthService } from '@indice/ng-auth';
 import { Observable, Subscription, of } from 'rxjs';
 import { distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import {
-  LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideTrash, LucideUser, LucideUserCheck
+  LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
 } from '@lucide/angular';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import {
@@ -18,6 +19,7 @@ import { CaseDetailInfoComponent, InfoEntry } from 'src/app/shared/components/ca
 import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
+import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { TABS } from 'src/app/ui/tabs/tabs';
 import { CaseAttachmentsComponent } from './case-attachments/case-attachments.component';
 import { CaseCommentComposerComponent } from './case-comment-composer/case-comment-composer.component';
@@ -34,7 +36,7 @@ import { RelatedCasesComponent } from './related-cases/related-cases.component';
     DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseAttachmentsComponent, CaseCommentComposerComponent, CaseCustomActionComponent,
     CaseDataVersionsComponent, CaseDetailInfoComponent, CaseFormComponent,
     CasePrintPdfComponent, CaseTimelineComponent, RelatedCasesComponent, EmptyStateComponent, TABS,
-    LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideTrash, LucideUser, LucideUserCheck
+    LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
   ]
 })
 export class CaseDetailPageComponent {
@@ -44,6 +46,8 @@ export class CaseDetailPageComponent {
   private readonly _toaster = inject(TranslatedToasterService);
   private readonly _dialog = inject(DialogService);
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _auth = inject(AuthService);
+  private readonly _pane = inject(SidePaneService);
   private _caseId = '';
   private _modelSub?: Subscription;
   private _actionsSub?: Subscription;
@@ -51,8 +55,55 @@ export class CaseDetailPageComponent {
   protected readonly model = signal<Case | undefined>(undefined);
   protected readonly caseActions = signal<CaseActions | undefined>(undefined);
   protected readonly timelineEntries = signal<TimelineEntry[] | undefined>(undefined);
-  protected readonly relatedCases = signal<CasePartial[]>([]);
   protected readonly loadFailed = signal(false);
+
+  /** The side pane changes of the case (`CaseDetailsService.revision`) its last load already includes. */
+  private readonly _loadedRevision = computed(() => {
+    const caseId = this.model()?.id;
+    return untracked(() => this._caseDetailsService.revision(caseId));
+  });
+  /** The case again, once a side pane changed it after it loaded; idle otherwise. */
+  private readonly _changedCase = rxResource({
+    params: () => {
+      const caseId = this.model()?.id;
+      const revision = this._caseDetailsService.revision(caseId);
+      return caseId && revision !== this._loadedRevision() ? { caseId, revision } : undefined;
+    },
+    stream: ({ params }) => this._api.getCaseById(params.caseId)
+  });
+  /**
+   * The fields the side panes change, from the latest of the loaded case and its copy after a pane change. Only these are
+   * refreshed after a pane saves: reloading the whole case would rebuild the form and drop its unsaved edits.
+   */
+  protected readonly adminFields = linkedSignal({
+    source: () => ({ model: this.model(), changed: this._changedCase.hasValue() ? this._changedCase.value() : undefined }),
+    computation: ({ model, changed }, previous): AdminFields => {
+      if (changed) {
+        return adminFieldsOf(changed);
+      }
+      // a newer copy loads (another pane change): keep the current one until it arrives
+      return previous && model === previous.source.model ? previous.value : adminFieldsOf(model);
+    }
+  });
+  /** The case, its relation key and its pane changes; equal while all stay the same, so refreshing the case does not reload its related cases. */
+  private readonly _relation = computed(
+    () => {
+      const caseId = this.model()?.id;
+      return caseId
+        ? { caseId, relationKey: this.adminFields().relationKey, revision: this._caseDetailsService.revision(caseId) }
+        : undefined;
+    },
+    { equal: (a, b) => a?.caseId === b?.caseId && a?.relationKey === b?.relationKey && a?.revision === b?.revision }
+  );
+  private readonly _related = rxResource({
+    params: () => this._relation()?.relationKey ? this._relation() : undefined,
+    stream: ({ params }) => this._api.getRelatedCases(params.caseId)
+  });
+  /** The related cases, kept while they reload so the tab does not flash empty. */
+  protected readonly relatedCases = linkedSignal({
+    source: () => ({ relation: this._relation(), related: this._related.hasValue() ? this._related.value() : undefined }),
+    computation: ({ relation, related }, previous): CasePartial[] => relation?.relationKey ? related ?? previous?.value ?? [] : []
+  });
 
   protected readonly formValid = signal(false);
   protected readonly formUnSavedChanges = signal(false);
@@ -88,11 +139,24 @@ export class CaseDetailPageComponent {
   protected readonly headerActions = computed(() => (this.caseActions()?.customActions ?? []).filter(a => !a.description && !a.hasInput));
   protected readonly panelActions = computed(() => (this.caseActions()?.customActions ?? []).filter(a => !!a.description || !!a.hasInput));
 
+  /** Administrators edit the case's relations and group. */
+  protected readonly canAdminister = this._auth.isAdmin() || this._auth.hasRole('CasesAdministrator');
+
+  /** Opens the relations side pane; administrators only. */
+  protected readonly relationsLink = computed(() => this.paneLink('case-relations'));
+
   protected readonly caseFacts = computed<InfoEntry[]>(() => {
     const model = this.model();
+    const adminFields = this.adminFields();
     return [
       { key: 'caseDetails.caseId', value: model?.id, mono: true },
       { key: 'caseDetails.referenceNumber', value: model?.referenceNumber?.toString(), mono: true },
+      { key: 'caseDetails.groupId', value: adminFields.groupId, mono: true, alwaysShow: this.canAdminister, editLink: this.paneLink('case-group') },
+      { key: 'caseDetails.relationKey', value: adminFields.relationKey, mono: true },
+      {
+        key: 'caseDetails.related.title', value: this.relatedCases().length.toString(), mono: true, alwaysShow: true,
+        editLink: this.relationsLink()
+      },
       { key: 'caseDetails.caseType', value: model?.caseType?.title },
       { key: 'caseDetails.checkpoint', value: model?.checkpointType?.title ?? model?.checkpointType?.code },
       { key: 'caseDetails.channel', value: model?.channel }
@@ -104,8 +168,7 @@ export class CaseDetailPageComponent {
     return [
       { key: 'caseDetails.customerName', value: model?.ownerName },
       { key: 'caseDetails.customerId', value: model?.ownerId, mono: true },
-      { key: 'caseDetails.taxId', value: model?.ownerTin, mono: true },
-      { key: 'caseDetails.groupId', value: model?.groupId, mono: true }
+      { key: 'caseDetails.taxId', value: model?.ownerTin, mono: true }
     ];
   });
 
@@ -131,7 +194,7 @@ export class CaseDetailPageComponent {
         this.caseActions.set(undefined);
         this.relatedCases.set([]);
         this.loadFailed.set(false);
-        this.requestModel(true);
+        this.requestModel();
         this.getCaseActions();
         this.getTimeline();
       });
@@ -203,7 +266,7 @@ export class CaseDetailPageComponent {
     return action.id ?? action.label ?? '';
   }
 
-  private requestModel(loadRelated = false): void {
+  private requestModel(): void {
     this._modelSub?.unsubscribe();
     this._modelSub = this._api.getCaseById(this._caseId)
       .pipe(
@@ -216,9 +279,6 @@ export class CaseDetailPageComponent {
           // set before the form renders: the JSON Forms renderers read the case channel from it
           this._caseDetailsService.setCaseDetails(caseDetails);
           this.model.set(caseDetails);
-          if (loadRelated) {
-            this.getRelatedCases(caseDetails);
-          }
         },
         error: () => this.loadFailed.set(true)
       });
@@ -256,13 +316,20 @@ export class CaseDetailPageComponent {
       .subscribe(entries => this.timelineEntries.set(entries));
   }
 
-  private getRelatedCases(model: Case): void {
-    if (!model.metadata?.['ExternalCorrelationKey']) {
-      return;
-    }
-    this._api.getRelatedCases(this._caseId)
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(related => this.relatedCases.set(related ?? []));
+  /** Link commands opening a side pane on this case, for administrators; otherwise undefined. */
+  private paneLink(path: string): any[] | undefined {
+    const caseId = this.model()?.id;
+    return this.canAdminister && caseId ? this._pane.link(path, { caseId }) : undefined;
   }
+}
+
+/** The fields of a case the side panes change. */
+interface AdminFields {
+  groupId?: string;
+  relationKey?: string;
+}
+
+function adminFieldsOf(model: Case | undefined): AdminFields {
+  return { groupId: model?.groupId, relationKey: model?.relationKey };
 }
 

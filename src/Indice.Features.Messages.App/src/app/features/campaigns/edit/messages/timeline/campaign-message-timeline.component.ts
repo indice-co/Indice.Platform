@@ -53,7 +53,7 @@ class CampaignContentPreviewDialogComponent {
   imports: [DatePipe, RouterLink, TranslatePipe, ChannelIconComponent, EmptyStateComponent, LucideArrowLeft, LucideCircleCheck, LucideCircleX, LucideClock, LucideEye],
   template: `
     @let recipient = timeline()?.recipient;
-    <a class="btn btn-ghost btn-xs -ml-2 mb-4" [routerLink]="['..', '..', 'campaign-messages']">
+    <a class="btn btn-ghost btn-xs -ml-2 mb-4" routerLink="../../campaign-messages">
       <svg lucideArrowLeft class="size-4"></svg>{{ 'Campaigns.RecipientsTitle' | translate }}
     </a>
 
@@ -98,8 +98,8 @@ class CampaignContentPreviewDialogComponent {
         <section class="panel p-5 sm:p-6">
           <h2 class="mb-5 font-semibold">{{ 'Campaigns.HistoryHeader' | translate }}</h2>
           @if (timeline()?.events?.length) {
-            <ul class="timeline timeline-vertical timeline-compact timeline-snap-icon">
-              @for (event of timeline()?.events; track event.id ?? $index; let first = $first; let last = $last) {
+            <ul class="timeline timeline-vertical timeline-snap-icon max-md:timeline-compact">
+              @for (event of timeline()?.events; track event.id ?? $index; let first = $first; let last = $last; let even = $even) {
                 <li>
                   @if (!first) { <hr [class]="event.success ? 'bg-success/40' : 'bg-error/40'" /> }
                   <div class="timeline-middle">
@@ -109,15 +109,15 @@ class CampaignContentPreviewDialogComponent {
                       <svg lucideCircleX class="size-5 text-error"></svg>
                     }
                   </div>
-                  <div class="timeline-end mb-6 ml-2 w-full">
-                    <div class="flex flex-wrap items-center gap-2">
+                  <div class="mb-6" [class]="even ? 'timeline-start ml-2 md:ml-0 md:mr-3 md:text-end' : 'timeline-end ml-2 md:ml-3'">
+                    <div class="flex flex-wrap items-center gap-2" [class]="even ? 'md:justify-end' : ''">
                       <app-channel-icon [kind]="event.channel" [label]="true" />
                       <span class="badge badge-sm badge-ghost">{{ event.type }}</span>
                       @if (!event.success) {
                         <span class="badge badge-sm badge-soft badge-error">{{ 'Campaigns.FailedLabel' | translate }}</span>
                       }
                     </div>
-                    <time class="mt-1 flex items-center gap-1.5 text-xs text-base-content/60 tabular">
+                    <time class="mt-1 flex items-center gap-1.5 text-xs text-base-content/60 tabular" [class]="even ? 'md:justify-end' : ''">
                       <svg lucideClock class="size-3.5"></svg>{{ event.createdOn | date: 'medium' }}
                     </time>
                     @if (event.recipient) {

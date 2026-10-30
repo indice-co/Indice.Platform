@@ -136,7 +136,7 @@
     <value>Εξωτερικό κανάλι</value>
   </data>
   <data name="dashboard.groupedByGroupId" xml:space="preserve">
-    <value>Συνολικές Υποθέσεις ανά Καταστημα</value>
+    <value>Συνολικές Υποθέσεις ανά Φάκελο</value>
   </data>
   <data name="cases.customerId" xml:space="preserve">
     <value>Αριθμός Πελάτη</value>
@@ -147,11 +147,14 @@
   <data name="cases.referenceNumber" xml:space="preserve">
     <value>Αριθμός Υπόθεσης</value>
   </data>
+  <data name="cases.relationKey" xml:space="preserve">
+    <value>Κλειδί συσχέτισης</value>
+  </data>
   <data name="cases.taxId" xml:space="preserve">
     <value>Α.Φ.Μ.</value>
   </data>
   <data name="cases.groupId" xml:space="preserve">
-    <value>Κατάστημα</value>
+    <value>Φάκελος</value>
   </data>
   <data name="cases.caseType" xml:space="preserve">
     <value>Τύπος Υπόθεσης</value>
@@ -183,6 +186,9 @@
   <data name="caseDetails.channel" xml:space="preserve">
     <value>Κανάλι</value>
   </data>
+  <data name="caseDetails.relationKey" xml:space="preserve">
+    <value>Κλειδί συσχέτισης</value>
+  </data>
   <data name="caseDetails.checkpoint" xml:space="preserve">
     <value>Τρέχον Σημείο Ελέγχου</value>
   </data>
@@ -199,7 +205,7 @@
     <value>Α.Φ.Μ. Πελάτη</value>
   </data>
   <data name="caseDetails.groupId" xml:space="preserve">
-    <value>Κατάστημα Πελάτη</value>
+    <value>Φάκελος</value>
   </data>
   <data name="caseDetails.userSurname" xml:space="preserve">
     <value>Επώνυμο Χρήστη</value>
@@ -1460,5 +1466,74 @@
   </data>
   <data name="caseTypes.translations.removeUnused" xml:space="preserve">
     <value>Αφαίρεση αχρησιμοποίητων μεταφράσεων</value>
+  </data>
+  <data name="breadcrumb.caseRelations" xml:space="preserve">
+    <value>Σχετικές υποθέσεις</value>
+  </data>
+  <data name="breadcrumb.caseGroup" xml:space="preserve">
+    <value>Φάκελος</value>
+  </data>
+  <data name="caseRelations.subtitle" xml:space="preserve">
+    <value>Οι υποθέσεις συσχετίζονται όταν έχουν το ίδιο κλειδί συσχέτισης.</value>
+  </data>
+  <data name="caseRelations.keyHint" xml:space="preserve">
+    <value>Αν το αλλάξετε ή το αδειάσετε, η υπόθεση φεύγει από την τρέχουσα συσχέτιση. Οι υπόλοιπες υποθέσεις παραμένουν συσχετισμένες μεταξύ τους.</value>
+  </data>
+  <data name="caseRelations.leaveConfirm.title" xml:space="preserve">
+    <value>Αφαίρεση της υπόθεσης από τη συσχέτιση;</value>
+  </data>
+  <data name="caseRelations.leaveConfirm.message" xml:space="preserve">
+    <value>Η υπόθεση δεν θα συσχετίζεται πλέον με τις {{count}} σχετικές υποθέσεις της. Εκείνες παραμένουν συσχετισμένες μεταξύ τους.</value>
+  </data>
+  <data name="caseRelations.noRelated" xml:space="preserve">
+    <value>Δεν υπάρχουν σχετικές υποθέσεις.</value>
+  </data>
+  <data name="caseRelations.remove" xml:space="preserve">
+    <value>Αφαίρεση από τη συσχέτιση</value>
+  </data>
+  <data name="caseRelations.removeConfirm" xml:space="preserve">
+    <value>Η υπόθεση {{referenceNumber}} δεν θα συσχετίζεται πλέον με αυτή την υπόθεση.</value>
+  </data>
+  <data name="caseRelations.add.title" xml:space="preserve">
+    <value>Προσθήκη υποθέσεων</value>
+  </data>
+  <data name="caseRelations.add.hint" xml:space="preserve">
+    <value>Αναζήτηση με αριθμό υπόθεσης, όνομα πελάτη, κωδικό πελάτη ή ΑΦΜ.</value>
+  </data>
+  <data name="caseRelations.add.placeholder" xml:space="preserve">
+    <value>Τουλάχιστον 3 χαρακτήρες</value>
+  </data>
+  <data name="caseRelations.add.setKeyFirst" xml:space="preserve">
+    <value>Ορίστε πρώτα κλειδί συσχέτισης και μετά προσθέστε υποθέσεις.</value>
+  </data>
+  <data name="caseRelations.add.noResults" xml:space="preserve">
+    <value>Δεν βρέθηκαν υποθέσεις.</value>
+  </data>
+  <data name="caseRelations.add.alreadyRelated" xml:space="preserve">
+    <value>Ήδη σχετική</value>
+  </data>
+  <data name="caseRelations.add.otherRelation" xml:space="preserve">
+    <value>Συσχετισμένη με κλειδί {{relationKey}}</value>
+  </data>
+  <data name="caseRelations.add.action" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="caseRelations.moveConfirm.title" xml:space="preserve">
+    <value>Μεταφορά της υπόθεσης σε αυτή τη συσχέτιση;</value>
+  </data>
+  <data name="caseRelations.moveConfirm.message" xml:space="preserve">
+    <value>Η υπόθεση {{referenceNumber}} συσχετίζεται ήδη με άλλες υποθέσεις με κλειδί {{relationKey}}. Αν την προσθέσετε εδώ, αφαιρείται από εκείνη τη συσχέτιση.</value>
+  </data>
+  <data name="caseRelations.saved" xml:space="preserve">
+    <value>Οι συσχετίσεις ενημερώθηκαν.</value>
+  </data>
+  <data name="caseGroup.subtitle" xml:space="preserve">
+    <value>Αλλαγή του φακέλου της υπόθεσης.</value>
+  </data>
+  <data name="caseGroup.accessWarning" xml:space="preserve">
+    <value>Ο φάκελος συμμετέχει στους κανόνες πρόσβασης: αν τον αλλάξετε, αλλάζει το ποιοι μπορούν να δουν και να διαχειριστούν την υπόθεση.</value>
+  </data>
+  <data name="caseGroup.saved" xml:space="preserve">
+    <value>Ο φάκελος ενημερώθηκε.</value>
   </data>
 </root>

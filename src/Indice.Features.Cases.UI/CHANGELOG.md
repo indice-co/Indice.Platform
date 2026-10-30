@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- The case relation key: in the case details "Basic info" panel, and as a cases list filter
+  (`CaseListFilter.RelationKey`, shown by default). The related cases tab follows the key instead of the `ExternalCorrelationKey` metadata entry.
+  Translation keys: `cases.relationKey`, `caseDetails.relationKey`.
 - The case details page shows its content in tabs: the case data form, the case attachments as a flat list (open / download),
   the data versions (paged and searchable by author, each version rendered read-only with the case type layout) and the related cases (when there are any).
 - Case data form renderers for what the JSON Forms angular-material set supports and the Cases form did not:
@@ -35,6 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     translations whose text is gone. A warning lists the `label`s of a JSON Forms UI schema layout, which the server does not translate.
 - The checkpoint type create / edit pages take a `returnUrl` query parameter; opened from a case type (wizard or edit page),
   they return to its checkpoint types.
+- The case details "Basic info" panel always shows the number of related cases (0 included). Administrators
+  (`Administrator` or `CasesAdministrator`) get a pen on it and on the group (shown to them even when empty): "Related cases" opens a side pane to change the relation key
+  (after a confirmation when the case has related cases: changing or clearing it takes the case out of its relation, the others stay related),
+  remove related cases and search for cases to add (a case already related under another key is moved after a confirmation);
+  the related cases tab is always shown (0 included), with an "Add cases" button for administrators. Cases without a case number show their id;
+  "Group" opens a side pane to change the group, with a warning that the group takes part in the access rules.
+  Translation keys: `caseRelations.*`, `caseGroup.*`, `breadcrumb.caseRelations`, `breadcrumb.caseGroup`.
 ### Changed
 - On a case type's list, "New case" is shown only when that case type can be created, and opens with it already chosen.
 - The channel reports replace the fixed Agent/Customer (branch/eBanking) dashboard reports, so the `Agent*` / `Customer*`
@@ -50,6 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `caseTypes.form.fixJson` are removed; `caseTypes.steps.*`, `caseTypes.translations.*`,
   `caseTypes.form.schemaHint`, `caseTypes.form.layoutHint`, `caseTypes.edit.fixTabs`,
   `common.steps`, `common.stepState.*`, `common.stepOf`, `common.hasErrors`, `common.next` and `common.done` are added.
+- The case group is labelled "Group" / "Φάκελος" (was "Branch" / "Κατάστημα") on the dashboard, the cases list and the case details,
+  where it moved from the customer info to the basic info panel. Translation keys: `cases.groupId`, `caseDetails.groupId`, `dashboard.groupedByGroupId`.
 ### Fixed
 - Editable checkboxes in the case data form could not be ticked.
 - Side panes (new case, saved queries) did not scroll, so the new-case pane cut off the case type list when there were many.

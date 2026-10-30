@@ -10,6 +10,8 @@ public class DbDistributionList : DbAuditableEntity
     /// <summary>The alias of distribution list.</summary>
     /// <remarks>Optional, but if set then the value must be Unique</remarks>
     public string? Alias { get; set; }
+    /// <summary>Indicates whether the distribution list is system generated.</summary>
+    public bool SystemGenerated { get; set; } = false;
     /// <summary>Contact - Distribution list join entity type.</summary>
     public List<DbDistributionListContact> ContactDistributionLists { get; set; } = [];
 }

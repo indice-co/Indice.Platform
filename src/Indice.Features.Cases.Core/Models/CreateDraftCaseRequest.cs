@@ -19,4 +19,7 @@ public class CreateDraftCaseRequest
     public string? Channel { get; set; }
     /// <summary>The reference number of the request that created the draft case</summary>
     public string? ReferenceNumber { get; set; }
+    /// <summary>The key that correlates this case with other cases.</summary>
+    /// <remarks>Also stored in <see cref="Metadata"/> under <c>ExternalCorrelationKey</c>, the way older clients send it. When both are sent, this one wins.</remarks>
+    public string? RelationKey { get; set; }
 }

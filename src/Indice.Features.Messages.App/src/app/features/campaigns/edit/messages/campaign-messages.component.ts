@@ -9,16 +9,18 @@ import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
 import { ListState } from 'src/app/ui/list/list-state';
 import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
+import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** Messages tab: the campaign's recipients and the channels each one was messaged on. */
 @Component({
   selector: 'app-campaign-messages',
-  imports: [DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ChannelIconComponent,
+  imports: [ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ChannelIconComponent,
     LucideArrowDown, LucideArrowUp, LucideChevronRight, LucideUsers],
   template: `
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h2 class="text-lg font-semibold">{{ 'Campaigns.RecipientsTitle' | translate }}</h2>
+        <app-list-count [count]="list.items() ? list.count() : null" one="Campaigns.RecipientsCountOne" other="Campaigns.RecipientsCountOther" />
       </div>
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
     </div>

@@ -39,7 +39,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string? referenceNumber,
-        string? channel = null) {
+        string? channel = null,
+        string? relationKey = null) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
             _adminCaseMessageService,
@@ -50,7 +51,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             metadata,
             string.IsNullOrWhiteSpace(channel) ? CasesCoreConstants.Channels.Managed : channel,
             user,
-            referenceNumber: referenceNumber);
+            referenceNumber: referenceNumber,
+            relationKey: relationKey);
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
@@ -140,8 +142,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         var queryCases = DbContext.Cases
             .AsNoTracking()
-            .Where(c => !c.Draft) // filter out draft cases
-            .Where(options.Filter.Metadata ?? []); // filter Metadata
+            .Where(c => !c.Draft); // filter out draft cases
+        queryCases = WhereMetadata(queryCases, options.Filter.Metadata);
+        queryCases = WhereRelationKey(queryCases, options.Filter.RelationKeys);
 
         // filter assignedTo
         if (!string.IsNullOrWhiteSpace(options.Filter.AssignedTo)) {
@@ -154,6 +157,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
                     ReferenceNumber = @case.ReferenceNumber,
+                    RelationKey = @case.RelationKey,
                     OwnerId = @case.Owner.Reference,
                     OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                     OwnerTin = @case.Owner.Tin,
@@ -238,6 +242,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      select new CasePartial {
                          Id = @case.Id,
                          ReferenceNumber = @case.ReferenceNumber,
+                         RelationKey = @case.RelationKey,
                          OwnerId = @case.Owner.Reference,
                          OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                          OwnerTin = @case.Owner.Tin,
@@ -553,11 +558,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (dbCase == null) {
             return false;
         }
-        if (metadata != null && metadata.Count > 0 && dbCase.Metadata == null) {
+        var safeMetadata = metadata ?? new Dictionary<string, string>();
+        if (safeMetadata.Count > 0 && dbCase.Metadata == null) {
             dbCase.Metadata = [];
         }
-        foreach (var keyValuePair in metadata!) {
+        foreach (var keyValuePair in safeMetadata) {
             dbCase.Metadata![keyValuePair.Key] = keyValuePair.Value;
+        }
+        if (safeMetadata.TryGetValue(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey, out var relationKey)) {
+            SetRelationKey(dbCase, relationKey);
         }
         await DbContext.SaveChangesAsync();
         return true;
@@ -680,18 +689,78 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(caseId, false, false);
-        if (@case is null) {
+        if (@case?.RelationKey is null) {
             return [];
         }
 
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
-                Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
+                RelationKeys = [new FilterClause(nameof(GetCasesListFilter.RelationKeys), @case.RelationKey, FilterOperator.Eq, JsonDataType.String)]
             },
-            Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
+            Sort = $"{nameof(CasePartial.CreatedByWhen)}-",
+            // the whole relation, not the default page: the relations editor removes cases from this list
+            Size = int.MaxValue
         });
 
         return result.Items.Where(x => x.Id != caseId).ToList();
+    }
+
+    public async Task<bool> UpdateRelationKey(Guid caseId, string? relationKey) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        ReplaceRelationKey(@case, relationKey);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> AddRelatedCases(Guid caseId, IEnumerable<Guid> relatedCaseIds) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        if (@case.RelationKey is null) {
+            throw new BusinessException("The case has no relation key.");
+        }
+        var ids = relatedCaseIds.Where(id => id != caseId).Distinct().ToList();
+        var cases = await DbContext.Cases.Where(c => ids.Contains(c.Id)).ToListAsync();
+        foreach (var related in cases) {
+            SetRelationKey(related, @case.RelationKey);
+        }
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveRelatedCase(Guid caseId, Guid relatedCaseId) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case?.RelationKey is null || relatedCaseId == caseId) {
+            return false;
+        }
+        // compare the keys in the database, like GetRelatedCases does, so both follow its collation
+        var related = await DbContext.Cases.FirstOrDefaultAsync(c => c.Id == relatedCaseId && c.RelationKey == @case.RelationKey);
+        if (related is null) {
+            return false;
+        }
+        ReplaceRelationKey(related, null);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateGroup(Guid caseId, string? groupId) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        @case.GroupId = string.IsNullOrWhiteSpace(groupId) ? null : groupId.Trim();
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    /// <summary>Sets the relation key and its metadata entry. Unlike <see cref="BaseCaseService.SetRelationKey"/>, an empty value clears both.</summary>
+    private static void ReplaceRelationKey(Data.Models.DbCase @case, string? value) {
+        @case.Metadata?.Remove(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey);
+        SetRelationKey(@case, value?.Trim());
     }
 
     private async Task<FilterClause[]> MapCheckpointTypeCodeToId(FilterClause[] checkpointTypeCodeFilterClauses) {

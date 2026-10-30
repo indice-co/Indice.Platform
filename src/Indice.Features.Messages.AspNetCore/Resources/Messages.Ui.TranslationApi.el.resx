@@ -2792,4 +2792,64 @@
   <data name="Events.Types.Deleted" xml:space="preserve">
     <value>Διαγράφηκε</value>
   </data>
+  <data name="Campaigns.CountOne" xml:space="preserve">
+    <value>καμπάνια</value>
+  </data>
+  <data name="Campaigns.CountOther" xml:space="preserve">
+    <value>καμπάνιες</value>
+  </data>
+  <data name="Campaigns.RecipientsCountOne" xml:space="preserve">
+    <value>παραλήπτης</value>
+  </data>
+  <data name="Campaigns.RecipientsCountOther" xml:space="preserve">
+    <value>παραλήπτες</value>
+  </data>
+  <data name="Contacts.CountOne" xml:space="preserve">
+    <value>επαφή</value>
+  </data>
+  <data name="Contacts.CountOther" xml:space="preserve">
+    <value>επαφές</value>
+  </data>
+  <data name="DistributionLists.CountOne" xml:space="preserve">
+    <value>λίστα διανομής</value>
+  </data>
+  <data name="DistributionLists.CountOther" xml:space="preserve">
+    <value>λίστες διανομής</value>
+  </data>
+  <data name="Events.CountOne" xml:space="preserve">
+    <value>συμβάν</value>
+  </data>
+  <data name="Events.CountOther" xml:space="preserve">
+    <value>συμβάντα</value>
+  </data>
+  <data name="MessageTypes.CountOne" xml:space="preserve">
+    <value>τύπος μηνύματος</value>
+  </data>
+  <data name="MessageTypes.CountOther" xml:space="preserve">
+    <value>τύποι μηνυμάτων</value>
+  </data>
+  <data name="Templates.CountOne" xml:space="preserve">
+    <value>πρότυπο</value>
+  </data>
+  <data name="Templates.CountOther" xml:space="preserve">
+    <value>πρότυπα</value>
+  </data>
+  <data name="MediaLibrary.CountOne" xml:space="preserve">
+    <value>στοιχείο</value>
+  </data>
+  <data name="MediaLibrary.CountOther" xml:space="preserve">
+    <value>στοιχεία</value>
+  </data>
+  <data name="Settings.SendersCountOne" xml:space="preserve">
+    <value>αποστολέας</value>
+  </data>
+  <data name="Settings.SendersCountOther" xml:space="preserve">
+    <value>αποστολείς</value>
+  </data>
+  <data name="Settings.MediaSettingsCountOne" xml:space="preserve">
+    <value>ρύθμιση</value>
+  </data>
+  <data name="Settings.MediaSettingsCountOther" xml:space="preserve">
+    <value>ρυθμίσεις</value>
+  </data>
 </root>

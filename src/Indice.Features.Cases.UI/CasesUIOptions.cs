@@ -73,7 +73,10 @@ public enum CaseListFilter
     CaseTypeCodes,
 
     /// <summary>Filter using checkpoint type codes.</summary>
-    CheckpointTypeCodes
+    CheckpointTypeCodes,
+
+    /// <summary>Filter using the key that correlates cases (also matched through metadata `ExternalCorrelationKey`).</summary>
+    RelationKey
 }
 
 /// <summary>

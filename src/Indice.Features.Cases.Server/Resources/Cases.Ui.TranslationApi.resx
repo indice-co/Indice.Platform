@@ -136,7 +136,7 @@
     <value>External</value>
   </data>
   <data name="dashboard.groupedByGroupId" xml:space="preserve">
-    <value>Total Cases by Branch</value>
+    <value>Total Cases by Group</value>
   </data>
   <data name="cases.customerId" xml:space="preserve">
     <value>Customer Number</value>
@@ -147,11 +147,14 @@
   <data name="cases.referenceNumber" xml:space="preserve">
     <value>Case Number</value>
   </data>
+  <data name="cases.relationKey" xml:space="preserve">
+    <value>Relation key</value>
+  </data>
   <data name="cases.taxId" xml:space="preserve">
     <value>Tax Id</value>
   </data>
   <data name="cases.groupId" xml:space="preserve">
-    <value>Branch</value>
+    <value>Group</value>
   </data>
   <data name="cases.caseType" xml:space="preserve">
     <value>Case Type</value>
@@ -183,6 +186,9 @@
   <data name="caseDetails.channel" xml:space="preserve">
     <value>Channel</value>
   </data>
+  <data name="caseDetails.relationKey" xml:space="preserve">
+    <value>Relation key</value>
+  </data>
   <data name="caseDetails.checkpoint" xml:space="preserve">
     <value>Current Checkpoint</value>
   </data>
@@ -199,7 +205,7 @@
     <value>Customer Tax Id</value>
   </data>
   <data name="caseDetails.groupId" xml:space="preserve">
-    <value>Customer Branch</value>
+    <value>Group</value>
   </data>
   <data name="caseDetails.userSurname" xml:space="preserve">
     <value>User Surname</value>
@@ -1460,5 +1466,74 @@
   </data>
   <data name="caseTypes.translations.removeUnused" xml:space="preserve">
     <value>Remove unused translations</value>
+  </data>
+  <data name="breadcrumb.caseRelations" xml:space="preserve">
+    <value>Related cases</value>
+  </data>
+  <data name="breadcrumb.caseGroup" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="caseRelations.subtitle" xml:space="preserve">
+    <value>Cases are related when they share the same relation key.</value>
+  </data>
+  <data name="caseRelations.keyHint" xml:space="preserve">
+    <value>Changing or clearing it takes this case out of its current relation. The other cases stay related to each other.</value>
+  </data>
+  <data name="caseRelations.leaveConfirm.title" xml:space="preserve">
+    <value>Take the case out of its relation?</value>
+  </data>
+  <data name="caseRelations.leaveConfirm.message" xml:space="preserve">
+    <value>This case will no longer be related to its {{count}} related cases. They stay related to each other.</value>
+  </data>
+  <data name="caseRelations.noRelated" xml:space="preserve">
+    <value>No related cases yet.</value>
+  </data>
+  <data name="caseRelations.remove" xml:space="preserve">
+    <value>Remove from the relation</value>
+  </data>
+  <data name="caseRelations.removeConfirm" xml:space="preserve">
+    <value>Case {{referenceNumber}} will no longer be related to this case.</value>
+  </data>
+  <data name="caseRelations.add.title" xml:space="preserve">
+    <value>Add cases</value>
+  </data>
+  <data name="caseRelations.add.hint" xml:space="preserve">
+    <value>Search by case number, customer name, customer id or tax id.</value>
+  </data>
+  <data name="caseRelations.add.placeholder" xml:space="preserve">
+    <value>At least 3 characters</value>
+  </data>
+  <data name="caseRelations.add.setKeyFirst" xml:space="preserve">
+    <value>Set a relation key first, then add cases.</value>
+  </data>
+  <data name="caseRelations.add.noResults" xml:space="preserve">
+    <value>No cases found.</value>
+  </data>
+  <data name="caseRelations.add.alreadyRelated" xml:space="preserve">
+    <value>Already related</value>
+  </data>
+  <data name="caseRelations.add.otherRelation" xml:space="preserve">
+    <value>Related under {{relationKey}}</value>
+  </data>
+  <data name="caseRelations.add.action" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="caseRelations.moveConfirm.title" xml:space="preserve">
+    <value>Move the case to this relation?</value>
+  </data>
+  <data name="caseRelations.moveConfirm.message" xml:space="preserve">
+    <value>Case {{referenceNumber}} is already related to other cases under {{relationKey}}. Adding it here removes it from that relation.</value>
+  </data>
+  <data name="caseRelations.saved" xml:space="preserve">
+    <value>The relations were updated.</value>
+  </data>
+  <data name="caseGroup.subtitle" xml:space="preserve">
+    <value>Change the group of the case.</value>
+  </data>
+  <data name="caseGroup.accessWarning" xml:space="preserve">
+    <value>The group takes part in the access rules: changing it changes who can see and manage the case.</value>
+  </data>
+  <data name="caseGroup.saved" xml:space="preserve">
+    <value>The group was updated.</value>
   </data>
 </root>

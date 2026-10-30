@@ -17,6 +17,6 @@ export function templateTypeBadge(type: TemplateType | string | undefined): stri
   switch (type) {
     case TemplateType.Partial: return 'badge-info badge-soft';
     case TemplateType.Layout: return 'badge-accent badge-soft';
-    default: return 'badge-neutral badge-soft';
+    default: return 'badge-primary badge-soft';
   }
 }
