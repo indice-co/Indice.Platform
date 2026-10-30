@@ -24,29 +24,8 @@ public class AvatarGenerator
     /// <summary>Constructor.</summary>
     /// <param name="options">Generator options to use</param>
     public AvatarGenerator(AvatarOptions options) {
-        // https://www.materialpalette.com
         if (options?.Palette is null || options.Palette.Count == 0) {
-            _backgroundColours = [
-                new AvatarColor("f44336", "ffffff"), // red
-                new AvatarColor("e91e63", "ffffff"), // pink
-                new AvatarColor("9c27b0", "ffffff"), // purple
-                new AvatarColor("673ab7", "ffffff"), // deep-purple
-                new AvatarColor("3f51b5", "ffffff"), // indigo
-                new AvatarColor("2196f3", "ffffff"), // blue
-                new AvatarColor("03a9f4", "ffffff"), // light-blue
-                new AvatarColor("00bcd4", "ffffff"), // cyan
-                new AvatarColor("009688", "ffffff"), // teal
-                new AvatarColor("4caf50", "ffffff"), // green
-                new AvatarColor("8bc34a", "ffffff"), // light-green
-                new AvatarColor("cddc39", "000000"), // lime
-                new AvatarColor("ffeb3b", "000000"), // yellow
-                new AvatarColor("ffc107", "000000"), // amber
-                new AvatarColor("ff9800", "000000"), // orange
-                new AvatarColor("ff5722", "ffffff"), // deep-orange
-                new AvatarColor("795548", "ffffff"), // brown
-                new AvatarColor("bdbdbd", "000000"), // grey
-                new AvatarColor("607d8b", "ffffff"), // blue-grey
-            ];
+            _backgroundColours = Create2026Palette();
         } else {
             _backgroundColours = options.Palette.ToArray();
         }
@@ -115,6 +94,59 @@ public class AvatarGenerator
         }
         output.Seek(0, SeekOrigin.Begin);
     }
+
+    /// <summary>
+    /// The classic Material Design palette (saturated 500 tones). This is the default palette used when <see cref="AvatarOptions.Palette"/> is empty.
+    /// </summary>
+    /// <remarks>https://www.materialpalette.com</remarks>
+    public static AvatarColor[] CreateMaterialPalette() => [
+        new AvatarColor("f44336", "ffffff"), // red
+        new AvatarColor("e91e63", "ffffff"), // pink
+        new AvatarColor("9c27b0", "ffffff"), // purple
+        new AvatarColor("673ab7", "ffffff"), // deep-purple
+        new AvatarColor("3f51b5", "ffffff"), // indigo
+        new AvatarColor("2196f3", "ffffff"), // blue
+        new AvatarColor("03a9f4", "ffffff"), // light-blue
+        new AvatarColor("00bcd4", "ffffff"), // cyan
+        new AvatarColor("009688", "ffffff"), // teal
+        new AvatarColor("4caf50", "ffffff"), // green
+        new AvatarColor("8bc34a", "ffffff"), // light-green
+        new AvatarColor("cddc39", "000000"), // lime
+        new AvatarColor("ffeb3b", "000000"), // yellow
+        new AvatarColor("ffc107", "000000"), // amber
+        new AvatarColor("ff9800", "000000"), // orange
+        new AvatarColor("ff5722", "ffffff"), // deep-orange
+        new AvatarColor("795548", "ffffff"), // brown
+        new AvatarColor("bdbdbd", "000000"), // grey
+        new AvatarColor("607d8b", "ffffff"), // blue-grey
+    ];
+
+    /// <summary>
+    /// A modern tonal palette. Each entry pairs a soft tinted background with a deep foreground of the same hue,
+    /// which reads calmer than saturated fills, sits well on both light and dark surfaces and keeps the initials above WCAG AA contrast.
+    /// </summary>
+    /// <example>
+    /// <code>services.AddAvatars(options => options.Palette = AvatarGenerator.Create2026Palette());</code>
+    /// </example>
+    public static AvatarColor[] Create2026Palette() => [
+        new AvatarColor("fecaca", "991b1b"), // red
+        new AvatarColor("fed7aa", "9a3412"), // orange
+        new AvatarColor("fde68a", "92400e"), // amber
+        new AvatarColor("d9f99d", "3f6212"), // lime
+        new AvatarColor("a7f3d0", "065f46"), // emerald
+        new AvatarColor("99f6e4", "115e59"), // teal
+        new AvatarColor("a5f3fc", "155e75"), // cyan
+        new AvatarColor("bae6fd", "075985"), // sky
+        new AvatarColor("bfdbfe", "1e40af"), // blue
+        new AvatarColor("c7d2fe", "3730a3"), // indigo
+        new AvatarColor("ddd6fe", "5b21b6"), // violet
+        new AvatarColor("e9d5ff", "6b21a8"), // purple
+        new AvatarColor("f5d0fe", "86198f"), // fuchsia
+        new AvatarColor("fbcfe8", "9d174d"), // pink
+        new AvatarColor("fecdd3", "9f1239"), // rose
+        new AvatarColor("e2e8f0", "1e293b"), // slate
+        new AvatarColor("e7e5e4", "292524"), // stone
+    ];
 
     private static Stream GetFontResourceStream(string familyName, string fileName) => 
         typeof(AvatarGenerator).Assembly.GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}")!;

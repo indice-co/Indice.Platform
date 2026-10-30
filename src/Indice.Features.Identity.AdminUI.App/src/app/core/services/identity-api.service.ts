@@ -246,6 +246,11 @@ export interface IIdentityApiService {
      */
     getCertificateMetadata(file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfoBase>;
     /**
+     * Gets the key user, client and resource figures shown on the Admin UI dashboard.
+     * @return OK
+     */
+    getDashboardMetrics(): Observable<DashboardMetricsInfo>;
+    /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
      * @param size (optional) 
@@ -697,6 +702,12 @@ export interface IIdentityApiService {
      */
     getSignInLocations(timeFrame?: SeriesTimeFrame | undefined): Observable<SignInLocationSet>;
     /**
+     * Gets the number of successful and failed sign ins per day.
+     * @param timeFrame (optional) 
+     * @return OK
+     */
+    getSignInSeries(timeFrame?: SeriesTimeFrame | undefined): Observable<SignInDailyCountResultSet>;
+    /**
      * Sends a new code via the selected channel.
      * @return No Content
      */
@@ -715,10 +726,15 @@ export interface IIdentityApiService {
      * @param claimType (optional) 
      * @param claimValue (optional) 
      * @param userId (optional) 
+     * @param blocked (optional) 
+     * @param lockedOut (optional) 
+     * @param emailConfirmed (optional) 
+     * @param phoneNumberConfirmed (optional) 
+     * @param twoFactorEnabled (optional) 
      * @param expandClaims (optional) 
      * @return OK
      */
-    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet>;
+    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet>;
     /**
      * Creates a new user.
      * @return Created
@@ -886,6 +902,12 @@ export interface IIdentityApiService {
      * @return No Content
      */
     setPassword(userId: string, body: SetPasswordRequest): Observable<void>;
+    /**
+     * Generates a random password that satisfies the configured password options and validators.
+     * @param body (optional) 
+     * @return OK
+     */
+    generatePassword(body?: GeneratePasswordRequest | undefined): Observable<GeneratedPasswordInfo>;
     /**
      * Unlocks a user.
      * @return No Content
@@ -4021,6 +4043,72 @@ export class IdentityApiService implements IIdentityApiService {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the key user, client and resource figures shown on the Admin UI dashboard.
+     * @return OK
+     */
+    getDashboardMetrics(): Observable<DashboardMetricsInfo> {
+        let url_ = this.baseUrl + "/api/dashboard/metrics";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDashboardMetrics(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDashboardMetrics(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DashboardMetricsInfo>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DashboardMetricsInfo>;
+        }));
+    }
+
+    protected processGetDashboardMetrics(response: HttpResponseBase): Observable<DashboardMetricsInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DashboardMetricsInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -7550,6 +7638,13 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
@@ -8079,6 +8174,13 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
@@ -8469,6 +8571,13 @@ export class IdentityApiService implements IIdentityApiService {
         if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9945,6 +10054,84 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Gets the number of successful and failed sign ins per day.
+     * @param timeFrame (optional) 
+     * @return OK
+     */
+    getSignInSeries(timeFrame?: SeriesTimeFrame | undefined): Observable<SignInDailyCountResultSet> {
+        let url_ = this.baseUrl + "/api/sign-in-logs/series?";
+        if (timeFrame === null)
+            throw new globalThis.Error("The parameter 'timeFrame' cannot be null.");
+        else if (timeFrame !== undefined)
+            url_ += "TimeFrame=" + encodeURIComponent("" + timeFrame) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSignInSeries(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSignInSeries(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SignInDailyCountResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SignInDailyCountResultSet>;
+        }));
+    }
+
+    protected processGetSignInSeries(response: HttpResponseBase): Observable<SignInDailyCountResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SignInDailyCountResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Sends a new code via the selected channel.
      * @return No Content
      */
@@ -10120,10 +10307,15 @@ export class IdentityApiService implements IIdentityApiService {
      * @param claimType (optional) 
      * @param claimValue (optional) 
      * @param userId (optional) 
+     * @param blocked (optional) 
+     * @param lockedOut (optional) 
+     * @param emailConfirmed (optional) 
+     * @param phoneNumberConfirmed (optional) 
+     * @param twoFactorEnabled (optional) 
      * @param expandClaims (optional) 
      * @return OK
      */
-    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet> {
+    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet> {
         let url_ = this.baseUrl + "/api/users?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -10141,6 +10333,18 @@ export class IdentityApiService implements IIdentityApiService {
             throw new globalThis.Error("The parameter 'userId' cannot be null.");
         else if (userId !== undefined)
             userId && userId.forEach(item => { url_ += "UserId=" + encodeURIComponent("" + item) + "&"; });
+        if (blocked !== undefined && blocked !== null)
+            url_ += "Blocked=" + encodeURIComponent("" + blocked) + "&";
+        if (lockedOut !== undefined && lockedOut !== null)
+            url_ += "LockedOut=" + encodeURIComponent("" + lockedOut) + "&";
+        if (emailConfirmed !== undefined && emailConfirmed !== null)
+            url_ += "EmailConfirmed=" + encodeURIComponent("" + emailConfirmed) + "&";
+        if (phoneNumberConfirmed !== undefined && phoneNumberConfirmed !== null)
+            url_ += "PhoneNumberConfirmed=" + encodeURIComponent("" + phoneNumberConfirmed) + "&";
+        if (twoFactorEnabled !== undefined && twoFactorEnabled !== null)
+            url_ += "TwoFactorEnabled=" + encodeURIComponent("" + twoFactorEnabled) + "&";
+        if (admin !== undefined && admin !== null)
+            url_ += "Admin=" + encodeURIComponent("" + admin) + "&";
         if (expandClaims === null)
             throw new globalThis.Error("The parameter 'expandClaims' cannot be null.");
         else if (expandClaims !== undefined)
@@ -10599,6 +10803,13 @@ export class IdentityApiService implements IIdentityApiService {
         if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -12900,6 +13111,88 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Generates a random password that satisfies the configured password options and validators.
+     * @param body (optional) 
+     * @return OK
+     */
+    generatePassword(body?: GeneratePasswordRequest | undefined): Observable<GeneratedPasswordInfo> {
+        let url_ = this.baseUrl + "/api/users/generate-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGeneratePassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGeneratePassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GeneratedPasswordInfo>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GeneratedPasswordInfo>;
+        }));
+    }
+
+    protected processGeneratePassword(response: HttpResponseBase): Observable<GeneratedPasswordInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GeneratedPasswordInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Unlocks a user.
      * @return No Content
      */
@@ -13447,6 +13740,7 @@ export class ApiScopeInfo implements IApiScopeInfo {
     description?: string | undefined;
     emphasize?: boolean | undefined;
     showInDiscoveryDocument?: boolean | undefined;
+    nonEditable?: boolean;
     translations?: { [key: string]: ApiScopeTranslation; } | undefined;
     userClaims?: string[] | undefined;
 
@@ -13467,6 +13761,7 @@ export class ApiScopeInfo implements IApiScopeInfo {
             this.description = _data["description"];
             this.emphasize = _data["emphasize"];
             this.showInDiscoveryDocument = _data["showInDiscoveryDocument"];
+            this.nonEditable = _data["nonEditable"];
             if (_data["translations"]) {
                 this.translations = {} as any;
                 for (let key in _data["translations"]) {
@@ -13497,6 +13792,7 @@ export class ApiScopeInfo implements IApiScopeInfo {
         data["description"] = this.description;
         data["emphasize"] = this.emphasize;
         data["showInDiscoveryDocument"] = this.showInDiscoveryDocument;
+        data["nonEditable"] = this.nonEditable;
         if (this.translations) {
             data["translations"] = {};
             for (let key in this.translations) {
@@ -13520,6 +13816,7 @@ export interface IApiScopeInfo {
     description?: string | undefined;
     emphasize?: boolean | undefined;
     showInDiscoveryDocument?: boolean | undefined;
+    nonEditable?: boolean;
     translations?: { [key: string]: ApiScopeTranslation; } | undefined;
     userClaims?: string[] | undefined;
 }
@@ -14445,6 +14742,58 @@ export class ClientInfoResultSet implements IClientInfoResultSet {
 export interface IClientInfoResultSet {
     count?: number;
     items?: ClientInfo[];
+}
+
+export class ClientMetricsInfo implements IClientMetricsInfo {
+    total?: number;
+    enabled?: number;
+    identityResources?: number;
+    apiResources?: number;
+    apiScopes?: number;
+
+    constructor(data?: IClientMetricsInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.enabled = _data["enabled"];
+            this.identityResources = _data["identityResources"];
+            this.apiResources = _data["apiResources"];
+            this.apiScopes = _data["apiScopes"];
+        }
+    }
+
+    static fromJS(data: any): ClientMetricsInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClientMetricsInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["enabled"] = this.enabled;
+        data["identityResources"] = this.identityResources;
+        data["apiResources"] = this.apiResources;
+        data["apiScopes"] = this.apiScopes;
+        return data;
+    }
+}
+
+export interface IClientMetricsInfo {
+    total?: number;
+    enabled?: number;
+    identityResources?: number;
+    apiResources?: number;
+    apiScopes?: number;
 }
 
 export class ClientSecretInfo implements IClientSecretInfo {
@@ -15450,6 +15799,50 @@ export class CredentialsValidationInfo implements ICredentialsValidationInfo {
 
 export interface ICredentialsValidationInfo {
     passwordRules?: PasswordRuleInfo[];
+}
+
+export class DashboardMetricsInfo implements IDashboardMetricsInfo {
+    calculatedAt?: Date;
+    users?: UserMetricsInfo | undefined;
+    clients?: ClientMetricsInfo | undefined;
+
+    constructor(data?: IDashboardMetricsInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.calculatedAt = _data["calculatedAt"] ? new Date(_data["calculatedAt"].toString()) : undefined as any;
+            this.users = _data["users"] ? UserMetricsInfo.fromJS(_data["users"]) : undefined as any;
+            this.clients = _data["clients"] ? ClientMetricsInfo.fromJS(_data["clients"]) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): DashboardMetricsInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new DashboardMetricsInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["calculatedAt"] = this.calculatedAt ? this.calculatedAt.toISOString() : undefined as any;
+        data["users"] = this.users ? this.users.toJSON() : undefined as any;
+        data["clients"] = this.clients ? this.clients.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IDashboardMetricsInfo {
+    calculatedAt?: Date;
+    users?: UserMetricsInfo | undefined;
+    clients?: ClientMetricsInfo | undefined;
 }
 
 export class DefaultClientThemeConfig implements IDefaultClientThemeConfig {
@@ -17129,6 +17522,92 @@ export interface ISetPasswordRequest {
     suppressNotification?: boolean | undefined;
 }
 
+/** Models a request to generate a random password that satisfies the configured password rules. */
+export class GeneratePasswordRequest implements IGeneratePasswordRequest {
+    /** The id of an existing user the password is generated for, so that user-specific validators also apply. */
+    userId?: string | undefined;
+    /** The user name of a user that is about to be created, for validators that compare the password with it. */
+    userName?: string | undefined;
+
+    constructor(data?: IGeneratePasswordRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.userName = _data["userName"];
+        }
+    }
+
+    static fromJS(data: any): GeneratePasswordRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new GeneratePasswordRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["userName"] = this.userName;
+        return data;
+    }
+}
+
+/** Models a request to generate a random password that satisfies the configured password rules. */
+export interface IGeneratePasswordRequest {
+    /** The id of an existing user the password is generated for, so that user-specific validators also apply. */
+    userId?: string | undefined;
+    /** The user name of a user that is about to be created, for validators that compare the password with it. */
+    userName?: string | undefined;
+}
+
+/** A password generated by the server. */
+export class GeneratedPasswordInfo implements IGeneratedPasswordInfo {
+    /** The generated password. */
+    password?: string | undefined;
+
+    constructor(data?: IGeneratedPasswordInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): GeneratedPasswordInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new GeneratedPasswordInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+/** A password generated by the server. */
+export interface IGeneratedPasswordInfo {
+    /** The generated password. */
+    password?: string | undefined;
+}
+
 export class SetUserBlockRequest implements ISetUserBlockRequest {
     blocked?: boolean;
 
@@ -17163,6 +17642,102 @@ export class SetUserBlockRequest implements ISetUserBlockRequest {
 
 export interface ISetUserBlockRequest {
     blocked?: boolean;
+}
+
+export class SignInDailyCount implements ISignInDailyCount {
+    date!: Date;
+    succeeded!: number;
+    failed!: number;
+    uniqueUsers!: number;
+
+    constructor(data?: ISignInDailyCount) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.succeeded = _data["succeeded"];
+            this.failed = _data["failed"];
+            this.uniqueUsers = _data["uniqueUsers"];
+        }
+    }
+
+    static fromJS(data: any): SignInDailyCount {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInDailyCount();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : undefined as any;
+        data["succeeded"] = this.succeeded;
+        data["failed"] = this.failed;
+        data["uniqueUsers"] = this.uniqueUsers;
+        return data;
+    }
+}
+
+export interface ISignInDailyCount {
+    date: Date;
+    succeeded: number;
+    failed: number;
+    uniqueUsers: number;
+}
+
+export class SignInDailyCountResultSet implements ISignInDailyCountResultSet {
+    count?: number;
+    items?: SignInDailyCount[];
+
+    constructor(data?: ISignInDailyCountResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SignInDailyCount.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SignInDailyCountResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInDailyCountResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ISignInDailyCountResultSet {
+    count?: number;
+    items?: SignInDailyCount[];
 }
 
 export class SignInLocationSet implements ISignInLocationSet {
@@ -19965,6 +20540,98 @@ export class UserLoginProviderInfoResultSet implements IUserLoginProviderInfoRes
 export interface IUserLoginProviderInfoResultSet {
     count?: number;
     items?: UserLoginProviderInfo[];
+}
+
+export class UserMetricsInfo implements IUserMetricsInfo {
+    total?: number;
+    roles?: number;
+    newLast7Days?: number;
+    newLast30Days?: number;
+    activeToday?: number;
+    activeYesterday?: number;
+    activeLast7Days?: number;
+    activeLast30Days?: number;
+    neverSignedIn?: number;
+    blocked?: number;
+    lockedOut?: number;
+    twoFactorEnabled?: number;
+    emailConfirmed?: number;
+    phoneNumberConfirmed?: number;
+    passwordExpired?: number;
+
+    constructor(data?: IUserMetricsInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.roles = _data["roles"];
+            this.newLast7Days = _data["newLast7Days"];
+            this.newLast30Days = _data["newLast30Days"];
+            this.activeToday = _data["activeToday"];
+            this.activeYesterday = _data["activeYesterday"];
+            this.activeLast7Days = _data["activeLast7Days"];
+            this.activeLast30Days = _data["activeLast30Days"];
+            this.neverSignedIn = _data["neverSignedIn"];
+            this.blocked = _data["blocked"];
+            this.lockedOut = _data["lockedOut"];
+            this.twoFactorEnabled = _data["twoFactorEnabled"];
+            this.emailConfirmed = _data["emailConfirmed"];
+            this.phoneNumberConfirmed = _data["phoneNumberConfirmed"];
+            this.passwordExpired = _data["passwordExpired"];
+        }
+    }
+
+    static fromJS(data: any): UserMetricsInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserMetricsInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["roles"] = this.roles;
+        data["newLast7Days"] = this.newLast7Days;
+        data["newLast30Days"] = this.newLast30Days;
+        data["activeToday"] = this.activeToday;
+        data["activeYesterday"] = this.activeYesterday;
+        data["activeLast7Days"] = this.activeLast7Days;
+        data["activeLast30Days"] = this.activeLast30Days;
+        data["neverSignedIn"] = this.neverSignedIn;
+        data["blocked"] = this.blocked;
+        data["lockedOut"] = this.lockedOut;
+        data["twoFactorEnabled"] = this.twoFactorEnabled;
+        data["emailConfirmed"] = this.emailConfirmed;
+        data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
+        data["passwordExpired"] = this.passwordExpired;
+        return data;
+    }
+}
+
+export interface IUserMetricsInfo {
+    total?: number;
+    roles?: number;
+    newLast7Days?: number;
+    newLast30Days?: number;
+    activeToday?: number;
+    activeYesterday?: number;
+    activeLast7Days?: number;
+    activeLast30Days?: number;
+    neverSignedIn?: number;
+    blocked?: number;
+    lockedOut?: number;
+    twoFactorEnabled?: number;
+    emailConfirmed?: number;
+    phoneNumberConfirmed?: number;
+    passwordExpired?: number;
 }
 
 export class UsersActivityInfo implements IUsersActivityInfo {
