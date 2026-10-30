@@ -1,6 +1,7 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Configuration;
 using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
@@ -116,8 +117,31 @@ internal static class AdminCasesApi
 
         group.MapGet("{caseId}/related-cases", AdminCasesHandlers.GetRelatedCases)
             .WithName(nameof(AdminCasesHandlers.GetRelatedCases))
-            .WithSummary("Gets the cases that are related to the given id.")
+            .WithSummary("Gets all the cases that are related to the given id, unpaged.")
             .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
+
+        group.MapPost("{caseId}/related-cases", AdminCasesHandlers.AddRelatedCases)
+            .WithName(nameof(AdminCasesHandlers.AddRelatedCases))
+            .WithSummary("Relates cases to the given case by giving them its relation key. A case that shared another key leaves that relation.")
+            .WithParameterValidation<AddRelatedCasesRequest>()
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
+
+        group.MapDelete("{caseId}/related-cases/{relatedCaseId:guid}", AdminCasesHandlers.RemoveRelatedCase)
+            .WithName(nameof(AdminCasesHandlers.RemoveRelatedCase))
+            .WithSummary("Removes a case from the relation of the given case by clearing its relation key.")
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
+
+        group.MapPut("{caseId}/relation-key", AdminCasesHandlers.UpdateCaseRelationKey)
+            .WithName(nameof(AdminCasesHandlers.UpdateCaseRelationKey))
+            .WithSummary("Changes the relation key of this case only; the cases it was related to keep their key. An empty key takes the case out of any relation.")
+            .WithParameterValidation<UpdateCaseRelationKeyRequest>()
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
+
+        group.MapPut("{caseId}/group", AdminCasesHandlers.UpdateCaseGroup)
+            .WithName(nameof(AdminCasesHandlers.UpdateCaseGroup))
+            .WithSummary("Changes the group of a case. The group takes part in the access rules.")
+            .WithParameterValidation<UpdateCaseGroupRequest>()
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
 
         group.MapGet("{caseId}/actions", AdminCasesHandlers.GetCaseActions)
             .WithName(nameof(AdminCasesHandlers.GetCaseActions))

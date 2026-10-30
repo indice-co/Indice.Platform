@@ -37,9 +37,9 @@ public interface ICampaignService
     /// <summary>Records a visit for the specified campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     Task UpdateHit(Guid campaignId);
-    /// <summary>Gets the sent volume of messages per channel kind.</summary>
+    /// <summary>Gets the sent volume of messages and the failed ones per channel kind. Retries of a message count once.</summary>
     /// <param name="campaignId">The id of the campaign. Optional</param>
-    Task<Dictionary<string, int>> GetChannelMetrics(Guid? campaignId = null);
+    Task<List<ChannelMetrics>> GetChannelMetrics(Guid? campaignId = null);
     /// <summary>Gets the  volume of messages per message type.</summary>
     /// <param name="onDate">The day for which to calculate the volume. If null then the volume will be calculated for the entire dataset</param>
     /// <param name="limit">Limit top results. Defaults to <c>5</c></param>

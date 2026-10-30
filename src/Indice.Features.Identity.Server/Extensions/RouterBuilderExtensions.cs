@@ -37,6 +37,10 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapDatabaseSettings();
         // Recaptcha endpoints.
         builder.MapRecaptcha();
+        // IAM UI translations.
+        if (routes.GetEndpointOptions().MapTranslations) {
+            routes.MapTranslationGraph();
+        }
         return builder;
     }
 

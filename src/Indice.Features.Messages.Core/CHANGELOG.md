@@ -5,7 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [8.62.0] - Unreleased
+### Added flag for system generated distribution lists
+
+Run the following migration script.<br/>
+**Caution!** Update table schema if not [cmp]
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[DistributionList]')
+      AND name = N'SystemGenerated'
+)
+BEGIN
+    ALTER TABLE [cmp].[DistributionList]
+        ADD [SystemGenerated] BIT NOT NULL
+            CONSTRAINT [DF_DistributionList_SystemGenerated] DEFAULT (0);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[DistributionList]')
+      AND name = N'IX_DistributionList_SystemGenerated'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_DistributionList_SystemGenerated]
+        ON [cmp].[DistributionList]([SystemGenerated] ASC);
+END;
+GO
+
+UPDATE [cmp].[DistributionList]
+SET [SystemGenerated] = 1
+WHERE [CreatedBy] = 'system';
+GO
+```
+
 ### Added the `concat` Handlebars helper
 Message templates (and the partials/layouts they use) can join values into one string, e.g. to build a link passed to a partial:
 ```handlebars

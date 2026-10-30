@@ -31,10 +31,12 @@ using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -283,6 +285,22 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         builder.Services.AddOutputCache();
         builder.Services.AddDistributedMemoryCache();
+        // Client side translations of the IAM UI served as a JSON graph from the embedded resx files.
+        var endpointOptions = new ExtendedEndpointOptions();
+        builder.Configuration.GetSection(ExtendedEndpointOptions.Name).Bind(endpointOptions);
+        configureAction?.Invoke(endpointOptions);
+        if (endpointOptions.MapTranslations) {
+            var apiPrefix = endpointOptions.ApiPrefix.Value?.TrimEnd('/') ?? string.Empty;
+            builder.Services.AddTranslationGraph(options => {
+                options.DefaultTranslationsBaseName = IdentityEndpoints.TranslationsBaseName;
+                options.DefaultTranslationsLocation = typeof(ExtendedEndpointOptions).Assembly.GetName().Name!;
+                options.DefaultEndpointRoutePattern = apiPrefix + "/iam-i18n.{lang:culture}.json";
+                options.AvailableLanguagesRoutePattern = apiPrefix + "/languages";
+                if (!endpointOptions.DisableCache) {
+                    options.ConfigureCachePolicy = policy => policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag();
+                }
+            });
+        }
         builder.Services.AddIdentityRateLimiter(builder.Configuration);
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
         builder.Services.AddPushNotificationServiceNoop();

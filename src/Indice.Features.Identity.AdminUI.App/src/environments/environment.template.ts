@@ -17,6 +17,7 @@ export const environment = {
         silent_redirect_uri: 'auth-renew'
     },
     culture: '',
+    i18n_assets: '/assets/i18n/',
     isTemplate: true,
     production: true
 };

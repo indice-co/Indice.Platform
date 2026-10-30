@@ -15,7 +15,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 /** Translation key and badge style per message event type (`MessageEventType` on the server). */
 const EVENT_TYPES: Record<string, { label: string; badge: string }> = {
-  Created: { label: 'Events.Types.Created', badge: 'badge-neutral badge-soft' },
+  Created: { label: 'Events.Types.Created', badge: 'badge-outline' },
   Sent: { label: 'Events.Types.Sent', badge: 'badge-info badge-soft' },
   Delivered: { label: 'Events.Types.Delivered', badge: 'badge-success badge-soft' },
   Opened: { label: 'Events.Types.Opened', badge: 'badge-accent badge-soft' },
