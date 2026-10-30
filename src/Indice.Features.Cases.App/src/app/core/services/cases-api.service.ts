@@ -213,7 +213,7 @@ export interface ICasesApiService {
      */
     getCaseRejectReasons(caseId: string): Observable<RejectReason[]>;
     /**
-     * Gets the cases that are related to the given id.
+     * Gets all the cases that are related to the given id, unpaged.
      * @return OK
      */
     getRelatedCases(caseId: string): Observable<CasePartial[]>;
@@ -228,7 +228,7 @@ export interface ICasesApiService {
      */
     removeRelatedCase(caseId: string, relatedCaseId: string): Observable<void>;
     /**
-     * Changes the relation key of a case. Its related cases follow; an empty key dissolves the relation.
+     * Changes the relation key of this case only; the cases it was related to keep their key. An empty key takes the case out of any relation.
      * @return No Content
      */
     updateCaseRelationKey(caseId: string, body: UpdateCaseRelationKeyRequest): Observable<void>;
@@ -3362,7 +3362,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Changes the relation key of a case. Its related cases follow; an empty key dissolves the relation.
+     * Changes the relation key of this case only; the cases it was related to keep their key. An empty key takes the case out of any relation.
      * @return No Content
      */
     updateCaseRelationKey(caseId: string, body: UpdateCaseRelationKeyRequest): Observable<void> {
@@ -3700,7 +3700,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Gets the cases that are related to the given id.
+     * Gets all the cases that are related to the given id, unpaged.
      * @return OK
      */
     getRelatedCases(caseId: string): Observable<CasePartial[]> {
@@ -8893,7 +8893,7 @@ export interface IAddRelatedCasesRequest {
 
 /** Request to change the relation key of a case. */
 export class UpdateCaseRelationKeyRequest implements IUpdateCaseRelationKeyRequest {
-    /** The new relation key. Empty dissolves the relation. */
+    /** The new relation key. Empty takes the case out of any relation. */
     relationKey?: string | undefined;
 
     constructor(data?: IUpdateCaseRelationKeyRequest) {
@@ -8927,7 +8927,7 @@ export class UpdateCaseRelationKeyRequest implements IUpdateCaseRelationKeyReque
 
 /** Request to change the relation key of a case. */
 export interface IUpdateCaseRelationKeyRequest {
-    /** The new relation key. Empty dissolves the relation. */
+    /** The new relation key. Empty takes the case out of any relation. */
     relationKey?: string | undefined;
 }
 

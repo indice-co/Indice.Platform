@@ -110,7 +110,7 @@ public interface IAdminCaseService
     Task<ResultSet<CaseDataVersion>> GetDataVersions(Guid caseId, ListOptions options);
 
     /// <summary>
-    /// Gets the cases that are related to the given id.
+    /// Gets all the cases that are related to the given id, unpaged.
     /// Cases are related when they share the same <see cref="CasePartial.RelationKey"/>.
     /// It is set on case creation, or through the case's metadata with the key ExternalCorrelationKey.
     /// </summary>

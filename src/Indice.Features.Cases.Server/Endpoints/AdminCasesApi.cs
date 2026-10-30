@@ -117,7 +117,7 @@ internal static class AdminCasesApi
 
         group.MapGet("{caseId}/related-cases", AdminCasesHandlers.GetRelatedCases)
             .WithName(nameof(AdminCasesHandlers.GetRelatedCases))
-            .WithSummary("Gets the cases that are related to the given id.")
+            .WithSummary("Gets all the cases that are related to the given id, unpaged.")
             .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
 
         group.MapPost("{caseId}/related-cases", AdminCasesHandlers.AddRelatedCases)
@@ -133,7 +133,7 @@ internal static class AdminCasesApi
 
         group.MapPut("{caseId}/relation-key", AdminCasesHandlers.UpdateCaseRelationKey)
             .WithName(nameof(AdminCasesHandlers.UpdateCaseRelationKey))
-            .WithSummary("Changes the relation key of a case. Its related cases follow; an empty key dissolves the relation.")
+            .WithSummary("Changes the relation key of this case only; the cases it was related to keep their key. An empty key takes the case out of any relation.")
             .WithParameterValidation<UpdateCaseRelationKeyRequest>()
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
 

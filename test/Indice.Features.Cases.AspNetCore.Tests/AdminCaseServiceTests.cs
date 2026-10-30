@@ -170,6 +170,29 @@ public class AdminCaseServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task RemoveRelatedCase_ComparesKeysLikeTheDatabase() {
+        var service = CreateService();
+        var a = await AddCase("K1");
+        var b = await AddCase("k1");
+
+        Assert.True(await service.RemoveRelatedCase(a.Id, b.Id));
+        Assert.Null((await GetCase(b.Id)).RelationKey);
+    }
+
+    [Fact]
+    public async Task AddRelatedCases_CopiesTheStoredKey() {
+        var service = CreateService();
+        var a = await AddCase(" K1");
+        var b = await AddCase(null);
+
+        Assert.True(await service.AddRelatedCases(a.Id, [b.Id]));
+
+        var added = await GetCase(b.Id);
+        Assert.Equal(" K1", added.RelationKey);
+        Assert.Equal(" K1", added.Metadata![CasesCoreConstants.MetadataKeys.ExternalCorrelationKey]);
+    }
+
+    [Fact]
     public async Task UpdateGroup_SetsAndClears() {
         var service = CreateService();
         var a = await AddCase(null);

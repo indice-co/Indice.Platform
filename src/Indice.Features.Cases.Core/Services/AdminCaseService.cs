@@ -697,7 +697,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             Filter = new GetCasesListFilter {
                 RelationKeys = [new FilterClause(nameof(GetCasesListFilter.RelationKeys), @case.RelationKey, FilterOperator.Eq, JsonDataType.String)]
             },
-            Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
+            Sort = $"{nameof(CasePartial.CreatedByWhen)}-",
+            // the whole relation, not the default page: the relations editor removes cases from this list
+            Size = int.MaxValue
         });
 
         return result.Items.Where(x => x.Id != caseId).ToList();
@@ -724,7 +726,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var ids = relatedCaseIds.Where(id => id != caseId).Distinct().ToList();
         var cases = await DbContext.Cases.Where(c => ids.Contains(c.Id)).ToListAsync();
         foreach (var related in cases) {
-            ReplaceRelationKey(related, @case.RelationKey);
+            SetRelationKey(related, @case.RelationKey);
         }
         await DbContext.SaveChangesAsync();
         return true;
@@ -732,8 +734,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     public async Task<bool> RemoveRelatedCase(Guid caseId, Guid relatedCaseId) {
         var @case = await DbContext.Cases.FindAsync(caseId);
-        var related = await DbContext.Cases.FindAsync(relatedCaseId);
-        if (@case?.RelationKey is null || related is null || related.Id == @case.Id || related.RelationKey != @case.RelationKey) {
+        if (@case?.RelationKey is null || relatedCaseId == caseId) {
+            return false;
+        }
+        // compare the keys in the database, like GetRelatedCases does, so both follow its collation
+        var related = await DbContext.Cases.FirstOrDefaultAsync(c => c.Id == relatedCaseId && c.RelationKey == @case.RelationKey);
+        if (related is null) {
             return false;
         }
         ReplaceRelationKey(related, null);
