@@ -82,11 +82,11 @@ export const USERS_REFRESH_SCOPE = 'users';
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="userName">{{ 'Routes.User' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="userName">{{ 'Routes.User' | translate }}</th>
             <th class="hidden lg:table-cell">{{ 'Users.List.ColumnPhone' | translate }}</th>
             <th>{{ 'Common.Status' | translate }}</th>
-            <th class="hidden md:table-cell"><app-sort-header [list]="list" field="createDate">{{ 'Common.CreatedAt' | translate }}</app-sort-header></th>
-            <th class="hidden md:table-cell"><app-sort-header [list]="list" field="lastSignInDate">{{ 'Users.Fields.LastSignIn' | translate }}</app-sort-header></th>
+            <th app-sort-header class="hidden md:table-cell" [list]="list" field="createDate">{{ 'Common.CreatedAt' | translate }}</th>
+            <th app-sort-header class="hidden md:table-cell" [list]="list" field="lastSignInDate">{{ 'Users.Fields.LastSignIn' | translate }}</th>
             <th class="w-12"><span class="sr-only">{{ 'Users.List.Open' | translate }}</span></th>
           </tr>
         </thead>

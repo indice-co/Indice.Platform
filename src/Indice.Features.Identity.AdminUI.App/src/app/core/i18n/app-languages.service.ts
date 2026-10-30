@@ -22,7 +22,7 @@ const FALLBACK_LANGUAGES: AppLanguage[] = [
 /** The language chosen by the user on this browser or the default one. Resolved once at bootstrap. */
 export const initialLanguage = (): string => {
   const stored = localStorage.getItem(STORAGE_KEY)?.toLowerCase();
-  return stored && FALLBACK_LANGUAGES.some(language => language.code === stored) ? stored : DEFAULT_LANGUAGE;
+  return stored && FALLBACK_LANGUAGES.some(language => language.code === stored) ? stored : settings.lang?.toLowerCase() || DEFAULT_LANGUAGE;
 };
 
 /** Angular locale (dates, numbers) matching a UI language. */

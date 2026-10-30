@@ -38,9 +38,9 @@ import { ClientLogoComponent } from './client-logo.component';
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="clientName">{{ 'Clients.List.Client' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="clientId">{{ 'Clients.Fields.ClientId' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="enabled">{{ 'Common.Status' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="clientName">{{ 'Clients.List.Client' | translate }}</th>
+            <th app-sort-header [list]="list" field="clientId">{{ 'Clients.Fields.ClientId' | translate }}</th>
+            <th app-sort-header [list]="list" field="enabled">{{ 'Common.Status' | translate }}</th>
             <th class="w-12"><span class="sr-only">{{ 'Clients.List.Open' | translate }}</span></th>
           </tr>
         </thead>

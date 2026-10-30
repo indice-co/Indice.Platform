@@ -1,4 +1,4 @@
-import { AfterContentInit, OnInit, Directive, ElementRef, Input, inject } from '@angular/core';
+import { OnInit, Directive, ElementRef, Input, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as app from 'src/app/core/models/settings';
 

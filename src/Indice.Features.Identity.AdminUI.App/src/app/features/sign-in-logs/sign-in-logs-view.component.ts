@@ -68,14 +68,14 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="actionName">{{ 'Logs.Fields.Event' | translate }}</app-sort-header></th>
-            @if (!subject()) { <th><app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</app-sort-header></th> }
+            <th app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</th>
+            <th app-sort-header [list]="list" field="actionName">{{ 'Logs.Fields.Event' | translate }}</th>
+            @if (!subject()) { <th app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</th> }
             <th>{{ 'Logs.Fields.Application' | translate }}</th>
             <th>{{ 'Logs.Fields.Device' | translate }}</th>
-            <th><app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="location">{{ 'Logs.Fields.Location' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="signInType">{{ 'Common.Type' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</th>
+            <th app-sort-header [list]="list" field="location">{{ 'Logs.Fields.Location' | translate }}</th>
+            <th app-sort-header [list]="list" field="signInType">{{ 'Common.Type' | translate }}</th>
           </tr>
         </thead>
         <tbody>

@@ -88,8 +88,8 @@ const KINDS: Record<ResourceKind, KindConfig> = {
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
+            <th app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</th>
             <th class="hidden lg:table-cell">{{ 'Common.Description' | translate }}</th>
             <th>{{ 'Resources.List.Claims' | translate }}</th>
             <th class="w-12"><span class="sr-only">{{ 'Resources.List.Open' | translate }}</span></th>

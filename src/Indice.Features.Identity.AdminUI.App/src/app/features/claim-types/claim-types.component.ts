@@ -56,11 +56,11 @@ export const CLAIM_TYPES_REFRESH = 'claim-types';
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="valueType">{{ 'ClaimTypes.Fields.ValueType' | translate }}</app-sort-header></th>
-            <th class="text-center"><app-sort-header [list]="list" field="userEditable">{{ 'ClaimTypes.Fields.UserEditable' | translate }}</app-sort-header></th>
-            <th class="text-center"><app-sort-header [list]="list" field="required">{{ 'Common.Required' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
+            <th app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</th>
+            <th app-sort-header [list]="list" field="valueType">{{ 'ClaimTypes.Fields.ValueType' | translate }}</th>
+            <th app-sort-header class="text-center" [list]="list" field="userEditable">{{ 'ClaimTypes.Fields.UserEditable' | translate }}</th>
+            <th app-sort-header class="text-center" [list]="list" field="required">{{ 'Common.Required' | translate }}</th>
             <th class="w-12"><span class="sr-only">{{ 'ClaimTypes.List.Open' | translate }}</span></th>
           </tr>
         </thead>

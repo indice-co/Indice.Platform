@@ -38,7 +38,7 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
             <th>{{ 'Common.Description' | translate }}</th>
             <th class="w-12"><span class="sr-only">{{ 'Roles.List.Open' | translate }}</span></th>
           </tr>

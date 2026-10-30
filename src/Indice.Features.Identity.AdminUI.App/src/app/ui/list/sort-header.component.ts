@@ -4,14 +4,16 @@ import { ListState } from './list-state';
 
 /**
  * Sortable column header bound to a {@link ListState}:
- * `<th><app-sort-header [list]="list" field="name">Name</app-sort-header></th>`.
+ * `<th app-sort-header [list]="list" field="name">Name</th>`.
  */
 @Component({
-  selector: 'app-sort-header',
+  selector: 'th[app-sort-header]',
   imports: [LucideArrowDown, LucideArrowUp, LucideChevronsUpDown],
+  host: {
+    '[attr.aria-sort]': "active() ? (list().dir() === 'asc' ? 'ascending' : 'descending') : null"
+  },
   template: `
-    <button type="button" class="th-sort" [class.text-base-content]="active()" (click)="list().setSort(field())"
-      [attr.aria-sort]="active() ? (list().dir() === 'asc' ? 'ascending' : 'descending') : null">
+    <button type="button" class="th-sort" [class.text-base-content]="active()" (click)="list().setSort(field())">
       <ng-content />
       @if (!active()) {
         <svg lucideChevronsUpDown class="size-3.5 opacity-40"></svg>

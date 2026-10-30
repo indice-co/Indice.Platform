@@ -90,14 +90,14 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
       <table class="table">
         <thead>
           <tr>
-            <th><app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</app-sort-header></th>
-            @if (!subject()) { <th><app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</app-sort-header></th> }
-            <th><app-sort-header [list]="list" field="actionName">{{ 'ActivityLogs.Fields.Action' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</th>
+            @if (!subject()) { <th app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</th> }
+            <th app-sort-header [list]="list" field="actionName">{{ 'ActivityLogs.Fields.Action' | translate }}</th>
             <th>{{ 'Common.Description' | translate }}</th>
-            <th><app-sort-header [list]="list" field="category">{{ 'ActivityLogs.Fields.Category' | translate }}</app-sort-header></th>
-            <th><app-sort-header [list]="list" field="resourceType">{{ 'ActivityLogs.Fields.Resource' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="category">{{ 'ActivityLogs.Fields.Category' | translate }}</th>
+            <th app-sort-header [list]="list" field="resourceType">{{ 'ActivityLogs.Fields.Resource' | translate }}</th>
             <th>{{ 'Logs.Fields.Application' | translate }}</th>
-            <th><app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</app-sort-header></th>
+            <th app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</th>
             <th>{{ 'Logs.Fields.Device' | translate }}</th>
           </tr>
         </thead>
