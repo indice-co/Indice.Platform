@@ -1,4 +1,4 @@
-import { Component, LOCALE_ID, computed, inject, input } from '@angular/core';
+import { Component, LOCALE_ID, booleanAttribute, computed, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -142,13 +142,13 @@ export class LogDeviceComponent {
 /** IP address with the country flag of its location. */
 @Component({
   selector: 'app-log-ip',
-  host: { class: 'inline-flex items-center gap-2 whitespace-nowrap' },
+  host: { class: 'inline-flex min-w-0 max-w-full items-center gap-2', '[class.whitespace-nowrap]': 'compact()' },
   template: `
     @if (country()) {
-      <span class="flag" [class]="'flag:' + country()" [title]="location() || country()"></span>
+      <span class="flag shrink-0" [class]="'flag:' + country()" [title]="location() || country()"></span>
     }
     @if (ip()) {
-      <span class="font-mono text-xs" [title]="location() || ''">{{ ip() }}</span>
+      <span class="min-w-0 font-mono text-xs" [class.break-all]="!compact()" [title]="compact() ? ip() + (location() ? ' · ' + location() : '') : (location() || '')">{{ shown() }}</span>
     } @else {
       <span class="text-base-content/40">—</span>
     }
@@ -158,9 +158,16 @@ export class LogIpComponent {
   public readonly ip = input<string | null | undefined>();
   public readonly country = input<string | null | undefined>();
   public readonly location = input<string | null | undefined>();
+  /** Shortens IPv6 addresses to their first four groups; the full address is shown on hover. */
+  public readonly compact = input(false, { transform: booleanAttribute });
+  protected readonly shown = computed(() => {
+    const ip = this.ip() ?? '';
+    const groups = ip.split(':');
+    return this.compact() && groups.length > 4 ? `${groups.slice(0, 4).join(':')}:…` : ip;
+  });
 }
 
-/** A label / value row of a log entry details list. */
+/** A label and value pair in a log entry. */
 @Component({
   selector: 'app-log-field',
   host: { class: 'grid gap-1 py-2.5 sm:grid-cols-[11rem_1fr] sm:gap-4' },

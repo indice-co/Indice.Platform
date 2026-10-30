@@ -99,11 +99,11 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
                   <td class="max-w-48 truncate" [class.text-error]="entry.subjectUnknown" [title]="entry.subjectName ?? ''">{{ entry.subjectName || '—' }}</td>
                 }
                 <td class="max-w-48 truncate" [title]="entry.applicationId ?? ''">{{ entry.applicationName || entry.applicationId || '—' }}</td>
-                <td class="max-w-56">
-                  <app-log-device [displayName]="entry.extraData?.device?.displayName" [userAgentFamily]="entry.extraData?.device?.userAgentFamily"
+                <td>
+                  <app-log-device class="w-60 max-w-72" [displayName]="entry.extraData?.device?.displayName" [userAgentFamily]="entry.extraData?.device?.userAgentFamily"
                     [platform]="entry.extraData?.device?.platform" />
                 </td>
-                <td><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" /></td>
+                <td><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" compact /></td>
                 <td class="max-w-48 truncate text-base-content/75" [title]="entry.location ?? ''">{{ entry.location || '—' }}</td>
                 <td>
                   @if (entry.signInType) {
