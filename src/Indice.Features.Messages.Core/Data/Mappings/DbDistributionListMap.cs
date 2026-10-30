@@ -26,7 +26,7 @@ public class DbDistributionListMap : IEntityTypeConfiguration<DbDistributionList
         // Configure properties.
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.Alias).HasMaxLength(TextSizePresets.S64).IsRequired(false);
-        builder.Property(x => x.SystemGenerated).HasColumnType("bit").HasDefaultValue(false);
+        builder.Property(x => x.SystemGenerated).HasDefaultValue(false);
         builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
         // Configure indexes.

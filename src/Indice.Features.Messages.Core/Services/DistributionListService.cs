@@ -74,7 +74,8 @@ public class DistributionListService : IDistributionListService
             CreatedBy = list.CreatedBy,
             Id = list.Id,
             Name = list.Name,
-            Alias = list.Alias
+            Alias = list.Alias,
+            SystemGenerated = list.SystemGenerated
         };
     }
 
@@ -114,7 +115,8 @@ public class DistributionListService : IDistributionListService
             UpdatedBy = list.UpdatedBy,
             Id = list.Id,
             Name = list.Name,
-            Alias = list.Alias
+            Alias = list.Alias,
+            SystemGenerated = list.SystemGenerated
         };
     }
 
@@ -129,7 +131,8 @@ public class DistributionListService : IDistributionListService
             CreatedBy = list.CreatedBy,
             Id = list.Id,
             Name = list.Name,
-            Alias = list.Alias
+            Alias = list.Alias,
+            SystemGenerated = list.SystemGenerated
         };
     }
 

@@ -94,8 +94,8 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
                 </td>
                 <td><app-message-type-badge [name]="item.messageType?.name" [classification]="item.messageType?.classification" /></td>
                 <td class="whitespace-nowrap">
-                  @if (item.updatedAt || item.createdAt) {
-                    <div class="text-sm">{{ (item.updatedAt || item.createdAt) | date: 'medium' }}</div>
+                  @if (item.updatedAt) {
+                    <div class="text-sm">{{ item.updatedAt | date: 'medium' }}</div>
                     @if (item.updatedBy || item.createdBy) {
                       <div class="text-xs text-base-content/60">{{ item.updatedBy || item.createdBy }}</div>
                     }
