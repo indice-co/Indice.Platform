@@ -59,7 +59,7 @@ public class BrevoServiceTests
           {
             "id": 2636078,
             "email": "someone@example.com",
-            "message-id": "<202610261127.96771796084@smtp-relay.mailin.fr>",
+            "message-id": "<202610261127.96771796084@smtp-relay.domain.gr>",
             "date": "2026-10-26 13:27:36",
             "event": "request",
             "subject": "Subject Line",
@@ -74,7 +74,7 @@ public class BrevoServiceTests
           {
             "id": 2636078,
             "email": "someone@example.com",
-            "message-id": "<202610261127.96771796084@smtp-relay.mailin.fr>",
+            "message-id": "<202610261127.96771796084@smtp-relay.domain.gr>",
             "date": "2026-10-26 13:27:37",
             "event": "delivered",
             "subject": "Subject Line",
@@ -89,7 +89,7 @@ public class BrevoServiceTests
           {
             "id": 2636078,
             "email": "someone@example.com",
-            "message-id": "<202610261127.96771796084@smtp-relay.mailin.fr>",
+            "message-id": "<202610261127.96771796084@smtp-relay.domain.gr>",
             "date": "2026-10-26 13:29:16",
             "event": "unique_opened",
             "subject": "Subject Line",

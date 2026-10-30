@@ -205,7 +205,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         var hasUsername = !string.IsNullOrWhiteSpace(_options.WebhookUsername);
         var hasPassword = !string.IsNullOrWhiteSpace(_options.WebhookPassword);
         bool incompleteCredentials = hasUsername != hasPassword;
-        bool noAuth = !incompleteCredentials && !hasUsername;
+        bool noAuth = !hasUsername && !hasPassword;
 
         if (incompleteCredentials) {
             return false;
