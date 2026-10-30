@@ -101,7 +101,7 @@ export class ClaimTypeEditComponent implements OnInit {
   private readonly _refresh = inject(RefreshBus);
   private readonly _translate = inject(TranslateService);
   protected readonly pane = inject(SidePaneService);
-  protected readonly canEdit = this._auth.isAdminUIUsersWriter() || this._auth.isAdminUIClientsWriter();
+  protected readonly canEdit = this._auth.isAdmin();
 
   /** Bound from the `claim-type/:id` pane route; absent when creating. */
   public readonly id = input<string>();
