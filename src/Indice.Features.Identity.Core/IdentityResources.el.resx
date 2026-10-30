@@ -312,6 +312,12 @@
   <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
     <value>Νέος Κωδικός</value>
   </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
+  </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
     <value>Αριθμός Τηλεφώνου</value>
   </data>
@@ -326,6 +332,12 @@
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
     <value>Token</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
   </data>
   <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
     <value>Email</value>
@@ -489,6 +501,12 @@
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Το πεδίο 'Ζώνη ώρας' δεν έχει αποδεκτή μορφή.</value>
   </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Επαλήθευση με κωδικό ανάκτησης</value>
   </data>
@@ -507,22 +525,7 @@
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>Έχετε υπερβεί τον μέγιστο αριθμό αποτυχημένων προσπαθειών.</value>
   </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
-  </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Το πεδίο 'Επιβεβαίωση κωδικού πρόσβασης' είναι υποχρεωτικό.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>Η επιβεβαίωση κωδικού πρόσβασης δεν ταιριάζει με τον κωδικό πρόσβασης.</value>
+  <data name="RegisterPhoneConfirmationFailed" xml:space="preserve">
+    <value>Ο κωδικός δεν είναι έγκυρος</value>
   </data>
 </root>

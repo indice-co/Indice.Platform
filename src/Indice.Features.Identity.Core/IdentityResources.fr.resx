@@ -312,6 +312,12 @@
   <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
     <value>Nouveau mot de passe</value>
   </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
+  </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
     <value>Numero de telephone</value>
   </data>
@@ -326,6 +332,12 @@
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
     <value>Jeton</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
   </data>
   <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
     <value>E-mail</value>
@@ -489,6 +501,12 @@
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Le champ 'Fuseau horaire' a un format invalide.</value>
   </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Vérification par code de récupération</value>
   </data>
@@ -506,23 +524,5 @@
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>Vous avez dépassé le nombre maximal de tentatives infructueuses.</value>
-  </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
-  </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
   </data>
 </root>

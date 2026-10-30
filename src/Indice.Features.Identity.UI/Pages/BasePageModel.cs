@@ -60,6 +60,16 @@ public abstract class BasePageModel : PageModel
         return InteractionService.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl) || UiOptions.IsValidReturnUrl(returnUrl);
     }
 
+    /// <summary>Returns the given return URL when it is safe to render, otherwise falls back to the root path.</summary>
+    /// <param name="returnUrl">The URL to sanitize.</param>
+    /// <param name="context">The current authorization context, if any. A non-null context means IdentityServer has already validated the return URL.</param>
+    protected string SanitizeReturnUrl(string? returnUrl, AuthorizationRequest? context = null) {
+        if (string.IsNullOrWhiteSpace(returnUrl)) {
+            return "/";
+        }
+        return context is not null || IsValidReturnUrl(returnUrl) ? returnUrl : "/";
+    }
+
     /// <summary>Adds errors contained in <see cref="IdentityResult"/> to the <see cref="ModelStateDictionary"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>
     public virtual void AddModelErrors(IdentityResult result) {
@@ -142,6 +152,35 @@ public abstract class BasePageModel : PageModel
         var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
         var maskedEmail = user.Email!.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
         logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", maskedEmail, callbackUrl);
+        return true;
+    }
+
+    /// <summary>Generates an email confirmation one-time code (OTP) and sends it to the email of the specified user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <returns>False if the attempts limit has been reached, otherwise true.</returns>
+    public virtual async Task<bool> SendConfirmationOtpEmail(User user) {
+        var userActionGuard = ServiceProvider.GetRequiredService<IActionRateLimiter>();
+        if (!await userActionGuard.CheckAndAdvanceAsync(user.Id, "Email:SendConfirmationEmail")) {
+            return false;
+        }
+        var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var code = await userManager.GenerateEmailConfirmationOtpAsync(user);
+        var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
+        await emailService.SendAsync(message =>
+            message.To(user.Email!)
+                   .WithSubject(identityMessageDescriber.ConfirmationEmailSubject)
+                   .UsingTemplate("EmailConfirmYourEmailOtp")
+                   .WithData(new {
+                       user.UserName,
+                       RecipientEmail = user.Email,
+                       Subject = identityMessageDescriber.ConfirmationEmailSubject,
+                       Code = code
+                   })
+        );
+        var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
+        var maskedEmail = user.Email!.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
+        logger.LogInformation("Sending a confirmation OTP email to {Email}.", maskedEmail);
         return true;
     }
 

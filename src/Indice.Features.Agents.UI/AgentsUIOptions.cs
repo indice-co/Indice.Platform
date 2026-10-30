@@ -19,6 +19,13 @@ public class AgentsUIOptions : SpaUIOptions
     /// <summary>The display name of the assistant, shown wherever the UI names it (brand, greetings, input placeholder, browser tab). Defaults to <b>Dex</b>.</summary>
     public string? AssistantName { get; set; }
 
+    /// <summary>
+    /// Origins (scheme, host and port — e.g. <c>https://portal.example.com</c>) of the sites allowed to frame the UI, which is what
+    /// embedding the chat widget (<c>widget.js</c>) on their pages does. Sent as the <c>Content-Security-Policy: frame-ancestors</c> of
+    /// the app's page. When empty, only the UI's own origin may frame it.
+    /// </summary>
+    public ICollection<string> FrameAncestors { get; set; } = [];
+
     /// <summary>Creates a new instance <see cref="AgentsUIOptions"/>.</summary>
     public AgentsUIOptions() {
         ClientId = "dex-ui";

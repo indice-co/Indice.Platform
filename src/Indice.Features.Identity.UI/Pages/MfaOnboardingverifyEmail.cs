@@ -42,32 +42,39 @@ public abstract class BaseMfaOnboardingVerifyEmailModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success( UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail),
-            NextStepUrl = string.Empty
-        });
+        TempData.Remove(TempDataKey);
         Input.Email = user.Email;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 
     /// <summary>MFA onboarding verify email page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
-        if (!ModelState.IsValid) {
-            return Page();
-        }
+        TempData.Remove(TempDataKey);
         var tempDataModel = new ExtendedValidationTempDataModel();
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.Email = user.Email;
-        //
+        if (Input.OtpResend) {
+            Input.OtpResend = false;
+            ModelState.Clear();
+            if (!await SendVerificationEmailAsync(user)) {
+                tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached);
+                TempData.Put(TempDataKey, tempDataModel);
+            }
+            return Page();
+        }
+        if (!ModelState.IsValid) {
+            return Page();
+        }
         var result = await UserManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider, Input.Code!.Trim());
         if (result) {
             user.EmailConfirmed = true;
             await UserManager.SetTwoFactorAsync(user, AuthenticationMethodType.Email.ToString());
-            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyEmailSuccessMessage);
-        } else {
-            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);
+            TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(AuthenticationMethodType.Email, user.Email, Input.ReturnUrl ?? returnUrl));
+            return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
         }
+        //TODO:Add new error mesage
+        tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyEmailValidationMissingEmail);
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
     }

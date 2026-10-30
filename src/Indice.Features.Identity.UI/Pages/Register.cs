@@ -96,6 +96,7 @@ public abstract class BaseRegisterModel : BasePageModel
             return Redirect("/404");
         }
         View = await BuildRegisterViewModelAsync(returnUrl);
+        returnUrl = View.ReturnUrl;
         if (View.IsExternalRegistrationOnly) {
             return RedirectToPage("/Challenge", new {
                 provider = View.ExternalRegistrationScheme,
@@ -158,6 +159,7 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     protected async Task<TViewModel> BuildRegisterViewModelAsync<TViewModel>(string? returnUrl) where TViewModel : RegisterViewModel, new() {
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
+        returnUrl = SanitizeReturnUrl(returnUrl, context);
         if (context?.IdP is not null && await SchemeProvider.GetSchemeAsync(context.IdP) is not null) {
             var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
             // This is meant to short circuit the UI and only trigger the one external IdP.

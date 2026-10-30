@@ -13,6 +13,7 @@
     <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
     <StaticWebAssetFingerprintingEnabled>true</StaticWebAssetFingerprintingEnabled>
     <StaticWebAssetsFingerprintContent>true</StaticWebAssetsFingerprintContent>
+    <UserSecretsId>11c09599-f437-4e3d-a201-c12512e23663</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />

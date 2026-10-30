@@ -312,6 +312,12 @@
   <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
     <value>Neues Passwort</value>
   </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
+  </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
     <value>Telefonnummer</value>
   </data>
@@ -326,6 +332,12 @@
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
     <value>Token</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
   </data>
   <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
     <value>E-Mail</value>
@@ -489,6 +501,12 @@
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Das Feld 'Zeitzone' hat ein ungültiges Format.</value>
   </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Wiederherstellungscode-Verifizierung</value>
   </data>
@@ -506,23 +524,5 @@
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>Sie haben die maximale Anzahl fehlgeschlagener Versuche überschritten.</value>
-  </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
-  </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Das Feld 'Passwort bestätigen' ist erforderlich.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>Die Passwortbestätigung stimmt nicht mit dem Passwort überein.</value>
   </data>
 </root>

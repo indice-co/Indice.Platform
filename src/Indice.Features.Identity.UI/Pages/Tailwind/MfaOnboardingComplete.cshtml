@@ -1,0 +1,39 @@
+@page "/login/mfa/onboarding/complete"
+@model BaseMfaOnboardingCompleteModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    ViewBag.Title = Localizer.MfaOnBoardingComplete_PageTitle;
+}
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <vc:page-heading title="@Localizer.MfaOnBoardingComplete_PageHeader" image-src="" subtitle="@Localizer.MfaOnBoardingComplete_Message" />
+
+        <div class="border border-gray-200 rounded-md bg-gray-50 px-4 py-3 mb-4">
+            <div class="text-xs uppercase tracking-wide text-gray-500">@Localizer.MfaOnBoardingComplete_MethodLabel</div>
+            <div class="text-lg font-semibold text-gray-900">@Localizer.MfaOnBoardingComplete_MethodName(Model.View.Method)</div>
+            <p class="mt-1 text-gray-700">
+                @if (!string.IsNullOrEmpty(Model.View.MaskedDestination))
+                {
+                    @Localizer.MfaOnBoardingComplete_Destination(Model.View.MaskedDestination)
+                }
+                else if (Model.View.Method == Indice.Features.Identity.Core.Models.AuthenticationMethodType.AuthenticatorApp)
+                {
+                    @Localizer.MfaOnBoardingComplete_AuthenticatorHint
+                }
+            </p>
+        </div>
+        <p class="mb-6 text-gray-700">
+            @Localizer.MfaOnBoardingComplete_NextSignIn
+        </p>
+
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+            <button type="submit"
+                    class="block w-full py-2 px-4 font-semibold rounded-md
+                bg-blue-500 hover:bg-blue-600 text-white transition">
+                @Localizer.MfaOnBoardingComplete_Continue
+            </button>
+        </form>
+    </div>
+</div>

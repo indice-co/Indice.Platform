@@ -1,0 +1,34 @@
+﻿@inject ExtendedUserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var hasPassword = user is not null && await UserManager.HasPasswordAsync(user);
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty;
+    string Current(string page) => string.Equals(currentPage, page, StringComparison.OrdinalIgnoreCase) ? "page" : null!;
+}
+
+<nav class="profile-nav" aria-label="@Localizer.Account_NavLabel">
+    <a class="profile-nav__link" asp-page="/Profile" aria-current="@Current("/Profile")">
+        <i class="fa-regular fa-circle-user profile-nav__icon" aria-hidden="true"></i>
+        <span>@Localizer.Profile_PageTitle</span>
+    </a>
+    @if (hasPassword)
+    {
+        <a class="profile-nav__link" asp-page="/ChangePassword" aria-current="@Current("/ChangePassword")">
+            <i class="fa-solid fa-key profile-nav__icon" aria-hidden="true"></i>
+            <span>@Localizer.ChangePassword_PageTitle</span>
+        </a>
+    }
+    else
+    {
+        <a class="profile-nav__link" asp-page="/AddPassword" aria-current="@Current("/AddPassword")">
+            <i class="fa-solid fa-key profile-nav__icon" aria-hidden="true"></i>
+            <span>@Localizer.AddPassword_PageTitle</span>
+        </a>
+    }
+    <a class="profile-nav__link" asp-page="/Grants" aria-current="@Current("/Grants")">
+        <i class="fa-solid fa-shield-halved profile-nav__icon" aria-hidden="true"></i>
+        <span>@Localizer.Grants_PageTitle</span>
+    </a>
+</nav>

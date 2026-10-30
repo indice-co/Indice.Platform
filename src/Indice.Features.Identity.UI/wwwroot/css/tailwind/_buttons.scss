@@ -14,6 +14,10 @@
     @apply bg-transparent border-tenant-900 text-tenant-900 hover:bg-tenant-400 focus:active:bg-tenant-600 focus:active:border-tenant-600 disabled:bg-greys-500 disabled:border-greys-500 disabled:text-greys-500;
 }
 
+.account-row__toggle {
+    @apply inline-flex items-center justify-center h-8 w-8 rounded-full bg-transparent text-tenant-900 hover:bg-tenant-400;
+}
+
 .btn-danger {
     @apply bg-transparent border-red-700 text-red-700 hover:bg-red-600 focus:active:text-white hover:text-white focus:active:bg-red-600 focus:active:border-red-600 disabled:bg-greys-500 disabled:border-greys-500 disabled:text-greys-500;
 }
@@ -22,7 +26,7 @@
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
 
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Microsoft.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../../img/idps/Microsoft.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -31,7 +35,7 @@
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
 
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Facebook.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../../img/idps/Facebook.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -39,7 +43,7 @@
 .idp-google {
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Google.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../../img/idps/Google.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -47,7 +51,7 @@
 .idp-apple {
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Apple.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../../img/idps/Apple.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -57,7 +61,7 @@
     background-color: rgb(0, 51, 117);
     overflow:hidden;
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/GovGr-Alternate.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../../img/idps/GovGr-Alternate.svg")] bg-transparent;
         background-size: 80%;
     }
 }
