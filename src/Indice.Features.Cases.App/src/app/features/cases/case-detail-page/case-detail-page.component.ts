@@ -1,11 +1,11 @@
-import { Component, DestroyRef, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, linkedSignal, signal, untracked } from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '@indice/ng-auth';
-import { EMPTY, Observable, Subscription, of } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
+import { Observable, Subscription, of } from 'rxjs';
+import { distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import {
   LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
 } from '@lucide/angular';
@@ -57,27 +57,52 @@ export class CaseDetailPageComponent {
   protected readonly timelineEntries = signal<TimelineEntry[] | undefined>(undefined);
   protected readonly loadFailed = signal(false);
 
+  /** The side pane changes of the case (`CaseDetailsService.revision`) its last load already includes. */
+  private readonly _loadedRevision = computed(() => {
+    const caseId = this.model()?.id;
+    return untracked(() => this._caseDetailsService.revision(caseId));
+  });
+  /** The case again, once a side pane changed it after it loaded; idle otherwise. */
+  private readonly _changedCase = rxResource({
+    params: () => {
+      const caseId = this.model()?.id;
+      const revision = this._caseDetailsService.revision(caseId);
+      return caseId && revision !== this._loadedRevision() ? { caseId, revision } : undefined;
+    },
+    stream: ({ params }) => this._api.getCaseById(params.caseId)
+  });
   /**
-   * The fields the admin side panes change. Every load of the case resets them; after a pane saves only they are refreshed,
-   * as reloading the whole case would rebuild the form and drop its unsaved edits.
+   * The fields the side panes change, from the latest of the loaded case and its copy after a pane change. Only these are
+   * refreshed after a pane saves: reloading the whole case would rebuild the form and drop its unsaved edits.
    */
-  protected readonly adminFields = linkedSignal(() => ({ groupId: this.model()?.groupId, relationKey: this.model()?.relationKey }));
-  /** The case and its relation key; equal while both stay the same, so refreshing the case does not reload its related cases. */
+  protected readonly adminFields = linkedSignal({
+    source: () => ({ model: this.model(), changed: this._changedCase.hasValue() ? this._changedCase.value() : undefined }),
+    computation: ({ model, changed }, previous): AdminFields => {
+      if (changed) {
+        return adminFieldsOf(changed);
+      }
+      // a newer copy loads (another pane change): keep the current one until it arrives
+      return previous && model === previous.source.model ? previous.value : adminFieldsOf(model);
+    }
+  });
+  /** The case, its relation key and its pane changes; equal while all stay the same, so refreshing the case does not reload its related cases. */
   private readonly _relation = computed(
     () => {
       const caseId = this.model()?.id;
-      return caseId ? { caseId, relationKey: this.adminFields().relationKey } : undefined;
+      return caseId
+        ? { caseId, relationKey: this.adminFields().relationKey, revision: this._caseDetailsService.revision(caseId) }
+        : undefined;
     },
-    { equal: (a, b) => a?.caseId === b?.caseId && a?.relationKey === b?.relationKey }
+    { equal: (a, b) => a?.caseId === b?.caseId && a?.relationKey === b?.relationKey && a?.revision === b?.revision }
   );
   private readonly _related = rxResource({
-    params: () => this._relation(),
-    stream: ({ params }) => params.relationKey ? this._api.getRelatedCases(params.caseId).pipe(map(related => related ?? [])) : of([])
+    params: () => this._relation()?.relationKey ? this._relation() : undefined,
+    stream: ({ params }) => this._api.getRelatedCases(params.caseId)
   });
   /** The related cases, kept while they reload so the tab does not flash empty. */
-  protected readonly relatedCases = linkedSignal<CasePartial[] | undefined, CasePartial[]>({
-    source: () => this._related.hasValue() ? this._related.value() : undefined,
-    computation: (related, previous) => related ?? previous?.value ?? []
+  protected readonly relatedCases = linkedSignal({
+    source: () => ({ relation: this._relation(), related: this._related.hasValue() ? this._related.value() : undefined }),
+    computation: ({ relation, related }, previous): CasePartial[] => relation?.relationKey ? related ?? previous?.value ?? [] : []
   });
 
   protected readonly formValid = signal(false);
@@ -172,17 +197,6 @@ export class CaseDetailPageComponent {
         this.requestModel();
         this.getCaseActions();
         this.getTimeline();
-      });
-    // a side pane changed the relations or the group of this case: refresh just those
-    this._caseDetailsService.caseChanged$
-      .pipe(
-        filter(caseId => caseId === this._caseId),
-        switchMap(caseId => this._api.getCaseById(caseId).pipe(catchError(() => EMPTY))),
-        takeUntilDestroyed()
-      )
-      .subscribe(caseModel => {
-        this.adminFields.set({ groupId: caseModel.groupId, relationKey: caseModel.relationKey });
-        this._related.reload();
       });
   }
 
@@ -307,5 +321,15 @@ export class CaseDetailPageComponent {
     const caseId = this.model()?.id;
     return this.canAdminister && caseId ? this._pane.link(path, { caseId }) : undefined;
   }
+}
+
+/** The fields of a case the side panes change. */
+interface AdminFields {
+  groupId?: string;
+  relationKey?: string;
+}
+
+function adminFieldsOf(model: Case | undefined): AdminFields {
+  return { groupId: model?.groupId, relationKey: model?.relationKey };
 }
 

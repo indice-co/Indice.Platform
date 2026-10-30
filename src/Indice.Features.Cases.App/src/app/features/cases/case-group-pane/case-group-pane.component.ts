@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideFolder, LucideTriangleAlert } from '@lucide/angular';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
@@ -63,18 +63,21 @@ export class CaseGroupPaneComponent {
   protected readonly changed = computed(() => this.case.hasValue() && this.groupId().trim() !== (this.case.value().groupId ?? ''));
   protected readonly saving = signal(false);
 
-  protected save(): void {
+  protected async save(): Promise<void> {
     if (!this.changed() || this.saving()) {
       return;
     }
     const caseId = this.caseId();
     this.saving.set(true);
-    this._api.updateCaseGroup(caseId, new UpdateCaseGroupRequest({ groupId: this.groupId().trim() || undefined }))
-      .pipe(finalize(() => this.saving.set(false)))
-      .subscribe(() => {
-        this._toast.success('toasts.success.title', 'caseGroup.saved');
-        this._caseDetails.notifyCaseChanged(caseId);
-        this.pane.close();
-      });
+    try {
+      await firstValueFrom(this._api.updateCaseGroup(caseId, new UpdateCaseGroupRequest({ groupId: this.groupId().trim() || undefined })));
+      this._toast.success('toasts.success.title', 'caseGroup.saved');
+      this._caseDetails.notifyCaseChanged(caseId);
+      this.pane.close();
+    } catch {
+      // the problem details interceptor reports the failure
+    } finally {
+      this.saving.set(false);
+    }
   }
 }
