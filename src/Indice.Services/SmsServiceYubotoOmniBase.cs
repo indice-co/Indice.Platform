@@ -463,10 +463,8 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         }
 
         var timestamp = DateTimeOffset.UtcNow;
-        if (!string.IsNullOrWhiteSpace(dlrDate)) {
-            if (!DateTimeOffset.TryParse(dlrDate, out timestamp)) {
-                return WebhookHttpResult.BadRequest("Invalid 'dlrDate' value in Yuboto webhook payload.");
-            }
+        if (!string.IsNullOrWhiteSpace(dlrDate) && !DateTimeOffset.TryParse(dlrDate, out timestamp)) {
+            return WebhookHttpResult.BadRequest("Invalid 'dlrDate' value in Yuboto webhook payload.");
         }
 
         var payload = new JsonObject();
@@ -537,7 +535,9 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
                 return true;
             }
             return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken), expectedHmac);
-        } catch {
+        } catch (FormatException) {
+            return true;
+        } catch (ArgumentException) {
             return true;
         }
     }
@@ -557,7 +557,9 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         try {
             bytes = Convert.FromBase64String(base64);
             return true;
-        } catch {
+        } catch (FormatException) {
+            return false;
+        } catch (ArgumentException) {
             return false;
         }
     }
