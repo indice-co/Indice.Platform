@@ -137,8 +137,8 @@ const ICON_PATHS: Record<string, string> = {
             rows="1"
             [attr.maxlength]="maxLength"
             [value]="text()"
-            [disabled]="streaming() || readOnly()"
-            [placeholder]="readOnly() ? 'This conversation is read-only' : placeholder()"
+            [disabled]="streaming() || readOnly() || locked()"
+            [placeholder]="readOnly() ? 'This conversation is read-only' : locked() ? 'Complete the payment to continue' : placeholder()"
             (input)="onInput($event)"
             (keydown)="onKeydown($event)"
             [attr.aria-label]="'Message ' + assistantName"
@@ -201,6 +201,8 @@ export class ChatComposerComponent {
   readonly streaming = input(false);
   /** When the conversation is read-only the composer is disabled entirely — no new turns can be sent. */
   readonly readOnly = input(false);
+  /** Temporarily frozen, e.g. while an inline payment awaits completion. */
+  readonly locked = input(false);
   /** Rendered mid-canvas (new session): drop the pinned bar chrome, keep only the input box. */
   readonly centered = input(false);
   readonly placeholder = input(`Ask ${assistantName} anything…`);
@@ -216,7 +218,7 @@ export class ChatComposerComponent {
   protected readonly text = signal('');
   /** Whether the auto-growing textarea has wrapped past one row — pill until it does. */
   protected readonly multiline = signal(false);
-  protected readonly canSend = computed(() => this.text().trim().length > 0 && !this.streaming() && !this.readOnly());
+  protected readonly canSend = computed(() => this.text().trim().length > 0 && !this.streaming() && !this.readOnly() && !this.locked());
 
   /** The agent shown on the picker trigger — the explicit pick, else the first discovered one. */
   protected readonly activeAgent = computed<AgentInfo | null>(() => {

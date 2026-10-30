@@ -31,6 +31,7 @@
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@indice/ng-auth": "0.5.2",
+    "@stripe/stripe-js": "^7.9.0",
     "ngx-markdown": "^20.0.0",
     "marked": "^15.0.0",
     "oidc-client-ts": "^3.5.0",

@@ -9,7 +9,8 @@ let nextGroupId = 0;
  * Renders a `application/vnd.indice.hitl-request+json` part that asks for a payment method: the methods as a radio
  * list and a button that opens the payment sheet. The sheet is a picture — nothing is charged — and dismissing it, by
  * clicking outside it or pressing Escape, emits the chosen method as plain text, which the chat page sends as the next
- * user message — the same `pick` path `ChatOptionsComponent` and `ChatConfirmComponent` already use.
+ * user message — the same `pick` path `ChatOptionsComponent` and `ChatConfirmComponent` already use. Stripe skips the
+ * sheet: the method is submitted straight away and the workflow answers with the inline Stripe payment form.
  *
  * This form is an affordance, not the mechanism: the chat page attaches the structured answer to *whatever* the next
  * user turn is, so answering in the composer instead works identically. That is why nothing here knows about
@@ -121,7 +122,12 @@ export class ChatHitlPaymentComponent {
   }
 
   protected open(): void {
-    if (this.locked() || !this.selected()) {
+    const method = this.selected();
+    if (this.locked() || !method) {
+      return;
+    }
+    if (isStripe(method)) {
+      this.submit(method);
       return;
     }
     this.sheet()?.nativeElement.showModal();
@@ -133,7 +139,16 @@ export class ChatHitlPaymentComponent {
     if (this.locked() || !method) {
       return;
     }
+    this.submit(method);
+  }
+
+  private submit(method: string): void {
     this.picked.set(true);
     this.pick.emit(method);
   }
+}
+
+/** Stripe is the real provider; the method name is what the server's `PaymentCompletedStep` matches on. */
+function isStripe(method: string): boolean {
+  return method.trim().toLowerCase() === 'stripe';
 }

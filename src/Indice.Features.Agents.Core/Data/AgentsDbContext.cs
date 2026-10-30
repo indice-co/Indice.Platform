@@ -29,6 +29,9 @@ public class AgentsDbContext : DbContext
     /// <summary>Durable workflow checkpoint blobs, keyed per run (conversation).</summary>
     public DbSet<DbCheckpoint> Checkpoints => Set<DbCheckpoint>();
 
+    /// <summary>Stripe one-step payment attempts, one live attempt per case.</summary>
+    public DbSet<DbPaymentSession> PaymentSessions => Set<DbPaymentSession>();
+
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
