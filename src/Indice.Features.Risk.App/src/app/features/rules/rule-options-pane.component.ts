@@ -1,5 +1,5 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideTriangleAlert } from '@lucide/angular';
 import { RiskApiService } from 'src/app/core/services/risk-api.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
@@ -90,6 +90,7 @@ export class RuleOptionsPaneComponent {
   private readonly _api = inject(RiskApiService);
   private readonly _toasts = inject(ToastService);
   private readonly _refresh = inject(RefreshBus);
+  private readonly _destroyRef = inject(DestroyRef);
   protected readonly pane = inject(SidePaneService);
   /** Route param. */
   public readonly ruleName = input.required<string>();
@@ -141,7 +142,7 @@ export class RuleOptionsPaneComponent {
       [ELIGIBLE_EVENTS_KEY]: (values[ELIGIBLE_EVENTS_KEY] ?? '').split(',').map(e => e.trim()).filter(Boolean)
     };
     this.saving.set(true);
-    this._api.updateRiskRuleOptions(ruleName, request).subscribe({
+    this._api.updateRiskRuleOptions(ruleName, request).pipe(takeUntilDestroyed(this._destroyRef)).subscribe({
       next: () => {
         this.saving.set(false);
         this._toasts.success('Options saved', `${values['friendlyName'] || ruleName} has been updated.`);

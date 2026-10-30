@@ -42,7 +42,7 @@ export class SidePaneService {
           @if (eyebrow()) {
             <p class="mb-1 text-xs font-semibold tracking-wider text-primary uppercase">{{ eyebrow() }}</p>
           }
-          <h2 class="text-lg font-semibold break-words">{{ title() }}</h2>
+          <h2 id="side-pane-heading" class="text-lg font-semibold break-words">{{ title() }}</h2>
           @if (subtitle()) {
             <p class="mt-0.5 text-sm text-base-content/70">{{ subtitle() }}</p>
           }

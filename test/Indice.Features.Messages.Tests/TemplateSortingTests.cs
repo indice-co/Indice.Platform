@@ -47,6 +47,21 @@ public class TemplateSortingTests : IAsyncLifetime
         Assert.Equal(expected, result.Items.Select(x => x.Name));
     }
 
+    [Theory]
+    [InlineData("name,updatedAt-", new[] { "alpha", "beta", "zeta" })]
+    [InlineData("updatedAt-,name", new[] { "zeta", "alpha", "beta" })]
+    public async Task GetList_PreservesOtherSortClauses_WhenSortingByUpdatedAt(string sort, string[] expected) {
+        var now = DateTimeOffset.UtcNow;
+        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        await SeedAsync(db, "alpha", createdAt: now.AddDays(-2), updatedAt: null);
+        await SeedAsync(db, "beta", createdAt: now.AddDays(-2), updatedAt: null);
+        await SeedAsync(db, "zeta", createdAt: now.AddDays(-1), updatedAt: null);
+
+        var result = await new TemplateService(db).GetList(new ListOptions<TemplateListFilter> { Page = 1, Size = 10, Sort = sort });
+
+        Assert.Equal(expected, result.Items.Select(x => x.Name));
+    }
+
     private static async Task SeedAsync(CampaignsDbContext db, string name, DateTimeOffset createdAt, DateTimeOffset? updatedAt) {
         var id = Guid.NewGuid();
         db.Templates.Add(new DbTemplate { Id = id, Name = name, CreatedBy = "test" });

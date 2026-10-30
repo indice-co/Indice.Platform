@@ -53,9 +53,22 @@ export class FilterClause {
 
   public toApiTerm(): string {
     if (this.isDate) {
-      const [year, month, day] = this.value.split('-').map(Number);
+      const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(this.value);
+      if (!dateOnly) {
+        return this.toString();
+      }
+      const [, year, month, day] = dateOnly;
+      const instant = new Date(`${this.value}T00:00:00`);
+      if (Number.isNaN(instant.getTime()) ||
+          instant.getFullYear() !== Number(year) ||
+          instant.getMonth() !== Number(month) - 1 ||
+          instant.getDate() !== Number(day)) {
+        return this.toString();
+      }
       // `to` is inclusive: the whole selected day, in the user's time zone
-      const instant = this.member === DATE_TO ? new Date(year, month - 1, day, 23, 59, 59, 999) : new Date(year, month - 1, day);
+      if (this.member === DATE_TO) {
+        instant.setHours(23, 59, 59, 999);
+      }
       return `${this.member}::${this.operator}::${instant.toISOString()}`;
     }
     return this.toString();

@@ -6,8 +6,8 @@ import { Component, computed, input } from '@angular/core';
   host: { class: 'inline-flex' },
   template: `
     @if (level()) {
-      <span class="badge gap-1.5 border-0 font-semibold whitespace-nowrap" [class.badge-sm]="size() === 'sm'" [class.badge-lg]="size() === 'lg'"
-        [style.color]="color()" [style.background]="'color-mix(in oklab, ' + color() + ' 14%, transparent)'">
+      <span class="badge gap-1.5 border-0 font-semibold whitespace-nowrap text-base-content" [class.badge-sm]="size() === 'sm'" [class.badge-lg]="size() === 'lg'"
+        [style.background]="'color-mix(in oklab, ' + color() + ' 14%, transparent)'">
         <span class="risk-dot" [attr.data-level]="level()"></span>{{ level() }}
       </span>
     } @else {

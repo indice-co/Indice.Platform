@@ -71,7 +71,8 @@ export const RULES_SCOPE = 'rules';
                   <p class="mt-1 max-w-3xl text-sm text-base-content/75">{{ rule.description }}</p>
                 }
               </div>
-              <a class="btn btn-sm btn-ghost gap-1.5" [routerLink]="pane.link(['rule', rule.name!])">
+              <a class="btn btn-sm btn-ghost gap-1.5" [attr.aria-label]="'Configure ' + (rule.friendlyName || rule.name)"
+                [routerLink]="pane.link(['rule', rule.name!])">
                 <svg lucidePencil class="size-4"></svg><span class="hidden sm:inline">Configure</span>
               </a>
             </li>

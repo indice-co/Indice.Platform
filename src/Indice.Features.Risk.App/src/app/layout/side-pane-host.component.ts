@@ -11,7 +11,7 @@ import { ToasterComponent } from '../ui/toast/toaster.component';
   selector: 'app-side-pane-host',
   imports: [RouterOutlet, ToasterComponent],
   template: `
-    <dialog #panel
+    <dialog #panel aria-labelledby="side-pane-heading"
       class="fixed inset-y-0 right-0 left-auto m-0 h-full max-h-none w-full max-w-full overflow-hidden bg-base-100 p-0 shadow-2xl backdrop:bg-neutral/40"
       [class]="widthClass()" (cancel)="onCancel($event)" (click)="onClick($event)">
       <!-- the routed pane component fills the panel so its layout body can scroll -->

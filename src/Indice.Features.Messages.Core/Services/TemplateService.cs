@@ -142,12 +142,10 @@ public class TemplateService : ITemplateService
         }
 
         // Never edited templates show their creation date as the update date, so they sort by it too.
-        var sortByUpdate = options.GetSortings().FirstOrDefault(x => x.Path.Equals(nameof(DbTemplate.UpdatedAt), StringComparison.OrdinalIgnoreCase));
-        var result = sortByUpdate.Path is null
-            ? await query.ToResultSetAsync(options)
-            : await (sortByUpdate.Direction == SortByClause.DESC
-                ? query.OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
-                : query.OrderBy(x => x.UpdatedAt ?? x.CreatedAt)).ToResultSetAsync(options.Page!.Value, options.Size!.Value);
+        var sortings = options.GetSortings().ToArray();
+        var result = sortings.Any(x => x.Path.Equals(nameof(DbTemplate.UpdatedAt), StringComparison.OrdinalIgnoreCase))
+            ? await SortByEffectiveUpdateDate(query, sortings, options)
+            : await query.ToResultSetAsync(options);
         var templateItems = result.Items.Select(x => new TemplateListItem {
             Channels = x.Content.Select(x => Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true)).ToList(),
             CreatedAt = x.CreatedAt,
@@ -168,6 +166,24 @@ public class TemplateService : ITemplateService
             Type = x.Type
         });
         return new ResultSet<TemplateListItem>(templateItems, result.Count);
+    }
+
+    private static Task<ResultSet<DbTemplate>> SortByEffectiveUpdateDate(IQueryable<DbTemplate> query, SortByClause[] sortings, ListOptions options) {
+        IOrderedQueryable<DbTemplate>? sortedQuery = null;
+        foreach (var sorting in sortings) {
+            if (sorting.Path.Equals(nameof(DbTemplate.UpdatedAt), StringComparison.OrdinalIgnoreCase)) {
+                sortedQuery = sorting.Direction == SortByClause.DESC
+                    ? sortedQuery is null
+                        ? query.OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
+                        : sortedQuery.ThenByDescending(x => x.UpdatedAt ?? x.CreatedAt)
+                    : sortedQuery is null
+                        ? query.OrderBy(x => x.UpdatedAt ?? x.CreatedAt)
+                        : sortedQuery.ThenBy(x => x.UpdatedAt ?? x.CreatedAt);
+            } else {
+                sortedQuery = (sortedQuery ?? query).OrderBy(sorting, append: sortedQuery is not null);
+            }
+        }
+        return (sortedQuery ?? query).ToResultSetAsync(options.Page!.Value, options.Size!.Value);
     }
 
     /// <inheritdoc />
