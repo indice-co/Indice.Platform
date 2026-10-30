@@ -69,7 +69,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                 query = query.Where(c => c.CreatedAt >= dateFrom);
             }
 
-            if (clause.Member.ToLower() == "from" && DateTimeOffset.TryParse(clause.Value, out var dateTo)) {
+            if (clause.Member.ToLower() == "to" && DateTimeOffset.TryParse(clause.Value, out var dateTo)) {
                 query = query.Where(c => c.CreatedAt <= dateTo);
             }
 

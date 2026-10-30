@@ -45,10 +45,10 @@ public class TemplateService : ITemplateService
             Data = template.Data,
             CreatedAt = template.CreatedAt,
             MessageType = template.MessageType != null ? new MessageType {
-                Id = template.MessageType.Id, 
-                Name = template.MessageType.Name, 
-                Alias = template.MessageType.Alias, 
-                Classification = template.MessageType.Classification 
+                Id = template.MessageType.Id,
+                Name = template.MessageType.Name,
+                Alias = template.MessageType.Alias,
+                Classification = template.MessageType.Classification
             } : null,
             Type = template.Type
         };
@@ -103,18 +103,18 @@ public class TemplateService : ITemplateService
         var templates = await DbContext.Templates
             .Where(x => x.Type == TemplateType.Partial || x.Type == TemplateType.Layout)
             .Select(t => new Template {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Alias = t.Alias,
-                    Type = t.Type,
-                    Content = t.Content,
-                    Data = t.Data,
-                    CreatedAt = t.CreatedAt,
-                    CreatedBy = t.CreatedBy,
-                    UpdatedAt = t.UpdatedAt,
-                    UpdatedBy = t.UpdatedBy,
-                    IgnoreUserPreferences = t.IgnoreUserPreferences
-                })
+                Id = t.Id,
+                Name = t.Name,
+                Alias = t.Alias,
+                Type = t.Type,
+                Content = t.Content,
+                Data = t.Data,
+                CreatedAt = t.CreatedAt,
+                CreatedBy = t.CreatedBy,
+                UpdatedAt = t.UpdatedAt,
+                UpdatedBy = t.UpdatedBy,
+                IgnoreUserPreferences = t.IgnoreUserPreferences
+            })
             .ToListAsync();
         return new ResultSet<Template>(templates, templates.Count);
     }
@@ -133,7 +133,7 @@ public class TemplateService : ITemplateService
             query = options.Filter.IncludeItemsWithoutMessageTypeId == true
                 ? query.Where(x => x.MessageTypeId == options.Filter.MessageTypeId || x.MessageTypeId == null)
                 : query.Where(x => x.MessageTypeId == options.Filter.MessageTypeId);
-        } 
+        }
         if (options.Filter?.IncludeItemsWithoutMessageTypeId == false) {
             query = query.Where(x => x.MessageTypeId != null);
         }

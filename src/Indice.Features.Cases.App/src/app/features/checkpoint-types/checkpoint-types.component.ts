@@ -90,7 +90,8 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
                 </td>
                 <td class="text-right whitespace-nowrap">
                   <span class="tooltip" [attr.data-tip]="'common.edit' | translate">
-                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/checkpoint-types', item.id, 'edit']" [attr.aria-label]="'common.edit' | translate">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/checkpoint-types', item.id, 'edit']" [queryParams]="editQueryParams()"
+                      [attr.aria-label]="'common.edit' | translate">
                       <svg lucidePencil class="size-4"></svg>
                     </a>
                   </span>
@@ -132,6 +133,8 @@ export class CheckpointTypesComponent implements OnInit {
   public readonly scopeCaseTypeId = input<string | undefined>(undefined);
   /** Hides the page header when embedded in another page. */
   public readonly embedded = input(false);
+  /** App URL the checkpoint type create / edit pages return to, instead of this list. */
+  public readonly returnUrl = input<string>();
 
   protected readonly caseTypes = signal<CaseTypePartial[]>([]);
   protected readonly selectedCaseTypeId = signal<string | undefined>(undefined);
@@ -170,7 +173,12 @@ export class CheckpointTypesComponent implements OnInit {
 
   protected createQueryParams(): Record<string, string> {
     const caseTypeId = this.selectedCaseTypeId();
-    return caseTypeId ? { caseTypeId } : {};
+    return { ...(caseTypeId ? { caseTypeId } : {}), ...this.editQueryParams() };
+  }
+
+  protected editQueryParams(): Record<string, string> {
+    const returnUrl = this.returnUrl();
+    return returnUrl ? { returnUrl } : {};
   }
 
   protected delete(item: CheckpointType): void {

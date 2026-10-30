@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Localization;
 using Indice.Services.Tests.Types;
@@ -15,41 +16,45 @@ public class TranslationEndpointTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private readonly IServiceProvider _serviceProvider;
 
 
     public TranslationEndpointTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["MySection:MyKey"] = "TestValue"
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+            builder.UseTestServer();
+            builder.ConfigureAppConfiguration(builder => {
+                builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                    ["MySection:MyKey"] = "TestValue"
+                });
             });
-        });
-        builder.ConfigureServices(services => {
-            services.AddRouting();
+            builder.ConfigureServices(services => {
+                services.AddRouting();
 
-            services.AddTranslationGraph((o) => {
-                o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
-                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
-                o.AddResource("https://yourdomainhere.com", "/http-translations.{lang:culture}.json", translationsLocation: "/api/translations.{0}.json"); // alternate assemby different resex. different path
+                services.AddTranslationGraph((o) => {
+                    o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
+                    o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
+                    o.AddResource("https://yourdomainhere.com", "/http-translations.{lang:culture}.json", translationsLocation: "/api/translations.{0}.json"); // alternate assemby different resex. different path
+                });
+                services.AddDecorator<IStringLocalizerFactory, HttpStringLocalizerFactory>();
+                services.AddHttpClient(nameof(HttpStringLocalizer));
+                services.Configure<HttpStringLocalizerOptions>(options => {
+                    options.HttpLocations.Add("https://yourdomainhere.com/api/translations.{0}.json");
+                });
             });
-            services.AddDecorator<IStringLocalizerFactory, HttpStringLocalizerFactory>();
-            services.AddHttpClient(nameof(HttpStringLocalizer));
-            services.Configure<HttpStringLocalizerOptions>(options => {
-                options.HttpLocations.Add("https://yourdomainhere.com/api/translations.{0}.json");
+            builder.Configure(app => {
+                app.UseRouting();
+                app.UseEndpoints(e => e.MapTranslationGraph());
             });
-        });
-        builder.Configure(app => {
-            app.UseRouting();
-            app.UseEndpoints(e => e.MapTranslationGraph());
-        });
-        var server = new TestServer(builder);
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     #region Facts
@@ -75,6 +80,7 @@ public class TranslationEndpointTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
     public async ValueTask DisposeAsync() {
-        await _serviceProvider.DisposeAsync();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 }

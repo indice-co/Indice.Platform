@@ -105,7 +105,7 @@ import { ThemeMode, ThemeService } from './theme.service';
         <label for="app-drawer" class="drawer-overlay" [attr.aria-label]="'nav.closeMenu' | translate"></label>
         <aside class="flex min-h-full flex-col" style="width: var(--app-sidebar-width); background: var(--app-sidebar-bg); color: var(--app-sidebar-content)">
           <a routerLink="/dashboard" class="flex h-16 items-center px-5" style="color: var(--app-sidebar-content-strong)">
-            <app-logo [size]="30" />
+            <app-logo [size]="30" ring="var(--app-sidebar-bg)" />
           </a>
 
           <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4" [attr.aria-label]="'nav.main' | translate">
@@ -140,7 +140,7 @@ import { ThemeMode, ThemeService } from './theme.service';
                   </span>
                 </span>
                 <span class="min-w-0 flex-1">
-                  <span class="block truncate font-medium" style="color: var(--app-sidebar-content-strong)">{{ userName() }}</span>
+                  <span class="block truncate font-medium" style="color: var(--app-sidebar-content-strong)" title="{{userName()}}">{{ userName() }}</span>
                   <span class="block truncate text-xs opacity-70">{{ userEmail() }}</span>
                 </span>
                 <svg lucideChevronsUpDown class="size-4 shrink-0 opacity-60"></svg>
@@ -177,7 +177,8 @@ export class ShellComponent {
 
   private readonly _user = toSignal(this._auth.user$, { initialValue: this._auth.getCurrentUser() });
   protected readonly userId = () => this._user()?.profile?.sub;
-  protected readonly userName = () => this._user()?.profile?.name ?? this._user()?.profile?.email ?? '';
+  protected readonly userName = () => this._user()?.profile?.given_name ? `${this._user()?.profile?.given_name} ${this._user()?.profile?.family_name ?? ''}`.trim() :
+                                        this._user()?.profile?.name ?? this._user()?.profile?.email ?? '';
   protected readonly userEmail = () => this._user()?.profile?.email ?? '';
 
   constructor() {

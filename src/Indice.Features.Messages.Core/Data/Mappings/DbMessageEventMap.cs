@@ -32,5 +32,11 @@ public class DbMessageEventMap : IEntityTypeConfiguration<DbMessageEvent>
         builder.HasIndex(x => x.Type);
         builder.HasIndex(x => x.Channel);
         builder.HasIndex(x => x.Recipient);
+        // events list (newest first) and date ranged analytics
+        builder.HasIndex(x => x.CreatedOn);
+        // campaign reports and the per campaign analytics, covering so they do not read the whole row
+        var campaignIndex = builder.HasIndex(x => new { x.CampaignId, x.Type });
+        SqlServerIndexBuilderExtensions.IncludeProperties(campaignIndex, x => new { x.Channel, x.MessageId, x.ContactId, x.Success });
+        NpgsqlIndexBuilderExtensions.IncludeProperties(campaignIndex, x => new { x.Channel, x.MessageId, x.ContactId, x.Success });
     }
 }

@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import Handlebars from 'handlebars';
 import { Observable, map, shareReplay } from 'rxjs';
 import { MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
+import { registerMessageHelpers } from './handlebars-helpers';
 
 const CHANNELS = ['inbox', 'pushnotification', 'email', 'sms'] as const;
 type Channel = typeof CHANNELS[number];
@@ -15,9 +16,10 @@ type Channel = typeof CHANNELS[number];
  */
 @Injectable({ providedIn: 'root' })
 export class PartialTemplatesStore {
+  private readonly _api = inject(MessagesApiClient);
   private readonly _envs$: Observable<Record<Channel, typeof Handlebars>>;
 
-  constructor(private _api: MessagesApiClient) {
+  constructor() {
     this._envs$ = this._fetch().pipe(
       map(templates => this._buildEnvs(templates)),
       shareReplay({ bufferSize: 1, refCount: false })
@@ -29,7 +31,7 @@ export class PartialTemplatesStore {
   /** Resolves to the Handlebars env for the requested channel. Unknown channel → a partial-free env. */
   public envFor(channel: string | undefined): Observable<typeof Handlebars> {
     const key = (channel || '').toLowerCase() as Channel;
-    return this._envs$.pipe(map(envs => envs[key] ?? Handlebars.create()));
+    return this._envs$.pipe(map(envs => envs[key] ?? registerMessageHelpers(Handlebars.create())));
   }
 
   /**
@@ -53,7 +55,7 @@ export class PartialTemplatesStore {
   private _buildEnvs(templates: Template[]): Record<Channel, typeof Handlebars> {
     const envs = {} as Record<Channel, typeof Handlebars>;
     for (const channel of CHANNELS) {
-      const env = Handlebars.create();
+      const env = registerMessageHelpers(Handlebars.create());
       for (const t of templates) {
         const body = this._bodyFor(t, channel);
         if (t.alias && body) {

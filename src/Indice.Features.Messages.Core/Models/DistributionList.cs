@@ -11,6 +11,8 @@ public class DistributionList
     public string? Alias { get; set; }
     /// <summary>Specifies the principal that created the list.</summary>
     public string? CreatedBy { get; set; }
+    /// <summary>Indicates whether the distribution list is system generated.</summary>
+    public bool SystemGenerated { get; set; }
     /// <summary>Specifies when a list was created.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>Specifies the principal that update the list.</summary>

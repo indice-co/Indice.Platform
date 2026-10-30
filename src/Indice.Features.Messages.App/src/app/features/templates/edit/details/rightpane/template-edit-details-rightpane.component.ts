@@ -1,162 +1,143 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { APP_LANGUAGES, MenuOption, ToastType } from '@indice/ng-components';
-import { EMPTY, Subscription, catchError, map, Subject, combineLatest, takeUntil } from 'rxjs';
-
-import { MessageTypeResultSet, MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
+import { MessagesApiClient, MessageType, Template } from 'src/app/core/services/messages-api.service';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
+import { SidePaneLayoutComponent, SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { TemplateEditStore } from '../../template-edit-store.service';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
-import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
+/** Which part of the template the pane edits. */
+export type TemplateEditSection = 'name' | 'preferences' | 'messageType';
+
+/** Side pane that edits one section of a template's basic information (`edit-template/:templateId;section=…`). */
 @Component({
-    selector: 'app-campaign-details-edit-rightpane',
-    templateUrl: './template-edit-details-rightpane.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-template-details-edit-rightpane',
+  imports: [ReactiveFormsModule, TranslatePipe, SidePaneLayoutComponent],
+  template: `
+    <app-side-pane-layout [title]="'Templates.EditTemplateDialogTitle' | translate" [subtitle]="template()?.name">
+      @if (!template()) {
+        <div class="space-y-4">
+          @for (row of [1, 2]; track row) { <div class="skeleton h-10 w-full"></div> }
+        </div>
+      } @else {
+        <form id="template-details-form" class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+          @switch (section()) {
+            @case ('preferences') {
+              <label class="flex cursor-pointer items-center justify-between gap-4 rounded-box border border-base-300 px-4 py-3">
+                <span class="text-sm font-medium">{{ 'Templates.IgnoreUserPreferencesLabel' | translate }}</span>
+                <input type="checkbox" class="toggle toggle-primary" formControlName="ignoreUserPreferences" />
+              </label>
+            }
+            @case ('messageType') {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Templates.MessageTypeLabel' | translate }}</legend>
+                <select class="select w-full" formControlName="messageTypeId">
+                  <option value="">{{ 'Templates.SelectPlaceholder' | translate }}</option>
+                  @for (type of messageTypes(); track type.id) {
+                    <option [value]="type.id">{{ type.name }}</option>
+                  }
+                </select>
+              </fieldset>
+            }
+            @default {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Templates.TitleLabelRequired' | translate }}</legend>
+                <input class="input w-full" formControlName="name" maxlength="256" [placeholder]="'Templates.TitlePlaceholder' | translate"
+                  [class.input-error]="form.controls.name.invalid && form.controls.name.touched" />
+                @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+                  <p class="label text-error">{{ 'Templates.TitleRequiredError' | translate }}</p>
+                } @else if (form.controls.name.hasError('maxlength')) {
+                  <p class="label text-error">{{ 'Templates.TitleMaxLengthError' | translate }}</p>
+                } @else {
+                  <p class="label whitespace-normal">{{ 'Templates.TitleInfo' | translate }}</p>
+                }
+              </fieldset>
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">{{ 'Templates.AliasLabel' | translate }}</legend>
+                <input class="input w-full font-mono" formControlName="alias" maxlength="64" [placeholder]="'Templates.AliasPlaceholder' | translate" />
+                @if (form.controls.alias.hasError('maxlength')) {
+                  <p class="label text-error">{{ 'Templates.AliasMaxLengthError' | translate }}</p>
+                }
+              </fieldset>
+            }
+          }
+        </form>
+      }
+      <div footer class="flex justify-end gap-2 border-t border-base-300 px-6 py-4">
+        <button type="button" class="btn btn-ghost" (click)="pane.close()">{{ 'Templates.Close' | translate }}</button>
+        <button type="submit" form="template-details-form" class="btn btn-primary" [disabled]="form.invalid || saving() || !template()">
+          @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
+          {{ 'Templates.Save' | translate }}
+        </button>
+      </div>
+    </app-side-pane-layout>
+  `
 })
-export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
-  private _updateTemplateSubscription: Subscription | undefined;
-  private _templateId = '';
+export class TemplateDetailsEditRightpaneComponent implements OnInit {
+  private readonly _api = inject(MessagesApiClient);
+  private readonly _store = inject(TemplateEditStore);
+  private readonly _toaster = inject(AppTranslatedToaster);
+  protected readonly pane = inject(SidePaneService);
 
-  constructor(
-    private _templateStore: TemplateEditStore,
-    private _router: Router,
-    private _activatedRoute: ActivatedRoute,
-    private _changeDetector: ChangeDetectorRef,
-    private _api: MessagesApiClient,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService,
-    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
-  ) { }
+  /** Bound from the `edit-template/:templateId` route. */
+  public readonly templateId = input.required<string>();
+  /** Bound from the `section` matrix param. */
+  public readonly section = input<TemplateEditSection>('name');
 
-  @ViewChild('editNameTemplate', { static: true }) public editNameTemplate!: TemplateRef<any>;
-  @ViewChild('editUserPreferenceTemplate', { static: true }) public editUserPreferenceTemplate!: TemplateRef<any>;
-  @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
-  @ViewChild('editMessageType', { static: true }) public editMessageType!: TemplateRef<any>;
-
-  public submitInProgress = false;
-  public templateOutlet!: TemplateRef<any>;
-  public model = new Template();
-  public selectedOption: MenuOption | null = null;
-  // Fallback placeholder uses translation key; will be replaced reactively.
-  public messageTypes: MenuOption[] = [new MenuOption('Templates.SelectPlaceholder', null)];
-  public action = 'editName';
-
-  private _destroy$ = new Subject<void>();
+  protected readonly template = signal<Template | undefined>(undefined);
+  protected readonly messageTypes = signal<MessageType[]>([]);
+  protected readonly saving = signal(false);
+  protected readonly form = inject(NonNullableFormBuilder).group({
+    name: ['', [Validators.required, Validators.maxLength(256)]],
+    alias: ['', Validators.maxLength(64)],
+    ignoreUserPreferences: [false],
+    messageTypeId: ['']
+  });
 
   public ngOnInit(): void {
-    this._templateId = this._router.url.split('/')[2];
-    this._activatedRoute.queryParams.subscribe((queryParams: Params) => {
-        this._selectTemplate(queryParams.action || 'editName');
-      });
-
-    // Reactive translation for the placeholder option
-    combineLatest([this._lang.translateKey('Templates.SelectPlaceholder')])
-      .pipe(takeUntil(this._destroy$))
-      .subscribe(([placeholder]) => {
-        if (this.messageTypes.length > 0) {
-          this.messageTypes[0] = new MenuOption(placeholder || 'Templates.SelectPlaceholder', null);
-        }
-      });
-  }
-
-  public ngAfterViewInit(): void {
-    this._templateStore
-      .getTemplate(this._templateId)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((template: Template) => {
-        this.model = template;
-        if (this.model?.messageType?.id) {
-          this.selectedOption = new MenuOption(this.model.messageType.name || '', this.model.messageType.id, undefined, null, `dot dot-${this.model.messageType.classification}`);
-        }
-      });
-    this._changeDetector.detectChanges();
-  }
-
-  public ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
-    this._updateTemplateSubscription?.unsubscribe();
-  }
-
-  public onSubmit(): void {
-    this.submitInProgress = true;
-    if (this.action == 'editUserPreference') {
-      this._updateTemplateSubscription = this._templateStore
-        .updateUserPreference(this._templateId, this.model)
-        .pipe(
-          catchError(() => {
-            this.submitInProgress = false;
-            return EMPTY;
-          }))
-        .subscribe({
-          next: () => {
-            this.submitInProgress = false;
-            this._toaster.show(ToastType.Success, 'Templates.UpdateSuccessTitle', 'Templates.UpdateSuccessMessage', undefined, { name: this.model.name });
-            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates', this._templateId]));
-          }
-        });
-    } if (this.action == 'editMessageType') {
-      this._updateTemplateSubscription = this._templateStore
-        .updateTemplateMessageType(this._templateId, this.selectedOption?.value ?? undefined)
-        .pipe(
-          catchError(() => {
-            this.submitInProgress = false;
-            return EMPTY;
-          }))
-        .subscribe({
-          next: () => {
-            this.submitInProgress = false;
-            this._toaster.show(ToastType.Success, 'Templates.UpdateSuccessTitle', 'Templates.UpdateSuccessMessage', undefined, { name: this.model.name });
-            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates', this._templateId]));
-          }
-        });
-    } else {
-      this._updateTemplateSubscription = this._templateStore
-        .updateTemplate(this._templateId, this.model)
-        .pipe(
-          catchError(() => {
-            this.submitInProgress = false;
-            return EMPTY;
-          }))
-        .subscribe({
-          next: () => {
-            this.submitInProgress = false;
-            this._toaster.show(ToastType.Success, 'Templates.UpdateSuccessTitle', 'Templates.UpdateSuccessMessage', undefined, { name: this.model.name });
-            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates', this._templateId]));
-          }
-        });
+    if (this.section() === 'messageType') {
+      this._api.getMessageTypes().subscribe(result => this.messageTypes.set(result.items ?? []));
     }
+    this._store.getTemplate(this.templateId()).subscribe({
+      next: template => {
+        this.form.setValue({
+          name: template.name ?? '',
+          alias: template.alias ?? '',
+          ignoreUserPreferences: template.ignoreUserPreferences ?? false,
+          messageTypeId: template.messageType?.id ?? ''
+        });
+        this.template.set(template);
+      },
+      error: () => this.pane.close()
+    });
   }
 
-  private _selectTemplate(action: string): void {
-    switch (action) {
-      case 'editName':
-        this.templateOutlet = this.editNameTemplate;
-        break;
-      case 'editUserPreference':
-        this.action = 'editUserPreference';
-        this.templateOutlet = this.editUserPreferenceTemplate;
-        break;
-      case 'editMessageType':
-        this.action = 'editMessageType';
-        this.templateOutlet = this.editMessageType;
-        this._loadMessageTypes();
-        break;
+  protected submit(): void {
+    const template = this.template();
+    if (this.form.invalid || !template) {
+      return;
     }
-  }
-
-  private _loadMessageTypes(): void {
-    this._api
-      .getMessageTypes()
-      .pipe(map((messageTypes: MessageTypeResultSet) => {
-          if (messageTypes.items) {
-          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id, undefined, type, `dot dot-${type.classification}`)));
-          }
-      }))
-      .subscribe();
-  }
-
-  protected setType(event: MenuOption): void {
-    this.selectedOption = event;
+    const value = this.form.getRawValue();
+    const id = this.templateId();
+    let request$: Observable<void>;
+    switch (this.section()) {
+      case 'preferences':
+        request$ = this._store.updateUserPreference(id, value.ignoreUserPreferences);
+        break;
+      case 'messageType':
+        request$ = this._store.updateTemplateMessageType(id, value.messageTypeId || undefined);
+        break;
+      default:
+        request$ = this._store.updateTemplate(id, new Template({ ...template, name: value.name, alias: value.alias || undefined }));
+    }
+    this.saving.set(true);
+    request$.subscribe({
+      next: () => {
+        this._toaster.show(ToastType.Success, 'Templates.UpdateSuccessTitle', 'Templates.UpdateSuccessMessage', undefined, { name: value.name });
+        this.pane.close();
+      },
+      error: () => this.saving.set(false)
+    });
   }
 }

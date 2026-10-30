@@ -1,158 +1,144 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, filter, map, switchMap, tap } from 'rxjs';
+import { FolderTree, FolderTreeStructure, MediaApiClient, MediaFile, MediaFolder } from 'src/app/core/services/media-api.service';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
+import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { DialogService } from 'src/app/ui/dialog/dialog.service';
+import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 
-import { AsyncSubject, Observable, of } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
-import { MediaApiClient, FolderContent, CreateFolderRequest, FileParameter, MediaFile, MediaFolder, UpdateFileMetadataRequest, UpdateFolderRequest, FolderTreeStructure, CreateFolderResponse } from 'src/app/core/services/media-api.service';
+/** RefreshBus scope notified whenever folders or files of the media library change. */
+export const MEDIA_SCOPE = 'media';
 
-@Injectable({
-    providedIn: 'root'
-})
+export type MediaView = 'grid' | 'list';
+
+const VIEW_STORAGE_KEY = 'media-library.view';
+
+/**
+ * Shared state and actions of the media library: the folder tree, the preferred view and the common item actions
+ * (delete with confirmation, copy link, open, download). Mutations notify {@link MEDIA_SCOPE} on the RefreshBus.
+ */
+@Injectable({ providedIn: 'root' })
 export class MediaLibraryStore {
-    private _folderStructure: AsyncSubject<FolderTreeStructure> | undefined;
-    private _folderContent: AsyncSubject<FolderContent> | undefined;
-    private _folderIdChanged = false;
-    private _currentFolderId: string | undefined;
-    private _selectedFile: AsyncSubject<MediaFile> | undefined;
-    private _fileIdChanged = false;
-    private _currentFileId: string | undefined;
-    private _folders: AsyncSubject<MediaFolder[]> | undefined;
-    private _page: number | undefined;
-    private _size: number | undefined;
+  private readonly _api = inject(MediaApiClient);
+  private readonly _dialog = inject(DialogService);
+  private readonly _toaster = inject(AppTranslatedToaster);
+  private readonly _refresh = inject(RefreshBus);
+  private readonly _files = inject(FileUtilitiesService);
 
-    constructor(
-        private _api: MediaApiClient
-    ) { }
+  public readonly structure = signal<FolderTreeStructure | undefined>(undefined);
+  public readonly structureLoading = signal(false);
+  public readonly view = signal<MediaView>(readView());
 
-    public getFolderContent(folderId: string | undefined, page: number, size: number): Observable<FolderContent> {
-        this._folderIdChanged = this._currentFolderId !== folderId;
-        let paginationChanged = this._page !== page || this._size !== size;
-        this._page = page;
-        this._size = size;
-        this._currentFolderId = folderId;
-        if (!this._folderContent || this._folderIdChanged || paginationChanged) {
-            this._folderContent = new AsyncSubject<FolderContent>();
-            this._api
-                .getFolderContent(folderId, page, size)
-                .subscribe((folderContent: FolderContent) => {
-                    this._folderContent?.next(folderContent);
-                    this._folderContent?.complete();
-                });
+  public setView(view: MediaView): void {
+    this.view.set(view);
+    try {
+      localStorage.setItem(VIEW_STORAGE_KEY, view);
+    } catch { /* storage unavailable */ }
+  }
+
+  public loadStructure(): void {
+    this.structureLoading.set(true);
+    this._api.getFolderStructure().subscribe({
+      next: structure => {
+        this.structure.set(structure);
+        this.structureLoading.set(false);
+      },
+      error: () => this.structureLoading.set(false)
+    });
+  }
+
+  /** Folders from the root down to (and including) `folderId`, according to the loaded tree. */
+  public pathTo(folderId: string | undefined): MediaFolder[] {
+    if (!folderId) {
+      return [];
+    }
+    const search = (nodes: FolderTree[] | undefined, trail: MediaFolder[]): MediaFolder[] | undefined => {
+      for (const tree of nodes ?? []) {
+        if (!tree.node) {
+          continue;
         }
-        return this._folderContent;
-    }
-
-    public getFolderStructure(): Observable<FolderTreeStructure> {
-        if (!this._folderStructure) {
-            this._folderStructure = new AsyncSubject<FolderTreeStructure>();
-            this._api
-                .getFolderStructure()
-                .subscribe((folderContent: FolderTreeStructure) => {
-                    this._folderStructure?.next(folderContent);
-                    this._folderStructure?.complete();
-                });
+        const next = [...trail, tree.node];
+        if (tree.node.id === folderId) {
+          return next;
         }
-        return this._folderStructure;
-    }
-
-    public getFolderDetails(folderId: string): Observable<MediaFolder> {
-        if (this._folderContent) {
-            return this._folderContent
-                .pipe(mergeMap((content) => {
-                  if (this._currentFolderId === folderId) {
-                      return of(new MediaFolder({ id: content.id, name: content.name! }));
-                    }
-                    let folderDetails = content.folders?.find(f => f.id == folderId);
-                    if (folderDetails) {
-                        return of(folderDetails);
-                    }
-                    return this._api.getFolderById(folderId)
-                }))
+        const found = search(tree.children, next);
+        if (found) {
+          return found;
         }
-        return this._api.getFolderById(folderId);
-    }
+      }
+      return undefined;
+    };
+    return search(this.structure()?.items, []) ?? [];
+  }
 
-     public createFolder(request: CreateFolderRequest): Observable<CreateFolderResponse> {
-        return this._api
-            .createFolder(request)
-            .pipe(
-                tap(_ => this._folderContent = undefined),
-                tap(_ => this._folders = undefined),
-                tap(_ => this._folderStructure = undefined)
-            );
-    }
+  /** Router link of a folder page (the library root when `folderId` is empty). */
+  public folderLink(folderId: string | undefined): string[] {
+    return folderId ? ['/media', folderId] : ['/media'];
+  }
 
-    public updateFolder(folderId: string, request: UpdateFolderRequest): Observable<void> {
-        return this._api
-            .updateFolder(folderId, request)
-            .pipe(
-                tap(_ => this._folderContent = undefined),
-                tap(_ => this._folders = undefined),
-                tap(_ => this._folderStructure = undefined)
-            );
-    }
+  /** Router link of a file details page. */
+  public fileLink(file: MediaFile): string[] {
+    return ['/media', file.folderId || 'root', file.id];
+  }
 
-    public deleteFolder(id: string) {
-        return this._api
-            .deleteFolder(id)
-            .pipe(
-                tap(_ => this._folderContent = undefined),
-                tap(_ => this._folders = undefined),
-                tap(_ => this._folderStructure = undefined)
-            );
-    }
+  public notifyChanged(): void {
+    this._refresh.notify(MEDIA_SCOPE);
+  }
 
-    public uploadFile(folderId?: string | undefined, files?: FileParameter[]) {
-        return this._api
-            .uploadFile(folderId, files)
-            .pipe(
-                tap(_ => this._folderContent = undefined),
-                tap(_ => this._folderStructure = undefined)
-            );
-    }
+  public deleteFolder(folder: MediaFolder): Observable<void> {
+    return this._dialog
+      .confirm({ title: 'MediaLibrary.DeleteFolderTitle', message: 'MediaLibrary.DeleteFolderConfirmMessage', messageParams: { name: folder.name }, confirmLabel: 'Common.Delete', tone: 'danger' })
+      .pipe(
+        filter(confirmed => confirmed),
+        switchMap(() => this._api.deleteFolder(folder.id!)),
+        tap(() => {
+          this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFolderSuccessTitle', 'MediaLibrary.DeleteFolderSuccessMessage', undefined, { name: folder.name });
+          this.notifyChanged();
+        })
+      );
+  }
 
-    public deleteFile(id: string) {
-        return this._api
-            .deleteFile(id)
-            .pipe(
-                tap(_ => this._folderContent = undefined),
-                tap(_ => this._selectedFile = undefined),
-                tap(_ => this._folderStructure = undefined)
-            );
-    }
+  public deleteFile(file: MediaFile): Observable<void> {
+    return this._dialog
+      .confirm({ title: 'MediaLibrary.DeleteFileTitle', message: 'MediaLibrary.DeleteFileConfirmMessage', messageParams: { name: file.name }, confirmLabel: 'Common.Delete', tone: 'danger' })
+      .pipe(
+        filter(confirmed => confirmed),
+        switchMap(() => this._api.deleteFile(file.id)),
+        map(() => undefined),
+        tap(() => {
+          this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFileSuccessTitle', 'MediaLibrary.DeleteFileSuccessMessage', undefined, { name: file.name });
+          this.notifyChanged();
+        })
+      );
+  }
 
-    public getFileDetails(id: string): Observable<MediaFile> {
-        this._fileIdChanged = this._currentFileId !== id;
-        this._currentFileId = id;
-        if (!this._selectedFile || this._fileIdChanged) {
-            this._selectedFile = new AsyncSubject<MediaFile>();
-            this._api
-                .getFileDetails(id)
-                .subscribe((mediaFile: MediaFile) => {
-                    this._selectedFile?.next(mediaFile);
-                    this._selectedFile?.complete();
-                });
-        }
-        return this._selectedFile;
-    }
+  public copyLink(file: MediaFile): void {
+    this._files.copyPathToClipboard(file.permaLink).then(
+      () => this._toaster.show(ToastType.Success, 'MediaLibrary.CopyLinkTitle', 'MediaLibrary.CopyLinkSuccessMessage', undefined, { name: file.name }),
+      () => this._toaster.show(ToastType.Error, 'MediaLibrary.CopyLinkErrorTitle', 'MediaLibrary.CopyLinkErrorMessage')
+    );
+  }
 
-    public updateFileMetadata(id: string, request: UpdateFileMetadataRequest) {
-        return this._api.updateFileMetadata(id, request)
-            .pipe(
-                tap(_ => this._folderContent = undefined),
-                tap(_ => this._selectedFile = undefined)
-            );
-    }
+  public copyPath(file: MediaFile): void {
+    this._files.copyPathToClipboard(file.path).then(
+      () => this._toaster.show(ToastType.Success, 'MediaLibrary.CopyPathTitle', 'MediaLibrary.CopyPathSuccessMessage', undefined, { path: file.path }),
+      () => this._toaster.show(ToastType.Error, 'MediaLibrary.CopyPathErrorTitle', 'MediaLibrary.CopyPathErrorMessage')
+    );
+  }
 
-    public listFolders() {
-        if (!this._folders) {
-            this._folders = new AsyncSubject<MediaFolder[]>();
-            this._api
-                .listFolders()
-                .subscribe((folders: MediaFolder[]) => {
-                    this._folders?.next(folders);
-                    this._folders?.complete();
-                });
-        }
-        return this._folders;
-    }
+  public open(file: MediaFile): void {
+    this._files.openFileInNewTab(file);
+  }
+
+  public download(file: MediaFile): void {
+    this._files.downloadFile(file).catch(() => this._files.openFileInNewTab(file));
+  }
+}
+
+function readView(): MediaView {
+  try {
+    return localStorage.getItem(VIEW_STORAGE_KEY) === 'list' ? 'list' : 'grid';
+  } catch {
+    return 'grid';
+  }
 }

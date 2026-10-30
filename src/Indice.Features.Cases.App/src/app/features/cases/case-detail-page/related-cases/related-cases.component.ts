@@ -1,48 +1,64 @@
-import { Component, input } from '@angular/core';
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, inject, input } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LucideChevronRight } from '@lucide/angular';
 import { CasePartial } from 'src/app/core/services/cases-api.service';
 
-/** Cases sharing this case's external correlation key. The open case is marked rather than linked. */
+/** Grid of the cases sharing this case's relation key. The open case is marked rather than linked. */
 @Component({
   selector: 'app-case-related',
-  imports: [DatePipe, NgTemplateOutlet, RouterLink, TranslatePipe, LucideChevronRight],
+  imports: [DatePipe, RouterLink, TranslatePipe],
   host: { class: 'block' },
   template: `
-    <section class="panel p-5">
-      <h2 class="mb-2 text-sm font-semibold">{{ 'caseDetails.related.title' | translate }}</h2>
-      <ul class="-mx-2 max-h-64 overflow-y-auto">
-        @for (relatedCase of relatedCases(); track relatedCase.id) {
-          <li>
-            @if (relatedCase.id === currentCaseId()) {
-              <div class="flex items-center gap-3 rounded-field px-2 py-2">
-                <ng-container *ngTemplateOutlet="row; context: { $implicit: relatedCase }" />
-                <span class="badge badge-sm badge-ghost">{{ 'caseDetails.related.current' | translate }}</span>
-              </div>
-            } @else {
-              <a class="flex items-center gap-3 rounded-field px-2 py-2 hover:bg-base-200" [routerLink]="['/cases', relatedCase.id, 'details']">
-                <ng-container *ngTemplateOutlet="row; context: { $implicit: relatedCase }" />
-                <svg lucideChevronRight class="size-4 opacity-50"></svg>
-              </a>
-            }
-          </li>
-        }
-      </ul>
-    </section>
-
-    <ng-template #row let-item>
-      <span class="min-w-0 flex-1">
-        <span class="block truncate text-sm font-semibold">{{ item.checkpointType?.code }}</span>
-        <span class="block truncate text-xs text-base-content/65">
-          {{ item.caseType?.code }}, {{ item.createdByWhen | date: 'dd/MM/yyyy, HH:mm' }}
-        </span>
-      </span>
-    </ng-template>
+    <div class="max-h-96 overflow-auto">
+      <table class="table table-sm table-pin-rows">
+        <thead>
+          <tr class="bg-base-100 text-base-content/70">
+            <th class="font-medium whitespace-nowrap">{{ 'cases.referenceNumber' | translate }}</th>
+            <th class="font-medium whitespace-nowrap">{{ 'cases.caseType' | translate }}</th>
+            <th class="font-medium whitespace-nowrap">{{ 'cases.checkpointType' | translate }}</th>
+            <th class="font-medium whitespace-nowrap">{{ 'cases.assignedTo' | translate }}</th>
+            <th class="font-medium whitespace-nowrap">{{ 'cases.submitDate' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (relatedCase of relatedCases(); track relatedCase.id) {
+            @let current = relatedCase.id === currentCaseId();
+            <tr [class]="current ? 'bg-base-200/60' : 'cursor-pointer hover:bg-base-200'" [attr.aria-current]="current ? 'page' : null"
+              (click)="current || open(relatedCase)">
+              <td class="whitespace-nowrap">
+                @if (current) {
+                  <span class="docket font-semibold">{{ relatedCase.referenceNumber ?? relatedCase.id }}</span>
+                  <span class="badge badge-sm badge-ghost ml-2">{{ 'caseDetails.related.current' | translate }}</span>
+                } @else {
+                  <a class="docket font-semibold text-primary hover:underline" [routerLink]="['/cases', relatedCase.id, 'details']"
+                    (click)="$event.stopPropagation()">{{ relatedCase.referenceNumber ?? relatedCase.id }}</a>
+                }
+              </td>
+              <td class="whitespace-nowrap">{{ relatedCase.caseType?.title ?? relatedCase.caseType?.code ?? '-' }}</td>
+              <td class="whitespace-nowrap">
+                @if (relatedCase.checkpointType; as checkpoint) {
+                  <span class="stamp" [class]="'stamp-' + (checkpoint.status?.toLowerCase() ?? 'neutral')">{{ checkpoint.title ?? checkpoint.code }}</span>
+                } @else { - }
+              </td>
+              <td class="whitespace-nowrap">{{ relatedCase.assignedToName || ('caseDetails.unassigned' | translate) }}</td>
+              <td class="whitespace-nowrap">
+                <span class="docket text-base-content/80">{{ relatedCase.createdByWhen ? (relatedCase.createdByWhen | date: 'dd/MM/yyyy HH:mm') : '-' }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   `
 })
 export class RelatedCasesComponent {
+  private readonly _router = inject(Router);
+
   public readonly relatedCases = input<CasePartial[]>([]);
   public readonly currentCaseId = input<string | undefined>();
+
+  protected open(relatedCase: CasePartial): void {
+    this._router.navigate(['/cases', relatedCase.id, 'details']);
+  }
 }

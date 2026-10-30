@@ -32,5 +32,7 @@ public class DbCase
     public virtual List<DbCaseData> Versions { get; set; } = [];
     public virtual List<DbCaseApproval> Approvals { get; set; } = [];
     public string? ReferenceNumber { get; set; }
+    /// <summary>Correlates cases. Mirrors the <c>ExternalCorrelationKey</c> metadata entry.</summary>
+    public string? RelationKey { get; set; }
 }
 #pragma warning restore 1591

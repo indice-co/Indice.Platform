@@ -1,134 +1,122 @@
-import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '@indice/ng-auth';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction, FilterClause, SearchOption } from '@indice/ng-components';
-import { User } from 'oidc-client-ts';
-import { Observable, Subscription } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
-import { ParamsService } from 'src/app/core/services/params.service';
-import { RiskApiService, DbAggregateRuleExecutionResult, DbAggregateRuleExecutionResultResultSet, RISK_API_BASE_URL } from 'src/app/core/services/risk-api.service';
-import { DataService } from 'src/app/core/services/data.service';
-import { settings } from 'src/app/core/models/settings';
-import { trim } from 'lodash';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LucideActivity, LucideChevronRight, LucideGauge, LucideRefreshCw, LucideTriangleAlert } from '@lucide/angular';
+import { DbAggregateRuleExecutionResult, RiskApiService } from 'src/app/core/services/risk-api.service';
+import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
+import { FilterBarComponent } from 'src/app/ui/list/filter-bar.component';
+import { FilterClause, FilterField } from 'src/app/ui/list/filter-clause';
+import { ListState, toApiSort } from 'src/app/ui/list/list-state';
+import { PaginationComponent } from 'src/app/ui/list/pagination.component';
+import { SortHeaderComponent } from 'src/app/ui/list/sort-header.component';
+import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
+import { RiskLevelBadgeComponent } from 'src/app/ui/risk/risk-level-badge.component';
+import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 
 @Component({
-    selector: 'app-risk-results',
-    templateUrl: './risk-results.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-risk-results',
+  imports: [
+    DatePipe, DecimalPipe, RouterLink, PageHeaderComponent, FilterBarComponent, PaginationComponent, SortHeaderComponent, EmptyStateComponent,
+    RiskLevelBadgeComponent, LucideActivity, LucideChevronRight, LucideGauge, LucideRefreshCw, LucideTriangleAlert
+  ],
+  template: `
+    <app-page-header title="Risk results" subtitle="The outcome of every risk evaluation, with the score each rule contributed."
+      [count]="list.count()" />
+
+    <section class="panel">
+      <app-filter-bar class="border-b border-base-300 p-4" [fields]="fields" [filters]="list.filters()" (filtersChange)="list.setFilters($event)">
+        <button actions type="button" class="btn btn-sm btn-ghost btn-square" aria-label="Refresh" title="Refresh" (click)="list.refresh()">
+          <svg lucideRefreshCw class="size-4" [class.animate-spin]="list.loading()"></svg>
+        </button>
+      </app-filter-bar>
+
+      @if (list.failed()) {
+        <app-empty-state title="Risk results could not be loaded" message="The service did not respond as expected. Try again in a moment.">
+          <svg icon lucideTriangleAlert class="size-6"></svg>
+          <button actions type="button" class="btn btn-sm" (click)="list.refresh()">Try again</button>
+        </app-empty-state>
+      } @else if (list.items() === null) {
+        <div class="space-y-3 p-4">
+          @for (row of [1, 2, 3, 4, 5, 6]; track row) { <div class="skeleton h-10 w-full"></div> }
+        </div>
+      } @else if (list.isEmpty()) {
+        <app-empty-state title="No risk results" [message]="list.hasFilters() ? 'No results match the current filters.' : 'Results appear here once risk is evaluated.'">
+          <svg icon lucideGauge class="size-6"></svg>
+          @if (list.hasFilters()) {
+            <button actions type="button" class="btn btn-sm" (click)="list.setFilters([])">Clear filters</button>
+          }
+        </app-empty-state>
+      } @else {
+        <div class="overflow-x-auto" [class.opacity-60]="list.loading()">
+          <table class="table">
+            <thead>
+              <tr class="text-xs text-base-content/60">
+                <th><app-sort-header field="createdAt" label="Evaluated" [sort]="list.sort()" [dir]="list.dir()" (sortChange)="list.setSort($event)" /></th>
+                <th><app-sort-header field="riskScore" label="Risk" [sort]="list.sort()" [dir]="list.dir()" (sortChange)="list.setSort($event)" /></th>
+                <th><app-sort-header field="name" label="Event" [sort]="list.sort()" [dir]="list.dir()" (sortChange)="list.setSort($event)" /></th>
+                <th>Subject</th>
+                <th class="text-right"><app-sort-header field="amount" label="Amount" [sort]="list.sort()" [dir]="list.dir()" (sortChange)="list.setSort($event)" /></th>
+                <th class="hidden text-right lg:table-cell">Rules</th>
+                <th class="hidden xl:table-cell">IP address</th>
+                <th><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of list.items(); track item.id) {
+                <tr class="cursor-pointer hover:bg-base-200/60" (click)="pane.open(['result', item.id!])">
+                  <td class="whitespace-nowrap">
+                    <span class="block font-medium tabular">{{ item.createdAt | date: 'dd MMM yyyy' }}</span>
+                    <span class="block text-xs text-base-content/60 tabular">{{ item.createdAt | date: 'HH:mm:ss' }}</span>
+                  </td>
+                  <td class="whitespace-nowrap">
+                    <app-risk-level-badge [level]="item.riskLevel" />
+                    <span class="ml-2 text-sm font-semibold tabular">{{ item.riskScore ?? '—' }}</span>
+                  </td>
+                  <td>
+                    <span class="block font-medium">{{ item.name || '—' }}</span>
+                    @if (item.type) { <span class="badge badge-ghost badge-sm mt-0.5">{{ item.type }}</span> }
+                  </td>
+                  <td class="font-mono text-xs">{{ item.subjectId || '—' }}</td>
+                  <td class="text-right font-medium whitespace-nowrap tabular">{{ item.amount != null ? (item.amount | number: '1.2-2') : '—' }}</td>
+                  <td class="hidden text-right tabular lg:table-cell">{{ item.numberOfRulesExecuted ?? '—' }}</td>
+                  <td class="hidden font-mono text-xs xl:table-cell">{{ item.ipAddress || '—' }}</td>
+                  <td class="w-0 whitespace-nowrap text-right">
+                    @if (item.eventId) {
+                      <a class="btn btn-ghost btn-sm btn-square" routerLink="/risk-events" [queryParams]="{ filter: 'id::eq::' + item.eventId }"
+                        aria-label="Show the evaluated event" title="Show the evaluated event" (click)="$event.stopPropagation()">
+                        <svg lucideActivity class="size-4"></svg>
+                      </a>
+                    }
+                    <a class="btn btn-ghost btn-sm btn-square" [routerLink]="pane.link(['result', item.id!])" aria-label="View result details"
+                      (click)="$event.stopPropagation()">
+                      <svg lucideChevronRight class="size-4"></svg>
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count() ?? 0"
+          (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
+      }
+    </section>
+  `
 })
-export class RiskResultsComponent extends BaseListComponent<DbAggregateRuleExecutionResult> implements OnInit {
-    newItemLink: string;
-    public formActions: ViewAction[] = [
-        new ViewAction('refresh', 'refresh', null, Icons.Refresh, 'Ανανέωση στοιχείων')
-    ];
-    public user: User | null = null;
-    public isAdmin: boolean | undefined;
-    public userSub$: Subscription | null = null;
-
-    constructor(
-        @Inject(AuthService) private authService: AuthService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _api: RiskApiService,
-        private _paramsService: ParamsService,
-        private dataService: DataService)
-    {
-        super(_route, _router);
-        this.view = ListViewType.Table;
-        this.pageSize = 50;
-        this.sort = 'createdAt';
-        this.sortdir = 'desc';
-        this.sortOptions = [
-            new MenuOption('Ημ. δημιουργίας', 'createdAt')
-        ];
-
-        const extraSearchOptions: SearchOption[] = [
-            {
-                field: 'subjectId',
-                name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ',
-                dataType: 'string'
-            },
-            {
-                field: 'ipAddress',
-                name: 'IP ADDRESS',
-                dataType: 'string'
-            },
-            {
-                field: 'name',
-                name: 'ΟΝΟΜΑ ΡΙΣΚΟΥ',
-                dataType: 'string'
-            },
-            {
-                field: 'type',
-                name: 'ΤΥΠΟΣ ΡΙΣΚΟΥ',
-                dataType: 'string'
-            },
-            {
-                field: 'daterange',
-                name: 'ΗΜ. ΔΗΜΙΟΥΡΓΙΑΣ',
-                dataType: 'daterange'
-            }
-        ];
-        this.searchOptions.push(...extraSearchOptions);
-    }
-
-    openRiskDetailsPane(item: DbAggregateRuleExecutionResult): void {
-         this._router.navigateByUrl(`/risk-results(rightpane:details/${item.id})`, { skipLocationChange: true });
-    }
-
-    inspectRiskEvent(eventId: string): void {
-        const targetUrl = `${settings.api_url}/risk-events?sort=createdAt&dir=desc&filter=id::eq::${eventId}`;
-        window.open(targetUrl, '_blank');
-    }
-
-    ngOnInit(): void {
-        this.authService.loadUser().subscribe((user) => {
-            this.user = user;
-            this.isAdmin = this.authService.isAdmin();
-        }, error => {
-            console.error(error);
-        });
-        this.userSub$ = this.authService.user$.subscribe((user: any) => {
-            this.user = user;
-            this.isAdmin = this.authService.isAdmin();
-        });
-
-        super.ngOnInit();
-    }
-
-    loadItems(): Observable<IResultSet<DbAggregateRuleExecutionResult>> {
-        let extraFilters: string[] = []
-
-        this.filters?.forEach(x => extraFilters.push(this.stringifyFilterClause(x)));
-
-        this._paramsService.setParams({
-            view: this.view,
-            page: this.page,
-            pagesize: this.pageSize,
-            search: this.search,
-            sort: this.sort,
-            dir: this.sortdir,
-        });
-
-        return this._api
-            .getRiskResults(
-                extraFilters,
-                this.page,
-                this.pageSize,
-                this.sortdir === 'asc' ? this.sort! : this.sort + '-',
-                this.search || undefined
-            )
-            .pipe(
-                take(1),
-                tap((result: DbAggregateRuleExecutionResultResultSet) => {
-                  this.count = result.count;
-                }),
-                map((result: DbAggregateRuleExecutionResultResultSet) => (result as IResultSet<DbAggregateRuleExecutionResult>))
-            );
-    }
-
-    private stringifyFilterClause(filter: FilterClause): string {
-        return `${filter.member}::${filter.operator}::${filter.value.trim()}`;
-    }
+export class RiskResultsComponent {
+  private readonly _api = inject(RiskApiService);
+  protected readonly pane = inject(SidePaneService);
+  protected readonly fields: FilterField[] = [
+    { field: 'subjectId', label: 'Subject ID' },
+    { field: 'name', label: 'Event name' },
+    { field: 'type', label: 'Event type' },
+    { field: 'ipAddress', label: 'IP address' },
+    { field: 'id', label: 'Result ID', operators: ['eq', 'neq'] }
+  ];
+  protected readonly list = new ListState<DbAggregateRuleExecutionResult>({
+    pageSize: 50,
+    sort: 'createdAt',
+    dir: 'desc',
+    load: query => this._api.getRiskResults(FilterClause.toApiTerms(query.filters), query.page, query.pageSize, toApiSort(query))
+  });
 }

@@ -1,85 +1,70 @@
-import { Component, Inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { APP_LANGUAGES, ModalService, ToastType } from '@indice/ng-components';
-
-import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
-import { DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LucidePencil } from '@lucide/angular';
+import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { DistributionListEditStore } from '../distribution-list-edit-store.service';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
-import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
-import { combineLatest,  Subject, Subscription, take } from 'rxjs';
 
+/** "Basic information" tab of the distribution list page. */
 @Component({
-    selector: 'app-distribution-list-details-edit',
-    templateUrl: './distribution-list-edit-details.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
-})
-export class DistributionListDetailsEditComponent implements OnInit, OnDestroy {
-  private _distributionListId: string | undefined;
-
-  constructor(
-    private _modalService: ModalService,
-    private _api: MessagesApiClient,
-    private _distributionListStore: DistributionListEditStore,
-    private _router: Router,
-    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
-    private _activatedRoute: ActivatedRoute,
-    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
-  ) { }
-
-  public list: DistributionList | undefined;
-
-  // Added for takeUntil cleanup.
-  private _destroy$ = new Subject<void>();
-  private _modalHiddenSub?: Subscription;
-
-  public ngOnInit(): void {
-    this._distributionListId = this._activatedRoute.parent?.snapshot.params['distributionListId'];
-    if (this._distributionListId) {
-      this._distributionListStore.getDistributionList(this._distributionListId!).subscribe((list: DistributionList) => {
-        this.list = list;
-      });
-    }
-  }
-
-  public ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
-    this._modalHiddenSub?.unsubscribe();
-  }
-
-  public deleteTemplate(): void {
-    const titleKey = 'DistributionLists.Delete';
-    const messageKey = 'DistributionLists.DeleteConfirmMessage';
-    const nameParam = { name: this.list?.name };
-    combineLatest([
-      this._lang.translateKey(titleKey),
-      this._lang.translateKey(messageKey, nameParam)
-    ])
-      .pipe(take(1))
-      .subscribe(([title, message]) => {
-        const modal = this._modalService.show(BasicModalComponent, {
-          animated: true,
-          initialState: {
-            title: title || titleKey,
-            message: message || messageKey,
-            data: this.list
-          },
-          keyboard: true
-        });
-        this._modalHiddenSub = modal.onHidden?.subscribe((response: any) => {
-          if (response.result?.answer) {
-            this._api.deleteDistributionList(response.result.data.id).subscribe(() => {
-              this._toaster.show(ToastType.Success, 'DistributionLists.DeleteSuccessTitle', 'DistributionLists.DeleteSuccessMessage', undefined, { name: response.result.data.name });
-              this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
-            });
+  selector: 'app-distribution-list-details-edit',
+  imports: [DatePipe, RouterLink, TranslatePipe, LucidePencil],
+  template: `
+    <section class="panel p-6">
+      <div class="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-semibold">{{ 'DistributionLists.BasicInformation' | translate }}</h2>
+          <p class="mt-0.5 text-sm text-base-content/60">{{ 'DistributionLists.BasicInformationDescription' | translate }}</p>
+        </div>
+        @if (store.distributionList(); as list) {
+          <a class="btn btn-ghost btn-sm" [routerLink]="pane.link('edit-distribution-list', { distributionListId: list.id! })">
+            <svg lucidePencil class="size-4"></svg>{{ 'DistributionLists.EditList' | translate }}
+          </a>
+        }
+      </div>
+      @if (store.distributionList(); as list) {
+        <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs text-base-content/60">{{ 'DistributionLists.ListTitle' | translate }}</dt>
+            <dd class="mt-1 font-medium">{{ list.name || '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-base-content/60">{{ 'DistributionLists.Alias' | translate }}</dt>
+            <dd class="mt-1 font-medium">
+              @if (list.alias) { <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ list.alias }}</code> } @else { — }
+            </dd>
+          </div>
+        </dl>
+        <dl class="mt-6 grid gap-x-6 gap-y-4 border-t border-base-300 pt-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <dt class="text-xs text-base-content/60">{{ 'DistributionLists.CreatedBy' | translate }}</dt>
+            <dd class="font-medium break-all">{{ list.createdBy || '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-base-content/60">{{ 'DistributionLists.CreatedAt' | translate }}</dt>
+            <dd class="font-medium tabular">{{ list.createdAt ? (list.createdAt | date: 'medium') : '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-base-content/60">{{ 'DistributionLists.UpdatedBy' | translate }}</dt>
+            <dd class="font-medium break-all">{{ list.updatedBy || '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-base-content/60">{{ 'DistributionLists.UpdatedAt' | translate }}</dt>
+            <dd class="font-medium tabular">{{ list.updatedAt ? (list.updatedAt | date: 'medium') : '—' }}</dd>
+          </div>
+        </dl>
+      } @else {
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          @for (row of [1, 2, 3, 4]; track row) {
+            <div class="space-y-2"><div class="skeleton h-3 w-24"></div><div class="skeleton h-4 w-40"></div></div>
           }
-        });
-      });
-  }
-
-  public openEditPane(action: string): void {
-    this._router.navigate(['', { outlets: { rightpane: ['edit-distribution-list'] } }], { queryParams: { action: action } });
-  }
+        </div>
+      }
+    </section>
+  `
+})
+export class DistributionListDetailsEditComponent {
+  protected readonly store = inject(DistributionListEditStore);
+  protected readonly pane = inject(SidePaneService);
 }

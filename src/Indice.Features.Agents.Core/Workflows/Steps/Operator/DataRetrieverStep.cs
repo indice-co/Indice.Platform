@@ -1,8 +1,8 @@
-using System.Text.Json;
 using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services.DataResolver;
+using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -76,6 +76,9 @@ public class DataRetrieverStep : Executor<ChatMessage, OperationState>
     private async Task<System.Text.Json.Nodes.JsonNode> GetCustomerRawData(ChatMessage message, CancellationToken cancellationToken) {
         var registry = await _mcpClientFactory.CreateAsync();
         var mcpTools = await registry.ListToolsAsync(options: null, cancellationToken: cancellationToken);
+        //var mcpTools = (await registry.ListToolsAsync(options: null, cancellationToken: cancellationToken))
+        //    .Where(t => string.Equals(t.Name, GetCaseToolName, StringComparison.OrdinalIgnoreCase))
+        //    .ToList();
         if (mcpTools.Count == 0) {
             _logger.LogError("No MCP tools discovered for service {McpServiceKey}.", McpServiceKey);
             throw new InvalidOperationException($"No MCP tools discovered for service '{McpServiceKey}'.");
@@ -104,6 +107,11 @@ public class DataRetrieverStep : Executor<ChatMessage, OperationState>
             Retrieve the case information.
             Query: {userInput}
             """;
+        if (!Guid.TryParse(userInput.Trim(), out _) &&
+            message.TryGetAdditionalProperty<OperationRequestPort.OperationResponse>(nameof(OperationRequestPort.OperationResponse), out var operationResponse) &&
+            !string.IsNullOrWhiteSpace(operationResponse?.SelectedOperation)) {
+            prompt += $"\nCase type code: {operationResponse.SelectedOperation}";
+        }
         await agent.RunAsync(prompt, cancellationToken: cancellationToken);
         // Use the raw MCP tool output, not the LLM re-generated JSON, which can corrupt values.
         if (!capturingTools.TryGetToolResult(out var caseNode, out var error) || caseNode is null) {
