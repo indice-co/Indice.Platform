@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [8.62.0] - Unreleased
+## [8.62.0]
 ### Added flag for system generated distribution lists
 
 Run the following migration script.<br/>
@@ -39,6 +39,38 @@ GO
 UPDATE [cmp].[DistributionList]
 SET [SystemGenerated] = 1
 WHERE [CreatedBy] = 'system';
+GO
+```
+
+### Added message event indexes for the analytics and the events list
+The dashboard overview, the campaign reports and the events list aggregate or page the `MessageEvent` table, which had no index for them.
+
+Run the following migration script.<br/>
+**Caution!** Update table schema if not [cmp]. Building the indexes on a large table takes time and blocks writes to it, so run it off-peak (or add `WITH (ONLINE = ON)` where the edition supports it).
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND name = N'IX_MessageEvent_CreatedOn'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_MessageEvent_CreatedOn]
+        ON [cmp].[MessageEvent]([CreatedOn] ASC);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND name = N'IX_MessageEvent_CampaignId_Type'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_MessageEvent_CampaignId_Type]
+        ON [cmp].[MessageEvent]([CampaignId] ASC, [Type] ASC)
+        INCLUDE ([Channel], [MessageId], [ContactId], [Success]);
+END;
 GO
 ```
 
