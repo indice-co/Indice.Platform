@@ -47,6 +47,16 @@ public static class DashboardApi
                                           .Tag(CacheTagPrefix))
              .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject]);
 
+        group.MapGet("metrics", DashboardHandlers.GetDashboardMetrics)
+             .WithName(nameof(DashboardHandlers.GetDashboardMetrics))
+             .WithSummary("Gets the key user, client and resource figures shown on the Admin UI dashboard.")
+             .WithOpenApiSecurityRequirement("oauth2", allowedScopes)
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersOrClientsReader)
+             .CacheOutput(policy => policy.SetAuthorized(ctx => ctx.User.FindSubjectId()!)
+                                          .Expire(TimeSpan.FromMinutes(5))
+                                          .Tag(CacheTagPrefix))
+             .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject]);
+
         group.MapGet("ui", DashboardHandlers.GetUiFeatures)
              .WithName(nameof(DashboardHandlers.GetUiFeatures))
              .WithSummary("Gets the UI features status.")

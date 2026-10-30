@@ -1,0 +1,3128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActivityLogs.Details.ActorAndOrigin" xml:space="preserve">
+    <value>Actor &amp; origin</value>
+  </data>
+  <data name="ActivityLogs.Details.DefaultTitle" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="ActivityLogs.Details.Event" xml:space="preserve">
+    <value>Event</value>
+  </data>
+  <data name="ActivityLogs.Details.ExtraData" xml:space="preserve">
+    <value>Extra data</value>
+  </data>
+  <data name="ActivityLogs.Empty.LoadFailed" xml:space="preserve">
+    <value>Activity logs could not be loaded</value>
+  </data>
+  <data name="ActivityLogs.Empty.Message" xml:space="preserve">
+    <value>Changes and actions performed through the identity server will appear here.</value>
+  </data>
+  <data name="ActivityLogs.Empty.Title" xml:space="preserve">
+    <value>No activity</value>
+  </data>
+  <data name="ActivityLogs.Fields.Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="ActivityLogs.Fields.ActionName" xml:space="preserve">
+    <value>Action name</value>
+  </data>
+  <data name="ActivityLogs.Fields.Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="ActivityLogs.Fields.Resource" xml:space="preserve">
+    <value>Resource</value>
+  </data>
+  <data name="ActivityLogs.Fields.ResourceId" xml:space="preserve">
+    <value>Resource id</value>
+  </data>
+  <data name="ActivityLogs.Fields.Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="ActivityLogs.Filters.MoreFilters" xml:space="preserve">
+    <value>More filters</value>
+  </data>
+  <data name="ActivityLogs.Filters.SearchPlaceholder" xml:space="preserve">
+    <value>Search activity</value>
+  </data>
+  <data name="ActivityLogs.Filters.SubjectMode" xml:space="preserve">
+    <value>Match subject as</value>
+  </data>
+  <data name="ActivityLogs.Filters.SubjectPlaceholder" xml:space="preserve">
+    <value>Subject (user id or name)</value>
+  </data>
+  <data name="ActivityLogs.Page.Subtitle" xml:space="preserve">
+    <value>An audit trail of the actions users and administrators performed.</value>
+  </data>
+  <data name="ActivityLogs.SubjectModes.Actor" xml:space="preserve">
+    <value>Subject is the actor</value>
+  </data>
+  <data name="ActivityLogs.SubjectModes.Any" xml:space="preserve">
+    <value>Actor or resource</value>
+  </data>
+  <data name="ActivityLogs.SubjectModes.Resource" xml:space="preserve">
+    <value>Subject is the resource</value>
+  </data>
+  <data name="ClaimTypes.Delete.Message" xml:space="preserve">
+    <value>Claim type '{{name}}' will be deleted permanently. Values already stored on users are not affected.</value>
+  </data>
+  <data name="ClaimTypes.Delete.Title" xml:space="preserve">
+    <value>Delete claim type?</value>
+  </data>
+  <data name="ClaimTypes.Edit.ClaimType" xml:space="preserve">
+    <value>Claim type</value>
+  </data>
+  <data name="ClaimTypes.Edit.Create" xml:space="preserve">
+    <value>Create claim type</value>
+  </data>
+  <data name="ClaimTypes.Edit.DisplayNamePlaceholder" xml:space="preserve">
+    <value>e.g. Tax number</value>
+  </data>
+  <data name="ClaimTypes.Edit.NameImmutable" xml:space="preserve">
+    <value>The name of a claim type cannot change once created.</value>
+  </data>
+  <data name="ClaimTypes.Edit.NamePlaceholder" xml:space="preserve">
+    <value>e.g. tax_number</value>
+  </data>
+  <data name="ClaimTypes.Edit.NameRequired" xml:space="preserve">
+    <value>A name is required.</value>
+  </data>
+  <data name="ClaimTypes.Edit.RequiredHint" xml:space="preserve">
+    <value>Every user must have a value for this claim.</value>
+  </data>
+  <data name="ClaimTypes.Edit.ReservedNotice" xml:space="preserve">
+    <value>This is a reserved claim type used by the identity system.</value>
+  </data>
+  <data name="ClaimTypes.Edit.Rule" xml:space="preserve">
+    <value>Validation rule</value>
+  </data>
+  <data name="ClaimTypes.Edit.RulePlaceholder" xml:space="preserve">
+    <value>Regular expression</value>
+  </data>
+  <data name="ClaimTypes.Edit.Subtitle" xml:space="preserve">
+    <value>How this kind of user information is stored and edited.</value>
+  </data>
+  <data name="ClaimTypes.Edit.SubtitleNew" xml:space="preserve">
+    <value>Store a new kind of information about users.</value>
+  </data>
+  <data name="ClaimTypes.Edit.UserEditableHint" xml:space="preserve">
+    <value>Users can change this value from their account.</value>
+  </data>
+  <data name="ClaimTypes.Fields.UserEditable" xml:space="preserve">
+    <value>User editable</value>
+  </data>
+  <data name="ClaimTypes.Fields.ValueType" xml:space="preserve">
+    <value>Value type</value>
+  </data>
+  <data name="ClaimTypes.List.AutoGenerated" xml:space="preserve">
+    <value>Auto generated</value>
+  </data>
+  <data name="ClaimTypes.List.ClearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="ClaimTypes.List.Empty" xml:space="preserve">
+    <value>No claim types yet</value>
+  </data>
+  <data name="ClaimTypes.List.EmptyHint" xml:space="preserve">
+    <value>Create a claim type to store extra information about users.</value>
+  </data>
+  <data name="ClaimTypes.List.ManuallyCreated" xml:space="preserve">
+    <value>Manually created</value>
+  </data>
+  <data name="ClaimTypes.List.NoMatches" xml:space="preserve">
+    <value>No matching claim types</value>
+  </data>
+  <data name="ClaimTypes.List.NoMatchesHint" xml:space="preserve">
+    <value>Try different filters.</value>
+  </data>
+  <data name="ClaimTypes.List.Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="ClaimTypes.List.OpenItem" xml:space="preserve">
+    <value>Open {{name}}</value>
+  </data>
+  <data name="ClaimTypes.List.OptionalOnly" xml:space="preserve">
+    <value>Optional only</value>
+  </data>
+  <data name="ClaimTypes.List.OriginAny" xml:space="preserve">
+    <value>Origin: any</value>
+  </data>
+  <data name="ClaimTypes.List.RequiredAny" xml:space="preserve">
+    <value>Required: any</value>
+  </data>
+  <data name="ClaimTypes.List.RequiredOnly" xml:space="preserve">
+    <value>Required only</value>
+  </data>
+  <data name="ClaimTypes.List.SearchPlaceholder" xml:space="preserve">
+    <value>Search claim types</value>
+  </data>
+  <data name="ClaimTypes.List.Subtitle" xml:space="preserve">
+    <value>The kinds of information stored about users, and how they can be edited.</value>
+  </data>
+  <data name="ClaimTypes.New" xml:space="preserve">
+    <value>New claim type</value>
+  </data>
+  <data name="ClaimTypes.Toast.CreatedMessage" xml:space="preserve">
+    <value>Claim type '{{name}}' was created.</value>
+  </data>
+  <data name="ClaimTypes.Toast.CreatedTitle" xml:space="preserve">
+    <value>Claim type created</value>
+  </data>
+  <data name="ClaimTypes.Toast.DeletedMessage" xml:space="preserve">
+    <value>Claim type '{{name}}' was deleted.</value>
+  </data>
+  <data name="ClaimTypes.Toast.DeletedTitle" xml:space="preserve">
+    <value>Claim type deleted</value>
+  </data>
+  <data name="ClaimTypes.Toast.UpdatedMessage" xml:space="preserve">
+    <value>Claim type '{{name}}' was updated.</value>
+  </data>
+  <data name="ClaimTypes.Toast.UpdatedTitle" xml:space="preserve">
+    <value>Claim type updated</value>
+  </data>
+  <data name="Clients.Add.AddSecret" xml:space="preserve">
+    <value>Add secret</value>
+  </data>
+  <data name="Clients.Add.ApiAccess" xml:space="preserve">
+    <value>API access</value>
+  </data>
+  <data name="Clients.Add.ApiIntro" xml:space="preserve">
+    <value>Pick the API scopes this client may request access tokens for.</value>
+  </data>
+  <data name="Clients.Add.ApplicationType" xml:space="preserve">
+    <value>Application type</value>
+  </data>
+  <data name="Clients.Add.CallbackUrlHint" xml:space="preserve">
+    <value>Tokens are sent to this address. You can add more after the client is created.</value>
+  </data>
+  <data name="Clients.Add.ChangeType" xml:space="preserve">
+    <value>Change type</value>
+  </data>
+  <data name="Clients.Add.ChooseType" xml:space="preserve">
+    <value>Choose the kind of application you are registering.</value>
+  </data>
+  <data name="Clients.Add.ClientIdHint" xml:space="preserve">
+    <value>The unique identifier applications use when they talk to the identity server.</value>
+  </data>
+  <data name="Clients.Add.ClientIdPlaceholder" xml:space="preserve">
+    <value>e.g. backoffice-web</value>
+  </data>
+  <data name="Clients.Add.CreateClient" xml:space="preserve">
+    <value>Create client</value>
+  </data>
+  <data name="Clients.Add.CreatedMessage" xml:space="preserve">
+    <value>Client '{{name}}' is ready to use.</value>
+  </data>
+  <data name="Clients.Add.CreatedTitle" xml:space="preserve">
+    <value>Client created</value>
+  </data>
+  <data name="Clients.Add.DisplayNameHint" xml:space="preserve">
+    <value>Shown to users on the consent screen.</value>
+  </data>
+  <data name="Clients.Add.DisplayNamePlaceholder" xml:space="preserve">
+    <value>e.g. Back office</value>
+  </data>
+  <data name="Clients.Add.Generate" xml:space="preserve">
+    <value>Generate</value>
+  </data>
+  <data name="Clients.Add.GenerateId" xml:space="preserve">
+    <value>Generate a random id</value>
+  </data>
+  <data name="Clients.Add.GetStarted" xml:space="preserve">
+    <value>Get started</value>
+  </data>
+  <data name="Clients.Add.GrantAtLeastOne" xml:space="preserve">
+    <value>Grant at least one identity resource.</value>
+  </data>
+  <data name="Clients.Add.GrantAtLeastOneOpenId" xml:space="preserve">
+    <value>Grant at least one identity resource, usually &lt;code class="code-chip"&gt;openid&lt;/code&gt;.</value>
+  </data>
+  <data name="Clients.Add.Granted" xml:space="preserve">
+    <value>Granted</value>
+  </data>
+  <data name="Clients.Add.IdentityIntro" xml:space="preserve">
+    <value>Pick the identity information (scopes such as &lt;code class="code-chip"&gt;openid&lt;/code&gt; or &lt;code class="code-chip"&gt;profile&lt;/code&gt;) this client may request.</value>
+  </data>
+  <data name="Clients.Add.NoSecrets" xml:space="preserve">
+    <value>No secrets yet. You can also add them after the client is created.</value>
+  </data>
+  <data name="Clients.Add.PostLogoutUrlHint" xml:space="preserve">
+    <value>Optional. Users can return here after signing out.</value>
+  </data>
+  <data name="Clients.Add.ReadingCertificate" xml:space="preserve">
+    <value>Reading certificate…</value>
+  </data>
+  <data name="Clients.Add.RemoveSecret" xml:space="preserve">
+    <value>Remove secret</value>
+  </data>
+  <data name="Clients.Add.RequireConsentHint" xml:space="preserve">
+    <value>Users must approve the access this client requests before signing in.</value>
+  </data>
+  <data name="Clients.Add.Review" xml:space="preserve">
+    <value>Review</value>
+  </data>
+  <data name="Clients.Add.SecretsToCreate" xml:space="preserve">
+    <value>Secrets to create</value>
+  </data>
+  <data name="Clients.Add.SecretValueHint" xml:space="preserve">
+    <value>Copy it now: the value cannot be read back once the client is created.</value>
+  </data>
+  <data name="Clients.Add.SelectTypeHint" xml:space="preserve">
+    <value>Select an application type to continue.</value>
+  </data>
+  <data name="Clients.Add.Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="Clients.Claims.AddClaim" xml:space="preserve">
+    <value>Add claim</value>
+  </data>
+  <data name="Clients.Claims.AddedMessage" xml:space="preserve">
+    <value>Claim '{{type}}' was added to the client.</value>
+  </data>
+  <data name="Clients.Claims.AddedTitle" xml:space="preserve">
+    <value>Claim added</value>
+  </data>
+  <data name="Clients.Claims.AlwaysSend" xml:space="preserve">
+    <value>Always send client claims</value>
+  </data>
+  <data name="Clients.Claims.AlwaysSendHint" xml:space="preserve">
+    <value>Include them in every flow, not only client credentials.</value>
+  </data>
+  <data name="Clients.Claims.ClaimType" xml:space="preserve">
+    <value>Claim type</value>
+  </data>
+  <data name="Clients.Claims.ClaimValue" xml:space="preserve">
+    <value>Claim value</value>
+  </data>
+  <data name="Clients.Claims.DeletedMessage" xml:space="preserve">
+    <value>Claim '{{type}}' was removed.</value>
+  </data>
+  <data name="Clients.Claims.DeletedTitle" xml:space="preserve">
+    <value>Claim deleted</value>
+  </data>
+  <data name="Clients.Claims.DeleteLabel" xml:space="preserve">
+    <value>Delete claim {{type}}</value>
+  </data>
+  <data name="Clients.Claims.DeleteMessage" xml:space="preserve">
+    <value>Claim '{{type}}' will no longer be issued to this client.</value>
+  </data>
+  <data name="Clients.Claims.DeleteTitle" xml:space="preserve">
+    <value>Delete claim?</value>
+  </data>
+  <data name="Clients.Claims.EmptyMessage" xml:space="preserve">
+    <value>Client claims are added to tokens issued to this client.</value>
+  </data>
+  <data name="Clients.Claims.EmptyTitle" xml:space="preserve">
+    <value>No client claims</value>
+  </data>
+  <data name="Clients.Claims.Issuing" xml:space="preserve">
+    <value>Issuing</value>
+  </data>
+  <data name="Clients.Claims.Prefix" xml:space="preserve">
+    <value>Claim type prefix</value>
+  </data>
+  <data name="Clients.Claims.PrefixHint" xml:space="preserve">
+    <value>Prepended to client claim types. Leave empty for no prefix.</value>
+  </data>
+  <data name="Clients.Claims.SettingsSaved" xml:space="preserve">
+    <value>Claim settings saved</value>
+  </data>
+  <data name="Clients.Details.ConsentAndSignIn" xml:space="preserve">
+    <value>Consent &amp; sign in</value>
+  </data>
+  <data name="Clients.Details.ExternalProviders" xml:space="preserve">
+    <value>External providers</value>
+  </data>
+  <data name="Clients.Details.ExternalProvidersHint" xml:space="preserve">
+    <value>Providers offered on this client's sign in page. Selecting all, or none, means no restriction.</value>
+  </data>
+  <data name="Clients.Details.General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Clients.Details.GeneralHint" xml:space="preserve">
+    <value>What users see on the sign in and consent screens.</value>
+  </data>
+  <data name="Clients.Details.LocalAccounts" xml:space="preserve">
+    <value>Local accounts</value>
+  </data>
+  <data name="Clients.Details.LocalAccountsHint" xml:space="preserve">
+    <value>Users can sign in with a username and password.</value>
+  </data>
+  <data name="Clients.Details.RememberConsent" xml:space="preserve">
+    <value>Remember consent</value>
+  </data>
+  <data name="Clients.Details.RememberConsentHint" xml:space="preserve">
+    <value>A given consent is remembered for later sign ins.</value>
+  </data>
+  <data name="Clients.Details.RequireConsentHint" xml:space="preserve">
+    <value>Users approve the requested access before signing in.</value>
+  </data>
+  <data name="Clients.Details.UpdatedMessage" xml:space="preserve">
+    <value>'{{name}}' was saved.</value>
+  </data>
+  <data name="Clients.Details.UpdatedTitle" xml:space="preserve">
+    <value>Client updated</value>
+  </data>
+  <data name="Clients.Duration.Day" xml:space="preserve">
+    <value>{{count}} day</value>
+  </data>
+  <data name="Clients.Duration.Days" xml:space="preserve">
+    <value>{{count}} days</value>
+  </data>
+  <data name="Clients.Duration.Hour" xml:space="preserve">
+    <value>{{count}} hr</value>
+  </data>
+  <data name="Clients.Duration.Minute" xml:space="preserve">
+    <value>{{count}} min</value>
+  </data>
+  <data name="Clients.Duration.Month" xml:space="preserve">
+    <value>{{count}} mo</value>
+  </data>
+  <data name="Clients.Duration.Second" xml:space="preserve">
+    <value>{{count}} sec</value>
+  </data>
+  <data name="Clients.Duration.Week" xml:space="preserve">
+    <value>{{count}} wk</value>
+  </data>
+  <data name="Clients.Duration.Year" xml:space="preserve">
+    <value>{{count}} yr</value>
+  </data>
+  <data name="Clients.Edit.BackToClients" xml:space="preserve">
+    <value>Back to clients</value>
+  </data>
+  <data name="Clients.Edit.DeletedMessage" xml:space="preserve">
+    <value>Client '{{name}}' was deleted.</value>
+  </data>
+  <data name="Clients.Edit.DeletedTitle" xml:space="preserve">
+    <value>Client deleted</value>
+  </data>
+  <data name="Clients.Edit.DeleteMessage" xml:space="preserve">
+    <value>Client '{{name}}' will be deleted permanently and applications using it will stop working. This cannot be undone.</value>
+  </data>
+  <data name="Clients.Edit.DeleteTitle" xml:space="preserve">
+    <value>Delete client?</value>
+  </data>
+  <data name="Clients.Edit.DisabledMessage" xml:space="preserve">
+    <value>'{{name}}' can no longer request tokens.</value>
+  </data>
+  <data name="Clients.Edit.DisabledTitle" xml:space="preserve">
+    <value>Client disabled</value>
+  </data>
+  <data name="Clients.Edit.EnabledMessage" xml:space="preserve">
+    <value>'{{name}}' can request tokens.</value>
+  </data>
+  <data name="Clients.Edit.EnabledTitle" xml:space="preserve">
+    <value>Client enabled</value>
+  </data>
+  <data name="Clients.Edit.NotFoundMessage" xml:space="preserve">
+    <value>It may have been deleted, or the link is wrong.</value>
+  </data>
+  <data name="Clients.Edit.NotFoundTitle" xml:space="preserve">
+    <value>Client not found</value>
+  </data>
+  <data name="Clients.Fields.CallbackUrl" xml:space="preserve">
+    <value>Callback URL</value>
+  </data>
+  <data name="Clients.Fields.ClientId" xml:space="preserve">
+    <value>Client id</value>
+  </data>
+  <data name="Clients.Fields.ClientIdLabel" xml:space="preserve">
+    <value>client id</value>
+  </data>
+  <data name="Clients.Fields.ClientUrl" xml:space="preserve">
+    <value>Client URL</value>
+  </data>
+  <data name="Clients.Fields.LogoUrl" xml:space="preserve">
+    <value>Logo URL</value>
+  </data>
+  <data name="Clients.Fields.PostLogoutUrl" xml:space="preserve">
+    <value>Post-logout URL</value>
+  </data>
+  <data name="Clients.Fields.RequireConsent" xml:space="preserve">
+    <value>Require consent</value>
+  </data>
+  <data name="Clients.GrantTypes.AddedMessage" xml:space="preserve">
+    <value>'{{type}}' was added to the client.</value>
+  </data>
+  <data name="Clients.GrantTypes.AddedSuffix" xml:space="preserve">
+    <value>(added)</value>
+  </data>
+  <data name="Clients.GrantTypes.AddedTitle" xml:space="preserve">
+    <value>Grant type added</value>
+  </data>
+  <data name="Clients.GrantTypes.AddGrantType" xml:space="preserve">
+    <value>Add grant type</value>
+  </data>
+  <data name="Clients.GrantTypes.CustomBadge" xml:space="preserve">
+    <value>custom</value>
+  </data>
+  <data name="Clients.GrantTypes.CustomGrantType" xml:space="preserve">
+    <value>Custom grant type</value>
+  </data>
+  <data name="Clients.GrantTypes.CustomOption" xml:space="preserve">
+    <value>Custom…</value>
+  </data>
+  <data name="Clients.GrantTypes.EmptyMessage" xml:space="preserve">
+    <value>Without a grant type the client cannot request any token.</value>
+  </data>
+  <data name="Clients.GrantTypes.EmptyTitle" xml:space="preserve">
+    <value>No grant types</value>
+  </data>
+  <data name="Clients.GrantTypes.GrantType" xml:space="preserve">
+    <value>Grant type</value>
+  </data>
+  <data name="Clients.GrantTypes.RemovedMessage" xml:space="preserve">
+    <value>'{{type}}' was removed from the client.</value>
+  </data>
+  <data name="Clients.GrantTypes.RemovedTitle" xml:space="preserve">
+    <value>Grant type removed</value>
+  </data>
+  <data name="Clients.GrantTypes.RemoveLabel" xml:space="preserve">
+    <value>Remove {{type}}</value>
+  </data>
+  <data name="Clients.GrantTypes.RemoveMessage" xml:space="preserve">
+    <value>The client will no longer be able to use '{{type}}'.</value>
+  </data>
+  <data name="Clients.GrantTypes.RemoveTitle" xml:space="preserve">
+    <value>Remove grant type?</value>
+  </data>
+  <data name="Clients.GrantTypes.SelectPlaceholder" xml:space="preserve">
+    <value>Select a grant type…</value>
+  </data>
+  <data name="Clients.GrantTypes.UnusualCombination" xml:space="preserve">
+    <value>'{{type}}' is not a usual combination with the grant types this client already has.</value>
+  </data>
+  <data name="Clients.List.Client" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="Clients.List.Empty" xml:space="preserve">
+    <value>No clients yet</value>
+  </data>
+  <data name="Clients.List.EmptyMessage" xml:space="preserve">
+    <value>Register an application to let it sign users in or call your APIs.</value>
+  </data>
+  <data name="Clients.List.LoadFailed" xml:space="preserve">
+    <value>Clients could not be loaded</value>
+  </data>
+  <data name="Clients.List.NoMatches" xml:space="preserve">
+    <value>No matching clients</value>
+  </data>
+  <data name="Clients.List.NoMatchesMessage" xml:space="preserve">
+    <value>Try a different search term.</value>
+  </data>
+  <data name="Clients.List.Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Clients.List.OpenClient" xml:space="preserve">
+    <value>Open {{id}}</value>
+  </data>
+  <data name="Clients.List.ReservedClient" xml:space="preserve">
+    <value>Reserved client</value>
+  </data>
+  <data name="Clients.List.SearchPlaceholder" xml:space="preserve">
+    <value>Search clients</value>
+  </data>
+  <data name="Clients.List.Subtitle" xml:space="preserve">
+    <value>Applications that sign users in or call APIs on their behalf.</value>
+  </data>
+  <data name="Clients.Resources.ApiIntro" xml:space="preserve">
+    <value>API scopes this client may request access tokens for.</value>
+  </data>
+  <data name="Clients.Resources.ApiScopes" xml:space="preserve">
+    <value>API scopes</value>
+  </data>
+  <data name="Clients.Resources.AvailableApi" xml:space="preserve">
+    <value>Available API scopes</value>
+  </data>
+  <data name="Clients.Resources.AvailableIdentity" xml:space="preserve">
+    <value>Available identity resources</value>
+  </data>
+  <data name="Clients.Resources.GrantedMessage" xml:space="preserve">
+    <value>'{{name}}' was granted to the client.</value>
+  </data>
+  <data name="Clients.Resources.GrantedTitle" xml:space="preserve">
+    <value>Access granted</value>
+  </data>
+  <data name="Clients.Resources.GrantedToClient" xml:space="preserve">
+    <value>Granted to this client</value>
+  </data>
+  <data name="Clients.Resources.IdentityIntro" xml:space="preserve">
+    <value>Identity information (user claims) this client may request.</value>
+  </data>
+  <data name="Clients.Resources.IdentityResources" xml:space="preserve">
+    <value>Identity resources</value>
+  </data>
+  <data name="Clients.Resources.NoApi" xml:space="preserve">
+    <value>This client cannot call any API yet.</value>
+  </data>
+  <data name="Clients.Resources.NoIdentity" xml:space="preserve">
+    <value>No identity resources granted.</value>
+  </data>
+  <data name="Clients.Resources.RemovedMessage" xml:space="preserve">
+    <value>'{{name}}' was removed from the client.</value>
+  </data>
+  <data name="Clients.Resources.RemovedTitle" xml:space="preserve">
+    <value>Access removed</value>
+  </data>
+  <data name="Clients.Secrets.AddedMessage" xml:space="preserve">
+    <value>The client can now authenticate with the new secret.</value>
+  </data>
+  <data name="Clients.Secrets.AddedTitle" xml:space="preserve">
+    <value>Secret added</value>
+  </data>
+  <data name="Clients.Secrets.Certificate" xml:space="preserve">
+    <value>Certificate</value>
+  </data>
+  <data name="Clients.Secrets.CopyLabel" xml:space="preserve">
+    <value>secret</value>
+  </data>
+  <data name="Clients.Secrets.DeletedMessage" xml:space="preserve">
+    <value>The secret was removed from the client.</value>
+  </data>
+  <data name="Clients.Secrets.DeletedTitle" xml:space="preserve">
+    <value>Secret deleted</value>
+  </data>
+  <data name="Clients.Secrets.DeleteMessage" xml:space="preserve">
+    <value>Applications still using this secret will no longer be able to request tokens. This cannot be undone.</value>
+  </data>
+  <data name="Clients.Secrets.DeleteSecret" xml:space="preserve">
+    <value>Delete secret</value>
+  </data>
+  <data name="Clients.Secrets.DeleteTitle" xml:space="preserve">
+    <value>Delete secret?</value>
+  </data>
+  <data name="Clients.Secrets.DownloadCertificate" xml:space="preserve">
+    <value>Download certificate</value>
+  </data>
+  <data name="Clients.Secrets.EmptyMessage" xml:space="preserve">
+    <value>Confidential clients need a secret or certificate to request tokens.</value>
+  </data>
+  <data name="Clients.Secrets.EmptyTitle" xml:space="preserve">
+    <value>No secrets</value>
+  </data>
+  <data name="Clients.Secrets.Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Clients.Secrets.Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Clients.Secrets.ExpiresOn" xml:space="preserve">
+    <value>Expires on</value>
+  </data>
+  <data name="Clients.Secrets.ExpiresOnDate" xml:space="preserve">
+    <value>Expires {{date}}</value>
+  </data>
+  <data name="Clients.Secrets.GenerateValue" xml:space="preserve">
+    <value>Generate a random value</value>
+  </data>
+  <data name="Clients.Secrets.NeverExpires" xml:space="preserve">
+    <value>Never expires</value>
+  </data>
+  <data name="Clients.Secrets.NewSecret" xml:space="preserve">
+    <value>New secret</value>
+  </data>
+  <data name="Clients.Secrets.NewSecretHint" xml:space="preserve">
+    <value>Shared secret values cannot be read back after saving: copy them first.</value>
+  </data>
+  <data name="Clients.Secrets.PublicKey" xml:space="preserve">
+    <value>Public key (.cer)</value>
+  </data>
+  <data name="Clients.Secrets.PublicKeyHint" xml:space="preserve">
+    <value>Keep the private key safe and upload only the public certificate.</value>
+  </data>
+  <data name="Clients.Secrets.SharedSecret" xml:space="preserve">
+    <value>Shared secret</value>
+  </data>
+  <data name="Clients.Secrets.UploadedMessage" xml:space="preserve">
+    <value>'{{name}}' was added to the client.</value>
+  </data>
+  <data name="Clients.Secrets.UploadedTitle" xml:space="preserve">
+    <value>Certificate uploaded</value>
+  </data>
+  <data name="Clients.Secrets.Uploading" xml:space="preserve">
+    <value>Uploading…</value>
+  </data>
+  <data name="Clients.Tabs.Claims" xml:space="preserve">
+    <value>Claims</value>
+  </data>
+  <data name="Clients.Tabs.GrantTypes" xml:space="preserve">
+    <value>Grant types</value>
+  </data>
+  <data name="Clients.Tabs.Resources" xml:space="preserve">
+    <value>Resources</value>
+  </data>
+  <data name="Clients.Tabs.Secrets" xml:space="preserve">
+    <value>Secrets</value>
+  </data>
+  <data name="Clients.Tabs.Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Clients.Tabs.Tokens" xml:space="preserve">
+    <value>Tokens</value>
+  </data>
+  <data name="Clients.Tabs.Urls" xml:space="preserve">
+    <value>URLs</value>
+  </data>
+  <data name="Clients.Theme.ColorPicker" xml:space="preserve">
+    <value>{{label}} picker</value>
+  </data>
+  <data name="Clients.Theme.Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Clients.Theme.EmptyMessage" xml:space="preserve">
+    <value>The identity server does not expose any theme settings for clients.</value>
+  </data>
+  <data name="Clients.Theme.EmptyTitle" xml:space="preserve">
+    <value>No theme options</value>
+  </data>
+  <data name="Clients.Theme.InvalidColor" xml:space="preserve">
+    <value>Use a hex color such as #3d5afe.</value>
+  </data>
+  <data name="Clients.Theme.Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="Clients.Theme.Save" xml:space="preserve">
+    <value>Save theme</value>
+  </data>
+  <data name="Clients.Theme.SavedMessage" xml:space="preserve">
+    <value>The sign in page theme of the client was updated.</value>
+  </data>
+  <data name="Clients.Theme.SavedTitle" xml:space="preserve">
+    <value>Theme saved</value>
+  </data>
+  <data name="Clients.Theme.Subtitle" xml:space="preserve">
+    <value>Colors and imagery used when users sign in through this client.</value>
+  </data>
+  <data name="Clients.Theme.Title" xml:space="preserve">
+    <value>Sign in page theme</value>
+  </data>
+  <data name="Clients.Tokens.Absolute" xml:space="preserve">
+    <value>Absolute</value>
+  </data>
+  <data name="Clients.Tokens.AccessToken" xml:space="preserve">
+    <value>Access token</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokenHint" xml:space="preserve">
+    <value>Lifetime of the access token.</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokensViaBrowser" xml:space="preserve">
+    <value>Access tokens via browser</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokensViaBrowserHint" xml:space="preserve">
+    <value>Access tokens may travel through the browser.</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokenType" xml:space="preserve">
+    <value>Access token type</value>
+  </data>
+  <data name="Clients.Tokens.AccessTokenTypeHint" xml:space="preserve">
+    <value>Self contained JWT, or a reference token validated through introspection.</value>
+  </data>
+  <data name="Clients.Tokens.AllowOfflineAccess" xml:space="preserve">
+    <value>Allow offline access</value>
+  </data>
+  <data name="Clients.Tokens.AllowOfflineAccessHint" xml:space="preserve">
+    <value>The client may request refresh tokens.</value>
+  </data>
+  <data name="Clients.Tokens.AllowPlainTextPkce" xml:space="preserve">
+    <value>Allow plain text PKCE</value>
+  </data>
+  <data name="Clients.Tokens.AllowPlainTextPkceHint" xml:space="preserve">
+    <value>The proof key may be sent with the plain method.</value>
+  </data>
+  <data name="Clients.Tokens.AuthorizationCode" xml:space="preserve">
+    <value>Authorization code</value>
+  </data>
+  <data name="Clients.Tokens.AuthorizationCodeHint" xml:space="preserve">
+    <value>Lifetime of the authorization code.</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutSession" xml:space="preserve">
+    <value>Back-channel logout session</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutSessionHint" xml:space="preserve">
+    <value>Send the session id to the back-channel logout URI.</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutUri" xml:space="preserve">
+    <value>Back-channel logout URI</value>
+  </data>
+  <data name="Clients.Tokens.BackChannelLogoutUriHint" xml:space="preserve">
+    <value>Logout URI at the client for HTTP back-channel logout.</value>
+  </data>
+  <data name="Clients.Tokens.Behaviour" xml:space="preserve">
+    <value>Behaviour</value>
+  </data>
+  <data name="Clients.Tokens.Consent" xml:space="preserve">
+    <value>Consent</value>
+  </data>
+  <data name="Clients.Tokens.ConsentHint" xml:space="preserve">
+    <value>How long a given consent lasts. Empty means forever.</value>
+  </data>
+  <data name="Clients.Tokens.DeviceCode" xml:space="preserve">
+    <value>Device code</value>
+  </data>
+  <data name="Clients.Tokens.DeviceCodeHint" xml:space="preserve">
+    <value>Lifetime of the device code.</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutSession" xml:space="preserve">
+    <value>Front-channel logout session</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutSessionHint" xml:space="preserve">
+    <value>Send the session id to the front-channel logout URI.</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutUri" xml:space="preserve">
+    <value>Front-channel logout URI</value>
+  </data>
+  <data name="Clients.Tokens.FrontChannelLogoutUriHint" xml:space="preserve">
+    <value>Logout URI at the client for HTTP front-channel logout.</value>
+  </data>
+  <data name="Clients.Tokens.IdentityToken" xml:space="preserve">
+    <value>Identity token</value>
+  </data>
+  <data name="Clients.Tokens.IdentityTokenHint" xml:space="preserve">
+    <value>Lifetime of the identity token.</value>
+  </data>
+  <data name="Clients.Tokens.IncludeJwtId" xml:space="preserve">
+    <value>Include JWT id</value>
+  </data>
+  <data name="Clients.Tokens.IncludeJwtIdHint" xml:space="preserve">
+    <value>JWT access tokens get a unique identifier (jti).</value>
+  </data>
+  <data name="Clients.Tokens.InSeconds" xml:space="preserve">
+    <value>{{label}} in seconds</value>
+  </data>
+  <data name="Clients.Tokens.Jwt" xml:space="preserve">
+    <value>JWT</value>
+  </data>
+  <data name="Clients.Tokens.LifetimeInvalid" xml:space="preserve">
+    <value>A value of zero or more seconds is required.</value>
+  </data>
+  <data name="Clients.Tokens.Lifetimes" xml:space="preserve">
+    <value>Lifetimes</value>
+  </data>
+  <data name="Clients.Tokens.NothingApplies" xml:space="preserve">
+    <value>Token settings depend on the grant types. Add a grant type to this client first.</value>
+  </data>
+  <data name="Clients.Tokens.OneTimeOnly" xml:space="preserve">
+    <value>One time only</value>
+  </data>
+  <data name="Clients.Tokens.PairWiseSubjectSalt" xml:space="preserve">
+    <value>Pair-wise subject salt</value>
+  </data>
+  <data name="Clients.Tokens.PairWiseSubjectSaltHint" xml:space="preserve">
+    <value>Salt for generating pair-wise subject ids for this client's users.</value>
+  </data>
+  <data name="Clients.Tokens.Reference" xml:space="preserve">
+    <value>Reference</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenAbsolute" xml:space="preserve">
+    <value>Refresh token (absolute)</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenAbsoluteHint" xml:space="preserve">
+    <value>Maximum lifetime of a refresh token.</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenExpiration" xml:space="preserve">
+    <value>Refresh token expiration</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenExpirationHint" xml:space="preserve">
+    <value>Absolute expires at a fixed time; sliding renews the lifetime on every refresh.</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenSliding" xml:space="preserve">
+    <value>Refresh token (sliding)</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenSlidingHint" xml:space="preserve">
+    <value>Lifetime added each time a sliding refresh token is used.</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenUsage" xml:space="preserve">
+    <value>Refresh token usage</value>
+  </data>
+  <data name="Clients.Tokens.RefreshTokenUsageHint" xml:space="preserve">
+    <value>Re-use keeps the same handle; one time only issues a new handle on every refresh.</value>
+  </data>
+  <data name="Clients.Tokens.RequirePkce" xml:space="preserve">
+    <value>Require PKCE</value>
+  </data>
+  <data name="Clients.Tokens.RequirePkceHint" xml:space="preserve">
+    <value>A proof key is required for authorization code requests.</value>
+  </data>
+  <data name="Clients.Tokens.ReUse" xml:space="preserve">
+    <value>Re-use</value>
+  </data>
+  <data name="Clients.Tokens.SavedMessage" xml:space="preserve">
+    <value>'{{name}}' was updated.</value>
+  </data>
+  <data name="Clients.Tokens.SavedTitle" xml:space="preserve">
+    <value>Token settings saved</value>
+  </data>
+  <data name="Clients.Tokens.SecondsUnit" xml:space="preserve">
+    <value>sec</value>
+  </data>
+  <data name="Clients.Tokens.Sliding" xml:space="preserve">
+    <value>Sliding</value>
+  </data>
+  <data name="Clients.Tokens.SsoSession" xml:space="preserve">
+    <value>SSO session</value>
+  </data>
+  <data name="Clients.Tokens.SsoSessionHint" xml:space="preserve">
+    <value>Maximum time since the user last authenticated. Empty means the session decides.</value>
+  </data>
+  <data name="Clients.Tokens.TokenOptions" xml:space="preserve">
+    <value>Token options</value>
+  </data>
+  <data name="Clients.Tokens.UpdateClaimsOnRefresh" xml:space="preserve">
+    <value>Update claims on refresh</value>
+  </data>
+  <data name="Clients.Tokens.UpdateClaimsOnRefreshHint" xml:space="preserve">
+    <value>Access token claims are refreshed together with the token.</value>
+  </data>
+  <data name="Clients.Tokens.UserClaimsInIdToken" xml:space="preserve">
+    <value>User claims in identity token</value>
+  </data>
+  <data name="Clients.Tokens.UserClaimsInIdTokenHint" xml:space="preserve">
+    <value>Always put user claims in the identity token instead of the userinfo endpoint.</value>
+  </data>
+  <data name="Clients.Tokens.UserCodeType" xml:space="preserve">
+    <value>User code type</value>
+  </data>
+  <data name="Clients.Tokens.UserCodeTypeHint" xml:space="preserve">
+    <value>Type of the user code generated in the device flow.</value>
+  </data>
+  <data name="Clients.TranslatableField.Default" xml:space="preserve">
+    <value>default</value>
+  </data>
+  <data name="Clients.TranslatableField.Language" xml:space="preserve">
+    <value>Language: {{culture}}</value>
+  </data>
+  <data name="Clients.Types.Device.Description1" xml:space="preserve">
+    <value>An IoT application or another browserless or input constrained device.</value>
+  </data>
+  <data name="Clients.Types.Device.Description2" xml:space="preserve">
+    <value>Usually cannot keep a secret but can use refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.Device.Flow" xml:space="preserve">
+    <value>Device flow with an external browser</value>
+  </data>
+  <data name="Clients.Types.Device.Name" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Clients.Types.Machine.Description1" xml:space="preserve">
+    <value>Machine to machine communication.</value>
+  </data>
+  <data name="Clients.Types.Machine.Description2" xml:space="preserve">
+    <value>No users are involved.</value>
+  </data>
+  <data name="Clients.Types.Machine.Description3" xml:space="preserve">
+    <value>Tokens are sent over a back channel.</value>
+  </data>
+  <data name="Clients.Types.Machine.Flow" xml:space="preserve">
+    <value>Client credentials</value>
+  </data>
+  <data name="Clients.Types.Machine.Name" xml:space="preserve">
+    <value>Machine</value>
+  </data>
+  <data name="Clients.Types.Native.Description1" xml:space="preserve">
+    <value>A desktop or mobile application running on a user's device.</value>
+  </data>
+  <data name="Clients.Types.Native.Description2" xml:space="preserve">
+    <value>Cannot keep a secret but can use refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.Native.Description3" xml:space="preserve">
+    <value>Token visibility depends on the browser and redirect URI.</value>
+  </data>
+  <data name="Clients.Types.Native.Flow" xml:space="preserve">
+    <value>Authorization code + PKCE</value>
+  </data>
+  <data name="Clients.Types.Native.Name" xml:space="preserve">
+    <value>Native</value>
+  </data>
+  <data name="Clients.Types.Spa.Description1" xml:space="preserve">
+    <value>A client side application running in a browser.</value>
+  </data>
+  <data name="Clients.Types.Spa.Description2" xml:space="preserve">
+    <value>Cannot be trusted to keep secrets or use refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.Spa.Description3" xml:space="preserve">
+    <value>Tokens travel through the browser and are visible to the user.</value>
+  </data>
+  <data name="Clients.Types.Spa.Flow" xml:space="preserve">
+    <value>Authorization code + PKCE</value>
+  </data>
+  <data name="Clients.Types.Spa.Name" xml:space="preserve">
+    <value>Single page app</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Description1" xml:space="preserve">
+    <value>A browser application following older OAuth working group recommendations.</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Description2" xml:space="preserve">
+    <value>Cannot keep secrets or use refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Description3" xml:space="preserve">
+    <value>Tokens travel through the browser and are visible to the user.</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Flow" xml:space="preserve">
+    <value>Implicit flow</value>
+  </data>
+  <data name="Clients.Types.SpaLegacy.Name" xml:space="preserve">
+    <value>Single page app (legacy)</value>
+  </data>
+  <data name="Clients.Types.WebApp.Description1" xml:space="preserve">
+    <value>A server side application running on your infrastructure.</value>
+  </data>
+  <data name="Clients.Types.WebApp.Description2" xml:space="preserve">
+    <value>Can keep a secret and use refresh tokens.</value>
+  </data>
+  <data name="Clients.Types.WebApp.Description3" xml:space="preserve">
+    <value>Tokens are sent to a back-end server and are not visible to the user.</value>
+  </data>
+  <data name="Clients.Types.WebApp.Flow" xml:space="preserve">
+    <value>Hybrid flow with client authentication</value>
+  </data>
+  <data name="Clients.Types.WebApp.Name" xml:space="preserve">
+    <value>Web app</value>
+  </data>
+  <data name="Clients.Urls.AddUrl" xml:space="preserve">
+    <value>Add URL</value>
+  </data>
+  <data name="Clients.Urls.Cors" xml:space="preserve">
+    <value>CORS</value>
+  </data>
+  <data name="Clients.Urls.CorsTip" xml:space="preserve">
+    <value>Origin allowed to make cross origin requests</value>
+  </data>
+  <data name="Clients.Urls.Duplicate" xml:space="preserve">
+    <value>This URL is already listed.</value>
+  </data>
+  <data name="Clients.Urls.EmptyMessage" xml:space="preserve">
+    <value>Add the addresses this application redirects to after sign in or sign out.</value>
+  </data>
+  <data name="Clients.Urls.EmptyTitle" xml:space="preserve">
+    <value>No URLs yet</value>
+  </data>
+  <data name="Clients.Urls.InvalidOriginTip" xml:space="preserve">
+    <value>Not a valid CORS origin: use scheme, host and port only</value>
+  </data>
+  <data name="Clients.Urls.PostLogout" xml:space="preserve">
+    <value>Post logout</value>
+  </data>
+  <data name="Clients.Urls.PostLogoutTip" xml:space="preserve">
+    <value>Users can return here after signing out</value>
+  </data>
+  <data name="Clients.Urls.Redirect" xml:space="preserve">
+    <value>Redirect</value>
+  </data>
+  <data name="Clients.Urls.RedirectTip" xml:space="preserve">
+    <value>Tokens can be sent to this URL</value>
+  </data>
+  <data name="Clients.Urls.RemoveLabel" xml:space="preserve">
+    <value>Remove {{url}}</value>
+  </data>
+  <data name="Clients.Urls.Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Clients.Urls.Save" xml:space="preserve">
+    <value>Save URLs</value>
+  </data>
+  <data name="Clients.Urls.SavedMessage" xml:space="preserve">
+    <value>The client URLs were updated.</value>
+  </data>
+  <data name="Clients.Urls.SavedTitle" xml:space="preserve">
+    <value>URLs saved</value>
+  </data>
+  <data name="Clients.Urls.Unsaved" xml:space="preserve">
+    <value>Unsaved changes</value>
+  </data>
+  <data name="Clients.Urls.Url" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="Clients.Urls.UrlToAdd" xml:space="preserve">
+    <value>URL to add</value>
+  </data>
+  <data name="Clients.Validation.CallbackUrlRequired" xml:space="preserve">
+    <value>A callback URL is required.</value>
+  </data>
+  <data name="Clients.Validation.ClientIdRequired" xml:space="preserve">
+    <value>A client id is required.</value>
+  </data>
+  <data name="Clients.Validation.DisplayNameRequired" xml:space="preserve">
+    <value>A display name is required.</value>
+  </data>
+  <data name="Clients.Validation.InvalidUrl" xml:space="preserve">
+    <value>Enter a valid URL.</value>
+  </data>
+  <data name="Common.Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Common.Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Common.All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Common.Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Common.Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common.Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Common.Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Common.Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Common.Copied" xml:space="preserve">
+    <value>Copied</value>
+  </data>
+  <data name="Common.Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Common.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Common.Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Common.CreatedAt" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Common.Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common.Deleted" xml:space="preserve">
+    <value>Deleted</value>
+  </data>
+  <data name="Common.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Common.Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Common.Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="Common.Discard" xml:space="preserve">
+    <value>Discard</value>
+  </data>
+  <data name="Common.DisplayName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="Common.Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Common.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Common.Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Common.Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Common.Filters" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="Common.Hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="Common.Loading" xml:space="preserve">
+    <value>Loading…</value>
+  </data>
+  <data name="Common.Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Common.Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="Common.Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common.None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Common.NoResults" xml:space="preserve">
+    <value>No results found</value>
+  </data>
+  <data name="Common.Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Common.PhoneNumber" xml:space="preserve">
+    <value>Phone number</value>
+  </data>
+  <data name="Common.Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Common.Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Common.Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Common.Required" xml:space="preserve">
+    <value>Required</value>
+  </data>
+  <data name="Common.Reserved" xml:space="preserve">
+    <value>Reserved</value>
+  </data>
+  <data name="Common.Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Common.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Common.SaveChanges" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="Common.Saved" xml:space="preserve">
+    <value>Changes saved</value>
+  </data>
+  <data name="Common.Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Common.Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Common.Show" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="Common.Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Common.Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Common.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Common.Updated" xml:space="preserve">
+    <value>Updated</value>
+  </data>
+  <data name="Common.UpdatedAt" xml:space="preserve">
+    <value>Last updated</value>
+  </data>
+  <data name="Common.UserName" xml:space="preserve">
+    <value>User name</value>
+  </data>
+  <data name="Common.Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Common.ViewAll" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Core.Http.ErrorTitle" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="Core.Http.Forbidden" xml:space="preserve">
+    <value>You do not have permission to perform this action.</value>
+  </data>
+  <data name="Core.Http.RequestFailed" xml:space="preserve">
+    <value>The request could not be completed.</value>
+  </data>
+  <data name="Core.Http.Unreachable" xml:space="preserve">
+    <value>The server could not be reached. Check your connection and try again.</value>
+  </data>
+  <data name="Dashboard.Activity.Attempts" xml:space="preserve">
+    <value>Attempts</value>
+  </data>
+  <data name="Dashboard.Activity.Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Dashboard.Activity.FailureRate" xml:space="preserve">
+    <value>Failure rate</value>
+  </data>
+  <data name="Dashboard.Activity.Last30Days" xml:space="preserve">
+    <value>30 days</value>
+  </data>
+  <data name="Dashboard.Activity.Last7Days" xml:space="preserve">
+    <value>7 days</value>
+  </data>
+  <data name="Dashboard.Activity.Last90Days" xml:space="preserve">
+    <value>90 days</value>
+  </data>
+  <data name="Dashboard.Activity.Legend" xml:space="preserve">
+    <value>Legend</value>
+  </data>
+  <data name="Dashboard.Activity.PeakDailyUsers" xml:space="preserve">
+    <value>Peak daily users</value>
+  </data>
+  <data name="Dashboard.Activity.Subtitle" xml:space="preserve">
+    <value>Successful and failed sign-in attempts per day.</value>
+  </data>
+  <data name="Dashboard.Activity.Successful" xml:space="preserve">
+    <value>Successful</value>
+  </data>
+  <data name="Dashboard.Activity.Title" xml:space="preserve">
+    <value>Sign-in activity</value>
+  </data>
+  <data name="Dashboard.Attention.Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="Dashboard.Attention.BlockedHint" xml:space="preserve">
+    <value>Blocked by an administrator</value>
+  </data>
+  <data name="Dashboard.Attention.ExpiredPasswords" xml:space="preserve">
+    <value>Expired passwords</value>
+  </data>
+  <data name="Dashboard.Attention.ExpiredPasswordsHint" xml:space="preserve">
+    <value>Must change their password at next sign-in</value>
+  </data>
+  <data name="Dashboard.Attention.Flagged" xml:space="preserve">
+    <value>Sign-ins flagged for review</value>
+  </data>
+  <data name="Dashboard.Attention.FlaggedHint" xml:space="preserve">
+    <value>Marked as suspicious, e.g. impossible travel</value>
+  </data>
+  <data name="Dashboard.Attention.LockedOut" xml:space="preserve">
+    <value>Locked out</value>
+  </data>
+  <data name="Dashboard.Attention.LockedOutHint" xml:space="preserve">
+    <value>Too many failed sign-in attempts</value>
+  </data>
+  <data name="Dashboard.Attention.NeverSignedIn" xml:space="preserve">
+    <value>Never signed in</value>
+  </data>
+  <data name="Dashboard.Attention.NeverSignedInHint" xml:space="preserve">
+    <value>Accounts that were created but never used</value>
+  </data>
+  <data name="Dashboard.Attention.Subtitle" xml:space="preserve">
+    <value>Accounts and events an administrator may want to look at.</value>
+  </data>
+  <data name="Dashboard.Attention.Title" xml:space="preserve">
+    <value>Needs attention</value>
+  </data>
+  <data name="Dashboard.Engagement.Last30Days" xml:space="preserve">
+    <value>Last 30 days</value>
+  </data>
+  <data name="Dashboard.Engagement.Last7Days" xml:space="preserve">
+    <value>Last 7 days</value>
+  </data>
+  <data name="Dashboard.Engagement.Stickiness" xml:space="preserve">
+    <value>Stickiness</value>
+  </data>
+  <data name="Dashboard.Engagement.StickinessHint" xml:space="preserve">
+    <value>(daily ÷ monthly)</value>
+  </data>
+  <data name="Dashboard.Engagement.Subtitle" xml:space="preserve">
+    <value>Share of all users that signed in recently.</value>
+  </data>
+  <data name="Dashboard.Engagement.Title" xml:space="preserve">
+    <value>Engagement</value>
+  </data>
+  <data name="Dashboard.Engagement.Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Dashboard.Greeting.Afternoon" xml:space="preserve">
+    <value>Good afternoon</value>
+  </data>
+  <data name="Dashboard.Greeting.Evening" xml:space="preserve">
+    <value>Good evening</value>
+  </data>
+  <data name="Dashboard.Greeting.Morning" xml:space="preserve">
+    <value>Good morning</value>
+  </data>
+  <data name="Dashboard.Inventory.ApiResourcesHint" xml:space="preserve">
+    <value>Protected APIs</value>
+  </data>
+  <data name="Dashboard.Inventory.ApiScopesHint" xml:space="preserve">
+    <value>Permissions clients can ask for</value>
+  </data>
+  <data name="Dashboard.Inventory.IdentityResourcesHint" xml:space="preserve">
+    <value>User claims clients can request</value>
+  </data>
+  <data name="Dashboard.Inventory.Title" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
+  <data name="Dashboard.Locations.Subtitle" xml:space="preserve">
+    <value>{{count}} locations in the last 7 days.</value>
+  </data>
+  <data name="Dashboard.Locations.Title" xml:space="preserve">
+    <value>Where users sign in from</value>
+  </data>
+  <data name="Dashboard.News.ReadMore" xml:space="preserve">
+    <value>Read more</value>
+  </data>
+  <data name="Dashboard.News.Title" xml:space="preserve">
+    <value>From the IdentityServer blog</value>
+  </data>
+  <data name="Dashboard.RolesHint" xml:space="preserve">
+    <value>Groups of users with shared access</value>
+  </data>
+  <data name="Dashboard.Security.Mfa" xml:space="preserve">
+    <value>MFA</value>
+  </data>
+  <data name="Dashboard.Security.SignedInOnce" xml:space="preserve">
+    <value>Signed in at least once</value>
+  </data>
+  <data name="Dashboard.Security.Subtitle" xml:space="preserve">
+    <value>How well protected your users' accounts are.</value>
+  </data>
+  <data name="Dashboard.Security.Title" xml:space="preserve">
+    <value>Account security</value>
+  </data>
+  <data name="Dashboard.Security.VerifiedEmail" xml:space="preserve">
+    <value>Verified email</value>
+  </data>
+  <data name="Dashboard.Security.VerifiedPhone" xml:space="preserve">
+    <value>Verified phone</value>
+  </data>
+  <data name="Dashboard.Security.WithoutMfa" xml:space="preserve">
+    <value>{{count}} without MFA</value>
+  </data>
+  <data name="Dashboard.Stats.ClientApplications" xml:space="preserve">
+    <value>Client applications</value>
+  </data>
+  <data name="Dashboard.Stats.ClientsHint" xml:space="preserve">
+    <value>{{enabled}} enabled · {{disabled}} disabled</value>
+  </data>
+  <data name="Dashboard.Stats.FailedSignIns" xml:space="preserve">
+    <value>Failed sign-ins (24h)</value>
+  </data>
+  <data name="Dashboard.Stats.FailedSignInsHint" xml:space="preserve">
+    <value>Open the sign-in log to investigate</value>
+  </data>
+  <data name="Dashboard.Stats.NewUsersHint" xml:space="preserve">
+    <value>in the last 7 days</value>
+  </data>
+  <data name="Dashboard.Stats.SignedInToday" xml:space="preserve">
+    <value>Signed in today</value>
+  </data>
+  <data name="Dashboard.Stats.VsYesterday" xml:space="preserve">
+    <value>vs yesterday</value>
+  </data>
+  <data name="Dashboard.Subtitle" xml:space="preserve">
+    <value>Here is what is happening across your identity platform.</value>
+  </data>
+  <data name="Dashboard.UpdatedAt" xml:space="preserve">
+    <value>Updated {{time}}</value>
+  </data>
+  <data name="Logs.Columns.When" xml:space="preserve">
+    <value>When</value>
+  </data>
+  <data name="Logs.Copy.RequestId" xml:space="preserve">
+    <value>request id</value>
+  </data>
+  <data name="Logs.Copy.ResourceId" xml:space="preserve">
+    <value>resource id</value>
+  </data>
+  <data name="Logs.Copy.SessionId" xml:space="preserve">
+    <value>session id</value>
+  </data>
+  <data name="Logs.Copy.SubjectId" xml:space="preserve">
+    <value>subject id</value>
+  </data>
+  <data name="Logs.Copy.Token" xml:space="preserve">
+    <value>token</value>
+  </data>
+  <data name="Logs.Device.Browser" xml:space="preserve">
+    <value>Browser</value>
+  </data>
+  <data name="Logs.Device.Os" xml:space="preserve">
+    <value>OS</value>
+  </data>
+  <data name="Logs.Device.UnknownBrowser" xml:space="preserve">
+    <value>Unknown browser</value>
+  </data>
+  <data name="Logs.Device.UnknownPlatform" xml:space="preserve">
+    <value>Unknown platform</value>
+  </data>
+  <data name="Logs.Fields.Application" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="Logs.Fields.Coordinates" xml:space="preserve">
+    <value>Coordinates</value>
+  </data>
+  <data name="Logs.Fields.Device" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Logs.Fields.DeviceId" xml:space="preserve">
+    <value>Device id</value>
+  </data>
+  <data name="Logs.Fields.EntryId" xml:space="preserve">
+    <value>Entry id</value>
+  </data>
+  <data name="Logs.Fields.Event" xml:space="preserve">
+    <value>Event</value>
+  </data>
+  <data name="Logs.Fields.EventType" xml:space="preserve">
+    <value>Event type</value>
+  </data>
+  <data name="Logs.Fields.IpAddress" xml:space="preserve">
+    <value>IP address</value>
+  </data>
+  <data name="Logs.Fields.Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="Logs.Fields.RequestId" xml:space="preserve">
+    <value>Request id</value>
+  </data>
+  <data name="Logs.Fields.ResourceType" xml:space="preserve">
+    <value>Resource type</value>
+  </data>
+  <data name="Logs.Fields.SessionId" xml:space="preserve">
+    <value>Session id</value>
+  </data>
+  <data name="Logs.Fields.Subject" xml:space="preserve">
+    <value>Subject</value>
+  </data>
+  <data name="Logs.Fields.SubjectId" xml:space="preserve">
+    <value>Subject id</value>
+  </data>
+  <data name="Logs.Fields.UnknownUser" xml:space="preserve">
+    <value>(unknown user)</value>
+  </data>
+  <data name="Logs.Fields.UserAgent" xml:space="preserve">
+    <value>User agent</value>
+  </data>
+  <data name="Logs.Filters.AllOutcomes" xml:space="preserve">
+    <value>All outcomes</value>
+  </data>
+  <data name="Logs.Filters.ApplicationId" xml:space="preserve">
+    <value>Application id</value>
+  </data>
+  <data name="Logs.Filters.ClientId" xml:space="preserve">
+    <value>Client id</value>
+  </data>
+  <data name="Logs.Filters.From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Logs.Filters.FromDate" xml:space="preserve">
+    <value>From date</value>
+  </data>
+  <data name="Logs.Filters.NoMatches" xml:space="preserve">
+    <value>No entries match the current filters.</value>
+  </data>
+  <data name="Logs.Filters.Outcome" xml:space="preserve">
+    <value>Outcome</value>
+  </data>
+  <data name="Logs.Filters.ResetFilters" xml:space="preserve">
+    <value>Reset filters</value>
+  </data>
+  <data name="Logs.Filters.To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Logs.Filters.ToDate" xml:space="preserve">
+    <value>To date</value>
+  </data>
+  <data name="Logs.Outcome.Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Logs.Outcome.Succeeded" xml:space="preserve">
+    <value>Succeeded</value>
+  </data>
+  <data name="Logs.Review.Clear" xml:space="preserve">
+    <value>Clear review flag</value>
+  </data>
+  <data name="Logs.Review.Cleared" xml:space="preserve">
+    <value>Review flag cleared</value>
+  </data>
+  <data name="Logs.Review.Mark" xml:space="preserve">
+    <value>Mark for review</value>
+  </data>
+  <data name="Logs.Review.Marked" xml:space="preserve">
+    <value>Marked for review</value>
+  </data>
+  <data name="Nav.ApiDocs" xml:space="preserve">
+    <value>API docs</value>
+  </data>
+  <data name="Nav.Applications" xml:space="preserve">
+    <value>Applications</value>
+  </data>
+  <data name="Nav.Developers" xml:space="preserve">
+    <value>Developers</value>
+  </data>
+  <data name="Nav.DiscoveryDocument" xml:space="preserve">
+    <value>Discovery document</value>
+  </data>
+  <data name="Nav.Identity" xml:space="preserve">
+    <value>Identity</value>
+  </data>
+  <data name="Nav.Monitoring" xml:space="preserve">
+    <value>Monitoring</value>
+  </data>
+  <data name="Nav.System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Pages.Auth.SigningIn" xml:space="preserve">
+    <value>Signing you in…</value>
+  </data>
+  <data name="Pages.Auth.SigningOut" xml:space="preserve">
+    <value>Signing you out…</value>
+  </data>
+  <data name="Pages.Forbidden.Message" xml:space="preserve">
+    <value>Your account is not allowed to use this part of the IAM UI. Ask an administrator for access.</value>
+  </data>
+  <data name="Pages.Forbidden.Title" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="Pages.Home.AuditLogs" xml:space="preserve">
+    <value>Audit logs</value>
+  </data>
+  <data name="Pages.Home.ClientsAndScopes" xml:space="preserve">
+    <value>Clients &amp; scopes</value>
+  </data>
+  <data name="Pages.Home.SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Pages.Home.Subtitle" xml:space="preserve">
+    <value>Manage users, roles, client applications and the resources they can reach, all in one place.</value>
+  </data>
+  <data name="Pages.Home.Title" xml:space="preserve">
+    <value>Identity administration</value>
+  </data>
+  <data name="Pages.Home.UsersAndRoles" xml:space="preserve">
+    <value>Users &amp; roles</value>
+  </data>
+  <data name="Pages.NotFound.Message" xml:space="preserve">
+    <value>The page you are looking for does not exist or has been moved.</value>
+  </data>
+  <data name="Pages.NotFound.Title" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="Pages.Splash.PleaseWait" xml:space="preserve">
+    <value>Please wait…</value>
+  </data>
+  <data name="Pages.Status.BackToDashboard" xml:space="preserve">
+    <value>Back to dashboard</value>
+  </data>
+  <data name="Resources.Add.ApiHint" xml:space="preserve">
+    <value>An API protected by the identity server, with its own scopes and secrets.</value>
+  </data>
+  <data name="Resources.Add.ClaimsHint.Api" xml:space="preserve">
+    <value>Pick the user claims included in every access token issued for this API.</value>
+  </data>
+  <data name="Resources.Add.ClaimsHint.Identity" xml:space="preserve">
+    <value>Pick the user claims included in the identity token when a client requests this resource.</value>
+  </data>
+  <data name="Resources.Add.ClaimsHint.Scope" xml:space="preserve">
+    <value>Pick the user claims included in access tokens when a client is granted this scope.</value>
+  </data>
+  <data name="Resources.Add.Create.Api" xml:space="preserve">
+    <value>Create API resource</value>
+  </data>
+  <data name="Resources.Add.Create.Identity" xml:space="preserve">
+    <value>Create identity resource</value>
+  </data>
+  <data name="Resources.Add.Create.Scope" xml:space="preserve">
+    <value>Create API scope</value>
+  </data>
+  <data name="Resources.Add.Created.Api.Message" xml:space="preserve">
+    <value>API resource '{{name}}' was created.</value>
+  </data>
+  <data name="Resources.Add.Created.Api.Title" xml:space="preserve">
+    <value>API resource created</value>
+  </data>
+  <data name="Resources.Add.Created.Identity.Message" xml:space="preserve">
+    <value>Identity resource '{{name}}' was created.</value>
+  </data>
+  <data name="Resources.Add.Created.Identity.Title" xml:space="preserve">
+    <value>Identity resource created</value>
+  </data>
+  <data name="Resources.Add.Created.Scope.Message" xml:space="preserve">
+    <value>API scope '{{name}}' was created.</value>
+  </data>
+  <data name="Resources.Add.Created.Scope.Title" xml:space="preserve">
+    <value>API scope created</value>
+  </data>
+  <data name="Resources.Add.IdentityHint" xml:space="preserve">
+    <value>User claims about the signed-in user, such as profile or email.</value>
+  </data>
+  <data name="Resources.Add.NameHint" xml:space="preserve">
+    <value>Unique, and cannot change later.</value>
+  </data>
+  <data name="Resources.Add.ScopeHint" xml:space="preserve">
+    <value>A permission clients request to call one or more APIs.</value>
+  </data>
+  <data name="Resources.Add.Steps.Basics" xml:space="preserve">
+    <value>Basics</value>
+  </data>
+  <data name="Resources.Add.Steps.Review" xml:space="preserve">
+    <value>Review</value>
+  </data>
+  <data name="Resources.Add.Subtitle" xml:space="preserve">
+    <value>Describe what clients can request: user identity data, an API, or a permission on an API.</value>
+  </data>
+  <data name="Resources.Api.AddScope" xml:space="preserve">
+    <value>Add scope</value>
+  </data>
+  <data name="Resources.Api.ClaimCount" xml:space="preserve">
+    <value>{{count}} claims</value>
+  </data>
+  <data name="Resources.Api.ClaimsIntro" xml:space="preserve">
+    <value>These user claims are included in access tokens issued for this API, whatever scope was requested.</value>
+  </data>
+  <data name="Resources.Api.Delete.Message" xml:space="preserve">
+    <value>API resource '{{name}}' and its scopes will be deleted permanently. Clients will lose access to it.</value>
+  </data>
+  <data name="Resources.Api.Delete.Title" xml:space="preserve">
+    <value>Delete API resource?</value>
+  </data>
+  <data name="Resources.Api.Deleted.Message" xml:space="preserve">
+    <value>API resource '{{name}}' was deleted.</value>
+  </data>
+  <data name="Resources.Api.Deleted.Title" xml:space="preserve">
+    <value>API resource deleted</value>
+  </data>
+  <data name="Resources.Api.EnabledHint" xml:space="preserve">
+    <value>Clients can request access tokens for this API.</value>
+  </data>
+  <data name="Resources.Api.NoDisplayName" xml:space="preserve">
+    <value>No display name</value>
+  </data>
+  <data name="Resources.Api.NoScopes.Message" xml:space="preserve">
+    <value>Add a scope so clients can request access to this API.</value>
+  </data>
+  <data name="Resources.Api.NoScopes.Title" xml:space="preserve">
+    <value>No scopes yet</value>
+  </data>
+  <data name="Resources.Api.ScopeAddSubtitle" xml:space="preserve">
+    <value>A permission clients can request to call this API.</value>
+  </data>
+  <data name="Resources.Api.ScopeNameHint" xml:space="preserve">
+    <value>The value clients send in the &lt;code&gt;scope&lt;/code&gt; parameter. It cannot change later.</value>
+  </data>
+  <data name="Resources.Api.ScopesIntro" xml:space="preserve">
+    <value>Scopes are the permissions clients request to call this API.</value>
+  </data>
+  <data name="Resources.Api.Tabs.Scopes" xml:space="preserve">
+    <value>Scopes</value>
+  </data>
+  <data name="Resources.Api.Tabs.Secrets" xml:space="preserve">
+    <value>Secrets</value>
+  </data>
+  <data name="Resources.Api.Updated.Message" xml:space="preserve">
+    <value>API resource '{{name}}' was updated.</value>
+  </data>
+  <data name="Resources.Api.Updated.Title" xml:space="preserve">
+    <value>API resource updated</value>
+  </data>
+  <data name="Resources.Claims.Added.Message" xml:space="preserve">
+    <value>Claim '{{claim}}' is now included.</value>
+  </data>
+  <data name="Resources.Claims.Added.Title" xml:space="preserve">
+    <value>Claim added</value>
+  </data>
+  <data name="Resources.Claims.AddedToScope" xml:space="preserve">
+    <value>Claim '{{claim}}' is now included in scope '{{scope}}'.</value>
+  </data>
+  <data name="Resources.Claims.Removed.Message" xml:space="preserve">
+    <value>Claim '{{claim}}' was removed.</value>
+  </data>
+  <data name="Resources.Claims.Removed.Title" xml:space="preserve">
+    <value>Claim removed</value>
+  </data>
+  <data name="Resources.Claims.RemovedFromScope" xml:space="preserve">
+    <value>Claim '{{claim}}' was removed from scope '{{scope}}'.</value>
+  </data>
+  <data name="Resources.ClaimsPicker.Available" xml:space="preserve">
+    <value>Available claims</value>
+  </data>
+  <data name="Resources.ClaimsPicker.Empty" xml:space="preserve">
+    <value>No claims included yet.</value>
+  </data>
+  <data name="Resources.ClaimsPicker.Selected" xml:space="preserve">
+    <value>Included claims</value>
+  </data>
+  <data name="Resources.Form.Emphasize" xml:space="preserve">
+    <value>Emphasize</value>
+  </data>
+  <data name="Resources.Form.EmphasizeHint" xml:space="preserve">
+    <value>Highlighted on the consent screen.</value>
+  </data>
+  <data name="Resources.Form.ExamplePlaceholder" xml:space="preserve">
+    <value>e.g. {{example}}</value>
+  </data>
+  <data name="Resources.Form.NameImmutable" xml:space="preserve">
+    <value>The name cannot change once created.</value>
+  </data>
+  <data name="Resources.Form.NameRequired" xml:space="preserve">
+    <value>A name is required.</value>
+  </data>
+  <data name="Resources.Form.ShowInDiscovery" xml:space="preserve">
+    <value>Show in discovery document</value>
+  </data>
+  <data name="Resources.Form.ShowInDiscoveryHint" xml:space="preserve">
+    <value>Listed in the OpenID Connect discovery document.</value>
+  </data>
+  <data name="Resources.Identity.ClaimsIntro" xml:space="preserve">
+    <value>These user claims are included in the identity token when a client requests this resource.</value>
+  </data>
+  <data name="Resources.Identity.Delete.Message" xml:space="preserve">
+    <value>Identity resource '{{name}}' will be deleted permanently and clients will no longer be able to request it.</value>
+  </data>
+  <data name="Resources.Identity.Delete.Title" xml:space="preserve">
+    <value>Delete identity resource?</value>
+  </data>
+  <data name="Resources.Identity.Deleted.Message" xml:space="preserve">
+    <value>Identity resource '{{name}}' was deleted.</value>
+  </data>
+  <data name="Resources.Identity.Deleted.Title" xml:space="preserve">
+    <value>Identity resource deleted</value>
+  </data>
+  <data name="Resources.Identity.EnabledHint" xml:space="preserve">
+    <value>Clients can request this resource.</value>
+  </data>
+  <data name="Resources.Identity.RequiredHint" xml:space="preserve">
+    <value>Users cannot deselect it on the consent screen.</value>
+  </data>
+  <data name="Resources.Identity.Updated.Message" xml:space="preserve">
+    <value>Identity resource '{{name}}' was updated.</value>
+  </data>
+  <data name="Resources.Identity.Updated.Title" xml:space="preserve">
+    <value>Identity resource updated</value>
+  </data>
+  <data name="Resources.List.Api.EmptyMessage" xml:space="preserve">
+    <value>Create the first API resource.</value>
+  </data>
+  <data name="Resources.List.Api.New" xml:space="preserve">
+    <value>New API resource</value>
+  </data>
+  <data name="Resources.List.Api.Search" xml:space="preserve">
+    <value>Search API resources</value>
+  </data>
+  <data name="Resources.List.Api.Subtitle" xml:space="preserve">
+    <value>APIs protected by the identity server, along with their scopes, claims and secrets.</value>
+  </data>
+  <data name="Resources.List.Claims" xml:space="preserve">
+    <value>Claims</value>
+  </data>
+  <data name="Resources.List.Emphasized" xml:space="preserve">
+    <value>Emphasized</value>
+  </data>
+  <data name="Resources.List.Identity.EmptyMessage" xml:space="preserve">
+    <value>Create the first identity resource.</value>
+  </data>
+  <data name="Resources.List.Identity.New" xml:space="preserve">
+    <value>New identity resource</value>
+  </data>
+  <data name="Resources.List.Identity.Search" xml:space="preserve">
+    <value>Search identity resources</value>
+  </data>
+  <data name="Resources.List.Identity.Subtitle" xml:space="preserve">
+    <value>Groups of user claims (such as profile or email) that clients can request about the signed-in user.</value>
+  </data>
+  <data name="Resources.List.NoMatches" xml:space="preserve">
+    <value>No matches</value>
+  </data>
+  <data name="Resources.List.NothingYet" xml:space="preserve">
+    <value>Nothing here yet</value>
+  </data>
+  <data name="Resources.List.Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Resources.List.OpenItem" xml:space="preserve">
+    <value>Open {{name}}</value>
+  </data>
+  <data name="Resources.List.Scope.EmptyMessage" xml:space="preserve">
+    <value>Create the first API scope.</value>
+  </data>
+  <data name="Resources.List.Scope.New" xml:space="preserve">
+    <value>New API scope</value>
+  </data>
+  <data name="Resources.List.Scope.Search" xml:space="preserve">
+    <value>Search API scopes</value>
+  </data>
+  <data name="Resources.List.Scope.Subtitle" xml:space="preserve">
+    <value>Permissions that clients request in order to call APIs on behalf of users.</value>
+  </data>
+  <data name="Resources.List.TryDifferentSearch" xml:space="preserve">
+    <value>Try a different search term.</value>
+  </data>
+  <data name="Resources.Scopes.Added.Message" xml:space="preserve">
+    <value>Scope '{{name}}' was added.</value>
+  </data>
+  <data name="Resources.Scopes.Added.Title" xml:space="preserve">
+    <value>Scope added</value>
+  </data>
+  <data name="Resources.Scopes.ClaimsIntro" xml:space="preserve">
+    <value>Included in access tokens when a client is granted this scope.</value>
+  </data>
+  <data name="Resources.Scopes.Delete.Message" xml:space="preserve">
+    <value>Scope '{{name}}' will be deleted permanently and clients will no longer be able to request it.</value>
+  </data>
+  <data name="Resources.Scopes.Delete.Title" xml:space="preserve">
+    <value>Delete scope?</value>
+  </data>
+  <data name="Resources.Scopes.Deleted.Message" xml:space="preserve">
+    <value>Scope '{{name}}' was deleted.</value>
+  </data>
+  <data name="Resources.Scopes.Deleted.Title" xml:space="preserve">
+    <value>Scope deleted</value>
+  </data>
+  <data name="Resources.Scopes.DeleteScope" xml:space="preserve">
+    <value>Delete scope</value>
+  </data>
+  <data name="Resources.Scopes.NotFound.Message" xml:space="preserve">
+    <value>Scope '{{name}}' does not exist.</value>
+  </data>
+  <data name="Resources.Scopes.NotFound.Title" xml:space="preserve">
+    <value>Scope not found</value>
+  </data>
+  <data name="Resources.Scopes.Save" xml:space="preserve">
+    <value>Save scope</value>
+  </data>
+  <data name="Resources.Scopes.Updated.Message" xml:space="preserve">
+    <value>Scope '{{name}}' was updated.</value>
+  </data>
+  <data name="Resources.Scopes.Updated.Title" xml:space="preserve">
+    <value>Scope updated</value>
+  </data>
+  <data name="Resources.Secrets.Add" xml:space="preserve">
+    <value>Add secret</value>
+  </data>
+  <data name="Resources.Secrets.Added.Message" xml:space="preserve">
+    <value>The API secret was added.</value>
+  </data>
+  <data name="Resources.Secrets.Added.Title" xml:space="preserve">
+    <value>Secret added</value>
+  </data>
+  <data name="Resources.Secrets.AddTitle" xml:space="preserve">
+    <value>Add a shared secret</value>
+  </data>
+  <data name="Resources.Secrets.CopyLabel" xml:space="preserve">
+    <value>secret value</value>
+  </data>
+  <data name="Resources.Secrets.CopyNow" xml:space="preserve">
+    <value>Copy it now: it is hidden once saved.</value>
+  </data>
+  <data name="Resources.Secrets.Delete.Message" xml:space="preserve">
+    <value>The API will no longer be able to authenticate with this secret.</value>
+  </data>
+  <data name="Resources.Secrets.Delete.Title" xml:space="preserve">
+    <value>Delete secret?</value>
+  </data>
+  <data name="Resources.Secrets.Deleted.Message" xml:space="preserve">
+    <value>The API secret was deleted.</value>
+  </data>
+  <data name="Resources.Secrets.Deleted.Title" xml:space="preserve">
+    <value>Secret deleted</value>
+  </data>
+  <data name="Resources.Secrets.DeleteSecret" xml:space="preserve">
+    <value>Delete secret</value>
+  </data>
+  <data name="Resources.Secrets.Empty.Message" xml:space="preserve">
+    <value>The API needs a secret to call the token introspection endpoint.</value>
+  </data>
+  <data name="Resources.Secrets.Empty.Title" xml:space="preserve">
+    <value>No secrets</value>
+  </data>
+  <data name="Resources.Secrets.Expiration" xml:space="preserve">
+    <value>Expiration</value>
+  </data>
+  <data name="Resources.Secrets.Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Resources.Secrets.Generate" xml:space="preserve">
+    <value>Generate</value>
+  </data>
+  <data name="Resources.Secrets.GenerateRandom" xml:space="preserve">
+    <value>Generate a random value</value>
+  </data>
+  <data name="Resources.Secrets.Hidden" xml:space="preserve">
+    <value>Hidden</value>
+  </data>
+  <data name="Resources.Translations.AddLanguage" xml:space="preserve">
+    <value>Add language</value>
+  </data>
+  <data name="Resources.Translations.CultureCode" xml:space="preserve">
+    <value>Culture code</value>
+  </data>
+  <data name="Resources.Translations.Empty" xml:space="preserve">
+    <value>No translations. Add a culture code to translate the display name and description.</value>
+  </data>
+  <data name="Resources.Translations.RemoveCulture" xml:space="preserve">
+    <value>Remove {{culture}}</value>
+  </data>
+  <data name="Resources.Translations.Title" xml:space="preserve">
+    <value>Translations</value>
+  </data>
+  <data name="Resources.Types.Api" xml:space="preserve">
+    <value>API resource</value>
+  </data>
+  <data name="Resources.Types.Identity" xml:space="preserve">
+    <value>Identity resource</value>
+  </data>
+  <data name="Resources.Types.Scope" xml:space="preserve">
+    <value>API scope</value>
+  </data>
+  <data name="Resources.UserClaims" xml:space="preserve">
+    <value>User claims</value>
+  </data>
+  <data name="Roles.Delete.Message" xml:space="preserve">
+    <value>Role '{{name}}' will be removed from every user that holds it. This cannot be undone.</value>
+  </data>
+  <data name="Roles.Delete.Title" xml:space="preserve">
+    <value>Delete role?</value>
+  </data>
+  <data name="Roles.Edit.Create" xml:space="preserve">
+    <value>Create role</value>
+  </data>
+  <data name="Roles.Edit.DescriptionPlaceholder" xml:space="preserve">
+    <value>What does this role grant?</value>
+  </data>
+  <data name="Roles.Edit.NameImmutable" xml:space="preserve">
+    <value>The name of a role cannot change once created.</value>
+  </data>
+  <data name="Roles.Edit.NamePlaceholder" xml:space="preserve">
+    <value>e.g. Approver</value>
+  </data>
+  <data name="Roles.Edit.NameRequired" xml:space="preserve">
+    <value>A name is required.</value>
+  </data>
+  <data name="Roles.Edit.Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Roles.Edit.Subtitle" xml:space="preserve">
+    <value>Users holding this role are authorized by it in every application.</value>
+  </data>
+  <data name="Roles.Edit.SubtitleNew" xml:space="preserve">
+    <value>Group users that share the same access.</value>
+  </data>
+  <data name="Roles.List.Empty" xml:space="preserve">
+    <value>No roles yet</value>
+  </data>
+  <data name="Roles.List.EmptyHint" xml:space="preserve">
+    <value>Create a role to group users with the same access.</value>
+  </data>
+  <data name="Roles.List.NoMatches" xml:space="preserve">
+    <value>No matching roles</value>
+  </data>
+  <data name="Roles.List.NoMatchesHint" xml:space="preserve">
+    <value>Try a different search term.</value>
+  </data>
+  <data name="Roles.List.Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Roles.List.OpenItem" xml:space="preserve">
+    <value>Open {{name}}</value>
+  </data>
+  <data name="Roles.List.SearchPlaceholder" xml:space="preserve">
+    <value>Search roles</value>
+  </data>
+  <data name="Roles.List.Subtitle" xml:space="preserve">
+    <value>Roles group users so that applications can authorize them as a whole.</value>
+  </data>
+  <data name="Roles.New" xml:space="preserve">
+    <value>New role</value>
+  </data>
+  <data name="Roles.Toast.CreatedMessage" xml:space="preserve">
+    <value>Role '{{name}}' was created.</value>
+  </data>
+  <data name="Roles.Toast.CreatedTitle" xml:space="preserve">
+    <value>Role created</value>
+  </data>
+  <data name="Roles.Toast.DeletedMessage" xml:space="preserve">
+    <value>Role '{{name}}' was deleted.</value>
+  </data>
+  <data name="Roles.Toast.DeletedTitle" xml:space="preserve">
+    <value>Role deleted</value>
+  </data>
+  <data name="Roles.Toast.UpdatedMessage" xml:space="preserve">
+    <value>Role '{{name}}' was updated.</value>
+  </data>
+  <data name="Roles.Toast.UpdatedTitle" xml:space="preserve">
+    <value>Role updated</value>
+  </data>
+  <data name="Routes.ActivityLogs" xml:space="preserve">
+    <value>Activity logs</value>
+  </data>
+  <data name="Routes.ApiResources" xml:space="preserve">
+    <value>API resources</value>
+  </data>
+  <data name="Routes.ApiScopes" xml:space="preserve">
+    <value>API scopes</value>
+  </data>
+  <data name="Routes.Applications" xml:space="preserve">
+    <value>Applications</value>
+  </data>
+  <data name="Routes.AppSettings" xml:space="preserve">
+    <value>App settings</value>
+  </data>
+  <data name="Routes.Claims" xml:space="preserve">
+    <value>Claims</value>
+  </data>
+  <data name="Routes.ClaimTypes" xml:space="preserve">
+    <value>Claim types</value>
+  </data>
+  <data name="Routes.Client" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="Routes.Clients" xml:space="preserve">
+    <value>Clients</value>
+  </data>
+  <data name="Routes.Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Routes.Devices" xml:space="preserve">
+    <value>Devices</value>
+  </data>
+  <data name="Routes.ExternalLogins" xml:space="preserve">
+    <value>External logins</value>
+  </data>
+  <data name="Routes.IdentityResources" xml:space="preserve">
+    <value>Identity resources</value>
+  </data>
+  <data name="Routes.NewClient" xml:space="preserve">
+    <value>New client</value>
+  </data>
+  <data name="Routes.NewResource" xml:space="preserve">
+    <value>New resource</value>
+  </data>
+  <data name="Routes.NewUser" xml:space="preserve">
+    <value>New user</value>
+  </data>
+  <data name="Routes.Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="Routes.Sessions" xml:space="preserve">
+    <value>Sessions</value>
+  </data>
+  <data name="Routes.SignInLogs" xml:space="preserve">
+    <value>Sign-in logs</value>
+  </data>
+  <data name="Routes.User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Routes.Users" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Settings.Delete.Message" xml:space="preserve">
+    <value>Setting '{{name}}' will be deleted permanently.</value>
+  </data>
+  <data name="Settings.Delete.Title" xml:space="preserve">
+    <value>Delete setting?</value>
+  </data>
+  <data name="Settings.Edit.Create" xml:space="preserve">
+    <value>Create setting</value>
+  </data>
+  <data name="Settings.Edit.KeyImmutable" xml:space="preserve">
+    <value>The key cannot change; delete the setting and create a new one instead.</value>
+  </data>
+  <data name="Settings.Edit.KeyPlaceholder" xml:space="preserve">
+    <value>e.g. General:Host</value>
+  </data>
+  <data name="Settings.Edit.KeyRequired" xml:space="preserve">
+    <value>A key is required.</value>
+  </data>
+  <data name="Settings.Edit.Subtitle" xml:space="preserve">
+    <value>Keys use the configuration path syntax, e.g. Section:Subsection:Name.</value>
+  </data>
+  <data name="Settings.Edit.Title" xml:space="preserve">
+    <value>Edit setting</value>
+  </data>
+  <data name="Settings.Edit.ValueRequired" xml:space="preserve">
+    <value>A value is required.</value>
+  </data>
+  <data name="Settings.Fields.Key" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="Settings.Import.Confirm" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Settings.Import.ReplaceConfirm" xml:space="preserve">
+    <value>Replace settings</value>
+  </data>
+  <data name="Settings.Import.ReplaceMessage" xml:space="preserve">
+    <value>The settings stored in the database will be replaced by the values in the server's appsettings.json file.</value>
+  </data>
+  <data name="Settings.Import.SaveMessage" xml:space="preserve">
+    <value>The values in the server's appsettings.json file will be saved to the database.</value>
+  </data>
+  <data name="Settings.Import.SuccessMessage" xml:space="preserve">
+    <value>appsettings.json was loaded into the database.</value>
+  </data>
+  <data name="Settings.Import.SuccessTitle" xml:space="preserve">
+    <value>Settings imported</value>
+  </data>
+  <data name="Settings.Import.Title" xml:space="preserve">
+    <value>Import appsettings.json?</value>
+  </data>
+  <data name="Settings.List.CopyValueLabel" xml:space="preserve">
+    <value>value</value>
+  </data>
+  <data name="Settings.List.Empty" xml:space="preserve">
+    <value>No settings yet</value>
+  </data>
+  <data name="Settings.List.EmptyHint" xml:space="preserve">
+    <value>Add a setting, or import the ones in appsettings.json.</value>
+  </data>
+  <data name="Settings.List.Import" xml:space="preserve">
+    <value>Import appsettings.json</value>
+  </data>
+  <data name="Settings.List.NoMatches" xml:space="preserve">
+    <value>No matching settings</value>
+  </data>
+  <data name="Settings.List.NoMatchesHint" xml:space="preserve">
+    <value>Try a different search term.</value>
+  </data>
+  <data name="Settings.List.Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Settings.List.OpenItem" xml:space="preserve">
+    <value>Open {{name}}</value>
+  </data>
+  <data name="Settings.List.SearchPlaceholder" xml:space="preserve">
+    <value>Search settings</value>
+  </data>
+  <data name="Settings.List.Subtitle" xml:space="preserve">
+    <value>Configuration values the identity server reads from the database at runtime.</value>
+  </data>
+  <data name="Settings.New" xml:space="preserve">
+    <value>New setting</value>
+  </data>
+  <data name="Settings.Toast.CreatedMessage" xml:space="preserve">
+    <value>Setting '{{name}}' was created.</value>
+  </data>
+  <data name="Settings.Toast.CreatedTitle" xml:space="preserve">
+    <value>Setting created</value>
+  </data>
+  <data name="Settings.Toast.DeletedMessage" xml:space="preserve">
+    <value>Setting '{{name}}' was deleted.</value>
+  </data>
+  <data name="Settings.Toast.DeletedTitle" xml:space="preserve">
+    <value>Setting deleted</value>
+  </data>
+  <data name="Settings.Toast.UpdatedMessage" xml:space="preserve">
+    <value>Setting '{{name}}' was updated.</value>
+  </data>
+  <data name="Settings.Toast.UpdatedTitle" xml:space="preserve">
+    <value>Setting updated</value>
+  </data>
+  <data name="Shell.Breadcrumb" xml:space="preserve">
+    <value>Breadcrumb</value>
+  </data>
+  <data name="Shell.CloseMenu" xml:space="preserve">
+    <value>Close menu</value>
+  </data>
+  <data name="Shell.Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Shell.CreateApiResource" xml:space="preserve">
+    <value>API resource</value>
+  </data>
+  <data name="Shell.CreateClaimType" xml:space="preserve">
+    <value>Claim type</value>
+  </data>
+  <data name="Shell.CreateClient" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="Shell.CreateIdentityResource" xml:space="preserve">
+    <value>Identity resource</value>
+  </data>
+  <data name="Shell.CreateRole" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Shell.CreateUser" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Shell.Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Shell.MainNavigation" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="Shell.OpenMenu" xml:space="preserve">
+    <value>Open menu</value>
+  </data>
+  <data name="Shell.SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Shell.Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Shell.ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Shell.ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Shell.ThemeSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="SignInLogs.Details.DefaultTitle" xml:space="preserve">
+    <value>Sign in event</value>
+  </data>
+  <data name="SignInLogs.Details.RawMetadata" xml:space="preserve">
+    <value>Raw metadata</value>
+  </data>
+  <data name="SignInLogs.Details.Request" xml:space="preserve">
+    <value>Request</value>
+  </data>
+  <data name="SignInLogs.Details.Tokens" xml:space="preserve">
+    <value>Tokens</value>
+  </data>
+  <data name="SignInLogs.Details.WhoAndWhere" xml:space="preserve">
+    <value>Who &amp; where</value>
+  </data>
+  <data name="SignInLogs.Empty.LoadFailed" xml:space="preserve">
+    <value>Sign-in logs could not be loaded</value>
+  </data>
+  <data name="SignInLogs.Empty.Message" xml:space="preserve">
+    <value>Sign-in events will appear here as users authenticate.</value>
+  </data>
+  <data name="SignInLogs.Empty.Title" xml:space="preserve">
+    <value>No sign-in events</value>
+  </data>
+  <data name="SignInLogs.Fields.AuthMethods" xml:space="preserve">
+    <value>Auth methods</value>
+  </data>
+  <data name="SignInLogs.Fields.Endpoint" xml:space="preserve">
+    <value>Endpoint</value>
+  </data>
+  <data name="SignInLogs.Fields.GrantType" xml:space="preserve">
+    <value>Grant type</value>
+  </data>
+  <data name="SignInLogs.Fields.IdentityProvider" xml:space="preserve">
+    <value>Identity provider</value>
+  </data>
+  <data name="SignInLogs.Fields.RedirectUri" xml:space="preserve">
+    <value>Redirect uri</value>
+  </data>
+  <data name="SignInLogs.Fields.Scope" xml:space="preserve">
+    <value>Scope</value>
+  </data>
+  <data name="SignInLogs.Fields.SignInType" xml:space="preserve">
+    <value>Sign-in type</value>
+  </data>
+  <data name="SignInLogs.Filters.AllSignInTypes" xml:space="preserve">
+    <value>All sign-in types</value>
+  </data>
+  <data name="SignInLogs.Filters.SearchPlaceholder" xml:space="preserve">
+    <value>Search logs</value>
+  </data>
+  <data name="SignInLogs.Page.Subtitle" xml:space="preserve">
+    <value>Every authentication attempt against the identity server, successful or not.</value>
+  </data>
+  <data name="SignInLogs.SignInTypes.Interactive" xml:space="preserve">
+    <value>Interactive</value>
+  </data>
+  <data name="SignInLogs.SignInTypes.NonInteractive" xml:space="preserve">
+    <value>Non-interactive</value>
+  </data>
+  <data name="SignInLogs.Warnings.ImpossibleTravel" xml:space="preserve">
+    <value>Impossible travel</value>
+  </data>
+  <data name="Ui.Avatar.Alt" xml:space="preserve">
+    <value>Profile picture {{name}}</value>
+  </data>
+  <data name="Ui.CopyButton.CopyLabel" xml:space="preserve">
+    <value>Copy {{label}}</value>
+  </data>
+  <data name="Ui.CopyButton.CopyToClipboard" xml:space="preserve">
+    <value>Copy to clipboard</value>
+  </data>
+  <data name="Ui.Pagination.NextPage" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="Ui.Pagination.NoResults" xml:space="preserve">
+    <value>No results</value>
+  </data>
+  <data name="Ui.Pagination.Of" xml:space="preserve">
+    <value>of</value>
+  </data>
+  <data name="Ui.Pagination.PerPage" xml:space="preserve">
+    <value>Per page</value>
+  </data>
+  <data name="Ui.Pagination.PreviousPage" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="Ui.Toast.Dismiss" xml:space="preserve">
+    <value>Dismiss</value>
+  </data>
+  <data name="Ui.TransferList.AddItem" xml:space="preserve">
+    <value>Add {{label}}</value>
+  </data>
+  <data name="Ui.TransferList.Assigned" xml:space="preserve">
+    <value>Assigned</value>
+  </data>
+  <data name="Ui.TransferList.Available" xml:space="preserve">
+    <value>Available</value>
+  </data>
+  <data name="Ui.TransferList.EmptyAvailable" xml:space="preserve">
+    <value>Nothing left to add.</value>
+  </data>
+  <data name="Ui.TransferList.EmptySelected" xml:space="preserve">
+    <value>Nothing assigned yet.</value>
+  </data>
+  <data name="Ui.TransferList.FilterPlaceholder" xml:space="preserve">
+    <value>Filter…</value>
+  </data>
+  <data name="Ui.TransferList.NoMatches" xml:space="preserve">
+    <value>No matches.</value>
+  </data>
+  <data name="Ui.TransferList.RemoveItem" xml:space="preserve">
+    <value>Remove {{label}}</value>
+  </data>
+  <data name="Users.Actions.Block" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="Users.Actions.ClearActionLimits" xml:space="preserve">
+    <value>Clear action limits</value>
+  </data>
+  <data name="Users.Actions.DeleteUser" xml:space="preserve">
+    <value>Delete user</value>
+  </data>
+  <data name="Users.Actions.RemovePassword" xml:space="preserve">
+    <value>Remove password</value>
+  </data>
+  <data name="Users.Actions.ResendConfirmation" xml:space="preserve">
+    <value>Resend confirmation email</value>
+  </data>
+  <data name="Users.Actions.ResetMfa" xml:space="preserve">
+    <value>Reset MFA</value>
+  </data>
+  <data name="Users.Actions.SetPassword" xml:space="preserve">
+    <value>Set password</value>
+  </data>
+  <data name="Users.Actions.Unblock" xml:space="preserve">
+    <value>Unblock</value>
+  </data>
+  <data name="Users.Actions.Unlock" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="Users.Add.ClaimsIntro" xml:space="preserve">
+    <value>Optional details stored as claims on the user. You can also add them later.</value>
+  </data>
+  <data name="Users.Add.CreateAndConfigure" xml:space="preserve">
+    <value>Create &amp; configure</value>
+  </data>
+  <data name="Users.Add.CreatedMessage" xml:space="preserve">
+    <value>User '{{name}}' was created.</value>
+  </data>
+  <data name="Users.Add.CreatedTitle" xml:space="preserve">
+    <value>User created</value>
+  </data>
+  <data name="Users.Add.EmailAsUserName" xml:space="preserve">
+    <value>Use the email as username</value>
+  </data>
+  <data name="Users.Add.NoClaims" xml:space="preserve">
+    <value>No additional claims.</value>
+  </data>
+  <data name="Users.Add.NoRolesAssigned" xml:space="preserve">
+    <value>No roles assigned yet.</value>
+  </data>
+  <data name="Users.Add.Subtitle" xml:space="preserve">
+    <value>Create an account that can sign in through the identity server.</value>
+  </data>
+  <data name="Users.Applications.AccessRevoked" xml:space="preserve">
+    <value>Access revoked</value>
+  </data>
+  <data name="Users.Applications.AccessRevokedMessage" xml:space="preserve">
+    <value>'{{app}}' no longer has access.</value>
+  </data>
+  <data name="Users.Applications.AllRevokedMessage" xml:space="preserve">
+    <value>All application grants were deleted.</value>
+  </data>
+  <data name="Users.Applications.EmptyMessage" xml:space="preserve">
+    <value>This user has not granted access to any application.</value>
+  </data>
+  <data name="Users.Applications.EmptyTitle" xml:space="preserve">
+    <value>No applications</value>
+  </data>
+  <data name="Users.Applications.Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Users.Applications.Granted" xml:space="preserve">
+    <value>Granted</value>
+  </data>
+  <data name="Users.Applications.Intro" xml:space="preserve">
+    <value>Applications holding grants for this user. Revoking deletes the grants, so the app must ask for consent again.</value>
+  </data>
+  <data name="Users.Applications.OpenApplication" xml:space="preserve">
+    <value>Open application</value>
+  </data>
+  <data name="Users.Applications.Revoke" xml:space="preserve">
+    <value>Revoke</value>
+  </data>
+  <data name="Users.Applications.RevokeAccess" xml:space="preserve">
+    <value>Revoke access</value>
+  </data>
+  <data name="Users.Applications.RevokeAll" xml:space="preserve">
+    <value>Revoke all</value>
+  </data>
+  <data name="Users.Applications.RevokeAllMessage" xml:space="preserve">
+    <value>All grants of {{name}} will be deleted, for every application.</value>
+  </data>
+  <data name="Users.Applications.RevokeAllTitle" xml:space="preserve">
+    <value>Revoke all applications?</value>
+  </data>
+  <data name="Users.Applications.RevokeMessage" xml:space="preserve">
+    <value>All grants of {{name}} for '{{app}}' will be deleted.</value>
+  </data>
+  <data name="Users.Applications.RevokeTitle" xml:space="preserve">
+    <value>Revoke access?</value>
+  </data>
+  <data name="Users.ClaimEdit.Added" xml:space="preserve">
+    <value>Claim added</value>
+  </data>
+  <data name="Users.ClaimEdit.AddSubtitle" xml:space="preserve">
+    <value>Store an additional detail about the user.</value>
+  </data>
+  <data name="Users.ClaimEdit.EditSubtitle" xml:space="preserve">
+    <value>Change the value of this claim.</value>
+  </data>
+  <data name="Users.ClaimEdit.EditTitle" xml:space="preserve">
+    <value>Edit claim</value>
+  </data>
+  <data name="Users.ClaimEdit.SavedMessage" xml:space="preserve">
+    <value>Claim '{{type}}' was saved.</value>
+  </data>
+  <data name="Users.ClaimEdit.Updated" xml:space="preserve">
+    <value>Claim updated</value>
+  </data>
+  <data name="Users.Claims.AddClaim" xml:space="preserve">
+    <value>Add claim</value>
+  </data>
+  <data name="Users.Claims.Claim" xml:space="preserve">
+    <value>Claim</value>
+  </data>
+  <data name="Users.Claims.Deleted" xml:space="preserve">
+    <value>Claim deleted</value>
+  </data>
+  <data name="Users.Claims.DeletedMessage" xml:space="preserve">
+    <value>Claim '{{type}}' was removed.</value>
+  </data>
+  <data name="Users.Claims.DeleteMessage" xml:space="preserve">
+    <value>Claim '{{type}}' will be removed from {{name}}.</value>
+  </data>
+  <data name="Users.Claims.DeleteTitle" xml:space="preserve">
+    <value>Delete claim?</value>
+  </data>
+  <data name="Users.Claims.EmptyMessage" xml:space="preserve">
+    <value>This user has no claims yet.</value>
+  </data>
+  <data name="Users.Claims.EmptyTitle" xml:space="preserve">
+    <value>No claims</value>
+  </data>
+  <data name="Users.Claims.Intro" xml:space="preserve">
+    <value>Claims describe the user to applications, e.g. their name, birth date or locale.</value>
+  </data>
+  <data name="Users.Claims.SelectClaim" xml:space="preserve">
+    <value>Select a claim…</value>
+  </data>
+  <data name="Users.ClaimValue.SelectValue" xml:space="preserve">
+    <value>Select a value…</value>
+  </data>
+  <data name="Users.Details.Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Users.Details.AccountHint" xml:space="preserve">
+    <value>How the user signs in and how you can reach them.</value>
+  </data>
+  <data name="Users.Details.Activity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="Users.Details.BypassEmailPolicy" xml:space="preserve">
+    <value>Bypass the "email as username" policy</value>
+  </data>
+  <data name="Users.Details.CurrentPasswordExpires" xml:space="preserve">
+    <value>Current password expires {{date}}</value>
+  </data>
+  <data name="Users.Details.FailedAttempts" xml:space="preserve">
+    <value>Failed sign-in attempts</value>
+  </data>
+  <data name="Users.Details.Lockout" xml:space="preserve">
+    <value>Lockout</value>
+  </data>
+  <data name="Users.Details.MfaPolicy" xml:space="preserve">
+    <value>MFA policy</value>
+  </data>
+  <data name="Users.Details.NotSet" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+  <data name="Users.Details.PasswordExpires" xml:space="preserve">
+    <value>Password expires</value>
+  </data>
+  <data name="Users.Details.PasswordNeverExpires" xml:space="preserve">
+    <value>The current password does not expire.</value>
+  </data>
+  <data name="Users.Details.RequiredDetails" xml:space="preserve">
+    <value>Required details</value>
+  </data>
+  <data name="Users.Details.RequiredDetailsHint" xml:space="preserve">
+    <value>Claims every user must have.</value>
+  </data>
+  <data name="Users.Details.SavedMessage" xml:space="preserve">
+    <value>'{{name}}' was saved.</value>
+  </data>
+  <data name="Users.Details.Security" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="Users.Details.SecurityHint" xml:space="preserve">
+    <value>Multi-factor authentication and password rotation.</value>
+  </data>
+  <data name="Users.Devices.Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="Users.Devices.Deleted" xml:space="preserve">
+    <value>Device deleted</value>
+  </data>
+  <data name="Users.Devices.DeleteDevice" xml:space="preserve">
+    <value>Delete device</value>
+  </data>
+  <data name="Users.Devices.DeleteMessage" xml:space="preserve">
+    <value>'{{device}}' will be removed from {{name}}'s devices.</value>
+  </data>
+  <data name="Users.Devices.DeleteTitle" xml:space="preserve">
+    <value>Delete device?</value>
+  </data>
+  <data name="Users.Devices.Device" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Users.Devices.DeviceIdLabel" xml:space="preserve">
+    <value>device id</value>
+  </data>
+  <data name="Users.Devices.EmptyMessage" xml:space="preserve">
+    <value>This user has not registered any device.</value>
+  </data>
+  <data name="Users.Devices.EmptyTitle" xml:space="preserve">
+    <value>No devices</value>
+  </data>
+  <data name="Users.Devices.Fingerprint" xml:space="preserve">
+    <value>Fingerprint</value>
+  </data>
+  <data name="Users.Devices.Intro" xml:space="preserve">
+    <value>Browsers and apps registered by the user, used for trusted device and push notification flows.</value>
+  </data>
+  <data name="Users.Devices.Pin" xml:space="preserve">
+    <value>PIN</value>
+  </data>
+  <data name="Users.Devices.Platform" xml:space="preserve">
+    <value>Platform</value>
+  </data>
+  <data name="Users.Devices.Push" xml:space="preserve">
+    <value>Push</value>
+  </data>
+  <data name="Users.Devices.Trusted" xml:space="preserve">
+    <value>Trusted</value>
+  </data>
+  <data name="Users.Devices.Unnamed" xml:space="preserve">
+    <value>Unnamed device</value>
+  </data>
+  <data name="Users.Edit.BackToUsers" xml:space="preserve">
+    <value>Back to users</value>
+  </data>
+  <data name="Users.Edit.BlockedAlert" xml:space="preserve">
+    <value>This user is blocked and cannot sign in until an administrator unblocks them.</value>
+  </data>
+  <data name="Users.Edit.BlockedToast" xml:space="preserve">
+    <value>User blocked</value>
+  </data>
+  <data name="Users.Edit.BlockMessage" xml:space="preserve">
+    <value>{{name}} will not be able to sign in until unblocked.</value>
+  </data>
+  <data name="Users.Edit.BlockTitle" xml:space="preserve">
+    <value>Block user?</value>
+  </data>
+  <data name="Users.Edit.ClearLimitsMessage" xml:space="preserve">
+    <value>Rate limit counters of {{name}} will be reset.</value>
+  </data>
+  <data name="Users.Edit.ClearLimitsTitle" xml:space="preserve">
+    <value>Clear action limits?</value>
+  </data>
+  <data name="Users.Edit.DeletedToast" xml:space="preserve">
+    <value>User deleted</value>
+  </data>
+  <data name="Users.Edit.DeleteMessage" xml:space="preserve">
+    <value>{{name}} will be deleted permanently, along with their claims, roles and logins. This cannot be undone.</value>
+  </data>
+  <data name="Users.Edit.DeleteTitle" xml:space="preserve">
+    <value>Delete user?</value>
+  </data>
+  <data name="Users.Edit.EmailSentMessage" xml:space="preserve">
+    <value>A new confirmation email was sent to {{email}}.</value>
+  </data>
+  <data name="Users.Edit.EmailSentTitle" xml:space="preserve">
+    <value>Email sent</value>
+  </data>
+  <data name="Users.Edit.LastSignIn" xml:space="preserve">
+    <value>Last sign-in {{date}}</value>
+  </data>
+  <data name="Users.Edit.LimitsClearedToast" xml:space="preserve">
+    <value>Action limits cleared</value>
+  </data>
+  <data name="Users.Edit.LockedOutAlert" xml:space="preserve">
+    <value>This user is locked out until {{date}} after {{count}} failed sign-in attempts.</value>
+  </data>
+  <data name="Users.Edit.MfaResetToast" xml:space="preserve">
+    <value>MFA reset</value>
+  </data>
+  <data name="Users.Edit.MoreActions" xml:space="preserve">
+    <value>More actions</value>
+  </data>
+  <data name="Users.Edit.Never" xml:space="preserve">
+    <value>never</value>
+  </data>
+  <data name="Users.Edit.NotFoundMessage" xml:space="preserve">
+    <value>The user may have been deleted, or you followed a broken link.</value>
+  </data>
+  <data name="Users.Edit.NotFoundTitle" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="Users.Edit.PasswordRemovedToast" xml:space="preserve">
+    <value>Password removed</value>
+  </data>
+  <data name="Users.Edit.RemovePasswordMessage" xml:space="preserve">
+    <value>{{name}} will only be able to sign in with an external login or a passwordless method.</value>
+  </data>
+  <data name="Users.Edit.RemovePasswordTitle" xml:space="preserve">
+    <value>Remove password?</value>
+  </data>
+  <data name="Users.Edit.ResetMfaMessage" xml:space="preserve">
+    <value>{{name}}'s multi-factor configuration, including authenticator app keys, will be cleared. Depending on the MFA policy they will be asked to register again.</value>
+  </data>
+  <data name="Users.Edit.ResetMfaTitle" xml:space="preserve">
+    <value>Reset MFA?</value>
+  </data>
+  <data name="Users.Edit.TheUser" xml:space="preserve">
+    <value>the user</value>
+  </data>
+  <data name="Users.Edit.UnblockedToast" xml:space="preserve">
+    <value>User unblocked</value>
+  </data>
+  <data name="Users.Edit.UnblockMessage" xml:space="preserve">
+    <value>{{name}} will be able to sign in again.</value>
+  </data>
+  <data name="Users.Edit.UnblockTitle" xml:space="preserve">
+    <value>Unblock user?</value>
+  </data>
+  <data name="Users.Edit.UnlockedToast" xml:space="preserve">
+    <value>User unlocked</value>
+  </data>
+  <data name="Users.Edit.UnlockMessage" xml:space="preserve">
+    <value>{{name}} will be able to sign in again right away.</value>
+  </data>
+  <data name="Users.Edit.UnlockTitle" xml:space="preserve">
+    <value>Unlock user?</value>
+  </data>
+  <data name="Users.Edit.UserIdLabel" xml:space="preserve">
+    <value>user id</value>
+  </data>
+  <data name="Users.Fields.BypassPasswordValidation" xml:space="preserve">
+    <value>Skip password policy validation</value>
+  </data>
+  <data name="Users.Fields.ChangePasswordAtFirstSignIn" xml:space="preserve">
+    <value>Require a new password at first sign in</value>
+  </data>
+  <data name="Users.Fields.EmailVerified" xml:space="preserve">
+    <value>Email is verified</value>
+  </data>
+  <data name="Users.Fields.FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Users.Fields.LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="Users.Fields.LastSignIn" xml:space="preserve">
+    <value>Last sign-in</value>
+  </data>
+  <data name="Users.Fields.Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Users.Fields.PhoneVerified" xml:space="preserve">
+    <value>Phone number is verified</value>
+  </data>
+  <data name="Users.Fields.UserName" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="Users.Filters.Admin" xml:space="preserve">
+    <value>Admins</value>
+  </data>
+  <data name="Users.Filters.Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="Users.Filters.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Users.Filters.LockedOut" xml:space="preserve">
+    <value>Locked out</value>
+  </data>
+  <data name="Users.Filters.Mfa" xml:space="preserve">
+    <value>MFA</value>
+  </data>
+  <data name="Users.Filters.Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Users.List.Any" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="Users.List.ClearAll" xml:space="preserve">
+    <value>Clear all</value>
+  </data>
+  <data name="Users.List.ClearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="Users.List.ColumnPhone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Users.List.EmptyFilteredMessage" xml:space="preserve">
+    <value>Try a different search term or clear the filters.</value>
+  </data>
+  <data name="Users.List.EmptyFilteredTitle" xml:space="preserve">
+    <value>No matching users</value>
+  </data>
+  <data name="Users.List.EmptyMessage" xml:space="preserve">
+    <value>Create the first user to get started.</value>
+  </data>
+  <data name="Users.List.EmptyTitle" xml:space="preserve">
+    <value>No users yet</value>
+  </data>
+  <data name="Users.List.FilterByStatus" xml:space="preserve">
+    <value>Filter by status</value>
+  </data>
+  <data name="Users.List.Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Users.List.OpenUser" xml:space="preserve">
+    <value>Open {{name}}</value>
+  </data>
+  <data name="Users.List.RemoveFilter" xml:space="preserve">
+    <value>Remove filter {{name}}</value>
+  </data>
+  <data name="Users.List.SearchPlaceholder" xml:space="preserve">
+    <value>Search by name, email or username</value>
+  </data>
+  <data name="Users.List.Subtitle" xml:space="preserve">
+    <value>Everyone who can sign in through the identity server.</value>
+  </data>
+  <data name="Users.Logins.EmptyMessage" xml:space="preserve">
+    <value>This user signs in with a local account only.</value>
+  </data>
+  <data name="Users.Logins.EmptyTitle" xml:space="preserve">
+    <value>No external logins</value>
+  </data>
+  <data name="Users.Logins.Intro" xml:space="preserve">
+    <value>External identity providers the user can sign in with.</value>
+  </data>
+  <data name="Users.Logins.Provider" xml:space="preserve">
+    <value>Provider</value>
+  </data>
+  <data name="Users.Logins.ProviderKey" xml:space="preserve">
+    <value>Provider key</value>
+  </data>
+  <data name="Users.Logins.Removed" xml:space="preserve">
+    <value>External login removed</value>
+  </data>
+  <data name="Users.Logins.RemovedMessage" xml:space="preserve">
+    <value>'{{provider}}' was unlinked.</value>
+  </data>
+  <data name="Users.Logins.RemoveMessage" xml:space="preserve">
+    <value>{{name}} will no longer be able to sign in with {{provider}}.</value>
+  </data>
+  <data name="Users.Logins.RemoveTitle" xml:space="preserve">
+    <value>Remove external login?</value>
+  </data>
+  <data name="Users.Password.DoNotNotify" xml:space="preserve">
+    <value>Do not notify the user</value>
+  </data>
+  <data name="Users.Password.Generate" xml:space="preserve">
+    <value>Generate a strong password</value>
+  </data>
+  <data name="Users.Password.Hide" xml:space="preserve">
+    <value>Hide password</value>
+  </data>
+  <data name="Users.Password.NewPassword" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="Users.Password.RequireChange" xml:space="preserve">
+    <value>Require the user to choose a new password at their next sign in</value>
+  </data>
+  <data name="Users.Password.RuleMet" xml:space="preserve">
+    <value>met</value>
+  </data>
+  <data name="Users.Password.RuleNotMet" xml:space="preserve">
+    <value>not met</value>
+  </data>
+  <data name="Users.Password.Rules" xml:space="preserve">
+    <value>Password requirements</value>
+  </data>
+  <data name="Users.Password.SetMessage" xml:space="preserve">
+    <value>The new password is active.</value>
+  </data>
+  <data name="Users.Password.SetToast" xml:space="preserve">
+    <value>Password set</value>
+  </data>
+  <data name="Users.Password.Show" xml:space="preserve">
+    <value>Show password</value>
+  </data>
+  <data name="Users.Password.Subtitle" xml:space="preserve">
+    <value>Replaces the user's current password.</value>
+  </data>
+  <data name="Users.Picture.Change" xml:space="preserve">
+    <value>Change profile picture</value>
+  </data>
+  <data name="Users.Picture.ChooseAnother" xml:space="preserve">
+    <value>Choose another</value>
+  </data>
+  <data name="Users.Picture.CurrentAlt" xml:space="preserve">
+    <value>Current profile picture</value>
+  </data>
+  <data name="Users.Picture.DragHint" xml:space="preserve">
+    <value>Drag to reposition</value>
+  </data>
+  <data name="Users.Picture.Removed" xml:space="preserve">
+    <value>Profile picture removed</value>
+  </data>
+  <data name="Users.Picture.Title" xml:space="preserve">
+    <value>Profile picture</value>
+  </data>
+  <data name="Users.Picture.Updated" xml:space="preserve">
+    <value>Profile picture updated</value>
+  </data>
+  <data name="Users.Picture.Upload" xml:space="preserve">
+    <value>Upload picture</value>
+  </data>
+  <data name="Users.Picture.Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="Users.Policies.Mfa.Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Users.Policies.Mfa.Enforced" xml:space="preserve">
+    <value>Enforced</value>
+  </data>
+  <data name="Users.Policies.Mfa.Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Annually" xml:space="preserve">
+    <value>Annually</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Biannually" xml:space="preserve">
+    <value>Biannually</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Monthly" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Quarterly" xml:space="preserve">
+    <value>Quarterly</value>
+  </data>
+  <data name="Users.Policies.PasswordExpiration.Semesterly" xml:space="preserve">
+    <value>Semesterly</value>
+  </data>
+  <data name="Users.Roles.AssignedTitle" xml:space="preserve">
+    <value>Assigned roles</value>
+  </data>
+  <data name="Users.Roles.AvailableTitle" xml:space="preserve">
+    <value>Available roles</value>
+  </data>
+  <data name="Users.Roles.EmptyAvailable" xml:space="preserve">
+    <value>There are no other roles to assign.</value>
+  </data>
+  <data name="Users.Roles.EmptySelected" xml:space="preserve">
+    <value>This user holds no roles.</value>
+  </data>
+  <data name="Users.Roles.GlobalAdminHint" xml:space="preserve">
+    <value>Administrators have full access to the IAM UI and every management API, regardless of roles.</value>
+  </data>
+  <data name="Users.Roles.MakeAdmin" xml:space="preserve">
+    <value>Make administrator</value>
+  </data>
+  <data name="Users.Roles.MakeAdminMessage" xml:space="preserve">
+    <value>{{name}} will get full access to every management feature.</value>
+  </data>
+  <data name="Users.Roles.MakeAdminTitle" xml:space="preserve">
+    <value>Make global administrator?</value>
+  </data>
+  <data name="Users.Roles.NoLongerAdmin" xml:space="preserve">
+    <value>The user is no longer a global administrator.</value>
+  </data>
+  <data name="Users.Roles.NowAdmin" xml:space="preserve">
+    <value>The user is now a global administrator.</value>
+  </data>
+  <data name="Users.Roles.RemoveAdminMessage" xml:space="preserve">
+    <value>{{name}} will only keep the access granted by their roles.</value>
+  </data>
+  <data name="Users.Roles.RemoveAdminTitle" xml:space="preserve">
+    <value>Remove global administrator?</value>
+  </data>
+  <data name="Users.Roles.RoleAssigned" xml:space="preserve">
+    <value>Role assigned</value>
+  </data>
+  <data name="Users.Roles.RoleAssignedMessage" xml:space="preserve">
+    <value>'{{role}}' was assigned to {{name}}.</value>
+  </data>
+  <data name="Users.Roles.RoleRemoved" xml:space="preserve">
+    <value>Role removed</value>
+  </data>
+  <data name="Users.Roles.RoleRemovedMessage" xml:space="preserve">
+    <value>'{{role}}' was removed from {{name}}.</value>
+  </data>
+  <data name="Users.Sessions.EmptyMessage" xml:space="preserve">
+    <value>This user is not signed in anywhere right now.</value>
+  </data>
+  <data name="Users.Sessions.EmptyTitle" xml:space="preserve">
+    <value>No active sessions</value>
+  </data>
+  <data name="Users.Sessions.End" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="Users.Sessions.Ended" xml:space="preserve">
+    <value>Session ended</value>
+  </data>
+  <data name="Users.Sessions.EndMessage" xml:space="preserve">
+    <value>The session will be deleted. If the user is using it, they will be signed out.</value>
+  </data>
+  <data name="Users.Sessions.EndSession" xml:space="preserve">
+    <value>End session</value>
+  </data>
+  <data name="Users.Sessions.EndTitle" xml:space="preserve">
+    <value>End session?</value>
+  </data>
+  <data name="Users.Sessions.Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Users.Sessions.Intro" xml:space="preserve">
+    <value>Sessions the identity server keeps for this user. Ending a session signs the user out of it.</value>
+  </data>
+  <data name="Users.Sessions.Renewed" xml:space="preserve">
+    <value>Renewed</value>
+  </data>
+  <data name="Users.Sessions.Scheme" xml:space="preserve">
+    <value>Scheme</value>
+  </data>
+  <data name="Users.Sessions.Session" xml:space="preserve">
+    <value>Session</value>
+  </data>
+  <data name="Users.Sessions.SessionIdLabel" xml:space="preserve">
+    <value>session id</value>
+  </data>
+  <data name="Users.Shared.DeleteItem" xml:space="preserve">
+    <value>Delete {{name}}</value>
+  </data>
+  <data name="Users.Shared.EditItem" xml:space="preserve">
+    <value>Edit {{name}}</value>
+  </data>
+  <data name="Users.Shared.RemoveItem" xml:space="preserve">
+    <value>Remove {{name}}</value>
+  </data>
+  <data name="Users.Status.Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Users.Status.Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Users.Status.Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="Users.Status.EmailUnverified" xml:space="preserve">
+    <value>Email unverified</value>
+  </data>
+  <data name="Users.Status.EmailVerified" xml:space="preserve">
+    <value>Email verified</value>
+  </data>
+  <data name="Users.Status.GlobalAdmin" xml:space="preserve">
+    <value>Global administrator</value>
+  </data>
+  <data name="Users.Status.Locked" xml:space="preserve">
+    <value>Locked</value>
+  </data>
+  <data name="Users.Status.LockedOut" xml:space="preserve">
+    <value>Locked out</value>
+  </data>
+  <data name="Users.Status.Mfa" xml:space="preserve">
+    <value>MFA</value>
+  </data>
+  <data name="Users.Status.MfaDisabled" xml:space="preserve">
+    <value>MFA disabled</value>
+  </data>
+  <data name="Users.Status.MfaEnabled" xml:space="preserve">
+    <value>MFA enabled</value>
+  </data>
+  <data name="Users.Status.NotAdmin" xml:space="preserve">
+    <value>Not admin</value>
+  </data>
+  <data name="Users.Status.NotBlocked" xml:space="preserve">
+    <value>Not blocked</value>
+  </data>
+  <data name="Users.Status.NotLockedOut" xml:space="preserve">
+    <value>Not locked out</value>
+  </data>
+  <data name="Users.Status.PhoneUnverified" xml:space="preserve">
+    <value>Phone unverified</value>
+  </data>
+  <data name="Users.Status.PhoneVerified" xml:space="preserve">
+    <value>Phone verified</value>
+  </data>
+  <data name="Users.Toasts.UserUpdated" xml:space="preserve">
+    <value>User updated</value>
+  </data>
+  <data name="Users.Validation.EmailInvalid" xml:space="preserve">
+    <value>Enter a valid email address.</value>
+  </data>
+  <data name="Users.Validation.EmailRequired" xml:space="preserve">
+    <value>An email is required.</value>
+  </data>
+  <data name="Users.Validation.FirstNameRequired" xml:space="preserve">
+    <value>A first name is required.</value>
+  </data>
+  <data name="Users.Validation.LastNameRequired" xml:space="preserve">
+    <value>A last name is required.</value>
+  </data>
+  <data name="Users.Validation.PasswordRequired" xml:space="preserve">
+    <value>A password is required.</value>
+  </data>
+  <data name="Users.Validation.UserNameRequired" xml:space="preserve">
+    <value>A username is required.</value>
+  </data>
+  <data name="Users.Validation.ValueFormat" xml:space="preserve">
+    <value>The value does not have the expected format.</value>
+  </data>
+  <data name="Users.Validation.ValueRequired" xml:space="preserve">
+    <value>A value is required.</value>
+  </data>
+</root>

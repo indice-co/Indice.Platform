@@ -5,6 +5,9 @@ namespace Indice.Features.Identity.Server;
 /// <summary>Constants for MFA API feature.</summary>
 public static partial class IdentityEndpoints
 {
+    /// <summary>The base name of the resx resources (under the <strong>Resources</strong> folder) with the IAM UI translations.</summary>
+    public const string TranslationsBaseName = "AdminUI.Ui.TranslationApi";
+
     /// <summary>MFA API sub-scopes.</summary>
     public static partial class SubScopes { }
 
