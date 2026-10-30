@@ -2,6 +2,7 @@
   <path d="M6 8.5A2.5 2.5 0 0 1 8.5 6h5.2l2.4 2.6h7.4a2.5 2.5 0 0 1 2.5 2.5V20H6Z" fill="#0b4a51"/>
   <path d="M3.5 13.5A2.5 2.5 0 0 1 6 11h20a2.5 2.5 0 0 1 2.5 2.5v9A3.5 3.5 0 0 1 25 26H7a3.5 3.5 0 0 1-3.5-3.5Z" fill="#12707a"/>
   <path d="M10.5 18.6l3.4 3.3 7.6-7.4" fill="none" stroke="#f2b632" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="26" cy="9" r="4.5" fill="#f2b632" stroke="#ffffff" stroke-width="2"/>
   <text x="38" y="22.5" font-family="Commissioner, 'Segoe UI', sans-serif" font-size="18" font-weight="700" fill="#16213e" letter-spacing="-0.3">Cases</text>
   <rect x="96" y="9" width="22" height="15" rx="3" fill="#f2b632"/>
   <text x="107" y="20.5" text-anchor="middle" font-family="Commissioner, 'Segoe UI', sans-serif" font-size="10" font-weight="700" fill="#2b1d00">UI</text>

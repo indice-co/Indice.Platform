@@ -1,8 +1,8 @@
 import { Component, input } from '@angular/core';
 
 /**
- * "Cases UI" brand: a case folder carrying a highlighter check mark. Colors come from theme tokens
- * (`--color-primary`, `--app-highlight`), so the mark follows the active theme.
+ * "Cases UI" brand: a case folder carrying a highlighter check mark, with a status dot. Colors come from theme tokens
+ * (`--color-primary`, `--app-highlight`, `--color-accent`), so the mark follows the active theme.
  */
 @Component({
   selector: 'app-logo',
@@ -15,6 +15,7 @@ import { Component, input } from '@angular/core';
         style="fill: var(--color-primary)" />
       <path d="M10.5 18.6l3.4 3.3 7.6-7.4" fill="none" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"
         style="stroke: var(--app-highlight)" />
+      <circle cx="26" cy="6" r="4.5" stroke-width="2" [style.fill]="'var(--color-accent)'" [style.stroke]="ring()" />
     </svg>
     @if (wordmark()) {
       <span class="flex items-baseline gap-1.5 leading-none">
@@ -28,4 +29,6 @@ import { Component, input } from '@angular/core';
 export class LogoComponent {
   public readonly size = input(32);
   public readonly wordmark = input(true);
+  /** Color of the ring around the status dot; match it to the surface the logo sits on. */
+  public readonly ring = input('var(--color-base-100)');
 }
