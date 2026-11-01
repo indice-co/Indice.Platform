@@ -93,7 +93,6 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
             <th app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</th>
             @if (!subject()) { <th app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</th> }
             <th app-sort-header [list]="list" field="actionName">{{ 'ActivityLogs.Fields.Action' | translate }}</th>
-            <th>{{ 'Common.Description' | translate }}</th>
             <th app-sort-header [list]="list" field="category">{{ 'ActivityLogs.Fields.Category' | translate }}</th>
             <th app-sort-header [list]="list" field="resourceType">{{ 'ActivityLogs.Fields.Resource' | translate }}</th>
             <th>{{ 'Logs.Fields.Application' | translate }}</th>
@@ -114,13 +113,22 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
                 @if (!subject()) {
                   <td class="max-w-44 truncate" [class.text-error]="entry.subjectUnknown" [title]="entry.subjectName ?? ''">{{ entry.subjectName || '—' }}</td>
                 }
-                <td>
-                  <div class="flex items-center gap-2">
-                    <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
-                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" [attr.aria-label]="'Logs.Review.Marked' | translate"></svg> }
+                <td class="max-w-80">
+                  <div class="flex min-w-0 flex-col items-start gap-1">
+                    <div class="flex items-center gap-2">
+                      <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
+                      @if (entry.review) {
+                        <!-- shrink-0: in a wide (overflowing) table the column shrinks to min-content and the svg would collapse to 0px -->
+                        <span class="inline-flex shrink-0 text-warning" role="img" [title]="'Logs.Review.Marked' | translate" [attr.aria-label]="'Logs.Review.Marked' | translate">
+                          <svg lucideFlag class="size-3.5"></svg>
+                        </span>
+                      }
+                    </div>
+                    @if (entry.description) {
+                      <span class="max-w-full truncate text-xs text-base-content/65" [title]="entry.description">{{ entry.description }}</span>
+                    }
                   </div>
                 </td>
-                <td class="max-w-80 truncate text-base-content/75" [title]="entry.description ?? ''">{{ entry.description || '—' }}</td>
                 <td class="whitespace-nowrap">{{ entry.category || '—' }}</td>
                 <td class="max-w-56">
                   <div class="flex min-w-0 flex-col leading-tight">
@@ -129,7 +137,7 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
                   </div>
                 </td>
                 <td class="max-w-44 truncate" [title]="entry.applicationId ?? ''">{{ entry.applicationName || entry.applicationId || '—' }}</td>
-                <td><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" /></td>
+                <td><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" compact /></td>
                 <td class="max-w-56">
                   <app-log-device [displayName]="entry.extraData?.device?.displayName" [userAgentFamily]="entry.extraData?.device?.userAgentFamily"
                     [platform]="entry.extraData?.device?.platform" />
@@ -204,7 +212,7 @@ export class ActivityLogsViewComponent implements OnInit {
   }
 
   protected columns(): number {
-    return this.subject() ? 8 : 9;
+    return this.subject() ? 7 : 8;
   }
 
   public ngOnInit(): void {

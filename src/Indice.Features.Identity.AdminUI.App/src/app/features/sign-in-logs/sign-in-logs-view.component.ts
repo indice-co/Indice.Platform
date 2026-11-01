@@ -91,8 +91,13 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
                 <td>
                   <div class="flex items-center gap-2">
                     <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
-                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" [attr.aria-label]="'Logs.Review.Marked' | translate"></svg> }
-                    @if (idp(entry); as icon) { <img [src]="icon" class="h-3.5" [alt]="entry.extraData?.provider" [title]="entry.extraData?.provider" /> }
+                    @if (entry.review) {
+                      <!-- shrink-0: in a wide (overflowing) table the column shrinks to min-content and the svg would collapse to 0px -->
+                      <span class="inline-flex shrink-0 text-warning" role="img" [title]="'Logs.Review.Marked' | translate" [attr.aria-label]="'Logs.Review.Marked' | translate">
+                        <svg lucideFlag class="size-3.5"></svg>
+                      </span>
+                    }
+                    @if (idp(entry); as icon) { <img [src]="icon" class="h-3.5 shrink-0" [alt]="entry.extraData?.provider" [title]="entry.extraData?.provider" /> }
                   </div>
                 </td>
                 @if (!subject()) {

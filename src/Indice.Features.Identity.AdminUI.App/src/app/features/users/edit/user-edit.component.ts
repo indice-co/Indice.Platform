@@ -46,10 +46,10 @@ import { ProfilePictureDialogComponent, ProfilePictureDialogData } from './profi
         </app-empty-state>
       </div>
     } @else {
-      <section class="panel mb-6 p-5 sm:p-6">
+      <section class="panel relative mb-6 p-5 sm:p-6">
         @if (user(); as user) {
           <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
-            <div class="relative size-20 shrink-0">
+            <div class="relative size-24 shrink-0">
               <button type="button" class="group relative size-full overflow-hidden rounded-full bg-base-300 ring-4 ring-base-200"
                 [attr.aria-label]="(canEdit ? 'Users.Picture.Change' : 'Users.Picture.Title') | translate" (click)="openPicture()">
                 <img class="size-full object-cover" [userPicture]="user.id!" [displayName]="store.displayName()" [size]="256" [version]="pictureVersion()"
@@ -88,7 +88,8 @@ import { ProfilePictureDialogComponent, ProfilePictureDialogData } from './profi
             </div>
 
             @if (canEdit) {
-              <div class="flex flex-wrap items-center gap-2">
+              <!-- on mobile the header stacks; pin the actions top-right beside the avatar (left-32 clears it) so the end-aligned menu stays inside the viewport -->
+              <div class="flex flex-wrap items-center gap-2 max-sm:absolute max-sm:top-4 max-sm:right-4 max-sm:left-32 max-sm:justify-end">
                 @if (user.isLocked) {
                   <button type="button" class="btn btn-sm btn-warning" (click)="unlock()"><svg lucideLockOpen class="size-4"></svg>{{ 'Users.Actions.Unlock' | translate }}</button>
                 }
@@ -127,7 +128,7 @@ import { ProfilePictureDialogComponent, ProfilePictureDialogData } from './profi
           }
         } @else {
           <div class="flex items-center gap-5">
-            <div class="skeleton size-20 shrink-0 rounded-full"></div>
+            <div class="skeleton size-24 shrink-0 rounded-full"></div>
             <div class="flex-1 space-y-2"><div class="skeleton h-7 w-64"></div><div class="skeleton h-4 w-48"></div></div>
           </div>
         }
