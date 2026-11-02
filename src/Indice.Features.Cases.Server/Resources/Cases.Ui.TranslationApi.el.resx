@@ -837,6 +837,9 @@
   <data name="caseDetails.loadError.message" xml:space="preserve">
     <value>Μπορεί να έχει διαγραφεί ή να μην έχετε πρόσβαση σε αυτήν.</value>
   </data>
+  <data name="caseDetails.customAction.confirm" xml:space="preserve">
+    <value>Είστε σίγουροι ότι θέλετε να εκτελέσετε αυτή την ενέργεια;</value>
+  </data>
   <data name="caseDetails.discardDraft.confirm" xml:space="preserve">
     <value>Το πρόχειρο και τα δεδομένα που έχουν καταχωριστεί θα διαγραφούν. Η ενέργεια δεν αναιρείται.</value>
   </data>
