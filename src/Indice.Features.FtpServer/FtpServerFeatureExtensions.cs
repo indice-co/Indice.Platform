@@ -2,6 +2,7 @@
 using FubarDev.FtpServer;
 using FubarDev.FtpServer.AccountManagement;
 using FubarDev.FtpServer.AccountManagement.Anonymous;
+using FubarDev.FtpServer.ConnectionChecks;
 using FubarDev.FtpServer.FileSystem.DotNet;
 using Indice.Features.FtpServer;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +26,19 @@ public static class FtpServerFeatureExtensions
             builder.Services.Configure(configureAction);
         }
         builder.Services.AddHostedService<FtpServerHostedService>();
+        builder.UseIdleCheckPerConnection();
         return builder;
+    }
+
+    // The idle check tracks one connection but is registered as a singleton (https://github.com/FubarDevelopment/FtpServer/issues/148)
+    private static void UseIdleCheckPerConnection(this IFtpServerBuilder builder) {
+        var idleChecks = builder.Services.Where(service => service.ServiceType == typeof(IFtpConnectionCheck) &&
+                                                           service.ImplementationType == typeof(FtpConnectionIdleCheck) &&
+                                                           service.Lifetime == ServiceLifetime.Singleton).ToList();
+        if (idleChecks.Count > 0) {
+            idleChecks.ForEach(idleCheck => builder.Services.Remove(idleCheck));
+            builder.Services.AddScoped<IFtpConnectionCheck, FtpConnectionIdleCheck>();
+        }
     }
 
     /// <summary>
