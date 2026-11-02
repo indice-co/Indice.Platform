@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
+import { LogoComponent } from '../../shared/logo.component';
 import { appName } from '../models/brand';
 import { PoweredByComponent } from './powered-by.component';
 import { SidebarAccountComponent } from './sidebar-account.component';
@@ -37,37 +38,19 @@ const NAV: NavItem[] = [
 @Component({
   selector: 'app-sidebar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, PoweredByComponent, SidebarAccountComponent],
+  imports: [RouterLink, RouterLinkActive, LogoComponent, PoweredByComponent, SidebarAccountComponent],
   template: `
     <aside class="flex h-full w-full flex-col overflow-hidden bg-base-100">
       <!-- Brand + collapse control -->
       <div class="flex shrink-0 flex-col gap-1 px-3 pt-3">
         <div class="flex items-center gap-2.5" [class.justify-center]="collapsed()">
-          <a routerLink="/" class="flex min-w-0 items-center gap-2.5" (click)="navigated.emit()">
-            <svg viewBox="0 0 32 32" class="size-8 shrink-0 text-primary" aria-hidden="true">
-              <rect width="32" height="32" rx="9" fill="currentColor" />
-              <path
-                d="M9 11h14M9 16h10M9 21h6"
-                stroke="white"
-                stroke-width="2.5"
-                stroke-linecap="round"
-              />
-            </svg>
-            @if (!collapsed()) {
-              <span class="min-w-0 leading-tight">
-                <span class="block text-lg font-semibold tracking-tight text-base-content">
-                  {{ appName }}
-                </span>
-                <span
-                  class="-mt-0.5 block truncate font-mono text-[0.6rem] uppercase
-                         tracking-[0.22em] text-base-content/45"
-                >
-                  background jobs
-                </span>
-              </span>
-            } @else {
-              <span class="sr-only">{{ appName }}</span>
-            }
+          <a
+            routerLink="/"
+            class="flex min-w-0 items-center py-1 text-base-content"
+            [title]="appName"
+            (click)="navigated.emit()"
+          >
+            <app-logo [mark]="collapsed()" />
           </a>
           @if (!collapsed()) {
             <button

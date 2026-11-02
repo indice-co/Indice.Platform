@@ -14,9 +14,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
-import { appName } from '../models/brand';
 import { LiveRefreshService, REFRESH_INTERVALS } from '../services/live-refresh.service';
 import { StatsStore } from '../services/stats.store';
+import { LogoComponent } from '../../shared/logo.component';
 import { ToastHostComponent } from '../../shared/toast-host.component';
 import { AppSidebarComponent, NavBadges } from './app-sidebar.component';
 
@@ -39,6 +39,7 @@ const COLLAPSED_KEY = 'workers.rail.collapsed';
     RouterLink,
     RouterOutlet,
     AppSidebarComponent,
+    LogoComponent,
     ToastHostComponent,
   ],
   host: {
@@ -84,17 +85,8 @@ const COLLAPSED_KEY = 'workers.rail.collapsed';
             </svg>
           </button>
 
-          <a routerLink="/" class="flex min-w-0 items-center gap-2">
-            <svg viewBox="0 0 32 32" class="size-7 shrink-0 text-primary" aria-hidden="true">
-              <rect width="32" height="32" rx="9" fill="currentColor" />
-              <path
-                d="M9 11h14M9 16h10M9 21h6"
-                stroke="white"
-                stroke-width="2.5"
-                stroke-linecap="round"
-              />
-            </svg>
-            <span class="text-base font-semibold tracking-tight text-base-content">{{ appName }}</span>
+          <a routerLink="/" class="flex min-w-0 items-center text-base-content">
+            <app-logo [size]="28" />
           </a>
 
           <div class="ml-auto">
@@ -205,7 +197,6 @@ const COLLAPSED_KEY = 'workers.rail.collapsed';
   `,
 })
 export class ShellComponent {
-  protected readonly appName = appName;
   protected readonly intervals = REFRESH_INTERVALS;
 
   private readonly router = inject(Router);

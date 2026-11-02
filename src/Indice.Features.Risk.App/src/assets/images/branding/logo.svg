@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 32">
+  <rect x="6" y="7" width="18" height="18" rx="4.5" transform="rotate(45 15 16)" fill="#0f7c8c"/>
+  <path d="M7 16.5h4l2-5 3.5 9.5 2.5-6.5 1.5 2H23" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="26" cy="6" r="4.5" fill="#ff4f7b" stroke="#ffffff" stroke-width="2"/>
+  <text x="38" y="19.5" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="18" font-weight="700" fill="#0f2230" letter-spacing="-0.3">Risk</text>
+  <rect x="77" y="6" width="22" height="15" rx="3" fill="#ff4f7b"/>
+  <text x="88" y="17.5" text-anchor="middle" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="10" font-weight="700" fill="#33000e">UI</text>
+  <text x="38.5" y="28.5" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif" font-size="6.5" font-weight="500" fill="#0f2230" fill-opacity="0.55" letter-spacing="0.4">by <tspan font-weight="700" letter-spacing="0.9">INDICE</tspan></text>
+</svg>
