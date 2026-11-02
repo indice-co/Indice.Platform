@@ -94,7 +94,7 @@ export const ACCESS_LEVELS: { value: number; label: string }[] = [
                   <td><span class="badge badge-sm" [class]="levelClass(item.accessLevel)">{{ levelLabel(item.accessLevel) | translate }}</span></td>
                   <td class="text-right">
                     <span class="tooltip tooltip-left" [attr.data-tip]="'common.delete' | translate">
-                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)" [attr.aria-label]="'common.delete' | translate">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="deleteAccessRule(item)" [attr.aria-label]="'common.delete' | translate">
                         <svg lucideTrash class="size-4"></svg>
                       </button>
                     </span>
@@ -193,7 +193,7 @@ export class AccessRulesComponent implements OnInit {
     return level === 2 ? 'badge-secondary' : level === 1 ? 'badge-primary badge-soft' : 'badge-ghost';
   }
 
-  protected delete(item: AccessRule): void {
+  protected deleteAccessRule(item: AccessRule): void {
     this._dialog.confirm({
       title: 'accessRules.delete.title',
       message: 'accessRules.delete.confirm',
