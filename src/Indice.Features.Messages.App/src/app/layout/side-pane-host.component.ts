@@ -14,7 +14,8 @@ import { ToasterComponent } from '../ui/toast/toaster.component';
     <dialog #panel
       class="fixed inset-y-0 right-0 left-auto m-0 h-full max-h-none w-full max-w-full overflow-hidden bg-base-100 p-0 shadow-2xl backdrop:bg-neutral/40"
       [class]="widthClass()" (cancel)="onCancel($event)" (click)="onClick($event)">
-      <div class="flex h-full flex-col">
+      <!-- the routed pane renders next to the outlet: bound its height so its content scrolls instead of being clipped -->
+      <div class="flex h-full flex-col [&>:not(router-outlet)]:flex [&>:not(router-outlet)]:min-h-0 [&>:not(router-outlet)]:flex-1 [&>:not(router-outlet)]:flex-col">
         <router-outlet [name]="outlet" (activate)="onActivate()" (deactivate)="onDeactivate()" />
       </div>
       <app-toaster />
