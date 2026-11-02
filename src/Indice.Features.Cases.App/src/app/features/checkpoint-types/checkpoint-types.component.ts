@@ -48,72 +48,74 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
       }
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            @if (!scopeCaseTypeId()) { <th>{{ 'checkpointTypes.column.caseType' | translate }}</th> }
-            <th>{{ 'checkpointTypes.column.code' | translate }}</th>
-            <th>{{ 'checkpointTypes.column.title' | translate }}</th>
-            <th>{{ 'checkpointTypes.column.status' | translate }}</th>
-            <th class="text-center">{{ 'checkpointTypes.column.private' | translate }}</th>
-            <th class="w-24 text-right"><span class="sr-only">{{ 'checkpointTypes.column.actions' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              @if (!scopeCaseTypeId()) { <th>{{ 'checkpointTypes.column.caseType' | translate }}</th> }
+              <th>{{ 'checkpointTypes.column.code' | translate }}</th>
+              <th>{{ 'checkpointTypes.column.title' | translate }}</th>
+              <th>{{ 'checkpointTypes.column.status' | translate }}</th>
+              <th class="text-center">{{ 'checkpointTypes.column.private' | translate }}</th>
+              <th class="w-24 text-right"><span class="sr-only">{{ 'checkpointTypes.column.actions' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  @if (!scopeCaseTypeId()) { <td><span class="font-mono text-xs">{{ item.caseTypeCode }}</span></td> }
+                  <td><span class="font-mono text-xs">{{ item.code }}</span></td>
+                  <td>
+                    <span class="font-medium">{{ item.title }}</span>
+                    @if (item.description) {
+                      <p class="max-w-md truncate text-xs text-base-content/60">{{ item.description }}</p>
+                    }
+                  </td>
+                  <td>
+                    @if (item.status) {
+                      <span class="stamp" [class]="'stamp-' + item.status.toLowerCase()">{{ item.status }}</span>
+                    }
+                  </td>
+                  <td class="text-center">
+                    @if (item.private) {
+                      <svg lucideCheck class="inline size-4 text-base-content/80" [attr.aria-label]="'common.yes' | translate"></svg>
+                    } @else {
+                      <svg lucideMinus class="inline size-4 text-base-content/30" [attr.aria-label]="'common.no' | translate"></svg>
+                    }
+                  </td>
+                  <td class="text-right whitespace-nowrap">
+                    <span class="tooltip" [attr.data-tip]="'common.edit' | translate">
+                      <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/checkpoint-types', item.id, 'edit']" [queryParams]="editQueryParams()"
+                        [attr.aria-label]="'common.edit' | translate">
+                        <svg lucidePencil class="size-4"></svg>
+                      </a>
+                    </span>
+                    <span class="tooltip tooltip-left" [attr.data-tip]="'common.delete' | translate">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="onDelete(item)" [attr.aria-label]="'common.delete' | translate">
+                        <svg lucideTrash class="size-4"></svg>
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6">
+                    <app-empty-state [title]="'checkpointTypes.empty.title' | translate" [message]="'checkpointTypes.empty.message' | translate">
+                      <svg icon lucideMilestone class="size-5"></svg>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                @if (!scopeCaseTypeId()) { <td><span class="font-mono text-xs">{{ item.caseTypeCode }}</span></td> }
-                <td><span class="font-mono text-xs">{{ item.code }}</span></td>
-                <td>
-                  <span class="font-medium">{{ item.title }}</span>
-                  @if (item.description) {
-                    <p class="max-w-md truncate text-xs text-base-content/60">{{ item.description }}</p>
-                  }
-                </td>
-                <td>
-                  @if (item.status) {
-                    <span class="stamp" [class]="'stamp-' + item.status.toLowerCase()">{{ item.status }}</span>
-                  }
-                </td>
-                <td class="text-center">
-                  @if (item.private) {
-                    <svg lucideCheck class="inline size-4 text-base-content/80" [attr.aria-label]="'common.yes' | translate"></svg>
-                  } @else {
-                    <svg lucideMinus class="inline size-4 text-base-content/30" [attr.aria-label]="'common.no' | translate"></svg>
-                  }
-                </td>
-                <td class="text-right whitespace-nowrap">
-                  <span class="tooltip" [attr.data-tip]="'common.edit' | translate">
-                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/checkpoint-types', item.id, 'edit']" [queryParams]="editQueryParams()"
-                      [attr.aria-label]="'common.edit' | translate">
-                      <svg lucidePencil class="size-4"></svg>
-                    </a>
-                  </span>
-                  <span class="tooltip tooltip-left" [attr.data-tip]="'common.delete' | translate">
-                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)" [attr.aria-label]="'common.delete' | translate">
-                      <svg lucideTrash class="size-4"></svg>
-                    </button>
-                  </span>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">
-                  <app-empty-state [title]="'checkpointTypes.empty.title' | translate" [message]="'checkpointTypes.empty.message' | translate">
-                    <svg icon lucideMilestone class="size-5"></svg>
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
@@ -181,7 +183,7 @@ export class CheckpointTypesComponent implements OnInit {
     return returnUrl ? { returnUrl } : {};
   }
 
-  protected delete(item: CheckpointType): void {
+  protected onDelete(item: CheckpointType): void {
     this._dialog.confirm({
       title: 'checkpointTypes.delete.title',
       message: 'checkpointTypes.delete.confirmCode',

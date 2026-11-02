@@ -34,54 +34,56 @@ import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Roles.List.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
-            <th>{{ 'Common.Description' | translate }}</th>
-            <th class="w-12"><span class="sr-only">{{ 'Roles.List.Open' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="3"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
+              <th>{{ 'Common.Description' | translate }}</th>
+              <th class="w-12"><span class="sr-only">{{ 'Roles.List.Open' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="3"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (role of list.items(); track role.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <a class="flex items-center gap-3 font-semibold hover:text-primary" [routerLink]="pane.link(['role', role.id!])">
+                      <span class="grid size-8 shrink-0 place-items-center rounded-field bg-primary/10 text-primary">
+                        <svg lucideShieldCheck class="size-4"></svg>
+                      </span>
+                      {{ role.name }}
+                    </a>
+                  </td>
+                  <td class="max-w-xl text-base-content/75">{{ role.description || '—' }}</td>
+                  <td class="text-right">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['role', role.id!])" [attr.aria-label]="'Roles.List.OpenItem' | translate: { name: role.name }">
+                      <svg lucideChevronRight class="size-4"></svg>
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3">
+                    <app-empty-state [title]="(list.hasFilters() ? 'Roles.List.NoMatches' : 'Roles.List.Empty') | translate"
+                      [message]="(list.hasFilters() ? 'Roles.List.NoMatchesHint' : 'Roles.List.EmptyHint') | translate">
+                      <svg icon lucideShieldCheck class="size-5"></svg>
+                      @if (canEdit && !list.hasFilters()) {
+                        <a actions class="btn btn-sm" [routerLink]="pane.link('role-add')"><svg lucidePlus class="size-4"></svg>{{ 'Roles.New' | translate }}</a>
+                      }
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (role of list.items(); track role.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <a class="flex items-center gap-3 font-semibold hover:text-primary" [routerLink]="pane.link(['role', role.id!])">
-                    <span class="grid size-8 shrink-0 place-items-center rounded-field bg-primary/10 text-primary">
-                      <svg lucideShieldCheck class="size-4"></svg>
-                    </span>
-                    {{ role.name }}
-                  </a>
-                </td>
-                <td class="max-w-xl text-base-content/75">{{ role.description || '—' }}</td>
-                <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['role', role.id!])" [attr.aria-label]="'Roles.List.OpenItem' | translate: { name: role.name }">
-                    <svg lucideChevronRight class="size-4"></svg>
-                  </a>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="3">
-                  <app-empty-state [title]="(list.hasFilters() ? 'Roles.List.NoMatches' : 'Roles.List.Empty') | translate"
-                    [message]="(list.hasFilters() ? 'Roles.List.NoMatchesHint' : 'Roles.List.EmptyHint') | translate">
-                    <svg icon lucideShieldCheck class="size-5"></svg>
-                    @if (canEdit && !list.hasFilters()) {
-                      <a actions class="btn btn-sm" [routerLink]="pane.link('role-add')"><svg lucidePlus class="size-4"></svg>{{ 'Roles.New' | translate }}</a>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

@@ -52,59 +52,61 @@ export const CLAIM_TYPES_REFRESH = 'claim-types';
       }
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
-            <th app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</th>
-            <th app-sort-header [list]="list" field="valueType">{{ 'ClaimTypes.Fields.ValueType' | translate }}</th>
-            <th app-sort-header class="text-center" [list]="list" field="userEditable">{{ 'ClaimTypes.Fields.UserEditable' | translate }}</th>
-            <th app-sort-header class="text-center" [list]="list" field="required">{{ 'Common.Required' | translate }}</th>
-            <th class="w-12"><span class="sr-only">{{ 'ClaimTypes.List.Open' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
+              <th app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</th>
+              <th app-sort-header [list]="list" field="valueType">{{ 'ClaimTypes.Fields.ValueType' | translate }}</th>
+              <th app-sort-header class="text-center" [list]="list" field="userEditable">{{ 'ClaimTypes.Fields.UserEditable' | translate }}</th>
+              <th app-sort-header class="text-center" [list]="list" field="required">{{ 'Common.Required' | translate }}</th>
+              <th class="w-12"><span class="sr-only">{{ 'ClaimTypes.List.Open' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (claim of list.items(); track claim.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <a class="inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary" [routerLink]="pane.link(['claim-type', claim.id!])">
+                      {{ claim.name }}
+                      @if (claim.reserved) { <svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg> }
+                    </a>
+                    @if (claim.description) { <p class="line-clamp-1 max-w-md text-xs text-base-content/60">{{ claim.description }}</p> }
+                  </td>
+                  <td>{{ claim.displayName || '—' }}</td>
+                  <td><span class="badge badge-sm badge-ghost">{{ claim.valueType || 'String' }}</span></td>
+                  <td class="text-center"><app-bool-icon [value]="claim.userEditable" /></td>
+                  <td class="text-center"><app-bool-icon [value]="claim.required" /></td>
+                  <td class="text-right">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['claim-type', claim.id!])" [attr.aria-label]="'ClaimTypes.List.OpenItem' | translate: { name: claim.name }">
+                      <svg lucideChevronRight class="size-4"></svg>
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6">
+                    <app-empty-state [title]="(list.hasFilters() ? 'ClaimTypes.List.NoMatches' : 'ClaimTypes.List.Empty') | translate"
+                      [message]="(list.hasFilters() ? 'ClaimTypes.List.NoMatchesHint' : 'ClaimTypes.List.EmptyHint') | translate">
+                      <svg icon lucideTags class="size-5"></svg>
+                      @if (canEdit && !list.hasFilters()) {
+                        <a actions class="btn btn-sm" [routerLink]="pane.link('claim-type-add')"><svg lucidePlus class="size-4"></svg>{{ 'ClaimTypes.New' | translate }}</a>
+                      }
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (claim of list.items(); track claim.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <a class="inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary" [routerLink]="pane.link(['claim-type', claim.id!])">
-                    {{ claim.name }}
-                    @if (claim.reserved) { <svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg> }
-                  </a>
-                  @if (claim.description) { <p class="line-clamp-1 max-w-md text-xs text-base-content/60">{{ claim.description }}</p> }
-                </td>
-                <td>{{ claim.displayName || '—' }}</td>
-                <td><span class="badge badge-sm badge-ghost">{{ claim.valueType || 'String' }}</span></td>
-                <td class="text-center"><app-bool-icon [value]="claim.userEditable" /></td>
-                <td class="text-center"><app-bool-icon [value]="claim.required" /></td>
-                <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['claim-type', claim.id!])" [attr.aria-label]="'ClaimTypes.List.OpenItem' | translate: { name: claim.name }">
-                    <svg lucideChevronRight class="size-4"></svg>
-                  </a>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">
-                  <app-empty-state [title]="(list.hasFilters() ? 'ClaimTypes.List.NoMatches' : 'ClaimTypes.List.Empty') | translate"
-                    [message]="(list.hasFilters() ? 'ClaimTypes.List.NoMatchesHint' : 'ClaimTypes.List.EmptyHint') | translate">
-                    <svg icon lucideTags class="size-5"></svg>
-                    @if (canEdit && !list.hasFilters()) {
-                      <a actions class="btn btn-sm" [routerLink]="pane.link('claim-type-add')"><svg lucidePlus class="size-4"></svg>{{ 'ClaimTypes.New' | translate }}</a>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

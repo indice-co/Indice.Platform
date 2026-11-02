@@ -107,6 +107,7 @@ export class RiskResultsComponent {
   private readonly _api = inject(RiskApiService);
   protected readonly pane = inject(SidePaneService);
   protected readonly fields: FilterField[] = [
+    { field: 'riskLevel', label: 'Risk level', operators: ['eq', 'neq'], placeholder: 'None, Low, Medium or High' },
     { field: 'subjectId', label: 'Subject ID' },
     { field: 'name', label: 'Event name' },
     { field: 'type', label: 'Event type' },
