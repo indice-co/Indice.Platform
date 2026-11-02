@@ -17,6 +17,7 @@ jobs:
       contents: read
       actions: read
       checks: write
+      id-token: write  # enable GitHub OIDC token issuance for this job
     steps:
     # Checkout
     - name: Harden Runner
@@ -84,7 +85,13 @@ jobs:
     # Pack
     - name: Generate NuGet package
       run: ./pack.ps1
-
+     # Get a short-lived NuGet API key
+    - name: NuGet login (OIDC → temp API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }} # Recommended: use your nuget.org username (profile name), NOT your email address
+    
     # Push to NuGet
     - name: Push nuget packages
-      run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
+      run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
