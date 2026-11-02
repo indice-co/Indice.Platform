@@ -87,7 +87,7 @@ jobs:
       run: ./pack.ps1
      # Get a short-lived NuGet API key
     - name: NuGet login (OIDC → temp API key)
-      uses: NuGet/login@v1
+      uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
       id: login
       with:
         user: ${{ secrets.NUGET_USER }} # Recommended: use your nuget.org username (profile name), NOT your email address
