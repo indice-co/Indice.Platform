@@ -111,7 +111,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
                       </a>
                     </span>
                     <span class="tooltip tooltip-left" [attr.data-tip]="'Templates.DeleteTemplateTitle' | translate">
-                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)"
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="deleteTemplate(item)"
                         [attr.aria-label]="'Templates.DeleteTemplateTitle' | translate">
                         <svg lucideTrash class="size-4"></svg>
                       </button>
