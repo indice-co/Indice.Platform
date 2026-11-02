@@ -75,7 +75,7 @@ const ELEVATED = ['riskLevel::neq::None', 'riskLevel::neq::Low'];
       </a>
 
       <a class="panel group p-5 transition-colors hover:border-primary/40" routerLink="/risk-results" [queryParams]="link('riskLevel::eq::High')"
-        [style.border-color]="(counts.value()?.levels?.High ?? 0) > 0 ? 'color-mix(in oklab, var(--app-risk-high) 45%, transparent)' : null">
+        [style.border-color]="counts.hasValue() && counts.value().levels.High > 0 ? 'color-mix(in oklab, var(--app-risk-high) 45%, transparent)' : null">
         <span class="flex items-center justify-between gap-3">
           <span class="text-sm font-semibold text-base-content/70">High risk</span>
           <span class="grid size-9 place-items-center rounded-full"
@@ -279,12 +279,13 @@ export class DashboardComponent {
   protected readonly timeFrames = TIME_FRAMES;
   protected readonly levels = LEVELS;
   protected readonly timeFrame = signal<TimeFrame>('7d');
-  protected readonly today = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+  private readonly _todayDate = signal(new Date());
+  protected readonly today = computed(() => new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(this._todayDate()));
 
   /** Start of the time frame as a `yyyy-MM-dd` date (local), the format the list pages keep in the URL. */
   private readonly _fromDate = computed(() => {
     const days = TIME_FRAMES.find(f => f.key === this.timeFrame())!.days;
-    const date = new Date();
+    const date = new Date(this._todayDate());
     date.setDate(date.getDate() - (days - 1));
     return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
   });
@@ -356,8 +357,12 @@ export class DashboardComponent {
   }
 
   protected reload(): void {
-    this.counts.reload();
-    this.elevated.reload();
+    const previousFromDate = this._fromDate();
+    this._todayDate.set(new Date());
+    if (previousFromDate === this._fromDate()) {
+      this.counts.reload();
+      this.elevated.reload();
+    }
     this.rules.reload();
   }
 }
