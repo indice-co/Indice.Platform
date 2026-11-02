@@ -97,7 +97,7 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
                       </a>
                     </span>
                     <span class="tooltip tooltip-left" [attr.data-tip]="'common.delete' | translate">
-                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)" [attr.aria-label]="'common.delete' | translate">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="onDelete(item)" [attr.aria-label]="'common.delete' | translate">
                         <svg lucideTrash class="size-4"></svg>
                       </button>
                     </span>
