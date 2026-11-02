@@ -183,7 +183,7 @@ export class CheckpointTypesComponent implements OnInit {
     return returnUrl ? { returnUrl } : {};
   }
 
-  protected delete(item: CheckpointType): void {
+  protected onDelete(item: CheckpointType): void {
     this._dialog.confirm({
       title: 'checkpointTypes.delete.title',
       message: 'checkpointTypes.delete.confirmCode',
