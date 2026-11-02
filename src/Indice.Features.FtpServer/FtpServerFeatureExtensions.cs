@@ -32,9 +32,11 @@ public static class FtpServerFeatureExtensions
 
     // The idle check tracks one connection but is registered as a singleton (https://github.com/FubarDevelopment/FtpServer/issues/148)
     private static void UseIdleCheckPerConnection(this IFtpServerBuilder builder) {
-        var idleCheck = builder.Services.FirstOrDefault(service => service.ImplementationType == typeof(FtpConnectionIdleCheck) && service.Lifetime == ServiceLifetime.Singleton);
-        if (idleCheck is not null) {
-            builder.Services.Remove(idleCheck);
+        var idleChecks = builder.Services.Where(service => service.ServiceType == typeof(IFtpConnectionCheck) &&
+                                                           service.ImplementationType == typeof(FtpConnectionIdleCheck) &&
+                                                           service.Lifetime == ServiceLifetime.Singleton).ToList();
+        if (idleChecks.Count > 0) {
+            idleChecks.ForEach(idleCheck => builder.Services.Remove(idleCheck));
             builder.Services.AddScoped<IFtpConnectionCheck, FtpConnectionIdleCheck>();
         }
     }
