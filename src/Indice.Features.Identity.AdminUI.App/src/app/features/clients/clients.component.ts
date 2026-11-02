@@ -34,73 +34,75 @@ import { ClientLogoComponent } from './client-logo.component';
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Clients.List.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="clientName">{{ 'Clients.List.Client' | translate }}</th>
-            <th app-sort-header [list]="list" field="clientId">{{ 'Clients.Fields.ClientId' | translate }}</th>
-            <th app-sort-header [list]="list" field="enabled">{{ 'Common.Status' | translate }}</th>
-            <th class="w-12"><span class="sr-only">{{ 'Clients.List.Open' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="4"><div class="skeleton h-4 w-full"></div></td></tr>
-            }
-          } @else {
-            @for (client of list.items(); track client.clientId) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td class="max-w-md">
-                  <a class="flex items-center gap-3 hover:text-primary" [routerLink]="[client.clientId]">
-                    <app-client-logo [src]="client.logoUri" [name]="client.clientName || client.clientId" />
-                    <span class="min-w-0">
-                      <span class="block truncate font-semibold">{{ client.clientName || client.clientId }}</span>
-                      @if (client.description) {
-                        <span class="block truncate text-xs text-base-content/60">{{ client.description }}</span>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="clientName">{{ 'Clients.List.Client' | translate }}</th>
+              <th app-sort-header [list]="list" field="clientId">{{ 'Clients.Fields.ClientId' | translate }}</th>
+              <th app-sort-header [list]="list" field="enabled">{{ 'Common.Status' | translate }}</th>
+              <th class="w-12"><span class="sr-only">{{ 'Clients.List.Open' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="4"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (client of list.items(); track client.clientId) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td class="max-w-md">
+                    <a class="flex items-center gap-3 hover:text-primary" [routerLink]="[client.clientId]">
+                      <app-client-logo [src]="client.logoUri" [name]="client.clientName || client.clientId" />
+                      <span class="min-w-0">
+                        <span class="block truncate font-semibold">{{ client.clientName || client.clientId }}</span>
+                        @if (client.description) {
+                          <span class="block truncate text-xs text-base-content/60">{{ client.description }}</span>
+                        }
+                      </span>
+                    </a>
+                  </td>
+                  <td>
+                    <span class="inline-flex items-center gap-1">
+                      <code class="code-chip">{{ client.clientId }}</code>
+                      <app-copy-button [value]="client.clientId" [label]="'Clients.Fields.ClientIdLabel' | translate" />
+                      @if (client.nonEditable) {
+                        <span class="tooltip" [attr.data-tip]="'Clients.List.ReservedClient' | translate"><svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg></span>
                       }
                     </span>
-                  </a>
-                </td>
-                <td>
-                  <span class="inline-flex items-center gap-1">
-                    <code class="code-chip">{{ client.clientId }}</code>
-                    <app-copy-button [value]="client.clientId" [label]="'Clients.Fields.ClientIdLabel' | translate" />
-                    @if (client.nonEditable) {
-                      <span class="tooltip" [attr.data-tip]="'Clients.List.ReservedClient' | translate"><svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg></span>
+                  </td>
+                  <td>
+                    @if (client.enabled) {
+                      <app-status-badge tone="success">{{ 'Common.Enabled' | translate }}</app-status-badge>
+                    } @else {
+                      <app-status-badge tone="neutral">{{ 'Common.Disabled' | translate }}</app-status-badge>
                     }
-                  </span>
-                </td>
-                <td>
-                  @if (client.enabled) {
-                    <app-status-badge tone="success">{{ 'Common.Enabled' | translate }}</app-status-badge>
-                  } @else {
-                    <app-status-badge tone="neutral">{{ 'Common.Disabled' | translate }}</app-status-badge>
-                  }
-                </td>
-                <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="[client.clientId]" [attr.aria-label]="'Clients.List.OpenClient' | translate: { id: client.clientId }">
-                    <svg lucideChevronRight class="size-4"></svg>
-                  </a>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4">
-                  <app-empty-state [title]="(list.failed() ? 'Clients.List.LoadFailed' : list.hasFilters() ? 'Clients.List.NoMatches' : 'Clients.List.Empty') | translate"
-                    [message]="(list.hasFilters() ? 'Clients.List.NoMatchesMessage' : 'Clients.List.EmptyMessage') | translate">
-                    <svg icon lucideAppWindow class="size-5"></svg>
-                    @if (canEdit && !list.hasFilters()) {
-                      <a actions class="btn btn-sm" routerLink="add"><svg lucidePlus class="size-4"></svg>{{ 'Routes.NewClient' | translate }}</a>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
+                  </td>
+                  <td class="text-right">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="[client.clientId]" [attr.aria-label]="'Clients.List.OpenClient' | translate: { id: client.clientId }">
+                      <svg lucideChevronRight class="size-4"></svg>
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4">
+                    <app-empty-state [title]="(list.failed() ? 'Clients.List.LoadFailed' : list.hasFilters() ? 'Clients.List.NoMatches' : 'Clients.List.Empty') | translate"
+                      [message]="(list.hasFilters() ? 'Clients.List.NoMatchesMessage' : 'Clients.List.EmptyMessage') | translate">
+                      <svg icon lucideAppWindow class="size-5"></svg>
+                      @if (canEdit && !list.hasFilters()) {
+                        <a actions class="btn btn-sm" routerLink="add"><svg lucidePlus class="size-4"></svg>{{ 'Routes.NewClient' | translate }}</a>
+                      }
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

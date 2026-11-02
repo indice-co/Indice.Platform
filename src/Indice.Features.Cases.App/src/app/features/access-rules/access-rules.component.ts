@@ -51,66 +51,68 @@ export const ACCESS_LEVELS: { value: number; label: string }[] = [
       </div>
     </form>
 
-    <div class="panel overflow-x-auto">
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            <th>{{ 'accessRules.column.target' | translate }}</th>
-            <th>{{ 'accessRules.column.member' | translate }}</th>
-            <th>{{ 'accessRules.column.accessLevel' | translate }}</th>
-            <th class="w-16 text-right"><span class="sr-only">{{ 'accessRules.column.actions' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="4"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>{{ 'accessRules.column.target' | translate }}</th>
+              <th>{{ 'accessRules.column.member' | translate }}</th>
+              <th>{{ 'accessRules.column.accessLevel' | translate }}</th>
+              <th class="w-16 text-right"><span class="sr-only">{{ 'accessRules.column.actions' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="4"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    @if (item.ruleCaseTypeId) {
+                      <span class="text-base-content/60">{{ 'accessRules.target.caseType' | translate }}</span>
+                      <span class="ml-1.5 font-mono text-xs">{{ caseTypeCodes()[item.ruleCaseTypeId] || item.ruleCaseTypeId }}</span>
+                    }
+                    @if (item.ruleCheckpointTypeId) {
+                      <span class="text-base-content/60">{{ 'accessRules.target.checkpointType' | translate }}</span>
+                      <span class="ml-1.5 font-mono text-xs">{{ checkpointTypeCodes()[item.ruleCheckpointTypeId] || item.ruleCheckpointTypeId }}</span>
+                    }
+                    @if (item.ruleCaseId) {
+                      <div>
+                        <span class="text-base-content/60">{{ 'accessRules.target.case' | translate }}</span>
+                        <a class="link link-hover ml-1.5 font-mono text-xs" [routerLink]="['/cases', item.ruleCaseId, 'details']">{{ item.ruleCaseId }}</a>
+                      </div>
+                    }
+                  </td>
+                  <td>
+                    @if (item.memberRole) { <span class="text-base-content/60">{{ 'accessRules.column.role' | translate }}</span> <span class="ml-1.5">{{ item.memberRole }}</span> }
+                    @if (item.memberGroupId) { <span class="text-base-content/60">{{ 'accessRules.column.group' | translate }}</span> <span class="ml-1.5">{{ item.memberGroupId }}</span> }
+                    @if (item.memberUserId) { <span class="text-base-content/60">{{ 'accessRules.column.user' | translate }}</span> <span class="ml-1.5 font-mono text-xs">{{ item.memberUserId }}</span> }
+                  </td>
+                  <td><span class="badge badge-sm" [class]="levelClass(item.accessLevel)">{{ levelLabel(item.accessLevel) | translate }}</span></td>
+                  <td class="text-right">
+                    <span class="tooltip tooltip-left" [attr.data-tip]="'common.delete' | translate">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)" [attr.aria-label]="'common.delete' | translate">
+                        <svg lucideTrash class="size-4"></svg>
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4">
+                    <app-empty-state [title]="'accessRules.empty.title' | translate" [message]="'accessRules.empty.message' | translate">
+                      <svg icon lucideShieldCheck class="size-5"></svg>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  @if (item.ruleCaseTypeId) {
-                    <span class="text-base-content/60">{{ 'accessRules.target.caseType' | translate }}</span>
-                    <span class="ml-1.5 font-mono text-xs">{{ caseTypeCodes()[item.ruleCaseTypeId] || item.ruleCaseTypeId }}</span>
-                  }
-                  @if (item.ruleCheckpointTypeId) {
-                    <span class="text-base-content/60">{{ 'accessRules.target.checkpointType' | translate }}</span>
-                    <span class="ml-1.5 font-mono text-xs">{{ checkpointTypeCodes()[item.ruleCheckpointTypeId] || item.ruleCheckpointTypeId }}</span>
-                  }
-                  @if (item.ruleCaseId) {
-                    <div>
-                      <span class="text-base-content/60">{{ 'accessRules.target.case' | translate }}</span>
-                      <a class="link link-hover ml-1.5 font-mono text-xs" [routerLink]="['/cases', item.ruleCaseId, 'details']">{{ item.ruleCaseId }}</a>
-                    </div>
-                  }
-                </td>
-                <td>
-                  @if (item.memberRole) { <span class="text-base-content/60">{{ 'accessRules.column.role' | translate }}</span> <span class="ml-1.5">{{ item.memberRole }}</span> }
-                  @if (item.memberGroupId) { <span class="text-base-content/60">{{ 'accessRules.column.group' | translate }}</span> <span class="ml-1.5">{{ item.memberGroupId }}</span> }
-                  @if (item.memberUserId) { <span class="text-base-content/60">{{ 'accessRules.column.user' | translate }}</span> <span class="ml-1.5 font-mono text-xs">{{ item.memberUserId }}</span> }
-                </td>
-                <td><span class="badge badge-sm" [class]="levelClass(item.accessLevel)">{{ levelLabel(item.accessLevel) | translate }}</span></td>
-                <td class="text-right">
-                  <span class="tooltip tooltip-left" [attr.data-tip]="'common.delete' | translate">
-                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)" [attr.aria-label]="'common.delete' | translate">
-                      <svg lucideTrash class="size-4"></svg>
-                    </button>
-                  </span>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4">
-                  <app-empty-state [title]="'accessRules.empty.title' | translate" [message]="'accessRules.empty.message' | translate">
-                    <svg icon lucideShieldCheck class="size-5"></svg>
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

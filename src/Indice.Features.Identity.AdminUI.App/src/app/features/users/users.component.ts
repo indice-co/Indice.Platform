@@ -78,84 +78,86 @@ export const USERS_REFRESH_SCOPE = 'users';
       }
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="userName">{{ 'Routes.User' | translate }}</th>
-            <th class="hidden lg:table-cell">{{ 'Users.List.ColumnPhone' | translate }}</th>
-            <th>{{ 'Common.Status' | translate }}</th>
-            <th app-sort-header class="hidden md:table-cell" [list]="list" field="createDate">{{ 'Common.CreatedAt' | translate }}</th>
-            <th app-sort-header class="hidden md:table-cell" [list]="list" field="lastSignInDate">{{ 'Users.Fields.LastSignIn' | translate }}</th>
-            <th class="w-12"><span class="sr-only">{{ 'Users.List.Open' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4, 5]; track row) {
-              <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
-            }
-          } @else {
-            @for (user of list.items(); track user.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <a class="flex min-w-0 items-center gap-3" [routerLink]="['/users', user.id]">
-                    <span class="avatar">
-                      <span class="size-9 overflow-hidden rounded-full bg-base-300">
-                        <img [userPicture]="user.id!" [displayName]="$any(user)" [size]="64" alt="" />
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="userName">{{ 'Routes.User' | translate }}</th>
+              <th class="hidden lg:table-cell">{{ 'Users.List.ColumnPhone' | translate }}</th>
+              <th>{{ 'Common.Status' | translate }}</th>
+              <th app-sort-header class="hidden md:table-cell" [list]="list" field="createDate">{{ 'Common.CreatedAt' | translate }}</th>
+              <th app-sort-header class="hidden md:table-cell" [list]="list" field="lastSignInDate">{{ 'Users.Fields.LastSignIn' | translate }}</th>
+              <th class="w-12"><span class="sr-only">{{ 'Users.List.Open' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (user of list.items(); track user.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <a class="flex min-w-0 items-center gap-3" [routerLink]="['/users', user.id]">
+                      <span class="avatar">
+                        <span class="size-9 overflow-hidden rounded-full bg-base-300">
+                          <img [userPicture]="user.id!" [displayName]="$any(user)" [size]="64" alt="" />
+                        </span>
                       </span>
-                    </span>
-                    <span class="min-w-0">
-                      <span class="block truncate font-semibold hover:text-primary">{{ fullName(user) || user.userName || user.email }}</span>
-                      <span class="block truncate text-xs text-base-content/65">
-                        {{ user.email }}
-                        @if (showUserName() && user.userName && user.userName !== user.email) { · {{ user.userName }} }
+                      <span class="min-w-0">
+                        <span class="block truncate font-semibold hover:text-primary">{{ fullName(user) || user.userName || user.email }}</span>
+                        <span class="block truncate text-xs text-base-content/65">
+                          {{ user.email }}
+                          @if (showUserName() && user.userName && user.userName !== user.email) { · {{ user.userName }} }
+                        </span>
                       </span>
-                    </span>
-                  </a>
-                </td>
-                <td class="hidden tabular whitespace-nowrap text-base-content/75 lg:table-cell">{{ user.phoneNumber || '—' }}</td>
-                <td>
-                  <div class="flex flex-wrap gap-1">
-                    @if (user.blocked) { <app-status-badge tone="error">{{ 'Users.Status.Blocked' | translate }}</app-status-badge> }
-                    @if (user.isLocked) { <app-status-badge tone="warning">{{ 'Users.Status.Locked' | translate }}</app-status-badge> }
-                    @if (user.isAdmin) { <app-status-badge tone="primary">{{ 'Users.Status.Admin' | translate }}</app-status-badge> }
-                    @if (user.twoFactorEnabled) { <app-status-badge tone="success">{{ 'Users.Status.Mfa' | translate }}</app-status-badge> }
-                    @if (!user.emailConfirmed) { <app-status-badge tone="warning">{{ 'Users.Status.EmailUnverified' | translate }}</app-status-badge> }
-                    @if (user.phoneNumber && !user.phoneNumberConfirmed) { <app-status-badge tone="neutral">{{ 'Users.Status.PhoneUnverified' | translate }}</app-status-badge> }
-                    @if (!user.blocked && !user.isLocked && !user.isAdmin && !user.twoFactorEnabled && user.emailConfirmed && (!user.phoneNumber || user.phoneNumberConfirmed)) {
-                      <app-status-badge tone="success">{{ 'Users.Status.Active' | translate }}</app-status-badge>
-                    }
-                  </div>
-                </td>
-                <td class="hidden tabular whitespace-nowrap text-base-content/75 md:table-cell">{{ user.createDate | date: 'mediumDate' }}</td>
-                <td class="hidden tabular whitespace-nowrap text-base-content/75 md:table-cell">
-                  {{ user.lastSignInDate ? (user.lastSignInDate | date: 'short') : ('Common.Never' | translate) }}
-                </td>
-                <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/users', user.id]" [attr.aria-label]="'Users.List.OpenUser' | translate: { name: user.email || user.userName }">
-                    <svg lucideChevronRight class="size-4"></svg>
-                  </a>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">
-                  <app-empty-state [title]="(list.hasFilters() ? 'Users.List.EmptyFilteredTitle' : 'Users.List.EmptyTitle') | translate"
-                    [message]="(list.hasFilters() ? 'Users.List.EmptyFilteredMessage' : 'Users.List.EmptyMessage') | translate">
-                    <svg icon lucideUsers class="size-5"></svg>
-                    @if (list.hasFilters()) {
-                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Users.List.ClearFilters' | translate }}</button>
-                    } @else if (canEdit) {
-                      <a actions class="btn btn-sm" routerLink="/users/add"><svg lucideUserPlus class="size-4"></svg>{{ 'Routes.NewUser' | translate }}</a>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
+                    </a>
+                  </td>
+                  <td class="hidden tabular whitespace-nowrap text-base-content/75 lg:table-cell">{{ user.phoneNumber || '—' }}</td>
+                  <td>
+                    <div class="flex flex-wrap gap-1">
+                      @if (user.blocked) { <app-status-badge tone="error">{{ 'Users.Status.Blocked' | translate }}</app-status-badge> }
+                      @if (user.isLocked) { <app-status-badge tone="warning">{{ 'Users.Status.Locked' | translate }}</app-status-badge> }
+                      @if (user.isAdmin) { <app-status-badge tone="primary">{{ 'Users.Status.Admin' | translate }}</app-status-badge> }
+                      @if (user.twoFactorEnabled) { <app-status-badge tone="success">{{ 'Users.Status.Mfa' | translate }}</app-status-badge> }
+                      @if (!user.emailConfirmed) { <app-status-badge tone="warning">{{ 'Users.Status.EmailUnverified' | translate }}</app-status-badge> }
+                      @if (user.phoneNumber && !user.phoneNumberConfirmed) { <app-status-badge tone="neutral">{{ 'Users.Status.PhoneUnverified' | translate }}</app-status-badge> }
+                      @if (!user.blocked && !user.isLocked && !user.isAdmin && !user.twoFactorEnabled && user.emailConfirmed && (!user.phoneNumber || user.phoneNumberConfirmed)) {
+                        <app-status-badge tone="success">{{ 'Users.Status.Active' | translate }}</app-status-badge>
+                      }
+                    </div>
+                  </td>
+                  <td class="hidden tabular whitespace-nowrap text-base-content/75 md:table-cell">{{ user.createDate | date: 'mediumDate' }}</td>
+                  <td class="hidden tabular whitespace-nowrap text-base-content/75 md:table-cell">
+                    {{ user.lastSignInDate ? (user.lastSignInDate | date: 'short') : ('Common.Never' | translate) }}
+                  </td>
+                  <td class="text-right">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="['/users', user.id]" [attr.aria-label]="'Users.List.OpenUser' | translate: { name: user.email || user.userName }">
+                      <svg lucideChevronRight class="size-4"></svg>
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6">
+                    <app-empty-state [title]="(list.hasFilters() ? 'Users.List.EmptyFilteredTitle' : 'Users.List.EmptyTitle') | translate"
+                      [message]="(list.hasFilters() ? 'Users.List.EmptyFilteredMessage' : 'Users.List.EmptyMessage') | translate">
+                      <svg icon lucideUsers class="size-5"></svg>
+                      @if (list.hasFilters()) {
+                        <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Users.List.ClearFilters' | translate }}</button>
+                      } @else if (canEdit) {
+                        <a actions class="btn btn-sm" routerLink="/users/add"><svg lucideUserPlus class="size-4"></svg>{{ 'Routes.NewUser' | translate }}</a>
+                      }
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

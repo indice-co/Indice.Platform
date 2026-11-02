@@ -138,12 +138,13 @@ export class LogTimeComponent {
 @Component({
   selector: 'app-log-device',
   imports: [TranslatePipe],
-  host: { class: 'inline-flex min-w-0 items-center gap-1.5' },
+  host: { class: 'inline-flex min-w-0 gap-1.5', '[class.items-center]': '!wrap()', '[class.items-start]': 'wrap()' },
   template: `
     @if (displayName() || userAgentFamily() || platform()) {
-      <img class="size-4 shrink-0" [src]="browser()" [alt]="userAgentFamily() || ('Logs.Device.Browser' | translate)" [title]="userAgentFamily() || ('Logs.Device.UnknownBrowser' | translate)" />
-      <img class="size-4 shrink-0 dark:invert" [src]="os()" [alt]="platform() || ('Logs.Device.Os' | translate)" [title]="platform() || ('Logs.Device.UnknownPlatform' | translate)" />
-      <span class="truncate text-sm" [title]="displayName()">{{ displayName() || '—' }}</span>
+      <img class="size-4 shrink-0" [class.mt-px]="wrap()" [src]="browser()" [alt]="userAgentFamily() || ('Logs.Device.Browser' | translate)" [title]="userAgentFamily() || ('Logs.Device.UnknownBrowser' | translate)" />
+      <img class="size-4 shrink-0 dark:invert" [class.mt-px]="wrap()" [src]="os()" [alt]="platform() || ('Logs.Device.Os' | translate)" [title]="platform() || ('Logs.Device.UnknownPlatform' | translate)" />
+      <span class="min-w-0 text-sm" [class.truncate]="!wrap()" [class.line-clamp-2]="wrap()" [class.break-words]="wrap()" [class.leading-tight]="wrap()"
+        [title]="displayName()">{{ displayName() || '—' }}</span>
     } @else {
       <span class="text-base-content/40">—</span>
     }
@@ -153,6 +154,8 @@ export class LogDeviceComponent {
   public readonly displayName = input<string | null | undefined>();
   public readonly userAgentFamily = input<string | null | undefined>();
   public readonly platform = input<string | null | undefined>();
+  /** Lets a long display name wrap onto a second line (then ellipsis) instead of truncating on one line. */
+  public readonly wrap = input(false, { transform: booleanAttribute });
   protected readonly browser = computed(() => userAgentIcon(this.userAgentFamily()));
   protected readonly os = computed(() => osIcon(this.platform()));
 }

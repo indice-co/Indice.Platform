@@ -37,65 +37,67 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>{{ 'DistributionLists.Name' | translate }}</th>
-            <th>{{ 'DistributionLists.Alias' | translate }}</th>
-            <th>{{ 'DistributionLists.CreatedBy' | translate }}</th>
-            <th>{{ 'DistributionLists.CreatedAt' | translate }}</th>
-            <th>{{ 'DistributionLists.UpdatedBy' | translate }}</th>
-            <th>{{ 'DistributionLists.UpdatedAt' | translate }}</th>
-            <th class="w-16 text-right"><span class="sr-only">{{ 'DistributionLists.Actions' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="7"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ 'DistributionLists.Name' | translate }}</th>
+              <th>{{ 'DistributionLists.Alias' | translate }}</th>
+              <th>{{ 'DistributionLists.CreatedBy' | translate }}</th>
+              <th>{{ 'DistributionLists.CreatedAt' | translate }}</th>
+              <th>{{ 'DistributionLists.UpdatedBy' | translate }}</th>
+              <th>{{ 'DistributionLists.UpdatedAt' | translate }}</th>
+              <th class="w-16 text-right"><span class="sr-only">{{ 'DistributionLists.Actions' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="7"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <a class="link link-hover font-semibold" [routerLink]="[item.id]" [attr.title]="'DistributionLists.Details' | translate">{{ item.name }}</a>
+                  </td>
+                  <td>
+                    @if (item.alias) {
+                      <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.alias }}</code>
+                    } @else {
+                      <span class="text-base-content/40">—</span>
+                    }
+                  </td>
+                  <td>{{ item.createdBy || '—' }}</td>
+                  <td class="whitespace-nowrap text-base-content/70">{{ item.createdAt | date: 'medium' }}</td>
+                  <td>{{ item.updatedBy || '—' }}</td>
+                  <td class="whitespace-nowrap text-base-content/70">{{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}</td>
+                  <td class="text-right">
+                    <span class="tooltip tooltip-left" [attr.data-tip]="'DistributionLists.Delete' | translate">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="remove(item)"
+                        [attr.aria-label]="'DistributionLists.Delete' | translate">
+                        <svg lucideTrash class="size-4"></svg>
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7">
+                    <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
+                      <svg icon lucideUsers class="size-5"></svg>
+                      <a actions class="btn btn-sm" [routerLink]="pane.link('create-distribution-list')">
+                        <svg lucideListPlus class="size-4"></svg>{{ 'DistributionLists.CreateTitle' | translate }}
+                      </a>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <a class="link link-hover font-semibold" [routerLink]="[item.id]" [attr.title]="'DistributionLists.Details' | translate">{{ item.name }}</a>
-                </td>
-                <td>
-                  @if (item.alias) {
-                    <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.alias }}</code>
-                  } @else {
-                    <span class="text-base-content/40">—</span>
-                  }
-                </td>
-                <td>{{ item.createdBy || '—' }}</td>
-                <td class="whitespace-nowrap text-base-content/70">{{ item.createdAt | date: 'medium' }}</td>
-                <td>{{ item.updatedBy || '—' }}</td>
-                <td class="whitespace-nowrap text-base-content/70">{{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}</td>
-                <td class="text-right">
-                  <span class="tooltip tooltip-left" [attr.data-tip]="'DistributionLists.Delete' | translate">
-                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="remove(item)"
-                      [attr.aria-label]="'DistributionLists.Delete' | translate">
-                      <svg lucideTrash class="size-4"></svg>
-                    </button>
-                  </span>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="7">
-                  <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
-                    <svg icon lucideUsers class="size-5"></svg>
-                    <a actions class="btn btn-sm" [routerLink]="pane.link('create-distribution-list')">
-                      <svg lucideListPlus class="size-4"></svg>{{ 'DistributionLists.CreateTitle' | translate }}
-                    </a>
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
