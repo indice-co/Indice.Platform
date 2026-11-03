@@ -39,75 +39,77 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
       <app-list-sort [list]="list" [options]="sortOptions" />
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>{{ 'Contacts.Name' | translate }}</th>
-            <th>{{ 'Contacts.Email' | translate }}</th>
-            <th>{{ 'Contacts.Phone' | translate }}</th>
-            <th>{{ 'Contacts.Channels' | translate }}</th>
-            <th>{{ 'Contacts.ContactCode' | translate }}</th>
-            <th class="text-right">{{ 'Contacts.UpdatedAt' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4, 5]; track row) {
-              <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
-            }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <div class="flex items-center gap-3">
-                    <app-contact-avatar [name]="displayName(item)" size="sm" />
-                    <div class="min-w-0">
-                      <a class="link link-hover block truncate font-semibold" [routerLink]="[item.id]">{{ displayName(item) || '—' }}</a>
-                      @if (item.isAnonymous) {
-                        <span class="badge badge-xs badge-ghost">{{ 'Contacts.Anonymous' | translate }}</span>
-                      } @else {
-                        <span class="badge badge-xs badge-soft badge-primary">{{ 'Contacts.Known' | translate }}</span>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ 'Contacts.Name' | translate }}</th>
+              <th>{{ 'Contacts.Email' | translate }}</th>
+              <th>{{ 'Contacts.Phone' | translate }}</th>
+              <th>{{ 'Contacts.Channels' | translate }}</th>
+              <th>{{ 'Contacts.ContactCode' | translate }}</th>
+              <th class="text-right">{{ 'Contacts.UpdatedAt' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <app-contact-avatar [name]="displayName(item)" size="sm" />
+                      <div class="min-w-0">
+                        <a class="link link-hover block truncate font-semibold" [routerLink]="[item.id]">{{ displayName(item) || '—' }}</a>
+                        @if (item.isAnonymous) {
+                          <span class="badge badge-xs badge-ghost">{{ 'Contacts.Anonymous' | translate }}</span>
+                        } @else {
+                          <span class="badge badge-xs badge-soft badge-primary">{{ 'Contacts.Known' | translate }}</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="max-w-56 truncate">{{ item.email || '—' }}</td>
+                  <td class="whitespace-nowrap tabular">{{ item.phoneNumber || '—' }}</td>
+                  <td>
+                    <div class="flex gap-1">
+                      @for (channel of channels(item); track channel.kind) {
+                        <app-channel-icon [kind]="channel.kind" [muted]="!channel.available" />
                       }
                     </div>
-                  </div>
-                </td>
-                <td class="max-w-56 truncate">{{ item.email || '—' }}</td>
-                <td class="whitespace-nowrap tabular">{{ item.phoneNumber || '—' }}</td>
-                <td>
-                  <div class="flex gap-1">
-                    @for (channel of channels(item); track channel.kind) {
-                      <app-channel-icon [kind]="channel.kind" [muted]="!channel.available" />
+                  </td>
+                  <td>
+                    @if (item.recipientId) {
+                      <span class="inline-flex items-center gap-1.5" [attr.title]="(item.resolved ? 'Contacts.Resolved' : 'Contacts.Unknown') | translate">
+                        <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.recipientId }}</code>
+                        <app-bool-icon [value]="item.resolved" />
+                      </span>
+                    } @else {
+                      <span class="text-base-content/40">—</span>
                     }
-                  </div>
-                </td>
-                <td>
-                  @if (item.recipientId) {
-                    <span class="inline-flex items-center gap-1.5" [attr.title]="(item.resolved ? 'Contacts.Resolved' : 'Contacts.Unknown') | translate">
-                      <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.recipientId }}</code>
-                      <app-bool-icon [value]="item.resolved" />
-                    </span>
-                  } @else {
-                    <span class="text-base-content/40">—</span>
-                  }
-                </td>
-                <td class="text-right whitespace-nowrap text-base-content/70">{{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">
-                  <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
-                    <svg icon lucideContactRound class="size-5"></svg>
-                    <a actions class="btn btn-sm" [routerLink]="pane.link('create-new-contact')">
-                      <svg lucideUserPlus class="size-4"></svg>{{ 'Contacts.AddContacts' | translate }}
-                    </a>
-                  </app-empty-state>
-                </td>
-              </tr>
+                  </td>
+                  <td class="text-right whitespace-nowrap text-base-content/70">{{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6">
+                    <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
+                      <svg icon lucideContactRound class="size-5"></svg>
+                      <a actions class="btn btn-sm" [routerLink]="pane.link('create-new-contact')">
+                        <svg lucideUserPlus class="size-4"></svg>{{ 'Contacts.AddContacts' | translate }}
+                      </a>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
