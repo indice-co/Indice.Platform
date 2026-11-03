@@ -41,54 +41,56 @@ export const SETTINGS_REFRESH = 'settings';
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Settings.List.SearchPlaceholder' | translate" (search)="list.setSearch($event)" />
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="key">{{ 'Settings.Fields.Key' | translate }}</th>
-            <th>{{ 'Common.Value' | translate }}</th>
-            <th class="w-12"><span class="sr-only">{{ 'Settings.List.Open' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="3"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="key">{{ 'Settings.Fields.Key' | translate }}</th>
+              <th>{{ 'Common.Value' | translate }}</th>
+              <th class="w-12"><span class="sr-only">{{ 'Settings.List.Open' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="3"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (setting of list.items(); track setting.key) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td class="max-w-sm">
+                    <a class="font-mono text-sm font-semibold break-all hover:text-primary" [routerLink]="pane.link(['setting', setting.key!])">{{ setting.key }}</a>
+                  </td>
+                  <td class="max-w-xl">
+                    <span class="flex items-center gap-1">
+                      <span class="line-clamp-2 font-mono text-xs break-all text-base-content/75">{{ setting.value || '—' }}</span>
+                      @if (setting.value) { <app-copy-button [value]="setting.value" [label]="'Settings.List.CopyValueLabel' | translate" /> }
+                    </span>
+                  </td>
+                  <td class="text-right">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['setting', setting.key!])" [attr.aria-label]="'Settings.List.OpenItem' | translate: { name: setting.key }">
+                      <svg lucideChevronRight class="size-4"></svg>
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3">
+                    <app-empty-state [title]="(list.hasFilters() ? 'Settings.List.NoMatches' : 'Settings.List.Empty') | translate"
+                      [message]="(list.hasFilters() ? 'Settings.List.NoMatchesHint' : 'Settings.List.EmptyHint') | translate">
+                      <svg icon lucideSlidersHorizontal class="size-5"></svg>
+                      @if (!list.hasFilters()) {
+                        <a actions class="btn btn-sm" [routerLink]="pane.link('setting-add')"><svg lucidePlus class="size-4"></svg>{{ 'Settings.New' | translate }}</a>
+                      }
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (setting of list.items(); track setting.key) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td class="max-w-sm">
-                  <a class="font-mono text-sm font-semibold break-all hover:text-primary" [routerLink]="pane.link(['setting', setting.key!])">{{ setting.key }}</a>
-                </td>
-                <td class="max-w-xl">
-                  <span class="flex items-center gap-1">
-                    <span class="line-clamp-2 font-mono text-xs break-all text-base-content/75">{{ setting.value || '—' }}</span>
-                    @if (setting.value) { <app-copy-button [value]="setting.value" [label]="'Settings.List.CopyValueLabel' | translate" /> }
-                  </span>
-                </td>
-                <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="pane.link(['setting', setting.key!])" [attr.aria-label]="'Settings.List.OpenItem' | translate: { name: setting.key }">
-                    <svg lucideChevronRight class="size-4"></svg>
-                  </a>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="3">
-                  <app-empty-state [title]="(list.hasFilters() ? 'Settings.List.NoMatches' : 'Settings.List.Empty') | translate"
-                    [message]="(list.hasFilters() ? 'Settings.List.NoMatchesHint' : 'Settings.List.EmptyHint') | translate">
-                    <svg icon lucideSlidersHorizontal class="size-5"></svg>
-                    @if (!list.hasFilters()) {
-                      <a actions class="btn btn-sm" [routerLink]="pane.link('setting-add')"><svg lucidePlus class="size-4"></svg>{{ 'Settings.New' | translate }}</a>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

@@ -840,6 +840,9 @@
   <data name="caseDetails.discardDraft.confirm" xml:space="preserve">
     <value>The draft and the data entered so far will be deleted. This can't be undone.</value>
   </data>
+  <data name="caseDetails.customAction.confirm" xml:space="preserve">
+    <value>Are you sure you want to execute this action?</value>
+  </data>
   <data name="caseDetails.form.editable" xml:space="preserve">
     <value>Editable</value>
   </data>
