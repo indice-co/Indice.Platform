@@ -240,7 +240,7 @@ public static class ModelBuilderExtensions
             case 't': return '\t';
             case 'u':
                 if (index + 4 > span.Length || !ushort.TryParse(span.Slice(index, 4), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out var code)) {
-                    throw new FormatException($"Invalid unicode escape sequence in JSON path '{span.ToString()}'.");
+                    throw new FormatException($"Invalid unicode escape sequence in JSON path '{span}'.");
                 }
                 index += 4;
                 return (char)code;
