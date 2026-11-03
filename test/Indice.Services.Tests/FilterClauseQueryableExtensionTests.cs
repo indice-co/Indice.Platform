@@ -125,7 +125,7 @@ public class DummyDbContext : DbContext
         modelBuilder.Entity<Dummy>().Property(x => x.ModernExtras).HasJsonConversion();
         modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasJsonConversion();
         modelBuilder.Entity<Dummy>().PrimitiveCollection(x => x.Tags);
-        modelBuilder.ApplyJsonFunctions();
+        modelBuilder.ApplyJsonFunctions(Database.ProviderName);
         base.OnModelCreating(modelBuilder);
     }
 }
