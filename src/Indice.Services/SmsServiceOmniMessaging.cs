@@ -657,11 +657,6 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             return IsApiKeyAuthorized(requestHeaders);
         }
 
-        if (method.Equals("BearerToken", StringComparison.OrdinalIgnoreCase) ||
-            method.Equals("Bearer", StringComparison.OrdinalIgnoreCase)) {
-            return IsBearerAuthorized(requestHeaders);
-        }
-
         if (method.Equals("Basic", StringComparison.OrdinalIgnoreCase)) {
             return IsBasicAuthorized(requestHeaders);
         }
@@ -684,24 +679,6 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             provided = headers.GetValueOrDefault("API-KEY").ToString();
         }
         return IsEqual(provided, _settings.WebhookSecret);
-    }
-
-    private bool IsBearerAuthorized(IDictionary<string, StringValues> requestHeaders) {
-        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
-            return false;
-        }
-
-        var authorization = requestHeaders
-            .FirstOrDefault(header =>
-                string.Equals(header.Key, "Authorization", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-
-        if (!AuthenticationHeaderValue.TryParse(authorization, out var headerValue) ||
-            !string.Equals(headerValue.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
-            return false;
-        }
-
-        return IsEqual(headerValue.Parameter, _settings.WebhookSecret);
     }
 
     private bool IsBasicAuthorized(IDictionary<string, StringValues> requestHeaders) {
