@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json;
 using Indice.EntityFrameworkCore.Functions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -86,11 +87,7 @@ public static class ModelBuilderExtensions
                 functionBuilder.HasTranslation(TranslatePostgreSqlCastToDate);
                 break;
             default:
-                functionBuilder.HasTranslation(args => {
-                    var datetime2 = new SqlFragmentExpression("datetime2");
-                    var convertArgs = new SqlExpression[] { datetime2 }.Concat(args);
-                    return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(DateTime), null);
-                });
+                functionBuilder.HasTranslation(TranslateSqlServerCastToDate);
                 break;
         }
         return functionBuilder.HasSchema(string.Empty);
@@ -138,15 +135,31 @@ public static class ModelBuilderExtensions
             new SqlConstantExpression("\\1Z", typeof(string), textTypeMapping)
         };
         var utcDate = new SqlFunctionExpression("regexp_replace", functionArgs, nullable: true, argumentsPropagateNullability: [true, false, false], typeof(string), textTypeMapping);
-        return new SqlUnaryExpression(ExpressionType.Convert, utcDate, typeof(DateTime), new DateTimeTypeMapping("timestamp with time zone", dbType: null));
+        return new SqlUnaryExpression(ExpressionType.Convert, utcDate, typeof(DateTime), new PostgreSqlUtcDateTimeTypeMapping());
+    }
+
+    private static SqlExpression TranslateSqlServerCastToDate(IReadOnlyList<SqlExpression> args) {
+        var datetimeOffset = new SqlFragmentExpression("datetimeoffset");
+        var convertArgs = new SqlExpression[] { datetimeOffset, args[0] };
+        var dateTimeOffsetTypeMapping = new DateTimeOffsetTypeMapping("datetimeoffset", dbType: null);
+        var offsetDate = new SqlFunctionExpression("CONVERT", convertArgs, nullable: true, argumentsPropagateNullability: [false, true], typeof(DateTimeOffset), dateTimeOffsetTypeMapping);
+        var utcDate = new SqlFunctionExpression("SWITCHOFFSET", [offsetDate, new SqlFragmentExpression("'+00:00'")], nullable: true, argumentsPropagateNullability: [true, false], typeof(DateTimeOffset), dateTimeOffsetTypeMapping);
+        return new SqlFunctionExpression("CONVERT", [new SqlFragmentExpression("datetime2"), utcDate], nullable: true, argumentsPropagateNullability: [false, true], typeof(DateTime), new DateTimeTypeMapping("datetime2", dbType: null));
+    }
+
+    private sealed class PostgreSqlUtcDateTimeTypeMapping() : DateTimeTypeMapping("timestamp with time zone", dbType: null)
+    {
+        protected override string GenerateNonNullSqlLiteral(object value) {
+            var dateTime = DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
+            return $"TIMESTAMPTZ '{dateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffff", CultureInfo.InvariantCulture)}+00:00'";
+        }
     }
 
     /// <summary>Matches ISO 8601 dates and date times that do not specify an offset (i.e. <c>2024-01-17</c>, <c>2024-01-17T00:00:00.000</c>).</summary>
     private const string PostgreSqlDateWithoutOffsetPattern = "^([0-9]+-[0-9]{2}-[0-9]{2}([T ][0-9]{2}:[0-9]{2}(:[0-9]{2}([.][0-9]+)?)?)?)$";
 
     /// <summary>
-    /// Translates to <c>jsonb_extract_path_text(jsonb_build_array(jsonb_path_query_first(value, 'strict $ ? (@.type() != "object" &amp;&amp; @.type() != "array")')), '0')</c>
-    /// where value is <c>jsonb_extract_path(CAST(column AS jsonb), 'segment1', 'segment2', ...)</c> (or <c>CAST(column AS jsonb)</c> for the root path).
+    /// Translates to <c>jsonb_extract_path_text(jsonb_build_array(jsonb_path_query_first(jsonb_path_query_first(CAST(column AS jsonb), 'strict $.path'), 'strict $ ? (@.type() != "object" &amp;&amp; @.type() != "array")')), '0')</c>.
     /// Like the SQL Server <c>JSON_VALUE</c>, returns the unquoted text of the scalar value found at the given path and SQL NULL for objects, arrays and json nulls.
     /// </summary>
     private static SqlExpression TranslatePostgreSqlJsonValue(IReadOnlyList<SqlExpression> args) {
@@ -158,9 +171,16 @@ public static class ModelBuilderExtensions
         var segments = ParseJsonPath(path);
         SqlExpression value = new SqlUnaryExpression(ExpressionType.Convert, args[0], typeof(string), jsonbTypeMapping);
         if (segments.Count > 0) {
-            var functionArgs = new List<SqlExpression> { value };
-            functionArgs.AddRange(segments.Select(segment => new SqlConstantExpression(segment, typeof(string), textTypeMapping)));
-            value = new SqlFunctionExpression("jsonb_extract_path", functionArgs, nullable: true, argumentsPropagateNullability: functionArgs.Select(x => true), typeof(string), jsonbTypeMapping);
+            var jsonPath = new StringBuilder("strict $");
+            foreach (var segment in segments) {
+                if (segment.IsArrayIndex) {
+                    jsonPath.Append('[').Append(segment.Value).Append(']');
+                } else {
+                    jsonPath.Append('.').Append(JsonSerializer.Serialize(segment.Value));
+                }
+            }
+            var jsonPathExpression = new SqlConstantExpression(jsonPath.ToString(), typeof(string), new StringTypeMapping("jsonpath", null));
+            value = new SqlFunctionExpression("jsonb_path_query_first", [value, jsonPathExpression, new SqlFragmentExpression("'{}'::jsonb"), new SqlFragmentExpression("TRUE")], nullable: true, argumentsPropagateNullability: [true, false, false, false], typeof(string), jsonbTypeMapping);
         }
         var scalarFilter = new SqlConstantExpression("strict $ ? (@.type() != \"object\" && @.type() != \"array\")", typeof(string), new StringTypeMapping("jsonpath", null));
         var scalar = new SqlFunctionExpression("jsonb_path_query_first", [value, scalarFilter], nullable: true, argumentsPropagateNullability: [true, false], typeof(string), jsonbTypeMapping);
@@ -169,9 +189,9 @@ public static class ModelBuilderExtensions
         return new SqlFunctionExpression("jsonb_extract_path_text", functionArgsText, nullable: true, argumentsPropagateNullability: [false, false], typeof(string), textTypeMapping);
     }
 
-    /// <summary>Splits a simple JSON path (i.e. <c>$.data.items[0]."some key"</c>) to its segments (i.e. <c>data</c>, <c>items</c>, <c>0</c>, <c>some key</c>).</summary>
-    internal static List<string> ParseJsonPath(string path) {
-        var segments = new List<string>();
+    /// <summary>Splits a simple JSON path (i.e. <c>$.data.items[0]."some key"</c>) into its object keys and array indexes.</summary>
+    private static List<JsonPathSegment> ParseJsonPath(string path) {
+        var segments = new List<JsonPathSegment>();
         var span = path.AsSpan().Trim();
         if (span.StartsWith("$")) {
             span = span[1..];
@@ -182,24 +202,28 @@ public static class ModelBuilderExtensions
             if (current == '.') {
                 index++;
                 if (index < span.Length && span[index] == '"') {
-                    segments.Add(ReadQuoted(span, ref index, '"'));
+                    segments.Add(new JsonPathSegment(ReadQuoted(span, ref index, '"'), false));
                 } else {
                     var start = index;
                     while (index < span.Length && span[index] != '.' && span[index] != '[') {
                         index++;
                     }
-                    segments.Add(span[start..index].ToString());
+                    segments.Add(new JsonPathSegment(span[start..index].ToString(), false));
                 }
             } else if (current == '[') {
                 index++;
                 if (index < span.Length && (span[index] == '"' || span[index] == '\'')) {
-                    segments.Add(ReadQuoted(span, ref index, span[index]));
+                    segments.Add(new JsonPathSegment(ReadQuoted(span, ref index, span[index]), false));
                 } else {
                     var start = index;
                     while (index < span.Length && span[index] != ']') {
                         index++;
                     }
-                    segments.Add(span[start..index].Trim().ToString());
+                    var arrayIndex = span[start..index].Trim().ToString();
+                    if (!int.TryParse(arrayIndex, NumberStyles.Integer, CultureInfo.InvariantCulture, out var indexValue)) {
+                        throw new FormatException($"Invalid array index in JSON path '{path}'.");
+                    }
+                    segments.Add(new JsonPathSegment(indexValue.ToString(CultureInfo.InvariantCulture), true));
                 }
                 // skip the closing bracket.
                 while (index < span.Length && span[index] != ']') {
@@ -212,6 +236,8 @@ public static class ModelBuilderExtensions
         }
         return segments;
     }
+
+    private readonly record struct JsonPathSegment(string Value, bool IsArrayIndex);
 
     private static string ReadQuoted(ReadOnlySpan<char> span, ref int index, char quote) {
         var builder = new StringBuilder();

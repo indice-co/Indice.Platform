@@ -35,34 +35,43 @@ public class FilterClausePostgreSqlTranslationTests
         };
         var sql = dbContext.Dummies.Where(filters).ToQueryString();
         Assert.DoesNotContain("JSON_VALUE", sql);
-        Assert.Contains("jsonb_extract_path(d.\"Data\"::jsonb, 'displayName')", sql);
-        Assert.Contains("jsonb_extract_path(d.\"Data\"::jsonb, 'period', 'to')", sql);
+        Assert.Contains("jsonb_path_query_first(d.\"Data\"::jsonb, 'strict $.\"displayName\"'", sql);
+        Assert.Contains("jsonb_path_query_first(d.\"Data\"::jsonb, 'strict $.\"period\".\"to\"'", sql);
         Assert.Contains("'\\1Z')::timestamptz > @", sql);
         Assert.Contains("(DbType = DateTime)", sql);
-        Assert.Contains("jsonb_extract_path(d.\"Metadata\"::jsonb, 'NAME')", sql);
+        Assert.Contains("jsonb_path_query_first(d.\"Metadata\"::jsonb, 'strict $.\"NAME\"'", sql);
         Assert.Contains("@.type() != \"object\" && @.type() != \"array\"", sql);
+    }
+
+    [Fact]
+    public void CastToDate_UsesUtcTimestampLiterals_OnPostgreSql_Test() {
+        using var dbContext = CreateDbContext(builder => builder.UseNpgsql("Host=localhost;Database=Indice.FilterClause.Test"));
+        var date = new DateTime(2024, 1, 17, 0, 0, 0, DateTimeKind.Utc);
+        var sql = dbContext.Dummies.Where(x => JsonFunctions.CastToDate(x.Name!) >= EF.Constant(date)).ToQueryString();
+        Assert.Contains("TIMESTAMPTZ '2024-01-17 00:00:00.0000000+00:00'", sql);
     }
 
     [Fact]
     public void JsonValue_Translates_RootPath_ToPostgreSqlQuery_Test() {
         using var dbContext = CreateDbContext(builder => builder.UseNpgsql("Host=localhost;Database=Indice.FilterClause.Test"));
         var sql = dbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Name!, "$") == "Thanos").ToQueryString();
-        Assert.Contains("jsonb_extract_path_text(jsonb_build_array(jsonb_path_query_first(d.\"Name\"::jsonb, ", sql);
+        Assert.Contains("jsonb_path_query_first(d.\"Name\"::jsonb, 'strict $ ? (@.type() != \"object\" && @.type() != \"array\")')", sql);
     }
 
     [Theory]
-    [InlineData("$.\"\\u03ba\"", "κ")]
-    [InlineData("$[\"\\u03BA\\u03C9\"]", "κω")]
-    [InlineData("$.\"a\\nb\"", "a\nb")]
-    [InlineData("$.\"a\\tb\\r\\b\\f\"", "a\tb\r\b\f")]
-    [InlineData("$.\"a\\\"b\\\\c\\/d\"", "a\"b\\c/d")]
-    [InlineData("$['it\\'s']", "it's")]
-    [InlineData("$.data.items[0].\"some key\"", "data", "items", "0", "some key")]
-    public void JsonPath_DecodesEscapes_Test(string path, params string[] expected) {
+    [InlineData("$.\"\\u03ba\"", "strict $.\"\\u03BA\"")]
+    [InlineData("$[\"\\u03BA\\u03C9\"]", "strict $.\"\\u03BA\\u03C9\"")]
+    [InlineData("$.\"a\\nb\"", "strict $.\"a\\nb\"")]
+    [InlineData("$.\"a\\tb\\r\\b\\f\"", "strict $.\"a\\tb\\r\\b\\f\"")]
+    [InlineData("$.\"a\\\"b\\\\c\\/d\"", "strict $.\"a\\u0022b\\\\c/d\"")]
+    [InlineData("$['it\\'s']", "strict $.\"it\\u0027s\"")]
+    [InlineData("$.data.items[0].\"some key\"", "strict $.\"data\".\"items\"[0].\"some key\"")]
+    [InlineData("$.items[0]", "strict $.\"items\"[0]")]
+    [InlineData("$.items.\"0\"", "strict $.\"items\".\"0\"")]
+    public void JsonPath_DecodesEscapes_AndPreservesSegmentKinds_Test(string path, string expected) {
         using var dbContext = CreateDbContext(builder => builder.UseNpgsql("Host=localhost;Database=Indice.FilterClause.Test"));
         var sql = dbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Data!, path) == "Thanos").ToQueryString();
-        var segments = string.Join(", ", expected.Select(x => $"'{x.Replace("'", "''")}'"));
-        Assert.Contains($"jsonb_extract_path(d.\"Data\"::jsonb, {segments})", sql);
+        Assert.Contains($"'{expected.Replace("'", "''")}'", sql);
     }
 
     [Fact]
@@ -74,11 +83,11 @@ public class FilterClausePostgreSqlTranslationTests
         }
         var sql = query.ToQueryString();
         Assert.DoesNotContain("JSON_VALUE", sql);
-        Assert.Contains("jsonb_extract_path(d.\"Data\"::jsonb, 'period', 'from')", sql);
+        Assert.Contains("jsonb_path_query_first(d.\"Data\"::jsonb, 'strict $.\"period\".\"from\"'", sql);
         Assert.Contains("'\\1Z')::timestamptz,", sql);
         Assert.Contains("'0')::double precision DESC", sql);
-        Assert.Contains("jsonb_extract_path(d.\"Data\"::jsonb, 'Balance')", sql);
-        Assert.Contains("jsonb_extract_path(d.\"Data\"::jsonb, 'displayName')", sql);
+        Assert.Contains("jsonb_path_query_first(d.\"Data\"::jsonb, 'strict $.\"Balance\"'", sql);
+        Assert.Contains("jsonb_path_query_first(d.\"Data\"::jsonb, 'strict $.\"displayName\"'", sql);
     }
 
     [Fact]
@@ -86,11 +95,11 @@ public class FilterClausePostgreSqlTranslationTests
         using var dbContext = CreateDbContext(builder => builder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test"));
         var filters = new List<FilterClause> {
             (FilterClause)"data.displayName::contains::κων",
-            (FilterClause)"data.period.to::gt::(DateTime)2024-01-17",
+            (FilterClause)"data.period.to::gt::(DateTime)2024-01-17T00:00:00+02:00",
         };
         var sql = dbContext.Dummies.Where(filters).ToQueryString();
         Assert.Contains("JSON_VALUE([d].[Data], N'$.displayName')", sql);
-        Assert.Contains("Convert(datetime2, JSON_VALUE([d].[Data], N'$.period.to'))", sql);
+        Assert.Contains("CONVERT(datetime2, SWITCHOFFSET(CONVERT(datetimeoffset, JSON_VALUE([d].[Data], N'$.period.to')), '+00:00'))", sql);
         Assert.DoesNotContain("jsonb_extract_path_text", sql);
     }
 }
@@ -146,6 +155,9 @@ public class FilterClausePostgreSqlQueryableExtensionTests : IAsyncLifetime
             Assert.Equal(2, results.Count);
             results = await DbContext.Dummies.Where([(FilterClause)"data.birthDate::in::(DateTime)2024-01-17T00:00:00Z,1981-01-28"]).ToListAsync(cancellationToken);
             Assert.Equal(3, results.Count);
+            var boundary = new DateTime(2024, 1, 17, 0, 0, 0, DateTimeKind.Utc);
+            results = await DbContext.Dummies.Where(x => JsonFunctions.CastToDate(JsonFunctions.JsonValue(x.Data!, "$.birthDate")) == boundary).ToListAsync(cancellationToken);
+            Assert.Equal(["Unspecified", "Utc"], results.Select(x => x.Name).Order());
         } finally {
             await DbContext.Database.CloseConnectionAsync();
         }
@@ -162,6 +174,12 @@ public class FilterClausePostgreSqlQueryableExtensionTests : IAsyncLifetime
         results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Data!, "$") != null).ToListAsync(cancellationToken);
         Assert.Empty(results);
         results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Data!, "$.displayName") == "Γιάννης Νές").ToListAsync(cancellationToken);
+        Assert.Single(results);
+        DbContext.Dummies.Add(new Dummy { Name = """{"items":{"0":"matched"}}""" });
+        await DbContext.SaveChangesAsync(cancellationToken);
+        results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Name!, "$.items[0]") == "matched").ToListAsync(cancellationToken);
+        Assert.Empty(results);
+        results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Name!, "$.items.\"0\"") == "matched").ToListAsync(cancellationToken);
         Assert.Single(results);
     }
 
