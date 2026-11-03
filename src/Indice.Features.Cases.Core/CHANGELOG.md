@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [8.63.0]
+## [8.64.0]
 ### Added PostgreSQL support for the cases db.
 - The json functions (`JsonFunctions.JsonValue`, `CastToDate`, `CastToDouble`) used to filter and sort on the json columns (case data, metadata etc.) are now translated according to the configured database engine.
   On PostgreSQL they are translated to `jsonb_extract_path_text(column::jsonb, ...)` and `::timestamp` / `::double precision` casts, while on SQL Server they keep using `JSON_VALUE` and `CONVERT`.
