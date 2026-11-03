@@ -49,6 +49,7 @@ public static class WebhooksEndpointExtensions
                 Receives a webhook notification from the specified provider, validates the request,
                 and processes the notification using the provider-specific webhook handler.
                 """)
+            .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest);
 
@@ -60,13 +61,14 @@ public static class WebhooksEndpointExtensions
                 Receives a webhook notification from the specified provider, validates the request,
                 and processes the notification using the provider-specific webhook handler.
                 """)
+            .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest);
 
         return group;
     }
 
-    internal static async Task<Results<ValidationProblem, NotFound, NoContent>> HandleWebhook( 
+    internal static async Task<IResult> HandleWebhook( 
         string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
         var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
         
@@ -89,6 +91,15 @@ public static class WebhooksEndpointExtensions
             await channel.Writer.WriteAsync(result.Events, cancellationToken);
         }
 
-        return TypedResults.NoContent();
+        if (result.SuccessPayload is not null) {
+            return Results.Json(result.SuccessPayload, statusCode: result.Status);
+        }
+
+        return result.Status switch {
+            200 => TypedResults.Ok(),
+            204 => TypedResults.NoContent(),
+            >= 200 and <= 299 => Results.StatusCode(result.Status),
+            _ => TypedResults.NoContent()
+        };
     }
 }

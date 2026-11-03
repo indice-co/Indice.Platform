@@ -49,7 +49,9 @@ public sealed class WebhookHttpResult
     /// <summary>Indicates whether the parsing was successful (no errors occurred).</summary>
     public bool Success => !Errors.Any();
     /// <summary>Gets or sets the HTTP status code to return to the webhook sender.</summary>
-    public int Status { get; set; } = 200;
+    public int Status { get; set; } = 204;
+    /// <summary>Gets or sets an optional success response payload.</summary>
+    public object? SuccessPayload { get; set; }
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing an error with the specified status code and error messages.</summary>
     public static WebhookHttpResult FromError(int statusCode, params string[] errors) {
         var result = new WebhookHttpResult(new List<WebhookEvent>());
@@ -64,5 +66,11 @@ public sealed class WebhookHttpResult
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a bad request with the specified error messages.</summary>
     public static WebhookHttpResult BadRequest(params string[] errors) => FromError(400, errors);
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a successful request with the specified events.</summary>
-    public static WebhookHttpResult Ok(List<WebhookEvent> events) => new(events);
+    public static WebhookHttpResult Ok(List<WebhookEvent> events, int statusCode = 204, object? successPayload = null) {
+        var result = new WebhookHttpResult(events) {
+            Status = statusCode,
+            SuccessPayload = successPayload
+        };
+        return result;
+    }
 }
