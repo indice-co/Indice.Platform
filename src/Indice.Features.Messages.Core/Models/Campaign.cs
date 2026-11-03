@@ -29,6 +29,8 @@ public class Campaign
     public List<MessageChannelKind> MessageChannelKind { get; set; } = [];
     /// <summary>The base href to access the media.</summary>
     public string? MediaBaseHref { get; set; }
+    /// <summary>The number of contacts the campaign was sent out to. Null for drafts and global campaigns.</summary>
+    public int? RecipientCount { get; set; }
     /// <summary>Optional data for the campaign.</summary>
     public dynamic? Data { get; set; }
     /// <summary>Specifies the principal that created the campaign.</summary>

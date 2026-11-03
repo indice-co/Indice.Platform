@@ -12,6 +12,9 @@ public class DbDistributionList : DbAuditableEntity
     public string? Alias { get; set; }
     /// <summary>Indicates whether the distribution list is system generated.</summary>
     public bool SystemGenerated { get; set; } = false;
+    /// <summary>The number of contacts currently in the list (including unsubscribed ones).</summary>
+    /// <remarks>Denormalized; recounted after every membership change.</remarks>
+    public int ContactCount { get; set; }
     /// <summary>Contact - Distribution list join entity type.</summary>
     public List<DbDistributionListContact> ContactDistributionLists { get; set; } = [];
 }

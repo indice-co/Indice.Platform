@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, computed, inject, signal, viewChild } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -12,7 +13,7 @@ export type SendVia = 'distribution-list' | 'recipient-ids' | 'recipients' | 'us
 /** Wizard step 4: who receives the campaign (a distribution list, recipient ids, picked contacts or everyone). */
 @Component({
   selector: 'app-campaign-recipients',
-  imports: [ReactiveFormsModule, TranslatePipe, ListContactCreateComponent, LucideGlobe, LucideIdCard, LucideListChecks, LucidePencil, LucideUserPlus, LucideUsers],
+  imports: [DecimalPipe, ReactiveFormsModule, TranslatePipe, ListContactCreateComponent, LucideGlobe, LucideIdCard, LucideListChecks, LucidePencil, LucideUserPlus, LucideUsers],
   template: `
     <form class="grid gap-6 lg:grid-cols-[18rem_1fr]" [formGroup]="form">
       <fieldset class="fieldset">
@@ -42,11 +43,13 @@ export type SendVia = 'distribution-list' | 'recipient-ids' | 'recipients' | 'us
                 [class.select-error]="form.controls.distributionList.invalid && form.controls.distributionList.touched">
                 <option value="" disabled>{{ 'Campaigns.SelectPlaceholder' | translate }}</option>
                 @for (list of distributionLists(); track list.id) {
-                  <option [value]="list.id">{{ list.name }}</option>
+                  <option [value]="list.id">{{ list.name }} ({{ (list.contactCount ?? 0) | number }})</option>
                 }
               </select>
               @if (form.controls.distributionList.touched && form.controls.distributionList.hasError('required')) {
                 <p class="label text-error">{{ 'Campaigns.DistributionListRequiredError' | translate }}</p>
+              } @else if (selectedListContactCount() !== undefined) {
+                <p class="label tabular">{{ selectedListContactCount() | number }} {{ 'Campaigns.RecipientsCountSuffix' | translate }}</p>
               }
             </fieldset>
           }
@@ -137,6 +140,13 @@ export class CampaignRecipientsComponent implements OnInit {
   public readonly sendVia = toSignal(this.form.controls.sendVia.valueChanges, { initialValue: this.form.controls.sendVia.value });
   private readonly _recipientIds = toSignal(this.form.controls.recipientIds.valueChanges, { initialValue: '' });
   protected readonly recipientIdsCount = computed(() => this.parseRecipientIds(this._recipientIds()).length);
+  private readonly _distributionListId = toSignal(this.form.controls.distributionList.valueChanges, { initialValue: this.form.controls.distributionList.value });
+  /** Contact count of the selected distribution list; undefined while nothing is selected. */
+  protected readonly selectedListContactCount = computed(() => {
+    const id = this._distributionListId();
+    const list = id ? this.distributionLists().find(l => l.id === id) : undefined;
+    return list ? list.contactCount ?? 0 : undefined;
+  });
 
   public ngOnInit(): void {
     this._api.getDistributionLists(undefined, undefined, undefined, undefined, false)

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -20,7 +20,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 @Component({
   selector: 'app-distribution-lists',
   imports: [
-    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ListCountComponent, DatePipe, DecimalPipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
     LucideListPlus, LucideTrash, LucideUsers
   ],
   template: `
@@ -44,6 +44,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
             <tr>
               <th>{{ 'DistributionLists.Name' | translate }}</th>
               <th>{{ 'DistributionLists.Alias' | translate }}</th>
+              <th class="text-right">{{ 'DistributionLists.ContactCount' | translate }}</th>
               <th>{{ 'DistributionLists.CreatedBy' | translate }}</th>
               <th>{{ 'DistributionLists.CreatedAt' | translate }}</th>
               <th>{{ 'DistributionLists.UpdatedBy' | translate }}</th>
@@ -69,6 +70,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
                       <span class="text-base-content/40">—</span>
                     }
                   </td>
+                  <td class="text-right tabular">{{ (item.contactCount ?? 0) | number }}</td>
                   <td>{{ item.createdBy || '—' }}</td>
                   <td class="whitespace-nowrap text-base-content/70">{{ item.createdAt | date: 'medium' }}</td>
                   <td>{{ item.updatedBy || '—' }}</td>
