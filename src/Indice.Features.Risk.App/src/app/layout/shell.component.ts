@@ -1,11 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '@indice/ng-auth';
+import { AuthService, ImgUserPictureDirective } from '@indice/ng-auth';
 import { filter } from 'rxjs';
 import {
-  LucideActivity, LucideChevronsUpDown, LucideDynamicIcon, LucideGauge, LucideHeart, LucideIcon, LucideListChecks, LucideLogOut, LucideMenu,
-  LucideMonitor, LucideMoon, LucideSun
+  LucideActivity, LucideChevronsUpDown, LucideDynamicIcon, LucideGauge, LucideHeart, LucideIcon, LucideLayoutDashboard, LucideListChecks, LucideLogOut,
+  LucideMenu, LucideMonitor, LucideMoon, LucideSun
 } from '@lucide/angular';
 import { settings } from '../core/models/settings';
 import { LogoComponent } from '../ui/logo/logo.component';
@@ -22,8 +22,8 @@ interface NavItem {
 @Component({
   selector: 'app-shell',
   imports: [
-    RouterOutlet, RouterLink, RouterLinkActive, LogoComponent, LucideDynamicIcon, LucideMenu, LucideSun, LucideMoon, LucideMonitor,
-    LucideLogOut, LucideChevronsUpDown, LucideHeart
+    RouterOutlet, RouterLink, RouterLinkActive, ImgUserPictureDirective, LogoComponent, LucideDynamicIcon, LucideMenu, LucideSun, LucideMoon,
+    LucideMonitor, LucideLogOut, LucideChevronsUpDown, LucideHeart
   ],
   styles: `
     .nav-link {
@@ -83,7 +83,7 @@ interface NavItem {
         <label for="app-drawer" class="drawer-overlay" aria-label="Close menu"></label>
         <aside class="flex min-h-full flex-col border-r"
           style="width: var(--app-sidebar-width); background: var(--app-sidebar-bg); color: var(--app-sidebar-content); border-color: var(--app-sidebar-border)">
-          <a routerLink="/risk-events" class="flex h-16 items-center px-5" style="color: var(--app-sidebar-content-strong)">
+          <a routerLink="/dashboard" class="flex h-16 items-center px-5" style="color: var(--app-sidebar-content-strong)">
             <app-logo [size]="30" ring="var(--app-sidebar-bg)" />
           </a>
 
@@ -105,7 +105,13 @@ interface NavItem {
           <div class="border-t px-3 py-3" style="border-color: var(--app-sidebar-border)">
             <div class="dropdown dropdown-top w-full">
               <button type="button" tabindex="0" class="nav-link w-full text-left">
-                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-content">{{ initials() }}</span>
+                <span class="avatar">
+                  <span class="size-8 overflow-hidden rounded-full bg-base-300">
+                    @if (userId()) {
+                      <img [userPicture]="userId()!" [displayName]="userName()" [size]="64" alt="" />
+                    }
+                  </span>
+                </span>
                 <span class="min-w-0 flex-1">
                   <span class="block truncate font-semibold" style="color: var(--app-sidebar-content-strong)">{{ userName() }}</span>
                   <span class="block truncate text-xs opacity-70">{{ userEmail() }}</span>
@@ -135,6 +141,7 @@ export class ShellComponent {
   protected readonly version = settings.version;
   protected readonly drawerOpen = signal(false);
   protected readonly nav: NavItem[] = [
+    { label: 'Dashboard', hint: 'Risk activity at a glance', link: '/dashboard', icon: LucideLayoutDashboard },
     { label: 'Risk events', hint: 'Transactions and actions reported for evaluation', link: '/risk-events', icon: LucideActivity },
     { label: 'Risk results', hint: 'Outcomes of rule evaluations', link: '/risk-results', icon: LucideGauge },
     { label: 'Rules', hint: 'Registered rules and their options', link: '/rules', icon: LucideListChecks }
@@ -146,13 +153,12 @@ export class ShellComponent {
   ];
 
   private readonly _user = toSignal(this._auth.user$, { initialValue: this._auth.getCurrentUser() });
+  protected readonly userId = computed(() => this._user()?.profile?.sub);
   protected readonly userName = computed(() => {
     const profile = this._user()?.profile;
     return profile?.given_name ? `${profile.given_name} ${profile.family_name ?? ''}`.trim() : profile?.name ?? profile?.email ?? '';
   });
   protected readonly userEmail = computed(() => this._user()?.profile?.email ?? '');
-  protected readonly initials = computed(() =>
-    this.userName().split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0].toUpperCase()).join('') || '?');
 
   constructor() {
     // close the mobile drawer after navigating

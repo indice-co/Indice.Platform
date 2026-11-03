@@ -47,91 +47,93 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
       </div>
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            @for (column of columns; track column.label) {
-              <th [class]="column.class ?? ''">
-                @if (column.sort) {
-                  <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
-                    {{ column.label | translate }}
-                    @if (list.sort() === column.sort) {
-                      @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
-                    } @else {
-                      <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
-                    }
-                  </button>
-                } @else {
-                  {{ column.label | translate }}
-                }
-              </th>
-            }
-            <th class="w-24 text-right"><span class="sr-only">{{ 'Templates.ActionsColumn' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
-            }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <a class="link link-hover font-semibold" [routerLink]="[item.id]">{{ item.name }}</a>
-                  @if (item.alias) {
-                    <div><code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.alias }}</code></div>
-                  }
-                </td>
-                <td><span class="badge badge-sm whitespace-nowrap" [class]="typeBadge(item.type)">{{ typeLabel(item.type) | translate }}</span></td>
-                <td>
-                  <div class="flex items-center gap-1">
-                    @for (kind of channelKinds; track kind) {
-                      <app-channel-icon [kind]="kind" [muted]="!item.channels?.includes($any(kind))" />
-                    }
-                  </div>
-                </td>
-                <td><app-message-type-badge [name]="item.messageType?.name" [classification]="item.messageType?.classification" /></td>
-                <td class="whitespace-nowrap">
-                  @if (item.updatedAt) {
-                    <div class="text-sm">{{ item.updatedAt | date: 'medium' }}</div>
-                    @if (item.updatedBy || item.createdBy) {
-                      <div class="text-xs text-base-content/60">{{ item.updatedBy || item.createdBy }}</div>
-                    }
-                  } @else {
-                    <span class="text-base-content/40">—</span>
-                  }
-                </td>
-                <td class="text-right whitespace-nowrap">
-                  <span class="tooltip" [attr.data-tip]="'Templates.EditTemplateTitle' | translate">
-                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="[item.id]" [attr.aria-label]="'Templates.EditTemplateTitle' | translate">
-                      <svg lucidePencil class="size-4"></svg>
-                    </a>
-                  </span>
-                  <span class="tooltip tooltip-left" [attr.data-tip]="'Templates.DeleteTemplateTitle' | translate">
-                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="delete(item)"
-                      [attr.aria-label]="'Templates.DeleteTemplateTitle' | translate">
-                      <svg lucideTrash class="size-4"></svg>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              @for (column of columns; track column.label) {
+                <th [class]="column.class ?? ''">
+                  @if (column.sort) {
+                    <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+                      {{ column.label | translate }}
+                      @if (list.sort() === column.sort) {
+                        @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                      } @else {
+                        <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                      }
                     </button>
-                  </span>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">
-                  <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
-                    <svg icon lucideFileText class="size-5"></svg>
-                    <a actions class="btn btn-sm" routerLink="add-template">
-                      <svg lucidePlus class="size-4"></svg>{{ 'Templates.CreateTemplateDialogTitle' | translate }}
-                    </a>
-                  </app-empty-state>
-                </td>
-              </tr>
+                  } @else {
+                    {{ column.label | translate }}
+                  }
+                </th>
+              }
+              <th class="w-24 text-right"><span class="sr-only">{{ 'Templates.ActionsColumn' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <a class="link link-hover font-semibold" [routerLink]="[item.id]">{{ item.name }}</a>
+                    @if (item.alias) {
+                      <div><code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.alias }}</code></div>
+                    }
+                  </td>
+                  <td><span class="badge badge-sm whitespace-nowrap" [class]="typeBadge(item.type)">{{ typeLabel(item.type) | translate }}</span></td>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      @for (kind of channelKinds; track kind) {
+                        <app-channel-icon [kind]="kind" [muted]="!item.channels?.includes($any(kind))" />
+                      }
+                    </div>
+                  </td>
+                  <td><app-message-type-badge [name]="item.messageType?.name" [classification]="item.messageType?.classification" /></td>
+                  <td class="whitespace-nowrap">
+                    @if (item.updatedAt) {
+                      <div class="text-sm">{{ item.updatedAt | date: 'medium' }}</div>
+                      @if (item.updatedBy || item.createdBy) {
+                        <div class="text-xs text-base-content/60">{{ item.updatedBy || item.createdBy }}</div>
+                      }
+                    } @else {
+                      <span class="text-base-content/40">—</span>
+                    }
+                  </td>
+                  <td class="text-right whitespace-nowrap">
+                    <span class="tooltip" [attr.data-tip]="'Templates.EditTemplateTitle' | translate">
+                      <a class="btn btn-ghost btn-xs btn-square" [routerLink]="[item.id]" [attr.aria-label]="'Templates.EditTemplateTitle' | translate">
+                        <svg lucidePencil class="size-4"></svg>
+                      </a>
+                    </span>
+                    <span class="tooltip tooltip-left" [attr.data-tip]="'Templates.DeleteTemplateTitle' | translate">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="deleteTemplate(item)"
+                        [attr.aria-label]="'Templates.DeleteTemplateTitle' | translate">
+                        <svg lucideTrash class="size-4"></svg>
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6">
+                    <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
+                      <svg icon lucideFileText class="size-5"></svg>
+                      <a actions class="btn btn-sm" routerLink="add-template">
+                        <svg lucidePlus class="size-4"></svg>{{ 'Templates.CreateTemplateDialogTitle' | translate }}
+                      </a>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

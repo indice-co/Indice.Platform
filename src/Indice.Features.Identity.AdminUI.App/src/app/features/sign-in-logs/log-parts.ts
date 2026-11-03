@@ -45,17 +45,35 @@ export function relativeTime(date: Date | string | null | undefined, locale = 'e
   if (!date) {
     return '';
   }
-  const seconds = Math.round((now - new Date(date).getTime()) / 1000);
-  const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
-  const steps: [Intl.RelativeTimeFormatUnit, number][] = [['second', 60], ['minute', 60], ['hour', 24], ['day', 30], ['month', 12], ['year', Infinity]];
-  let value = seconds;
-  for (const [unit, size] of steps) {
-    if (Math.abs(value) < size) {
-      return format.format(-Math.round(value), unit);
-    }
-    value /= size;
+  const then = new Date(date);
+  const current = new Date(now);
+  if (isNaN(then.getTime())) {
+    return '';
   }
-  return '';
+  const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  const seconds = Math.round((current.getTime() - then.getTime()) / 1000);
+  const sign = seconds < 0 ? 1 : -1;
+  const abs = Math.abs(seconds);
+  if (abs < 60) {
+    return format.format(sign * abs, 'second');
+  }
+  if (abs < 3600) {
+    return format.format(sign * Math.floor(abs / 60), 'minute');
+  }
+  if (abs < 86400) {
+    return format.format(sign * Math.floor(abs / 3600), 'hour');
+  }
+  // past a day, count calendar days/months in the browser's time zone so "yesterday" means the previous local date
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.max(1, Math.abs(Math.round((startOfDay(current) - startOfDay(then)) / 86400000)));
+  if (days < 30) {
+    return format.format(sign * days, 'day');
+  }
+  const months = Math.max(1, Math.abs((current.getFullYear() - then.getFullYear()) * 12 + current.getMonth() - then.getMonth()));
+  if (months < 12) {
+    return format.format(sign * months, 'month');
+  }
+  return format.format(sign * Math.floor(months / 12), 'year');
 }
 
 /** Translation keys of the sign in types. */
@@ -120,12 +138,13 @@ export class LogTimeComponent {
 @Component({
   selector: 'app-log-device',
   imports: [TranslatePipe],
-  host: { class: 'inline-flex min-w-0 items-center gap-1.5' },
+  host: { class: 'inline-flex min-w-0 gap-1.5', '[class.items-center]': '!wrap()', '[class.items-start]': 'wrap()' },
   template: `
     @if (displayName() || userAgentFamily() || platform()) {
-      <img class="size-4 shrink-0" [src]="browser()" [alt]="userAgentFamily() || ('Logs.Device.Browser' | translate)" [title]="userAgentFamily() || ('Logs.Device.UnknownBrowser' | translate)" />
-      <img class="size-4 shrink-0 dark:invert" [src]="os()" [alt]="platform() || ('Logs.Device.Os' | translate)" [title]="platform() || ('Logs.Device.UnknownPlatform' | translate)" />
-      <span class="truncate text-sm" [title]="displayName()">{{ displayName() || '—' }}</span>
+      <img class="size-4 shrink-0" [class.mt-px]="wrap()" [src]="browser()" [alt]="userAgentFamily() || ('Logs.Device.Browser' | translate)" [title]="userAgentFamily() || ('Logs.Device.UnknownBrowser' | translate)" />
+      <img class="size-4 shrink-0 dark:invert" [class.mt-px]="wrap()" [src]="os()" [alt]="platform() || ('Logs.Device.Os' | translate)" [title]="platform() || ('Logs.Device.UnknownPlatform' | translate)" />
+      <span class="min-w-0 text-sm" [class.truncate]="!wrap()" [class.line-clamp-2]="wrap()" [class.break-words]="wrap()" [class.leading-tight]="wrap()"
+        [title]="displayName()">{{ displayName() || '—' }}</span>
     } @else {
       <span class="text-base-content/40">—</span>
     }
@@ -135,6 +154,8 @@ export class LogDeviceComponent {
   public readonly displayName = input<string | null | undefined>();
   public readonly userAgentFamily = input<string | null | undefined>();
   public readonly platform = input<string | null | undefined>();
+  /** Lets a long display name wrap onto a second line (then ellipsis) instead of truncating on one line. */
+  public readonly wrap = input(false, { transform: booleanAttribute });
   protected readonly browser = computed(() => userAgentIcon(this.userAgentFamily()));
   protected readonly os = computed(() => osIcon(this.platform()));
 }
