@@ -590,6 +590,7 @@ public static class IndiceServicesServiceCollectionExtensions
             case "mstat":
             case "omnimessaging":
             case "omni_messaging":
+                services.Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name));
                 services.AddWebhookServices<THandler, OmnimessagingWebhookHttpHandler>(configuration, provider);
                 break;
         }
