@@ -41,7 +41,7 @@ const ELEVATED = ['riskLevel::neq::None', 'riskLevel::neq::Low'];
       <div class="min-w-0">
         <h1 class="text-2xl font-semibold tracking-tight text-balance sm:text-[1.75rem]">{{ greeting() }}</h1>
         <p class="mt-1 text-sm text-base-content/70">
-          <span class="inline-block first-letter:uppercase">{{ today() }}</span>. Here is how risk is trending.
+          Here is how risk is trending.
         </p>
       </div>
       <div class="flex items-center gap-2">
