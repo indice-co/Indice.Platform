@@ -27,6 +27,7 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AgentsClaimsPrincipalSelector _claimsPrincipalSelector;
     private readonly IPaymentsService _paymentsService;
+    private readonly IPaymentAttemptsService _paymentAttempts;
     private readonly ILogger<PaymentCompletedStep> _logger;
 
     /// <summary>Creates a new <see cref="PaymentCompletedStep"/>.</summary>
@@ -35,11 +36,13 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
         IServiceScopeFactory scopeFactory,
         AgentsClaimsPrincipalSelector claimsPrincipalSelector,
         IPaymentsService paymentsService,
+        IPaymentAttemptsService paymentAttempts,
         ILogger<PaymentCompletedStep> logger) : base(nameof(PaymentCompletedStep)) {
         _messageLocalizer = messageLocalizer;
         _scopeFactory = scopeFactory;
         _claimsPrincipalSelector = claimsPrincipalSelector;
         _paymentsService = paymentsService;
+        _paymentAttempts = paymentAttempts;
         _logger = logger;
     }
 
@@ -49,12 +52,41 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
         IWorkflowContext context,
         CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(response);
-        if (string.Equals(response.Method?.Trim(), StripeMethod, StringComparison.OrdinalIgnoreCase)) {
+        var provider = _paymentAttempts.GetProvider(response.Method);
+        if (provider?.Name == PaymentProviders.Stripe) {
             await SendStripePaymentAsync(context, cancellationToken);
+            return OperationState.End;
+        }
+        if (provider?.Name == PaymentProviders.Viva) {
+            await SendVivaPaymentAsync(context, cancellationToken);
             return OperationState.End;
         }
         await context.Say(Id, _messageLocalizer.PaymentCompletedMessage, cancellationToken);
         return OperationState.End;
+    }
+
+    // Same as Stripe, but the card form needs no publishable key: the browser asks for a fresh Viva access token when it mounts.
+    private async Task SendVivaPaymentAsync(IWorkflowContext context, CancellationToken cancellationToken) {
+        var (caseId, userId, amount, conversationId) = await ResolvePaymentAsync(context, PaymentProviders.Viva, cancellationToken);
+        var session = await _paymentAttempts.CreateOrReuseAttemptAsync(PaymentProviders.Viva, userId, caseId, AgentsConstants.DefaultTenantId, amount, conversationId, cancellationToken);
+        var payload = new VivaPaymentPayload(Method: PaymentProviders.Viva, CaseId: caseId, Session: session);
+        var vivaPart = new DataContent(JsonSerializer.SerializeToUtf8Bytes(payload, PayloadJsonOptions), AgentsConstants.MediaTypes.Payment.Viva) {
+            Name = "VivaPayment"
+        };
+        _logger.LogDebug("Viva selected; sending the inline Viva payment form for case {CaseId}.", caseId);
+        await context.Say(Id, vivaPart, cancellationToken);
+    }
+
+    private async Task<(string CaseId, string UserId, decimal Amount, Guid ConversationId)> ResolvePaymentAsync(IWorkflowContext context, string provider, CancellationToken cancellationToken) {
+        var caseData = await context.GetOperatorStateAsync(cancellationToken);
+        var conversation = await context.GetConversationStateAsync(cancellationToken);
+        var caseId = caseData.ReferenceId;
+        if (caseData.PaymentAmount is not > 0m) {
+            _logger.LogWarning("{Provider} payment requested for case {CaseId} but the payment amount is missing or not positive ({Amount}).", provider, caseId, caseData.PaymentAmount);
+            throw new InvalidOperationException($"{provider} payment requested for case {caseId} but the payment amount is missing or not positive ({caseData.PaymentAmount}).");
+        }
+        var userId = _claimsPrincipalSelector()?.FindSubjectId() ?? conversation.ConversationId;
+        return (caseId, userId, caseData.PaymentAmount.Value, Guid.Parse(conversation.ConversationId));
     }
 
     // The case is the payment key (paid once per case). The attempt and the publishable key are resolved here so the
@@ -92,4 +124,10 @@ public class PaymentCompletedStep : Executor<PaymentRequestPort.PaymentResponse,
     /// <param name="Session">The case's payment attempt (with the client secret while it is confirmable).</param>
     /// <param name="PaymentMethodOrder">Optional display order of the payment methods.</param>
     public record StripePaymentPayload(string Method, string CaseId, string? PublishableKey, PaymentSessionModel? Session, string[]? PaymentMethodOrder = null);
+
+    /// <summary>Payload of the <see cref="AgentsConstants.MediaTypes.Payment.Viva"/> chat part.</summary>
+    /// <param name="Method">The selected payment method.</param>
+    /// <param name="CaseId">The case being paid.</param>
+    /// <param name="Session">The case's payment attempt.</param>
+    public record VivaPaymentPayload(string Method, string CaseId, PaymentSessionModel? Session);
 }

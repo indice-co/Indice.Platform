@@ -2,7 +2,7 @@ using Indice.Features.Agents.Core.Payments;
 
 namespace Indice.Features.Agents.Core.Data;
 
-/// <summary>A Stripe payment attempt bound to a case. A case is paid once.</summary>
+/// <summary>A payment attempt bound to a case. A case is paid once.</summary>
 public class DbPaymentSession
 {
     /// <summary>Primary key.</summary>
@@ -15,7 +15,9 @@ public class DbPaymentSession
     public Guid ConversationId { get; set; }
     /// <summary><c>sub</c> claim of the paying user.</summary>
     public string UserId { get; set; } = null!;
-    /// <summary>The Stripe PaymentIntent id (<c>pi_...</c>).</summary>
+    /// <summary>The payment provider (see <see cref="PaymentProviders"/>). Defaults to <c>Stripe</c>.</summary>
+    public string Provider { get; set; } = PaymentProviders.Stripe;
+    /// <summary>The provider reference: the Stripe PaymentIntent id (<c>pi_...</c>) or the Viva transaction id (a <c>viva:{Id}</c> placeholder until charged).</summary>
     public string PaymentIntentId { get; set; } = null!;
     /// <summary>The PaymentIntent <c>client_secret</c>.</summary>
     public string? ClientSecret { get; set; }

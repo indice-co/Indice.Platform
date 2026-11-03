@@ -1,3 +1,4 @@
+using Indice.Features.Agents.Core.Payments;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI.Workflows;
@@ -16,9 +17,16 @@ public class PaymentMethodStep : Executor<OperationState, PaymentRequestPort.Pay
     private readonly ILogger<PaymentMethodStep> _logger;
 
     /// <summary>Creates a new <see cref="PaymentMethodStep"/>.</summary>
-    public PaymentMethodStep(IOptions<CustomerWorkflowOptions> customerWorkflowOptions, ILogger<PaymentMethodStep> logger) : base(nameof(PaymentMethodStep)) {
+    /// <remarks>Provider methods (<see cref="PaymentProviders"/>) are offered only when listed in <see cref="PaymentsOptions.AllowedProviders"/>; allowed providers missing from the configured methods are appended.</remarks>
+    public PaymentMethodStep(IOptions<CustomerWorkflowOptions> customerWorkflowOptions, IOptions<PaymentsOptions> paymentsOptions, ILogger<PaymentMethodStep> logger) : base(nameof(PaymentMethodStep)) {
         _logger = logger;
-        _paymentMethods = [.. customerWorkflowOptions.Value.PaymentMethods];
+        var methods = customerWorkflowOptions.Value.PaymentMethods;
+        var payments = paymentsOptions.Value;
+        var isProvider = (string method) => PaymentProviders.All.Contains(method.Trim(), StringComparer.OrdinalIgnoreCase);
+        _paymentMethods = [
+            .. methods.Where(x => !isProvider(x) || payments.IsAllowed(x)),
+            .. payments.EffectiveProviders.Where(x => isProvider(x) && !methods.Contains(x, StringComparer.OrdinalIgnoreCase))
+        ];
     }
 
     /// <inheritdoc/>
