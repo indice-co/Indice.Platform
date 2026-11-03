@@ -174,7 +174,7 @@ public sealed class WebhookIntegrationTests
             }
         };
 
-        var request = new HttpRequestMessage(HttpMethod.Post, "/webhooks/omnimessaging") {
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/webhooks/omnimessaging") {
             Content = JsonContent.Create(payload)
         };
         request.Headers.Add(apiKeyName, apiKeyValue);
@@ -183,7 +183,10 @@ public sealed class WebhookIntegrationTests
             request,
             TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var responsePayload = await response.Content.ReadFromJsonAsync<Dictionary<string, bool>>(TestContext.Current.CancellationToken);
+        Assert.NotNull(responsePayload);
+        Assert.True(responsePayload["success"]);
     }
 
     private static HttpRequestMessage GetValidApifonPayload(string webhookSecret) {
