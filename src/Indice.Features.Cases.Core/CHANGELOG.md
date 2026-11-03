@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.64.0]
 ### Added PostgreSQL support for the cases db.
 - The json functions (`JsonFunctions.JsonValue`, `CastToDate`, `CastToDouble`) used to filter and sort on the json columns (case data, metadata etc.) are now translated according to the configured database engine.
-  On PostgreSQL they are translated to `jsonb_extract_path_text(column::jsonb, ...)` and `::timestamp` / `::double precision` casts, while on SQL Server they keep using `JSON_VALUE` and `CONVERT`.
+  On PostgreSQL they are translated to `jsonb_extract_path(column::jsonb, ...)` (returning NULL for objects and arrays, like `JSON_VALUE`) and `::timestamptz` / `::double precision` casts, while on SQL Server they keep using `JSON_VALUE` and `CONVERT`.
+  Dates are compared in UTC regardless of the session `TimeZone`; json dates and filter values without an offset are treated as UTC.
   The engine is detected from the EF Core provider. Use `ModelBuilder.ApplyJsonFunctions(SqlDialect)` from `Indice.EntityFrameworkCore` to choose it explicitly in other contexts.
 - The case `ReferenceNumber` sequence and the duplicate checkpoint type code check now work on PostgreSQL as well.
 - To use PostgreSQL configure the db contexts through the existing delegates:
