@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -21,7 +21,7 @@ const PUBLISHED_FILTER = 'published';
 @Component({
   selector: 'app-campaigns',
   imports: [
-    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ListCountComponent, DatePipe, DecimalPipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
     ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideMegaphone, LucidePlus
   ],
   template: `
@@ -110,6 +110,13 @@ const PUBLISHED_FILTER = 'published';
                       <span class="badge badge-sm badge-ghost whitespace-nowrap">{{ 'Campaigns.StatusDraft' | translate }}</span>
                     }
                   </td>
+                  <td class="text-right text-sm tabular">
+                    @if (item.recipientCount != null) {
+                      {{ item.recipientCount | number }}
+                    } @else {
+                      <span class="text-base-content/40">—</span>
+                    }
+                  </td>
                   <td class="whitespace-nowrap text-sm text-base-content/70 tabular">{{ item.createdAt | date: 'medium' }}</td>
                 </tr>
               } @empty {
@@ -153,6 +160,7 @@ export class CampaignsComponent implements OnInit {
     { label: 'Campaigns.Type', sort: 'type.name' },
     { label: 'Campaigns.ActivePeriodColumn', sort: 'activePeriod.from' },
     { label: 'Campaigns.StatusLabel', sort: 'published' },
+    { label: 'Campaigns.RecipientCount', sort: 'recipientCount', class: 'text-right' },
     { label: 'Campaigns.CreatedAt', sort: 'createdAt' }
   ];
 
