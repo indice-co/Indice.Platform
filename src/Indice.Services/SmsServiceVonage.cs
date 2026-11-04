@@ -1,14 +1,14 @@
 ﻿using System.Globalization;
-using System.Net.Http.Headers;
 using System.Net.Mime;
-using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -115,8 +115,176 @@ public class SmsServiceVonageSettings : SmsServiceSettings
     public string? SignatureSecret { get; set; }
     /// <summary>The signature signing algorithm. Possible values are: <c>hmac-md5</c>, <c>hmac-sha1</c>, <c>hmac-sha256</c>, <c>hmac-sha512</c>. Default is hmac-sha256.</summary>
     public string SignatureMethod { get; set; } = "hmac-sha256";
+    /// <summary>Optional username for HTTP Basic authentication on incoming webhooks.</summary>
+    public string? WebhookUsername { get; set; }
+    /// <summary>Optional password for HTTP Basic authentication on incoming webhooks.</summary>
+    public string? WebhookPassword { get; set; }
     /// <summary>The duration in milliseconds the delivery of an SMS will be attempted.</summary>
     public int Ttl { get; set; } = 20000;
+}
+
+/// <inheritdoc/>
+public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
+    private readonly SmsServiceVonageSettings _settings;
+
+    /// <inheritdoc/>
+    public VonageWebhookHttpHandler(IOptionsSnapshot<SmsServiceVonageSettings> settings) {
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        var parameters = await BuildParametersAsync(requestParameters, requestBody, cancellationToken);
+
+        if (IsBasicAuthenticationInvalid(requestHeaders)) {
+            return WebhookHttpResult.UnauthorizedRequest("Invalid basic authentication.");
+        }
+
+        var messageId = FirstNonEmpty(parameters, "messageId", "message-id", "network-message-id");
+        var recipient = FirstNonEmpty(parameters, "msisdn", "to");
+
+        if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(recipient)) {
+            return WebhookHttpResult.BadRequest("Vonage webhook requires 'messageId' (or 'message-id') and recipient ('msisdn' or 'to').");
+        }
+
+        var sender = FirstNonEmpty(parameters, "from", "to");
+        var status = FirstNonEmpty(parameters, "status");
+        var text = FirstNonEmpty(parameters, "text");
+        var type = FirstNonEmpty(parameters, "type");
+
+        var timestamp = ParseTimestamp(parameters);
+        var eventType = !string.IsNullOrWhiteSpace(status)
+            ? $"Status:{status}"
+            : !string.IsNullOrWhiteSpace(text)
+                ? "InboundSms"
+                : !string.IsNullOrWhiteSpace(type)
+                    ? type
+                    : "SmsWebhook";
+
+        var payload = new JsonObject();
+        foreach (var parameter in parameters) {
+            payload[parameter.Key] = parameter.Value;
+        }
+
+        var eventId = !string.IsNullOrWhiteSpace(status)
+            ? $"{messageId}:{status}:{timestamp:O}"
+            : $"{messageId}:{timestamp:O}";
+
+        var incomingEvents = new List<WebhookEvent> {
+            new() {
+                Provider = "Vonage",
+                EventType = eventType,
+                EventId = eventId,
+                MessageId = messageId,
+                Recipient = recipient,
+                Subject = sender,
+                Timestamp = timestamp,
+                Payload = payload
+            }
+        };
+
+        return WebhookHttpResult.Ok(incomingEvents);
+    }
+
+    private static async Task<Dictionary<string, string>> BuildParametersAsync(
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value.ToString(), StringComparer.OrdinalIgnoreCase);
+
+        if (requestBody is null || requestBody == Stream.Null) {
+            return parameters;
+        }
+        if (requestBody.CanSeek && requestBody.Length == 0) {
+            return parameters;
+        }
+
+        using var reader = new StreamReader(requestBody, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+        var body = await reader.ReadToEndAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(body)) {
+            return parameters;
+        }
+
+        try {
+            var json = JsonNode.Parse(body) as JsonObject;
+            if (json is null) {
+                return parameters;
+            }
+
+            foreach (var item in json) {
+                if (item.Value is not null) {
+                    parameters.TryAdd(item.Key, item.Value.ToString());
+                }
+            }
+        } catch (JsonException) {
+            // Ignore malformed/non-JSON body and fallback to query parameters only.
+        }
+
+        return parameters;
+    }
+
+    private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookUsername) && string.IsNullOrWhiteSpace(_settings.WebhookPassword)) {
+            return false;
+        }
+
+        if (!requestHeaders.TryGetValue("Authorization", out var authorizationValues)) {
+            return true;
+        }
+
+        var authorization = authorizationValues.ToString();
+        if (string.IsNullOrWhiteSpace(authorization) || !authorization.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)) {
+            return true;
+        }
+
+        var encodedCredentials = authorization["Basic ".Length..].Trim();
+        byte[] credentialsBytes;
+        try {
+            credentialsBytes = Convert.FromBase64String(encodedCredentials);
+        } catch (FormatException) {
+            return true;
+        }
+
+        var credentials = Encoding.UTF8.GetString(credentialsBytes);
+        var separatorIndex = credentials.IndexOf(':');
+        if (separatorIndex <= 0 || separatorIndex == credentials.Length - 1) {
+            return true;
+        }
+
+        var username = credentials[..separatorIndex];
+        var password = credentials[(separatorIndex + 1)..];
+
+        return !string.Equals(username, _settings.WebhookUsername, StringComparison.Ordinal) ||
+               !string.Equals(password, _settings.WebhookPassword, StringComparison.Ordinal);
+    }
+
+
+    private static DateTimeOffset ParseTimestamp(IDictionary<string, string> parameters) {
+        var messageTimestamp = FirstNonEmpty(parameters, "message-timestamp");
+        if (!string.IsNullOrWhiteSpace(messageTimestamp) && DateTimeOffset.TryParse(messageTimestamp, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedMessageTimestamp)) {
+            return parsedMessageTimestamp;
+        }
+
+        var unixTimestamp = FirstNonEmpty(parameters, "timestamp");
+        if (!string.IsNullOrWhiteSpace(unixTimestamp) && long.TryParse(unixTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch)) {
+            return DateTimeOffset.FromUnixTimeSeconds(epoch);
+        }
+
+        return DateTimeOffset.UtcNow;
+    }
+
+    private static string FirstNonEmpty(IDictionary<string, string> parameters, params string[] keys) {
+        foreach (var key in keys) {
+            if (parameters.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value)) {
+                return value;
+            }
+        }
+        return string.Empty;
+    }
 }
 
 internal class VonageSmsRequest
