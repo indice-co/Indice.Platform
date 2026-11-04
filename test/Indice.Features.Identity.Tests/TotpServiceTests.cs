@@ -420,25 +420,6 @@ public class TotpServiceTests
         Assert.True(changedTokenResult.Success);
     }
 
-    [Theory]
-    [InlineData("Phone")]
-    [InlineData("Email")]
-    public async Task TwoFactorToken_Is_Invalid_When_LastSignInDate_Changes(string tokenProvider) {
-        var userManager = TestServer.Services.GetRequiredService<ExtendedUserManager<User>>();
-        var lastSignInDate = DateTimeOffset.UtcNow.AddMinutes(-5);
-        var user = await CreateTwoFactorUserAsync(userManager, tokenProvider, lastSignInDate);
-
-        var token = await userManager.GenerateTwoFactorTokenAsync(user, tokenProvider);
-        user.LastSignInDate = lastSignInDate.AddMinutes(1);
-        var updateResult = await userManager.UpdateAsync(user);
-        Assert.True(updateResult.Succeeded);
-        var reloadedUser = await userManager.FindByIdAsync(user.Id);
-
-        var isValid = await userManager.VerifyTwoFactorTokenAsync(reloadedUser!, tokenProvider, token);
-
-        Assert.False(isValid);
-    }
-
     private static async Task<User> CreateTwoFactorUserAsync(ExtendedUserManager<User> userManager, string tokenProvider, DateTimeOffset lastSignInDate) {
         var random = new Random(Guid.NewGuid().GetHashCode()).Next();
         var email = $"user_{random}@example.com";

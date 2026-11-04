@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.TokenProviders;
@@ -16,19 +14,11 @@ internal static class TokenProvidersUserUtilities
     internal static async Task<byte[]> GetSecurityToken<TUser>(this TUser user, string purpose, UserManager<TUser> userManager) where TUser : User {
         ArgumentNullException.ThrowIfNull(userManager);
         ArgumentNullException.ThrowIfNull(user);
-        var securityToken = await userManager.CreateSecurityTokenAsync(user).ConfigureAwait(false);
-        if (!string.Equals(purpose, "TwoFactor", StringComparison.Ordinal)) {
-            return securityToken;
-        }
-        if (user.LastSignInDate == null) {
-            return securityToken;
-        }
-        var timeStamp = Encoding.UTF8.GetBytes(user.LastSignInDate.Value.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture));
-        byte[] token = new byte[securityToken.Length + timeStamp.Length];
-
-        Buffer.BlockCopy(securityToken, 0, token, 0, securityToken.Length);
-        Buffer.BlockCopy(timeStamp, 0, token, securityToken.Length, timeStamp.Length);
-        return token;
+        // TODO: We will need to add entropy to the generated token
+        //       in order to distinguish between two tokens generated for the same user and purpose.
+        //       but different device id. That is why we have created this method which for the time being
+        //       is just a wrapper around the existing method.
+        return await userManager.CreateSecurityTokenAsync(user).ConfigureAwait(false);
     }
 
 }
