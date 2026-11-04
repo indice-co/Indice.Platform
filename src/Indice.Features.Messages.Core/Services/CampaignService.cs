@@ -331,6 +331,12 @@ public class CampaignService : ICampaignService
         await DbContext.SaveChangesAsync();
         return Mapper.ToCampaign(campaign);
     }
+
+    /// <inheritdoc />
+    public Task SetRecipientCount(Guid campaignId, int recipientCount) =>
+        DbContext.Campaigns
+            .Where(x => x.Id == campaignId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.RecipientCount, recipientCount));
     ///<inheritdoc/>
     public async Task<ResultSet<Recipient>> GetCampaignRecipients(Guid campaignId, ListOptions options) {
         var query = from messageEvent in DbContext.MessageEvents

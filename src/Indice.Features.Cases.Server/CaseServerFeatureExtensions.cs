@@ -107,6 +107,7 @@ public static class CaseServerFeatureExtensions
         routes.MapAdminAttachments();
         routes.MapAdminCaseTypes();
         routes.MapAdminCheckpointTypes();
+        routes.MapAdminCategories();
         routes.MapAdminContacts();
         routes.MapAdminNotifications();
         routes.MapAdminQueries();

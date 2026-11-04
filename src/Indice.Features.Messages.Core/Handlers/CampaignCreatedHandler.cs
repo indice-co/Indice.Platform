@@ -13,17 +13,21 @@ public sealed class CampaignCreatedHandler : ICampaignJobHandler<CampaignCreated
     /// <summary>Creates a new instance of <see cref="CampaignCreatedHandler"/>.</summary>
     /// <param name="eventDispatcherFactory">Provides methods that allow application components to communicate with each other by dispatching events.</param>
     /// <param name="contactService">A service that contains contact related operations.</param>
+    /// <param name="campaignService">A service that contains campaign related operations.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public CampaignCreatedHandler(
         IEventDispatcherFactory eventDispatcherFactory,
-        IContactService contactService
+        IContactService contactService,
+        ICampaignService campaignService
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
+        CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
     }
 
     private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactService ContactService { get; }
+    private ICampaignService CampaignService { get; }
 
     /// <summary>Distributes a campaign for further processing base on the <see cref="CampaignCreatedEvent.MessageChannelKind"/>.</summary>
     /// <param name="campaign">The event model used when a new campaign is created.</param>
@@ -53,6 +57,9 @@ public sealed class CampaignCreatedHandler : ICampaignJobHandler<CampaignCreated
             var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
             foreach (var contact in contacts) {
                 await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), builder => builder.WrapInEnvelope().WithQueueName(EventNames.ResolveMessage));
+            }
+            if (campaign.Published) {
+                await CampaignService.SetRecipientCount(campaign.Id, contacts.Count);
             }
         }
     }
