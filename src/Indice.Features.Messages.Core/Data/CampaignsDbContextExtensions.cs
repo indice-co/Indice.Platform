@@ -17,6 +17,7 @@ internal static class CampaignsDbContextExtensions
         }
         await dbContext.DistributionLists
             .Where(list => distributionListIds.Contains(list.Id))
-            .ExecuteUpdateAsync(setters => setters.SetProperty(list => list.ContactCount, list => list.ContactDistributionLists.Count), cancellationToken);
+            .Select(list => new { List = list, Count = list.ContactDistributionLists.Count })
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.List.ContactCount, x => x.Count), cancellationToken);
     }
 }
