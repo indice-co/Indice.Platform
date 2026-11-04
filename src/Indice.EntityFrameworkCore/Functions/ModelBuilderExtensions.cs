@@ -144,7 +144,7 @@ public static class ModelBuilderExtensions
         var dateTimeOffsetTypeMapping = new DateTimeOffsetTypeMapping("datetimeoffset", dbType: null);
         var offsetDate = new SqlFunctionExpression("CONVERT", convertArgs, nullable: true, argumentsPropagateNullability: [false, true], typeof(DateTimeOffset), dateTimeOffsetTypeMapping);
         var utcDate = new SqlFunctionExpression("SWITCHOFFSET", [offsetDate, new SqlFragmentExpression("'+00:00'")], nullable: true, argumentsPropagateNullability: [true, false], typeof(DateTimeOffset), dateTimeOffsetTypeMapping);
-        return new SqlFunctionExpression("CONVERT", [new SqlFragmentExpression("datetime2"), utcDate], nullable: true, argumentsPropagateNullability: [false, true], typeof(DateTime), new DateTimeTypeMapping("datetime2", dbType: null));
+        return new SqlFunctionExpression("CONVERT", [new SqlFragmentExpression("datetime2"), utcDate], nullable: true, argumentsPropagateNullability: [false, true], typeof(DateTime), typeMapping: null);
     }
 
     private sealed class PostgreSqlUtcDateTimeTypeMapping() : DateTimeTypeMapping("timestamp with time zone", dbType: null)

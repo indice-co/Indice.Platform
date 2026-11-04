@@ -175,11 +175,11 @@ public class FilterClausePostgreSqlQueryableExtensionTests : IAsyncLifetime
         Assert.Empty(results);
         results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Data!, "$.displayName") == "Γιάννης Νές").ToListAsync(cancellationToken);
         Assert.Single(results);
-        DbContext.Dummies.Add(new Dummy { Name = """{"items":{"0":"matched"}}""" });
+        DbContext.Dummies.Add(new Dummy { ModernExtras = System.Text.Json.Nodes.JsonNode.Parse("""{"items":{"0":"matched"}}""") });
         await DbContext.SaveChangesAsync(cancellationToken);
-        results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Name!, "$.items[0]") == "matched").ToListAsync(cancellationToken);
+        results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.ModernExtras!, "$.items[0]") == "matched").ToListAsync(cancellationToken);
         Assert.Empty(results);
-        results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.Name!, "$.items.\"0\"") == "matched").ToListAsync(cancellationToken);
+        results = await DbContext.Dummies.Where(x => JsonFunctions.JsonValue(x.ModernExtras!, "$.items.\"0\"") == "matched").ToListAsync(cancellationToken);
         Assert.Single(results);
     }
 

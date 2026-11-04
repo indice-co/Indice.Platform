@@ -48,7 +48,7 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
     public async Task FilterClause_HandlesOffsetDateOnSqlServer_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         const string name = "Κωνσταντίνος";
-        const string json = """{"BirthDate":"2024-01-17T00:00:00+02:00"}""";
+        const string json = """{"birthDate":"2024-01-17T00:00:00+02:00"}""";
         await dbContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE [Dummies] SET [Data] = {json} WHERE [Name] = {name}", TestContext.Current.CancellationToken);
 
         var filters = new List<FilterClause> {
