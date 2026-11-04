@@ -9,6 +9,9 @@ import {
 import { SelectableExternalProvider } from './details/selectable-external-provider.model';
 import { UrlType } from './urls/models/urlType';
 
+// Matches IdentityServerConstants.LocalIdentityProvider.
+const LOCAL_IDENTITY_PROVIDER = 'local';
+
 @Injectable()
 export class ClientStore {
     private _client: AsyncSubject<SingleClientInfo>;
@@ -37,13 +40,14 @@ export class ClientStore {
         // Calculate identityProviderRestrictions based on provider selection
         // If all providers are selected, save null (no restrictions)
         // If some providers are selected, save only those (restricted to those providers)
-        // If no providers are selected, save null (will show all providers as selected on next load)
+        // If no providers are selected, restrict to the IdentityServer 'local' provider so that no external provider is allowed
         // If no providers are provided, keep as null
         let identityProviderRestrictions: string[] | null = null;
         if (providers && providers.length > 0) {
             const selectedProviders = providers.filter(x => x.selected);
-            // Only set restrictions if some (but not all or none) providers are selected
-            if (selectedProviders.length > 0 && selectedProviders.length < providers.length) {
+            if (selectedProviders.length === 0) {
+                identityProviderRestrictions = [LOCAL_IDENTITY_PROVIDER];
+            } else if (selectedProviders.length < providers.length) {
                 identityProviderRestrictions = selectedProviders.map(x => x.authenticationScheme);
             }
         }
