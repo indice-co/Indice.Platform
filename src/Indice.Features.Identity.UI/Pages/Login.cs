@@ -251,7 +251,8 @@ public abstract class BaseLoginModel : BasePageModel
             if (client is not null) {
                 allowLocal = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions is not null && client.IdentityProviderRestrictions.Any()) {
-                    providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
+                    // Since the Identity Provider Restrictions is essentially a blacklist, we need to filter out any external providers that are not allowed for this client.
+                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
                 }
             }
         }

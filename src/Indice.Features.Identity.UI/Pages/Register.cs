@@ -186,7 +186,7 @@ public abstract class BaseRegisterModel : BasePageModel
             var client = await ClientStore.FindEnabledClientByIdAsync(clientId);
             if (client is not null) {
                 if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
-                    providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
+                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
                 }
             }
         }
@@ -219,7 +219,7 @@ public abstract class BaseRegisterModel : BasePageModel
                 ClaimValue = input.LastName,
                 UserId = user.Id
             });
-        }        
+        }
         if (!string.IsNullOrWhiteSpace(input.ZoneInfo)) {
             user.Claims.Add(new() {
                 ClaimType = JwtClaimTypes.ZoneInfo,
