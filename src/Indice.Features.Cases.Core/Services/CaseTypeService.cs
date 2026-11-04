@@ -136,7 +136,7 @@ internal class CaseTypeService : ICaseTypeService
 
     private async Task EnsureCategoryExists(Guid? categoryId) {
         if (categoryId.HasValue && !await _dbContext.Categories.AnyAsync(x => x.Id == categoryId)) {
-            throw new ValidationException("Category does not exist.");
+            throw new BusinessException("Category does not exist.", nameof(CaseTypeRequest.CategoryId));
         }
     }
 

@@ -13,8 +13,14 @@ const SESSIONS = [
   new ConversationListItem({ id: 'c3', title: undefined, lastActivityAt: new Date() }),
 ];
 
+const signedInUser = {
+  expired: false,
+  profile: { sub: 'sub-1', name: 'Krikor Tzevachirian', email: 'k@indice.gr' },
+};
+
 const authStub = {
-  user$: of({ expired: false, profile: {} }),
+  user$: of(signedInUser),
+  getCurrentUser: () => signedInUser,
   getAuthorizationHeaderValue: () => 'Bearer user',
   getDisplayName: () => 'Krikor Tzevachirian',
   getEmail: () => 'k@indice.gr',

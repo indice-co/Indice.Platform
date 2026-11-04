@@ -12,8 +12,14 @@ const SESSIONS = [
   new ConversationListItem({ id: 'c2', title: 'Onboarding', lastActivityAt: new Date() }),
 ];
 
+const signedInUser = {
+  expired: false,
+  profile: { sub: 'sub-1', name: 'Krikor Tzevachirian', email: 'k@indice.gr' },
+};
+
 const authStub = {
-  user$: of({ expired: false, profile: {} }),
+  user$: of(signedInUser),
+  getCurrentUser: () => signedInUser,
   getAuthorizationHeaderValue: () => 'Bearer user',
   getDisplayName: () => 'Krikor Tzevachirian',
   getEmail: () => 'k@indice.gr',
@@ -181,6 +187,7 @@ describe('ShellComponent (guest)', () => {
     list = jasmine.createSpy('list').and.returnValue(of({ count: 0, items: [] }));
     const guestAuth = {
       user$: of(null),
+      getCurrentUser: () => null,
       getAuthorizationHeaderValue: () => '',
       getDisplayName: () => '',
       getEmail: () => undefined,

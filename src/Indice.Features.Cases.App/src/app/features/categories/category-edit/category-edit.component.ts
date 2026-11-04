@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { EMPTY, Observable, catchError, finalize } from 'rxjs';
 import { LucideSave } from '@lucide/angular';
 import { CasesApiService, Category, CategoryRequest } from 'src/app/core/services/cases-api.service';
+import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 
@@ -50,6 +51,7 @@ export class CategoryEditComponent implements OnInit {
   private readonly _router = inject(Router);
   private readonly _api = inject(CasesApiService);
   private readonly _toaster = inject(TranslatedToasterService);
+  private readonly _caseTypeService = inject(CaseTypeService);
 
   /** Bound from the `:categoryId` route param (edit mode). */
   public readonly categoryId = input<string | undefined>(undefined);
@@ -107,6 +109,7 @@ export class CategoryEditComponent implements OnInit {
       catchError(() => EMPTY),
       finalize(() => this.busy.set(false))
     ).subscribe(() => {
+      this._caseTypeService.invalidateCaseTypes();
       this._toaster.show(ToastType.Success, 'toasts.success.title', 'toasts.categorySaved.body');
       this.goBack();
     });

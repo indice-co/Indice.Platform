@@ -18,17 +18,22 @@ internal class CategoryService : ICategoryService
     }
 
     public async Task<ResultSet<Category>> GetList(ListOptions options) {
-        var query = _dbContext.Categories.AsNoTracking();
-        if (!string.IsNullOrWhiteSpace(options.Search)) {
-            var search = options.Search.Trim();
-            query = query.Where(c => (c.Name != null && c.Name.Contains(search)) || (c.Description != null && c.Description.Contains(search)));
-        }
+        var culture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
         if (string.IsNullOrWhiteSpace(options.Sort)) {
             options.Sort = $"{nameof(Category.Order)},{nameof(Category.Name)}";
         }
-        var result = await query.Select(ToModel).ToResultSetAsync(options);
+        if (!string.IsNullOrWhiteSpace(options.Search)) {
+            var search = options.Search.Trim();
+            var categories = await _dbContext.Categories.AsNoTracking().Select(ToModel).ToListAsync();
+            return categories
+                .Where(c => Matches(c, search) || Matches(c.Translate(culture, false), search))
+                .Select(c => c.Translate(culture, true))
+                .AsQueryable()
+                .ToResultSet(options);
+        }
+        var result = await _dbContext.Categories.AsNoTracking().Select(ToModel).ToResultSetAsync(options);
         for (var i = 0; i < result.Items.Length; i++) {
-            result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            result.Items[i] = result.Items[i].Translate(culture, true);
         }
         return result;
     }
@@ -72,6 +77,10 @@ internal class CategoryService : ICategoryService
         await _dbContext.SaveChangesAsync();
         return true;
     }
+
+    private static bool Matches(Category category, string search) =>
+        (category.Name?.Contains(search, StringComparison.CurrentCultureIgnoreCase) ?? false) ||
+        (category.Description?.Contains(search, StringComparison.CurrentCultureIgnoreCase) ?? false);
 
     private static void Map(CategoryRequest request, DbCategory entity) {
         entity.Name = request.Name;

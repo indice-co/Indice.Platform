@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EMPTY, catchError } from 'rxjs';
+import { EMPTY, catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { CasesApiService, Category } from 'src/app/core/services/cases-api.service';
 import { CaseTypeFormState, CaseTypeGeneralModel } from './case-type-form.state';
 
@@ -69,8 +69,23 @@ export class CaseTypeGeneralComponent implements OnInit {
   protected readonly categories = signal<Category[]>([]);
 
   public ngOnInit(): void {
-    this._api.getCategoriesList(1, 1000, 'order').pipe(catchError(() => EMPTY))
-      .subscribe(result => this.categories.set(result.items ?? []));
+    const pageSize = 1000;
+    this._api.getCategoriesList(1, pageSize, 'order').pipe(
+      switchMap(result => {
+        const items = result.items ?? [];
+        const pageCount = Math.ceil((result.count ?? items.length) / pageSize);
+        if (pageCount <= 1) {
+          return of(items);
+        }
+        return forkJoin(Array.from(
+          { length: pageCount - 1 },
+          (_, index) => this._api.getCategoriesList(index + 2, pageSize, 'order')
+        )).pipe(
+          map(pages => [...items, ...pages.flatMap(page => page.items ?? [])])
+        );
+      }),
+      catchError(() => EMPTY)
+    ).subscribe(items => this.categories.set(items));
   }
 
   protected set<K extends keyof CaseTypeGeneralModel>(key: K, value: CaseTypeGeneralModel[K]): void {
