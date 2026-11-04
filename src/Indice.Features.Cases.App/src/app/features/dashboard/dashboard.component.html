@@ -3,7 +3,7 @@
     {{ greetingKey | translate: { name: firstName() } }}
   </h1>
   <p class="mt-1 text-sm text-base-content/70">
-    {{ 'dashboard.subtitle' | translate }}
+    <span class="first-letter:uppercase inline-block">{{ today() }}</span>. {{ 'dashboard.subtitle' | translate }}
   </p>
 </header>
 
