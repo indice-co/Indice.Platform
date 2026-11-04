@@ -1539,4 +1539,67 @@
   <data name="caseGroup.saved" xml:space="preserve">
     <value>Ο φάκελος ενημερώθηκε.</value>
   </data>
+  <data name="nav.categories" xml:space="preserve">
+    <value>Κατηγορίες</value>
+  </data>
+  <data name="breadcrumb.categories" xml:space="preserve">
+    <value>Κατηγορίες</value>
+  </data>
+  <data name="breadcrumb.createCategory" xml:space="preserve">
+    <value>Δημιουργία</value>
+  </data>
+  <data name="breadcrumb.editCategory" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="categories.title" xml:space="preserve">
+    <value>Κατηγορίες</value>
+  </data>
+  <data name="categories.subtitle" xml:space="preserve">
+    <value>Ομάδες για την οργάνωση των τύπων υποθέσεων.</value>
+  </data>
+  <data name="categories.create.title" xml:space="preserve">
+    <value>Νέα Κατηγορία</value>
+  </data>
+  <data name="categories.edit.title" xml:space="preserve">
+    <value>Επεξεργασία Κατηγορίας</value>
+  </data>
+  <data name="categories.delete.title" xml:space="preserve">
+    <value>Διαγραφή Κατηγορίας</value>
+  </data>
+  <data name="categories.delete.confirmName" xml:space="preserve">
+    <value>Διαγραφή της κατηγορίας {{name}}; Η ενέργεια δεν αναιρείται.</value>
+  </data>
+  <data name="categories.column.name" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="categories.column.description" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="categories.column.order" xml:space="preserve">
+    <value>Σειρά</value>
+  </data>
+  <data name="categories.column.actions" xml:space="preserve">
+    <value>Ενέργειες</value>
+  </data>
+  <data name="categories.empty.title" xml:space="preserve">
+    <value>Δεν βρέθηκαν κατηγορίες</value>
+  </data>
+  <data name="categories.empty.message" xml:space="preserve">
+    <value>Δοκιμάστε άλλον όρο αναζήτησης ή δημιουργήστε νέα κατηγορία.</value>
+  </data>
+  <data name="toasts.categorySaved.body" xml:space="preserve">
+    <value>Η κατηγορία αποθηκεύτηκε.</value>
+  </data>
+  <data name="toasts.categoryDeleted.body" xml:space="preserve">
+    <value>Η κατηγορία διαγράφηκε.</value>
+  </data>
+  <data name="caseTypes.column.category" xml:space="preserve">
+    <value>Κατηγορία</value>
+  </data>
+  <data name="caseTypes.form.category" xml:space="preserve">
+    <value>Κατηγορία</value>
+  </data>
+  <data name="caseTypes.form.noCategory" xml:space="preserve">
+    <value>Χωρίς κατηγορία</value>
+  </data>
 </root>

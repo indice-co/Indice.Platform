@@ -1,5 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { EMPTY, catchError } from 'rxjs';
+import { CasesApiService, Category } from 'src/app/core/services/cases-api.service';
 import { CaseTypeFormState, CaseTypeGeneralModel } from './case-type-form.state';
 
 /** First part of the case type form: code, title, ordering, tags, who can create it and whether it gets a menu entry. */
@@ -27,6 +29,15 @@ import { CaseTypeFormState, CaseTypeGeneralModel } from './case-type-form.state'
           <input class="input w-full" type="number" [value]="general.order" (input)="set('order', value($event))" />
         </label>
         <label class="w-full">
+          <span class="label mb-1">{{ 'caseTypes.form.category' | translate }}</span>
+          <select class="select w-full" [value]="general.categoryId" (change)="set('categoryId', value($event))">
+            <option value="">{{ 'caseTypes.form.noCategory' | translate }}</option>
+            @for (category of categories(); track category.id) {
+              <option [value]="category.id" [selected]="category.id === general.categoryId">{{ category.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="w-full">
           <span class="label mb-1">{{ 'caseTypes.form.description' | translate }}</span>
           <input class="input w-full" type="text"
             [placeholder]="'caseTypes.form.descriptionPlaceholder' | translate" [value]="general.description" (input)="set('description', value($event))" />
@@ -50,8 +61,17 @@ import { CaseTypeFormState, CaseTypeGeneralModel } from './case-type-form.state'
     </section>
   `
 })
-export class CaseTypeGeneralComponent {
+export class CaseTypeGeneralComponent implements OnInit {
+  private readonly _api = inject(CasesApiService);
+
   public readonly state = input.required<CaseTypeFormState>();
+
+  protected readonly categories = signal<Category[]>([]);
+
+  public ngOnInit(): void {
+    this._api.getCategoriesList(1, 1000, 'order').pipe(catchError(() => EMPTY))
+      .subscribe(result => this.categories.set(result.items ?? []));
+  }
 
   protected set<K extends keyof CaseTypeGeneralModel>(key: K, value: CaseTypeGeneralModel[K]): void {
     this.state().setGeneral(key, value);

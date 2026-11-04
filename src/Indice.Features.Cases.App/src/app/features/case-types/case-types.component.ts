@@ -31,6 +31,7 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
           <tr>
             <th>{{ 'caseTypes.column.title' | translate }}</th>
             <th>{{ 'caseTypes.column.code' | translate }}</th>
+            <th>{{ 'caseTypes.column.category' | translate }}</th>
             <th>{{ 'caseTypes.column.tags' | translate }}</th>
             <th class="text-center">{{ 'caseTypes.column.menuItem' | translate }}</th>
             <th class="w-24 text-right"><span class="sr-only">{{ 'caseTypes.column.actions' | translate }}</span></th>
@@ -41,6 +42,7 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
             @for (row of [1, 2, 3, 4]; track row) {
               <tr>
                 <td><div class="skeleton h-4 w-40"></div></td>
+                <td><div class="skeleton h-4 w-24"></div></td>
                 <td><div class="skeleton h-4 w-24"></div></td>
                 <td><div class="skeleton h-4 w-20"></div></td>
                 <td></td>
@@ -57,6 +59,13 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
                   }
                 </td>
                 <td><span class="font-mono text-xs">{{ item.code }}</span></td>
+                <td>
+                  @if (item.category) {
+                    <span class="badge badge-outline badge-sm">{{ item.category.name }}</span>
+                  } @else {
+                    <span class="text-base-content/40">&mdash;</span>
+                  }
+                </td>
                 <td>
                   <div class="flex flex-wrap gap-1">
                     @for (tag of tags(item); track tag) {
@@ -86,7 +95,7 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
               </tr>
             } @empty {
               <tr>
-                <td colspan="5">
+                <td colspan="6">
                   <app-empty-state [title]="'caseTypes.empty.title' | translate" [message]="'caseTypes.empty.message' | translate">
                     <svg icon lucideShapes class="size-5"></svg>
                     <a actions routerLink="/case-types/create" class="btn btn-primary btn-sm">{{ 'caseTypes.create.title' | translate }}</a>
