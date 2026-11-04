@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -59,7 +59,7 @@ import { CampaignEditStore } from './campaign-edit-store.service';
       </div>
     </app-page-header>
 
-    <app-route-tabs class="mb-6" [tabs]="tabs" />
+    <app-route-tabs class="mb-6" [tabs]="tabs()" />
     <router-outlet />
   `
 })
@@ -75,12 +75,19 @@ export class CampaignEditComponent {
   public readonly campaignId = input.required<string>();
 
   protected readonly busy = signal(false);
-  protected readonly tabs: RouteTab[] = [
-    { label: 'Campaigns.BasicInformationNav', link: 'campaign-details', icon: LucideInfo },
-    { label: 'Campaigns.ContentNav', link: 'campaign-content', icon: LucideCode },
-    { label: 'Campaigns.ReportsNav', link: 'campaign-reports', icon: LucideChartPie },
-    { label: 'Campaigns.RecipientsNav', link: 'campaign-messages', icon: LucideUsers }
-  ];
+  protected readonly tabs = computed<RouteTab[]>(() => {
+    const tabs: RouteTab[] = [
+      { label: 'Campaigns.BasicInformationNav', link: 'campaign-details', icon: LucideInfo },
+      { label: 'Campaigns.ContentNav', link: 'campaign-content', icon: LucideCode }
+    ];
+    if (this.store.campaign()?.published) {
+      tabs.push(
+        { label: 'Campaigns.ReportsNav', link: 'campaign-reports', icon: LucideChartPie },
+        { label: 'Campaigns.RecipientsNav', link: 'campaign-messages', icon: LucideUsers }
+      );
+    }
+    return tabs;
+  });
 
   constructor() {
     effect(() => {
