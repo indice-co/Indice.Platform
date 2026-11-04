@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { EMPTY, catchError, filter, switchMap, take } from 'rxjs';
 import { LucideCheck, LucideMinus, LucidePencil, LucidePlus, LucideShapes, LucideTrash } from '@lucide/angular';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
@@ -114,12 +115,15 @@ export class CaseTypesComponent implements OnInit {
   private readonly _caseTypeService = inject(CaseTypeService);
   private readonly _dialog = inject(DialogService);
   private readonly _toaster = inject(TranslatedToasterService);
+  private readonly _translate = inject(TranslateService);
+  private readonly _destroyRef = inject(DestroyRef);
 
   protected readonly items = signal<CaseTypePartial[]>([]);
   protected readonly loading = signal(true);
 
   public ngOnInit(): void {
     this.load();
+    this._translate.onLangChange.pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => this.load());
   }
 
   protected tags(item: CaseTypePartial): string[] {

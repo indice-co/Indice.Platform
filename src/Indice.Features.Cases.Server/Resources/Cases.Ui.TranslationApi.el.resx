@@ -1602,4 +1602,10 @@
   <data name="caseTypes.form.noCategory" xml:space="preserve">
     <value>Χωρίς κατηγορία</value>
   </data>
+  <data name="categories.translations.heading" xml:space="preserve">
+    <value>Μεταφράσεις</value>
+  </data>
+  <data name="categories.translations.hint" xml:space="preserve">
+    <value>Το όνομα και η περιγραφή ανά γλώσσα. Αφήστε κενά για να χρησιμοποιηθούν οι παραπάνω τιμές.</value>
+  </data>
 </root>

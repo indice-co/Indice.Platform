@@ -1602,4 +1602,10 @@
   <data name="caseTypes.form.noCategory" xml:space="preserve">
     <value>No category</value>
   </data>
+  <data name="categories.translations.heading" xml:space="preserve">
+    <value>Translations</value>
+  </data>
+  <data name="categories.translations.hint" xml:space="preserve">
+    <value>The name and description shown per language. Leave empty to use the values above.</value>
+  </data>
 </root>

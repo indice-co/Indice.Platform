@@ -76,12 +76,15 @@ export class NavService {
       .pipe(
         filter(user => !!user),
         take(1),
-        switchMap(() => this._caseTypes.getCaseTypeMenuItems())
+        switchMap(() => {
+          this._isAdmin.set(this._auth.isAdmin());
+          this._canSeeNotifications.set(this._auth.isAdmin() || this._auth.hasRole('CasesManager') || this._auth.hasRole('CasesAdministrator'));
+          return this._caseTypes.getCaseTypeMenuItems();
+        })
       )
-      .subscribe(items => {
-        this._menuCaseTypes.set(items.filter(i => !!i.title).map(i => ({ title: i.title!, code: i.code! })));
-        this._isAdmin.set(this._auth.isAdmin());
-        this._canSeeNotifications.set(this._auth.isAdmin() || this._auth.hasRole('CasesManager') || this._auth.hasRole('CasesAdministrator'));
+      .subscribe({
+        next: items => this._menuCaseTypes.set(items.filter(i => !!i.title).map(i => ({ title: i.title!, code: i.code! }))),
+        error: () => this._menuCaseTypes.set([])
       });
   }
 }
