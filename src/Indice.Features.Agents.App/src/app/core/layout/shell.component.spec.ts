@@ -14,15 +14,15 @@ const SESSIONS = [
 
 const signedInUser = {
   expired: false,
-  profile: { sub: 'sub-1', name: 'Krikor Tzevachirian', email: 'k@indice.gr' },
+  profile: { sub: 'sub-1', name: 'Test User', email: 'test.user@example.com' },
 };
 
 const authStub = {
   user$: of(signedInUser),
   getCurrentUser: () => signedInUser,
   getAuthorizationHeaderValue: () => 'Bearer user',
-  getDisplayName: () => 'Krikor Tzevachirian',
-  getEmail: () => 'k@indice.gr',
+  getDisplayName: () => 'Test User',
+  getEmail: () => 'test.user@example.com',
   getSubjectId: () => 'sub-1',
   signinRedirect: () => undefined,
   signoutRedirect: () => undefined,
@@ -68,7 +68,7 @@ describe('ShellComponent', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).not.toContain("You're chatting as a guest");
     expect(el.querySelectorAll('a[href="/profile"]').length).withContext('both rails').toBe(2);
-    expect(el.textContent).toContain('Krikor Tzevachirian');
+    expect(el.textContent).toContain('Test User');
   });
 
   it('collapse toggle switches the rail width and remembers it', async () => {

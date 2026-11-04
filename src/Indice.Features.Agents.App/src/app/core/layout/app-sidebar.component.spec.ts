@@ -15,15 +15,15 @@ const SESSIONS = [
 
 const signedInUser = {
   expired: false,
-  profile: { sub: 'sub-1', name: 'Krikor Tzevachirian', email: 'k@indice.gr' },
+  profile: { sub: 'sub-1', name: 'Test User', email: 'test.user@example.com' },
 };
 
 const authStub = {
   user$: of(signedInUser),
   getCurrentUser: () => signedInUser,
   getAuthorizationHeaderValue: () => 'Bearer user',
-  getDisplayName: () => 'Krikor Tzevachirian',
-  getEmail: () => 'k@indice.gr',
+  getDisplayName: () => 'Test User',
+  getEmail: () => 'test.user@example.com',
   getSubjectId: () => 'sub-1',
   signinRedirect: () => undefined,
   signoutRedirect: () => undefined,
@@ -127,8 +127,8 @@ describe('AppSidebarComponent', () => {
 
   it('account popover opens upward and offers Profile and Sign out', () => {
     const account = (fixture.nativeElement as HTMLElement).querySelector('app-sidebar-account')!;
-    expect(account.textContent).toContain('Krikor Tzevachirian');
-    expect(account.textContent).toContain('k@indice.gr');
+    expect(account.textContent).toContain('Test User');
+    expect(account.textContent).toContain('test.user@example.com');
     expect(account.querySelector('a[href="/profile"]')).withContext('profile link').toBeTruthy();
     expect(account.textContent).toContain('Sign out');
     expect(account.querySelector('.dropdown-top')).withContext('opens upward').toBeTruthy();
