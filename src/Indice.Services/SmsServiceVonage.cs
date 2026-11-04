@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
@@ -145,14 +146,19 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
         }
 
         var messageId = FirstNonEmpty(parameters, "messageId", "message-id", "network-message-id");
-        var recipient = FirstNonEmpty(parameters, "msisdn", "to");
+        var status = FirstNonEmpty(parameters, "status");
+        var isDeliveryReport = !string.IsNullOrWhiteSpace(status);
+        var recipient = isDeliveryReport
+            ? FirstNonEmpty(parameters, "msisdn", "to")
+            : FirstNonEmpty(parameters, "to");
 
         if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(recipient)) {
-            return WebhookHttpResult.BadRequest("Vonage webhook requires 'messageId' (or 'message-id') and recipient ('msisdn' or 'to').");
+            return WebhookHttpResult.BadRequest("Vonage webhook requires a message identifier and a recipient.");
         }
 
-        var sender = FirstNonEmpty(parameters, "from", "to");
-        var status = FirstNonEmpty(parameters, "status");
+        var sender = isDeliveryReport
+            ? FirstNonEmpty(parameters, "from", "to")
+            : FirstNonEmpty(parameters, "msisdn", "from");
         var text = FirstNonEmpty(parameters, "text");
         var type = FirstNonEmpty(parameters, "type");
 
@@ -215,10 +221,8 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
                 return parameters;
             }
 
-            foreach (var item in json) {
-                if (item.Value is not null) {
-                    parameters.TryAdd(item.Key, item.Value.ToString());
-                }
+            foreach (var item in json.Where(item => item.Value is not null)) {
+                parameters.TryAdd(item.Key, item.Value!.ToString());
             }
         } catch (JsonException) {
             // Ignore malformed/non-JSON body and fallback to query parameters only.
@@ -270,7 +274,8 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
         }
 
         var unixTimestamp = FirstNonEmpty(parameters, "timestamp");
-        if (!string.IsNullOrWhiteSpace(unixTimestamp) && long.TryParse(unixTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch)) {
+        if (!string.IsNullOrWhiteSpace(unixTimestamp) && long.TryParse(unixTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) &&
+            epoch >= DateTimeOffset.MinValue.ToUnixTimeSeconds() && epoch <= DateTimeOffset.MaxValue.ToUnixTimeSeconds()) {
             return DateTimeOffset.FromUnixTimeSeconds(epoch);
         }
 
