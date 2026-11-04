@@ -47,6 +47,7 @@ export class CaseTypeUpdateService {
     return {
       title: event.title,
       order: event.order,
+      categoryId: event.categoryId,
       description: event.description,
       code: event.code,
       dataSchema: parse(event.dataSchema),

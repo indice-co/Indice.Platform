@@ -7,6 +7,7 @@ export interface CaseTypeGeneralModel {
   code: string;
   title: string;
   order: string;
+  categoryId: string;
   description: string;
   tags: string;
   canCreateRoles: string;
@@ -101,6 +102,7 @@ export class CaseTypeFormState {
       code: general.code.trim(),
       title: general.title.trim(),
       order: general.order === '' ? undefined : +general.order,
+      categoryId: general.categoryId || undefined,
       description: general.description || undefined,
       tags: general.tags || undefined,
       canCreateRoles: general.canCreateRoles || undefined,
@@ -156,6 +158,7 @@ function toGeneral(data: ICaseTypeRequest | CaseType | undefined): CaseTypeGener
     code: data?.code ?? '',
     title: data?.title ?? '',
     order: data?.order === undefined || data?.order === null ? '' : `${data.order}`,
+    categoryId: data?.categoryId ?? '',
     description: data?.description ?? '',
     tags: data?.tags ?? '',
     canCreateRoles: Array.isArray(roles) ? roles.join(',') : roles ?? '',
