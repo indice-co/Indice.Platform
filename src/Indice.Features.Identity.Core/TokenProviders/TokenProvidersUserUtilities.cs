@@ -17,18 +17,20 @@ internal static class TokenProvidersUserUtilities
         ArgumentNullException.ThrowIfNull(userManager);
         ArgumentNullException.ThrowIfNull(user);
         var securityToken = await userManager.CreateSecurityTokenAsync(user).ConfigureAwait(false);
-        if (!string.Equals(purpose, "TwoFactor", StringComparison.Ordinal)) {
-            return securityToken;
-        }
-        if (user.LastSignInDate == null) {
-            return securityToken;
-        }
-        var timeStamp = Encoding.UTF8.GetBytes(user.LastSignInDate.Value.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture));
-        byte[] token = new byte[securityToken.Length + timeStamp.Length];
-
-        Buffer.BlockCopy(securityToken, 0, token, 0, securityToken.Length);
-        Buffer.BlockCopy(timeStamp, 0, token, securityToken.Length, timeStamp.Length);
-        return token;
+        // if (!string.Equals(purpose, "TwoFactor", StringComparison.Ordinal)) {
+        //     return securityToken;
+        // }
+        // if (user.LastSignInDate == null) {
+        //     return securityToken;
+        // }
+        // var timeStamp = Encoding.UTF8.GetBytes(user.LastSignInDate.Value.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture));
+        // byte[] token = new byte[securityToken.Length + timeStamp.Length];
+        //
+        // Buffer.BlockCopy(securityToken, 0, token, 0, securityToken.Length);
+        // Buffer.BlockCopy(timeStamp, 0, token, securityToken.Length, timeStamp.Length);
+        // The above needs to be redone in a more proper way since it broke some flows where the sign in date would be updated thus changing the security token when verification of the otp would happen (trusted device approve flow).
+        // Using the above keeps the same behavior as before commit 396e28cba726140ccf56a3c5ec88ab16b0695cc6
+        return securityToken;
     }
 
 }
