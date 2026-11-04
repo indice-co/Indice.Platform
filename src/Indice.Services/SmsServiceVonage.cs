@@ -139,7 +139,7 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
         Stream requestBody,
         CancellationToken cancellationToken) {
-        var parameters = await BuildParametersAsync(requestParameters, requestBody, cancellationToken);
+        var parameters = await BuildParametersAsync(requestHeaders, requestParameters, requestBody, cancellationToken);
 
         if (IsBasicAuthenticationInvalid(requestHeaders)) {
             return WebhookHttpResult.UnauthorizedRequest("Invalid basic authentication.");
@@ -197,6 +197,7 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
     }
 
     private static async Task<Dictionary<string, string>> BuildParametersAsync(
+        IDictionary<string, StringValues> requestHeaders,
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
         Stream requestBody,
         CancellationToken cancellationToken) {
@@ -209,9 +210,24 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
             return parameters;
         }
 
+        if (requestBody.CanSeek) {
+            requestBody.Position = 0;
+        }
+
         using var reader = new StreamReader(requestBody, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
         var body = await reader.ReadToEndAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(body)) {
+            return parameters;
+        }
+
+        var contentType = requestHeaders.TryGetValue("Content-Type", out var contentTypeValues)
+            ? contentTypeValues.ToString()
+            : string.Empty;
+
+        if (IsFormUrlEncoded(contentType)) {
+            foreach (var pair in ParseFormUrlEncoded(body)) {
+                parameters.TryAdd(pair.Key, pair.Value);
+            }
             return parameters;
         }
 
@@ -229,6 +245,24 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
         }
 
         return parameters;
+    }
+
+    private static bool IsFormUrlEncoded(string? contentType) {
+        return !string.IsNullOrWhiteSpace(contentType) &&
+               contentType.IndexOf(MediaTypeNames.Application.FormUrlEncoded, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static IEnumerable<KeyValuePair<string, string>> ParseFormUrlEncoded(string body) {
+        foreach (var segment in body.Split('&', StringSplitOptions.RemoveEmptyEntries)) {
+            var separatorIndex = segment.IndexOf('=');
+            var encodedKey = separatorIndex >= 0 ? segment[..separatorIndex] : segment;
+            var encodedValue = separatorIndex >= 0 ? segment[(separatorIndex + 1)..] : string.Empty;
+            var key = Uri.UnescapeDataString(encodedKey.Replace('+', ' '));
+            var value = Uri.UnescapeDataString(encodedValue.Replace('+', ' '));
+            if (!string.IsNullOrWhiteSpace(key)) {
+                yield return new KeyValuePair<string, string>(key, value);
+            }
+        }
     }
 
     private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
