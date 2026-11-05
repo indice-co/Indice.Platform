@@ -66,6 +66,8 @@ public sealed class WebhookHttpResult
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a bad request with the specified error messages.</summary>
     public static WebhookHttpResult BadRequest(params string[] errors) => FromError(400, errors);
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a successful request with the specified events.</summary>
+    public static WebhookHttpResult Ok(List<WebhookEvent> events) => Ok(events, 204);
+    /// <summary>Creates a successful result with the specified events, HTTP status code, and optional response payload.</summary>
     public static WebhookHttpResult Ok(List<WebhookEvent> events, int statusCode, object? successPayload = null) {
         var result = new WebhookHttpResult(events) {
             Status = statusCode,
