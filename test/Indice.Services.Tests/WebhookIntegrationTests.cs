@@ -112,6 +112,61 @@ public sealed class WebhookIntegrationTests
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
+    [Fact]
+    public async Task KapaTELWebhook_WithWebhooksEnabled_AndBasicAuth() {
+        const string webhookUsername = "kapatel-user";
+        const string webhookPassword = "kapatel-pass";
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Webhooks:Enabled"] = true.ToString(),
+                ["Webhooks:ChannelCapacity"] = "100",
+                ["Sms:Provider"] = "kapatel",
+                ["Sms:WebhookUsername"] = webhookUsername,
+                ["Sms:WebhookPassword"] = webhookPassword
+            })
+            .Build();
+
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webHost => {
+                webHost.UseTestServer();
+                webHost.ConfigureServices(services => {
+                    services.AddRouting();
+                    services.AddSmsService(configuration);
+                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
+                });
+                webHost.Configure(app => {
+                    app.UseRouting();
+
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapWebhooks();
+                    });
+                });
+            })
+            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        var services = host.Services;
+
+        Assert.NotNull(
+            services.GetRequiredService<Channel<List<WebhookEvent>>>());
+
+        Assert.NotNull(
+            services.GetRequiredKeyedService<IWebhookHttpHandler>("kapatel"));
+
+        Assert.Contains(
+            services.GetServices<IHostedService>(),
+            service => service.GetType() == typeof(WebhookEventSink));
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "/webhooks/kapatel?id=3f8df07f349ea6c2dbeb5d90cc4de275&foreign_id=KAPATEL3&notification_status=1&notification_datetime_stamp=2024-11-21%2010:13:21&msisdn=306900000000");
+        var authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{webhookUsername}:{webhookPassword}"));
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authToken);
+
+        using var response = await host.GetTestClient().SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
     private static HttpRequestMessage GetValidApifonPayload(string webhookSecret) {
         var timestamp = DateTimeOffset.UtcNow.ToString("O");
         var reference = Guid.NewGuid().ToString("N");

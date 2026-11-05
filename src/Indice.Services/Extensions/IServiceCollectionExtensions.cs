@@ -587,6 +587,11 @@ public static class IndiceServicesServiceCollectionExtensions
                 services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
                 services.AddWebhookServices<THandler, YubotoWebhookHttpHandler>(configuration, provider);
                 break;
+            case "kapatel":
+            case "KapaTEL":
+                services.Configure<SmsServiceKapaTELSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, KapaTELWebhookHttpHandler>(configuration, provider);
+                break;
         }
         return services;
     }

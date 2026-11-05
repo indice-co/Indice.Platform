@@ -1,10 +1,15 @@
-﻿using System.Reflection;
+﻿using System.Net.Http.Headers;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Indice.Globalization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -63,6 +68,9 @@ public class SmsServiceKapaTEL : ISmsService
         param.Add("text", body);
         param.Add("to", string.Join(',', recipients));
         param.Add("format", "json");
+        if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl)) {
+            param.Add("dlr_url", Settings.WebhookUrl);
+        }
         var requestUri = new Uri(QueryHelpers.AddQueryString(HttpClient.BaseAddress!.ToString(), param));
         try {
             Logger.LogInformation("The request Uri sent to KapaTEL: {requestUri}", requestUri);
@@ -110,6 +118,12 @@ public class SmsServiceKapaTELSettings
     public string Encoding { get; set; } = "utf8";
     /// <summary>Alphanumeric Sender ID from where to send the message (max 11 characters.Allowed characters are Latin alphabet and characters “dot”, “space”, “hyphen”).</summary>
     public string? From { get; set; }
+    /// <summary>The URL to receive delivery notifications (DLR).</summary>
+    public string? WebhookUrl { get; set; }
+    /// <summary>Optional webhook basic auth username for validating incoming DLR callbacks.</summary>
+    public string? WebhookUsername { get; set; }
+    /// <summary>Optional webhook basic auth password for validating incoming DLR callbacks.</summary>
+    public string? WebhookPassword { get; set; }
 }
 
 internal class KapaTELResponse
@@ -139,5 +153,154 @@ internal class KapaTELResponse
 
         [JsonPropertyName("error_message")]
         public string? ErrorMessage { get; set; }
+    }
+}
+
+/// <inheritdoc/>
+public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
+    private readonly SmsServiceKapaTELSettings _settings;
+
+    /// <inheritdoc/>
+    public KapaTELWebhookHttpHandler(IOptionsSnapshot<SmsServiceKapaTELSettings> settings) {
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        if (IsBasicAuthenticationInvalid(requestHeaders)) {
+            return WebhookHttpResult.UnauthorizedRequest("Invalid KapaTEL webhook basic authentication.");
+        }
+
+        var parameters = requestParameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Value, StringComparer.OrdinalIgnoreCase);
+        var messageId =
+            parameters.GetValueOrDefault("id").ToString() ??
+            parameters.GetValueOrDefault("remote_transaction_id").ToString() ??
+            parameters.GetValueOrDefault("message_id").ToString();
+        if (string.IsNullOrWhiteSpace(messageId)) {
+            return WebhookHttpResult.BadRequest("KapaTEL webhook requires one of 'id', 'remote_transaction_id' or 'message_id' query parameters.");
+        }
+
+        var foreignId = parameters.GetValueOrDefault("foreign_id").ToString();
+        var recipient =
+            parameters.GetValueOrDefault("msisdn").ToString() ??
+            parameters.GetValueOrDefault("receiver").ToString() ??
+            parameters.GetValueOrDefault("to").ToString() ??
+            parameters.GetValueOrDefault("phone").ToString();
+        if (string.IsNullOrWhiteSpace(recipient)) {
+            recipient = foreignId;
+        }
+
+        var sender =
+            parameters.GetValueOrDefault("from").ToString() ??
+            parameters.GetValueOrDefault("sender").ToString();
+
+        var notificationStatus =
+            parameters.GetValueOrDefault("notification_status").ToString() ??
+            parameters.GetValueOrDefault("status").ToString();
+
+        var notificationTimestamp =
+            parameters.GetValueOrDefault("notification_datetime_stamp").ToString() ??
+            parameters.GetValueOrDefault("dlrDate").ToString();
+
+        var timestamp = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrWhiteSpace(notificationTimestamp) && !DateTimeOffset.TryParse(notificationTimestamp, out timestamp)) {
+            return WebhookHttpResult.BadRequest("Invalid notification timestamp in KapaTEL webhook payload.");
+        }
+
+        var payload = new JsonObject();
+        foreach (var parameter in parameters) {
+            payload[parameter.Key] = parameter.Value.ToString();
+        }
+
+        var eventType = GetEventType(notificationStatus);
+        var eventId = !string.IsNullOrWhiteSpace(notificationStatus) ? $"{messageId}:{notificationStatus}:{timestamp:O}" : $"{messageId}:{timestamp:O}";
+        var incomingEvents = new List<WebhookEvent> {
+            new() {
+                Provider = "KapaTEL",
+                EventType = eventType,
+                EventId = eventId,
+                MessageId = messageId,
+                Recipient = recipient ?? string.Empty,
+                Subject = sender,
+                Timestamp = timestamp,
+                Payload = payload
+            }
+        };
+
+        await Task.CompletedTask;
+        return WebhookHttpResult.Ok(incomingEvents);
+    }
+
+    private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
+        var hasConfiguredWebhookCredentials = !string.IsNullOrWhiteSpace(_settings.WebhookUsername) || !string.IsNullOrWhiteSpace(_settings.WebhookPassword);
+        if (!hasConfiguredWebhookCredentials) {
+            return true;
+        }
+        if (string.IsNullOrWhiteSpace(_settings.WebhookUsername) || string.IsNullOrWhiteSpace(_settings.WebhookPassword)) {
+            return true;
+        }
+
+        if (!TryGetHeaderValue(requestHeaders, "Authorization", out var authorizationHeader) ||
+            !AuthenticationHeaderValue.TryParse(authorizationHeader, out var authorization) ||
+            !"Basic".Equals(authorization.Scheme, StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(authorization.Parameter)) {
+            return true;
+        }
+
+        string decodedCredentials;
+        try {
+            decodedCredentials = Encoding.UTF8.GetString(Convert.FromBase64String(authorization.Parameter));
+        } catch (FormatException) {
+            return true;
+        } catch (ArgumentException) {
+            return true;
+        }
+
+        var separatorIndex = decodedCredentials.IndexOf(':');
+        if (separatorIndex <= 0 || separatorIndex == decodedCredentials.Length - 1) {
+            return true;
+        }
+
+        var username = decodedCredentials[..separatorIndex];
+        var password = decodedCredentials[(separatorIndex + 1)..];
+
+        return !AreEqualConstantTime(username, _settings.WebhookUsername) ||
+               !AreEqualConstantTime(password, _settings.WebhookPassword);
+    }
+
+    private static bool TryGetHeaderValue(IDictionary<string, StringValues> headers, string key, out string value) {
+        value = string.Empty;
+        foreach (var header in headers) {
+            if (string.Equals(header.Key, key, StringComparison.OrdinalIgnoreCase)) {
+                value = header.Value.ToString();
+                return !string.IsNullOrWhiteSpace(value);
+            }
+        }
+        return false;
+    }
+
+    private static bool AreEqualConstantTime(string left, string? right) {
+        if (right is null) {
+            return false;
+        }
+
+        var leftBytes = Encoding.UTF8.GetBytes(left);
+        var rightBytes = Encoding.UTF8.GetBytes(right);
+        return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+    }
+
+    private static string GetEventType(string? notificationStatus) {
+        return notificationStatus switch {
+            "1" => "DeliveredToPhone",
+            "2" => "NonDeliveredToPhone",
+            "8" => "DeliveredToSMSC",
+            "16" => "NonDeliveredToSMSC",
+            _ when !string.IsNullOrWhiteSpace(notificationStatus) => $"Status:{notificationStatus}",
+            _ => "SmsDelivery"
+        };
     }
 }
