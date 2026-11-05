@@ -398,13 +398,22 @@ builder.Services.AddRiskEngine(options => {
 ### ✍️ Writing a rule
 
 ```csharp
-public class LargeTransferRule(IOptionsSnapshot<LargeTransferRuleOptions> options, IRiskEventStore events)
-    : RiskRule("LargeTransfer")
+public class LargeTransferRule : RiskRule
 {
+    private readonly LargeTransferRuleOptions _options;
+    private readonly IRiskEventStore _events;
+
+    public LargeTransferRule(IOptionsSnapshot<LargeTransferRuleOptions> options, IRiskEventStore events)
+        : base("LargeTransfer") {
+        _options = options.Value;
+        _events = events;
+        Options = _options;   // without this the rule keeps the default Enabled = false and is skipped
+    }
+
     public override async ValueTask<RuleExecutionResult> ExecuteAsync(DbRiskEvent @event) {
-        var o = options.Value;
+        var o = _options;
         if (@event.Amount < o.Threshold) return RuleExecutionResult.NoRisk();
-        var recent = await events.GetList(@event.SubjectId, ["Transfer"], DateTime.UtcNow.AddHours(-24));
+        var recent = await _events.GetList(@event.SubjectId, ["Transfer"], DateTime.UtcNow.AddHours(-24));
         return recent.Count() >= o.MaxPerDay
             ? RuleExecutionResult.HighRisk($"{recent.Count()} large transfers in 24h.")
             : RuleExecutionResult.MediumRisk($"Transfer above {o.Threshold}.");

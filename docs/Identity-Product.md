@@ -65,7 +65,7 @@ Five grant types ship on top of the standard OIDC / OAuth2 flows; the same `IExt
 | Grant | `grant_type` | Purpose |
 |---|---|---|
 | TOTP | `totp` | Exchange an OTP for a token — step-up for a client that already holds the user's identity |
-| OTP authenticate | `mfa` | Complete a password sign-in with a one-time code |
+| OTP authenticate | `mfa` | Step up an already-valid access token (sent in `token`) with a session OTP — omit `otp` to have it sent, then repeat with `otp` |
 | Device authentication | `device_authentication` | A registered device signs in with its own secret (mobile apps, kiosks) |
 | Delegation | `delegation` | Act on behalf of a user, for back-office and service-to-service calls |
 | Guest | `urn:indice:guest` | Anonymous app installs get a token for the APIs open to guests (`AddGuestGrantValidator`) |
@@ -377,8 +377,11 @@ app.MapMultiFactorAuthenticationHub();    // /mfa SignalR hub
 
 ### 🔑 Sign-in
 
-- **Password grant** — `ExtendedResourceOwnerPasswordValidator` applies the same lockout, MFA and blocked-user rules as
-  the login page; the `mfa` grant completes it with an OTP.
+- **Password grant** — `ExtendedResourceOwnerPasswordValidator` applies lockout and blocked-user checks, but it does
+  **not** run the login page's MFA or onboarding pipeline, so a token can be issued without step-up authentication —
+  enforce MFA separately (e.g. require the `mfa` grant) where it matters. Its impossible-travel challenge is completed by
+  repeating the password grant with the returned `requestId` and the `otp`; the `mfa` grant is a separate, token-based
+  step-up that requires an already-valid access token.
 - **Authentication methods** — `AddAuthenticationMethods` registers the methods the UI offers; `Add<TMethod>()` adds your own.
 - **Push approval** — the MFA API (`MapMultiFactorAuthentication`) receives the device's answer and signals the waiting
   browser through the hub.

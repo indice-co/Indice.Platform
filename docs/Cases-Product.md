@@ -397,7 +397,9 @@ builder.AddCaseServer(options => {
 
 - **Reference numbers** give staff and customers something to say on the phone instead of a GUID.
 - **Group claim** ties a back-office user to a branch or team, which access rules and filters use.
-- **Upload limits** — size, extension allow-list and magic-byte checks on every attachment.
+- **Upload limits** — size, extension allow-list and magic-byte checks on back-office attachment uploads
+  (`POST {prefix}/manage/cases/{caseId}/attachments`). The customer route `POST {prefix}/my/cases/{caseId}/attachments` does
+  not apply the `LimitUpload` filter, so these options do not protect it — validate customer uploads separately.
 
 ### 🔀 Workflows
 

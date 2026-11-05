@@ -160,7 +160,7 @@ flowchart LR
 
 The `Published` gate is the control point — a campaign can be created and scheduled, but nothing is sent until it is
 published. A transactional message (e.g. an OTP) is a one-recipient, immediately-published campaign on this same
-pipeline — with `IgnoreUserPreferences` for a true system message, and a fast `202 Accepted` back to the caller.
+pipeline — with `IgnoreUserPreferences` for a true system message, and a fast `200 OK` with a `CreateCampaignResult` back to the caller.
 
 ### 🧭 Which channels a recipient gets
 
@@ -198,7 +198,7 @@ touching campaigns, templates or audiences. The two pillars below expand each.
 
 - **Swap providers by setting** — email, SMS / Viber and push vendors chosen in configuration.
 - **Regional channels** — Viber and local Greek SMS gateways alongside the global providers.
-- **Test mode** — staging runs the full send path without real SMS cost.
+- **No-op SMS** — `Sms:Provider = "none"` lets staging run the full send path without real SMS cost.
 - **Your data stays home** — contacts, messages and analytics live in your database; consent and preferences come
   from your identity server.
 
@@ -278,6 +278,7 @@ app.MapMessaging();
 // Worker host (Indice.Messaging.Workers/Program.cs)
 builder.AddMessageFunctions(options => {
     options.UseEventDispatcherAzure()
+           .UseFilesAzure()                             // same storage backend as the API host
            .UsePushNotificationServiceAzure()
            .UseEmailService(cfg).UseSmsService(cfg)     // providers picked by config
            .UseIdentityContactResolver(/* … */);
@@ -370,15 +371,15 @@ Per-channel provider selection and credentials. The pipeline calls an abstractio
   "SmtpHost": "…", "SmtpPort": 587, "UseSSL": true
 },
 "Sms": {
-  "Provider": "Yuboto",      // Yuboto · YubotoOmni · Apifon · Twilio · Vonage · SmsUp · KapaTEL · Mstat
-  "ApiKey": "…", "Sender": "MyBrand",
-  "TestMode": false          // wire the pipeline without spending on real sends
+  "Provider": "yuboto",      // yuboto · yuboto_omni · yuboto_viber · apifon · apifon_im · twilio · vonage · smsup · kapatel · mstat · none
+  "ApiKey": "…", "Sender": "MyBrand"
 },
 "PushNotifications": { "ConnectionString": "…", "NotificationHubPath": "…" }
 ```
 
 - **Swap vendors by config** — moving from SparkPost to SendGrid is one line, no code change.
-- **`TestMode`** lets staging exercise the full send path without real SMS cost.
+- **No-op SMS** — set `Sms:Provider` to `"none"` so staging exercises the full send path without real SMS cost.
+  `TestMode` is not a provider-independent safeguard (Yuboto Omni ignores it and sends real requests).
 
 ### 🔀 Event dispatch & workers
 
@@ -419,6 +420,19 @@ options.UseIdentityContactResolver(o => {
 
 ```jsonc
 "Analytics": { "Enabled": true }
+```
+
+```csharp
+// The "Analytics" section is not bound automatically — bind it explicitly in each host
+builder.Services.AddMessaging(options => {
+    cfg.GetSection("Analytics").Bind(options.AnalyticsOptions);
+});
+builder.AddMessageFunctions(options => {
+    cfg.GetSection("Analytics").Bind(options.CampaignStatisticOptions);
+});
+```
+
+```jsonc
 // Batching handled by the analytics hosted service (default ~10 events / 1s)
 // analytics/* endpoints are output-cached (~10 min)
 ```
