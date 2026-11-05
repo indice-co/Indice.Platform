@@ -680,12 +680,6 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
         var headers = requestHeaders.ToDictionary(h => h.Key, h => h.Value, StringComparer.OrdinalIgnoreCase);
         var headerName = string.IsNullOrWhiteSpace(_settings.WebhookApiKeyHeaderName) ? "X-API-Key" : _settings.WebhookApiKeyHeaderName;
         var provided = headers.GetValueOrDefault(headerName).ToString();
-        if (string.IsNullOrWhiteSpace(provided)) {
-            provided = headers.GetValueOrDefault("ApiKey").ToString();
-        }
-        if (string.IsNullOrWhiteSpace(provided)) {
-            provided = headers.GetValueOrDefault("API-KEY").ToString();
-        }
         return IsEqual(provided, _settings.WebhookSecret);
     }
 

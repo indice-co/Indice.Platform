@@ -68,7 +68,7 @@ public static class WebhooksEndpointExtensions
         return group;
     }
 
-    internal static async Task<IResult> HandleWebhook( 
+    internal static async Task<Results<ValidationProblem, NotFound, NoContent, Ok<object>, Ok>> HandleWebhook( 
         string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
         var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
         
@@ -79,7 +79,6 @@ public static class WebhooksEndpointExtensions
         var result = await httpHandler.ParseAsync(context.Request.Headers, context.Request.Query, context.Request.Body, cancellationToken);
         if (!result.Success) {
             return result.Status switch {
-                >= 200 and <= 204 => TypedResults.NoContent(),
                 >= 400 and <= 403 => TypedResults.ValidationProblem(
                     ValidationErrors.AddErrors(provider, result.Errors)),
                 _ => TypedResults.ValidationProblem(
@@ -90,16 +89,11 @@ public static class WebhooksEndpointExtensions
         if (result.Events.Any()) {
             await channel.Writer.WriteAsync(result.Events, cancellationToken);
         }
-
-        if (result.SuccessPayload is not null) {
-            return Results.Json(result.SuccessPayload, statusCode: result.Status);
-        }
-
+        
         return result.Status switch {
-            200 => TypedResults.Ok(),
             204 => TypedResults.NoContent(),
-            >= 200 and <= 299 => Results.StatusCode(result.Status),
-            _ => TypedResults.NoContent()
+            >= 200 and <= 299 when result.SuccessPayload is not null => TypedResults.Ok<object>(result.SuccessPayload),
+            _ => TypedResults.Ok()
         };
     }
 }
