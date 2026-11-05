@@ -183,7 +183,7 @@ public sealed class SmsServiceOmniMessaging : ISmsService
                 "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) ||
                 "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase),
             _ => false
-    };
+        };
 
     /// <summary>
     /// Gets the JSON serializer options used for Omni requests and responses.
@@ -692,7 +692,7 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
     private bool IsBasicAuthorized(IDictionary<string, StringValues> requestHeaders) {
         var hasUsername = !string.IsNullOrWhiteSpace(_settings.WebhookUsername);
         var hasPassword = !string.IsNullOrWhiteSpace(_settings.WebhookPassword);
-        bool incompleteCredentials = hasUsername != hasPassword;
+        var incompleteCredentials = hasUsername != hasPassword;
         if (incompleteCredentials) {
             return false;
         }
@@ -719,25 +719,15 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             return false;
         }
 
-        if (hasUsername && hasPassword) {
-            var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookUsername!));
-            var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookPassword!));
-            var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
-            var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
+        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookUsername!));
+        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookPassword!));
+        var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
+        var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
 
-            var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
-            var passwordMatches = CryptographicOperations.FixedTimeEquals(passwordHash, expectedPasswordHash);
+        var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
+        var passwordMatches = CryptographicOperations.FixedTimeEquals(passwordHash, expectedPasswordHash);
 
-            return usernameMatches & passwordMatches;
-        }
-
-        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
-            return false;
-        }
-
-        var expectedHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookSecret));
-        var providedHash = SHA256.HashData(credentials);
-        return CryptographicOperations.FixedTimeEquals(providedHash, expectedHash);
+        return usernameMatches & passwordMatches;
     }
 
     private static bool IsEqual(string? left, string? right) {
