@@ -193,7 +193,7 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
             }
         };
 
-        return WebhookHttpResult.Ok(incomingEvents);
+        return WebhookHttpResult.Ok(incomingEvents, 204);
     }
 
     private static async Task<Dictionary<string, string>> BuildParametersAsync(
