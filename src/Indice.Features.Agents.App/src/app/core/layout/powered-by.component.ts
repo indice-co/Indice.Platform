@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LucideHeart } from '@lucide/angular';
 
 import { settings } from '../models/settings';
 
@@ -6,18 +7,13 @@ import { settings } from '../models/settings';
 @Component({
   selector: 'app-powered-by',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideHeart],
   template: `
-    <div class="text-center text-[0.68rem] text-base-content/45">
-      Powered by
-      <a
-        href="https://www.indice.gr"
-        target="_blank"
-        rel="noopener"
-        class="font-medium text-base-content/60 hover:text-primary"
-      >Indice</a>
-      <span title="love" class="text-error"> ♥ </span>
-      <span class="font-mono">v{{ version }}</span>
-    </div>
+    <p class="flex items-center gap-1 px-3 text-xs opacity-55">
+      Powered by <a class="link link-hover" href="https://www.indice.gr" target="_blank" rel="noopener">Indice</a>
+      <svg lucideHeart class="size-3 fill-current text-error"></svg>
+      <span class="ml-auto">v{{ version }}</span>
+    </p>
   `,
 })
 export class PoweredByComponent {
