@@ -154,16 +154,6 @@ public class SmsServiceTwilioSettings
     }
 }
 
-/// <summary>Specifies how incoming Twilio webhook requests are authenticated.</summary>
-public enum TwilioWebhookAuthenticationMode {
-    /// <summary>No authentication is performed.</summary>
-    None,
-    /// <summary>Validate only the <c>X-Twilio-Signature</c> header.</summary>
-    Signature,
-    /// <summary>Validate only HTTP Basic authentication.</summary>
-    Basic
-}
-
 /// <inheritdoc/>
 public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
     private readonly SmsServiceTwilioSettings _settings;
