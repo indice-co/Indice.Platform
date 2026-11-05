@@ -578,6 +578,11 @@ public static class IndiceServicesServiceCollectionExtensions
             case "ApiFon":
                 services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
                 break;
+            case "twilio":
+            case "Twilio":
+                services.Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, TwilioWebhookHttpHandler>(configuration, provider);
+                break;
             case "Yuboto":
             case "yuboto":
             case "yuboto_omni":
