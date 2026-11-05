@@ -10,22 +10,7 @@ public sealed class TwilioWebhookAuthenticationTests
 {
     private const string WebhookAuthToken = "twilio-webhook-token";
     private const string WebhookUrl = "https://example.com/webhooks/twilio";
-
-    [Fact]
-    public async Task ValidSignature_IsAccepted_WhenWebhookAuthTokenIsConfigured() {
-        var parameters = CreateBaseParameters();
-        var headers = CreateSignatureHeaders(parameters);
-
-        var result = await ParseAsync(parameters, requestHeaders: headers);
-
-        Assert.True(result.Success);
-        Assert.Single(result.Events);
-        var @event = result.Events[0];
-        Assert.Equal("Twilio", @event.Provider);
-        Assert.Equal("SM00000000000000000000000000000001", @event.MessageId);
-        Assert.Equal("+306900000002", @event.Recipient);
-        Assert.Equal("+306900000001", @event.Subject);
-    }
+    private const string WebhookUrlWithQuery = "https://example.com/webhooks/twilio?tenant=acme";
 
     [Fact]
     public async Task MissingSignature_IsRejected_WhenWebhookAuthTokenIsConfigured() {
@@ -63,6 +48,28 @@ public sealed class TwilioWebhookAuthenticationTests
         Assert.Equal("SM00000000000000000000000000000001", result.Events[0].MessageId);
     }
 
+    [Fact]
+    public async Task ValidSignature_IsAccepted_WhenWebhookUrlContainsQuery() {
+        var formParameters = CreateBaseParameters();
+        var queryParameters = new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase) {
+            ["tenant"] = "acme"
+        };
+        var payload = string.Join("&", formParameters.Select(x => $"{Uri.EscapeDataString(x.Key)}={Uri.EscapeDataString(x.Value.ToString())}"));
+        await using var body = new MemoryStream(Encoding.UTF8.GetBytes(payload));
+        var headers = CreateSignatureHeaders(formParameters, WebhookUrlWithQuery);
+        headers["Content-Type"] = "application/x-www-form-urlencoded";
+
+        var result = await ParseAsync(
+            queryParameters,
+            requestBody: body,
+            requestHeaders: headers,
+            webhookUrl: WebhookUrlWithQuery);
+
+        Assert.True(result.Success);
+        Assert.Single(result.Events);
+        Assert.Equal("SM00000000000000000000000000000001", result.Events[0].MessageId);
+    }
+
     private static Dictionary<string, StringValues> CreateBaseParameters() => new(StringComparer.OrdinalIgnoreCase) {
         ["MessageSid"] = "SM00000000000000000000000000000001",
         ["MessageStatus"] = "delivered",
@@ -71,9 +78,11 @@ public sealed class TwilioWebhookAuthenticationTests
         ["Body"] = "Hello from Twilio"
     };
 
-    private static Dictionary<string, StringValues> CreateSignatureHeaders(Dictionary<string, StringValues> parameters) {
+    private static Dictionary<string, StringValues> CreateSignatureHeaders(
+        Dictionary<string, StringValues> parameters,
+        string webhookUrl = WebhookUrl) {
         var normalized = parameters.ToDictionary(x => x.Key, x => x.Value.ToString(), StringComparer.Ordinal);
-        var builder = new StringBuilder(WebhookUrl);
+        var builder = new StringBuilder(webhookUrl);
         foreach (var parameter in normalized.OrderBy(x => x.Key, StringComparer.Ordinal)) {
             builder.Append(parameter.Key).Append(parameter.Value);
         }
@@ -92,11 +101,12 @@ public sealed class TwilioWebhookAuthenticationTests
         Dictionary<string, StringValues> parameters,
         string? webhookAuthToken = WebhookAuthToken,
         Stream? requestBody = null,
-        Dictionary<string, StringValues>? requestHeaders = null) {
+        Dictionary<string, StringValues>? requestHeaders = null,
+        string webhookUrl = WebhookUrl) {
         var options = new Mock<IOptionsSnapshot<SmsServiceTwilioSettings>>();
         options.Setup(x => x.Value).Returns(new SmsServiceTwilioSettings {
             WebhookAuthToken = webhookAuthToken,
-            WebhookUrl = WebhookUrl
+            WebhookUrl = webhookUrl
         });
 
         var handler = new TwilioWebhookHttpHandler(options.Object);

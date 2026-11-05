@@ -73,7 +73,6 @@ public sealed class WebhookIntegrationTests
                 ["Webhooks:Enabled"] = true.ToString(),
                 ["Webhooks:ChannelCapacity"] = "100",
                 ["Sms:Provider"] = "twilio",
-                ["Sms:WebhookAuthenticationMode"] = nameof(TwilioWebhookAuthenticationMode.Signature),
                 ["Sms:WebhookAuthToken"] = webhookAuthToken,
                 ["Sms:WebhookUrl"] = webhookUrl
             })

@@ -169,9 +169,9 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
         Stream requestBody,
         CancellationToken cancellationToken) {
-        var parameters = await BuildParametersAsync(requestHeaders, requestParameters, requestBody, cancellationToken);
+        var (parameters, signatureParameters) = await BuildParametersAsync(requestHeaders, requestParameters, requestBody, cancellationToken);
 
-        if (!IsTwilioSignatureValid(requestHeaders, parameters)) {
+        if (!IsTwilioSignatureValid(requestHeaders, signatureParameters)) {
             return WebhookHttpResult.ForbiddenRequest("Invalid Twilio signature.");
         }
         
@@ -243,18 +243,19 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
         return FixedTimeEquals(signature.Trim(), expectedSignature);
     }
 
-    private static async Task<Dictionary<string, string>> BuildParametersAsync(
+    private static async Task<(Dictionary<string, string> Parameters, Dictionary<string, string> SignatureParameters)> BuildParametersAsync(
         IDictionary<string, StringValues> requestHeaders,
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
         Stream requestBody,
         CancellationToken cancellationToken) {
         var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value.ToString(), StringComparer.OrdinalIgnoreCase);
+        var signatureParameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         if (requestBody is null || requestBody == Stream.Null) {
-            return parameters;
+            return (parameters, signatureParameters);
         }
         if (requestBody.CanSeek && requestBody.Length == 0) {
-            return parameters;
+            return (parameters, signatureParameters);
         }
 
         if (requestBody.CanSeek) {
@@ -264,7 +265,7 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
         using var reader = new StreamReader(requestBody, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
         var body = await reader.ReadToEndAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(body)) {
-            return parameters;
+            return (parameters, signatureParameters);
         }
 
         var contentType = requestHeaders.TryGetValue("Content-Type", out var contentTypeValues)
@@ -273,25 +274,26 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
 
         if (IsFormUrlEncoded(contentType)) {
             foreach (var pair in ParseFormUrlEncoded(body)) {
-                parameters.TryAdd(pair.Key, pair.Value);
+                parameters[pair.Key] = pair.Value;
+                signatureParameters[pair.Key] = pair.Value;
             }
-            return parameters;
+            return (parameters, signatureParameters);
         }
 
         try {
             var json = JsonNode.Parse(body) as JsonObject;
             if (json is null) {
-                return parameters;
+                return (parameters, signatureParameters);
             }
 
             foreach (var item in json.Where(item => item.Value is not null)) {
-                parameters.TryAdd(item.Key, item.Value!.ToString());
+                parameters[item.Key] = item.Value!.ToString();
             }
         } catch (JsonException) {
             // Ignore malformed/non-JSON body and fallback to query parameters only.
         }
 
-        return parameters;
+        return (parameters, signatureParameters);
     }
 
     private static bool IsFormUrlEncoded(string? contentType) {
