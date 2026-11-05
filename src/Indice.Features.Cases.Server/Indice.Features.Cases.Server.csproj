@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <IndiceProduct>Cases</IndiceProduct>
     <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
@@ -27,4 +26,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Cases-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/cases-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

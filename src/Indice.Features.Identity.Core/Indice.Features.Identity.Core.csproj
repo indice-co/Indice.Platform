@@ -1,6 +1,5 @@
 ﻿  <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <IndiceProduct>Identity</IndiceProduct>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
@@ -72,5 +71,9 @@
       <LastGenOutput>IdentityResources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Identity-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/identity-admin-logo.svg" Pack="true" PackagePath="docs\" />
   </ItemGroup>
 </Project>

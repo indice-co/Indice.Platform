@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <IndiceProduct>Risk</IndiceProduct>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Risk;RulesEngine;</PackageTags>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
@@ -36,5 +35,9 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Risk.Server" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Risk-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/risk-logo.svg" Pack="true" PackagePath="docs\" />
   </ItemGroup>
 </Project>

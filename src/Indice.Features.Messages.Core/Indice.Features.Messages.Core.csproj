@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <IndiceProduct>Messaging</IndiceProduct>
     <PackageReadmeFile>CHANGELOG.md</PackageReadmeFile>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Messages;Notifications</PackageTags>
@@ -36,4 +35,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.14" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Messaging-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/messaging-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

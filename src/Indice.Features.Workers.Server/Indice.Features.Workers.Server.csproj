@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <IndiceProduct>Workers</IndiceProduct>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;WorkersUI;Jobs;MinimalApis</PackageTags>
     <VersionPrefix>$(VersionPrefixWorkers)</VersionPrefix>
@@ -20,4 +19,9 @@
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Workers-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/workers-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

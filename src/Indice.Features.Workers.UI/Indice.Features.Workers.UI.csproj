@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <IndiceProduct>Workers</IndiceProduct>
     <VersionPrefix>$(VersionPrefixWorkers)</VersionPrefix>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     
@@ -26,4 +25,9 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Workers-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/workers-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <IndiceProduct>Messaging</IndiceProduct>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
@@ -31,5 +30,9 @@
     <EmbeddedResource Update="Resources\Messages.Ui.TranslationApi.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Messaging-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/messaging-logo.svg" Pack="true" PackagePath="docs\" />
   </ItemGroup>
 </Project>

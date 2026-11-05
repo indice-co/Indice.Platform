@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>    
-    <IndiceProduct>Agents</IndiceProduct>
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net10.0</TargetFramework>    
     <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
@@ -28,4 +27,9 @@
 			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 		</ProjectReference>
 	</ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Agents-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/agents-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

@@ -5,30 +5,4 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
   </ItemGroup>
-  <!--
-    Product docs: a project that sets <IndiceProduct> (Identity, Messaging, Cases, Risk, Agents, Workers) gets the matching
-    docs\<Product>-Product.md and docs\<product>-logo.svg linked in (single source of truth stays in the repo docs folder):
-      - NuGet package : docs/<Product>-Product.md, docs/<product>-logo.svg
-      - Assembly      : embedded resources "Indice.Product.md" and "Indice.Product.Logo.svg"
-  -->
-  <PropertyGroup Condition="'$(IndiceProduct)' != ''">
-    <IndiceProductDocsFolder>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'docs'))</IndiceProductDocsFolder>
-    <IndiceProductDocFileName Condition="'$(IndiceProductDocFileName)' == ''">$(IndiceProduct)-Product.md</IndiceProductDocFileName>
-    <IndiceProductLogoFileName Condition="'$(IndiceProductLogoFileName)' == '' And '$(IndiceProduct)' == 'Identity'">identity-admin-logo.svg</IndiceProductLogoFileName>
-    <IndiceProductLogoFileName Condition="'$(IndiceProductLogoFileName)' == ''">$(IndiceProduct.ToLowerInvariant())-logo.svg</IndiceProductLogoFileName>
-    <IndiceProductDoc>$(IndiceProductDocsFolder)$(IndiceProductDocFileName)</IndiceProductDoc>
-    <IndiceProductLogo>$(IndiceProductDocsFolder)$(IndiceProductLogoFileName)</IndiceProductLogo>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(IndiceProduct)' != '' And Exists('$(IndiceProductDoc)')">
-    <None Include="$(IndiceProductDoc)" Link="Product\$(IndiceProductDocFileName)" Pack="true" PackagePath="docs\" />
-    <EmbeddedResource Include="$(IndiceProductDoc)" LogicalName="Indice.Product.md" ExcludeFromManifest="true" Visible="false" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(IndiceProduct)' != '' And Exists('$(IndiceProductLogo)')">
-    <None Include="$(IndiceProductLogo)" Link="Product\$(IndiceProductLogoFileName)" Pack="true" PackagePath="docs\" />
-    <EmbeddedResource Include="$(IndiceProductLogo)" LogicalName="Indice.Product.Logo.svg" ExcludeFromManifest="true" Visible="false" />
-  </ItemGroup>
-  <Target Name="_IndiceWarnMissingProductDocs" BeforeTargets="CoreCompile" Condition="'$(IndiceProduct)' != ''">
-    <Warning Condition="!Exists('$(IndiceProductDoc)')" Text="IndiceProduct '$(IndiceProduct)' is set but '$(IndiceProductDoc)' was not found." />
-    <Warning Condition="!Exists('$(IndiceProductLogo)')" Text="IndiceProduct '$(IndiceProduct)' is set but '$(IndiceProductLogo)' was not found." />
-  </Target>
 </Project>

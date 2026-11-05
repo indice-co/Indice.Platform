@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <IndiceProduct>Messaging</IndiceProduct>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Messages.App</SpaSourceFolder>
@@ -27,5 +26,9 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
-  
+  <ItemGroup>
+    <None Include="../../docs/Messaging-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/messaging-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

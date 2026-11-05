@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <IndiceProduct>Messaging</IndiceProduct>
     <PackageReleaseNotes>Update Indice Packages.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Workers</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
@@ -17,4 +16,9 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Messaging-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/messaging-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

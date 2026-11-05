@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Package">
-    <IndiceProduct>Risk</IndiceProduct>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Risk.App</SpaSourceFolder>
@@ -24,4 +23,9 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Risk-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/risk-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>
