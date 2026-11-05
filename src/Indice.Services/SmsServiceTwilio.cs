@@ -222,7 +222,7 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
                 Timestamp = timestamp,
                 Payload = payload
             }
-        });
+        }, 204);
     }
 
     private bool IsTwilioSignatureValid(

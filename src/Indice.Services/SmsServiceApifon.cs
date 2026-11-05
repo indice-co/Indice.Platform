@@ -178,7 +178,7 @@ public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
             Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.Timestamp)
         }).ToList();
 
-        return WebhookHttpResult.Ok(incomingEvents);
+        return WebhookHttpResult.Ok(incomingEvents, 204);
     }
 
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
