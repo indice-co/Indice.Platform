@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Data.Common;
+using System.Globalization;
 using System.Security.Claims;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
@@ -176,9 +177,12 @@ internal class CheckpointTypeService : ICheckpointTypeService
         return true;
     }
 
+    private const string PostgreSqlUniqueViolation = "23505";
+
     private static bool IsDuplicateCheckpointCodeViolation(DbUpdateException exception) =>
-        exception.InnerException is SqlException { Number: 2601 or 2627 } sqlException &&
-        sqlException.Message.Contains("IX_CheckpointType_CaseTypeId_Code", StringComparison.OrdinalIgnoreCase);
+        exception.InnerException is DbException dbException &&
+        (dbException is SqlException { Number: 2601 or 2627 } || dbException.SqlState == PostgreSqlUniqueViolation) &&
+        dbException.Message.Contains("IX_CheckpointType_CaseTypeId_Code", StringComparison.OrdinalIgnoreCase);
 
     private static BusinessException DuplicateCheckpointCodeException() =>
         new("A checkpoint type with the same code already exists for this case type.", nameof(CheckpointTypeRequest.Code));
