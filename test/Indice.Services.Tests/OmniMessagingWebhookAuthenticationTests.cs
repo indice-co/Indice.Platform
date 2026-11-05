@@ -25,7 +25,7 @@ public sealed class OmniMessagingWebhookAuthenticationTests
     [Fact]
     public async Task ApiKeyAuthentication_ValidHeader_IsAccepted() {
         var settings = new SmsServiceOmniMessagingSettings {
-            WebhookAuthenticationMethod = "ApiKey",
+            WebhookAuthenticationMethod = SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey,
             WebhookApiKeyHeaderName = "X-API-Key",
             WebhookSecret = "my-api-key"
         };
@@ -41,26 +41,9 @@ public sealed class OmniMessagingWebhookAuthenticationTests
     }
 
     [Fact]
-    public async Task BearerAuthentication_InvalidToken_IsRejected() {
-        var settings = new SmsServiceOmniMessagingSettings {
-            WebhookAuthenticationMethod = "BearerToken",
-            WebhookSecret = "my-bearer-token"
-        };
-
-        var headers = new Dictionary<string, StringValues> {
-            ["Authorization"] = "Bearer wrong-token"
-        };
-
-        var result = await ParseAsync(settings, headers);
-
-        Assert.False(result.Success);
-        Assert.Equal(400, result.Status);
-    }
-
-    [Fact]
     public async Task BasicAuthentication_ValidCredentials_IsAccepted() {
         var settings = new SmsServiceOmniMessagingSettings {
-            WebhookAuthenticationMethod = "Basic",
+            WebhookAuthenticationMethod = SmsServiceOmniMessagingWebhookAuthenticationMethod.Basic,
             WebhookUsername = "username",
             WebhookPassword = "password"
         };

@@ -217,6 +217,22 @@ public enum SmsServiceOmniMessagingMode
 }
 
 /// <summary>
+/// Specifies the webhook authentication method used by Omni messaging callbacks.
+/// </summary>
+public enum SmsServiceOmniMessagingWebhookAuthenticationMethod
+{
+    /// <summary>
+    /// Validates an API key header against the configured secret.
+    /// </summary>
+    ApiKey,
+
+    /// <summary>
+    /// Validates HTTP Basic credentials from the Authorization header.
+    /// </summary>
+    Basic
+}
+
+/// <summary>
 /// Represents the configuration settings for the Omni Viber/SMS service.
 /// </summary>
 public sealed class SmsServiceOmniMessagingSettings
@@ -264,22 +280,21 @@ public sealed class SmsServiceOmniMessagingSettings
 
     /// <summary>
     /// Gets or sets the webhook authentication method configured in Omni.
-    /// Supported values: ApiKey, BearerToken, Basic.
     /// </summary>
-    public string? WebhookAuthenticationMethod { get; set; } = "ApiKey";
+    public SmsServiceOmniMessagingWebhookAuthenticationMethod WebhookAuthenticationMethod { get; set; } = SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey;
 
     /// <summary>
-    /// Gets or sets the API key header name used when <see cref="WebhookAuthenticationMethod"/> is ApiKey.
+    /// Gets or sets the API key header name used when <see cref="WebhookAuthenticationMethod"/> is <see cref="SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey"/>.
     /// </summary>
     public string? WebhookApiKeyHeaderName { get; set; } = "X-API-Key";
 
     /// <summary>
-    /// Gets or sets the webhook username used when <see cref="WebhookAuthenticationMethod"/> is Basic.
+    /// Gets or sets the webhook username used when <see cref="WebhookAuthenticationMethod"/> is <see cref="SmsServiceOmniMessagingWebhookAuthenticationMethod.Basic"/>.
     /// </summary>
     public string? WebhookUsername { get; set; }
 
     /// <summary>
-    /// Gets or sets the webhook password used when <see cref="WebhookAuthenticationMethod"/> is Basic.
+    /// Gets or sets the webhook password used when <see cref="WebhookAuthenticationMethod"/> is <see cref="SmsServiceOmniMessagingWebhookAuthenticationMethod.Basic"/>.
     /// </summary>
     public string? WebhookPassword { get; set; }
 }
@@ -650,19 +665,12 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
         };
     }
 
-    private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders) {
-        var method = _settings.WebhookAuthenticationMethod?.Trim();
-
-        if (string.IsNullOrWhiteSpace(method) || method.Equals("ApiKey", StringComparison.OrdinalIgnoreCase)) {
-            return IsApiKeyAuthorized(requestHeaders);
-        }
-
-        if (method.Equals("Basic", StringComparison.OrdinalIgnoreCase)) {
-            return IsBasicAuthorized(requestHeaders);
-        }
-
-        return false;
-    }
+    private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders)
+        => _settings.WebhookAuthenticationMethod switch {
+            SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey => IsApiKeyAuthorized(requestHeaders),
+            SmsServiceOmniMessagingWebhookAuthenticationMethod.Basic => IsBasicAuthorized(requestHeaders),
+            _ => false
+        };
 
     private bool IsApiKeyAuthorized(IDictionary<string, StringValues> requestHeaders) {
         if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
