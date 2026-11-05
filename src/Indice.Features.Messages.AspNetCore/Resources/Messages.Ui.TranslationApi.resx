@@ -531,6 +531,9 @@
   <data name="DistributionLists.Alias" xml:space="preserve">
     <value>Alias</value>
   </data>
+  <data name="DistributionLists.ContactCount" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
   <data name="DistributionLists.CreatedBy" xml:space="preserve">
     <value>Created by</value>
   </data>
@@ -1105,6 +1108,9 @@ user_code_2</value>
   </data>
   <data name="Campaigns.StatusLabel" xml:space="preserve">
     <value>Status</value>
+  </data>
+  <data name="Campaigns.RecipientCount" xml:space="preserve">
+    <value>Recipients</value>
   </data>
   <data name="Campaigns.StatusPublished" xml:space="preserve">
     <value>Published</value>

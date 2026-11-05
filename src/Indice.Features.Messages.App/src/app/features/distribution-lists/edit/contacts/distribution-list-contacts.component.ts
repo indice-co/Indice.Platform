@@ -48,74 +48,76 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
       </div>
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>{{ 'DistributionLists.Name' | translate }}</th>
-            <th>{{ 'DistributionLists.Email' | translate }}</th>
-            <th>{{ 'DistributionLists.Phone' | translate }}</th>
-            <th>{{ 'DistributionLists.ContactCode' | translate }}</th>
-            <th>{{ 'DistributionLists.UpdatedAt' | translate }}</th>
-            <th class="w-16 text-right"><span class="sr-only">{{ 'DistributionLists.Actions' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
-            }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <div class="flex items-center gap-3">
-                    <app-contact-avatar [name]="displayName(item)" size="sm" />
-                    <a class="link link-hover truncate font-semibold" [routerLink]="pane.link(['edit-contact', item.id!], paneParams())">{{ displayName(item) || '—' }}</a>
-                  </div>
-                </td>
-                <td class="max-w-56 truncate">{{ item.email || '—' }}</td>
-                <td class="whitespace-nowrap tabular">{{ item.phoneNumber || '—' }}</td>
-                <td>
-                  @if (item.recipientId) {
-                    <span class="inline-flex items-center gap-1.5" [attr.title]="(item.resolved ? 'DistributionLists.Resolved' : 'DistributionLists.Unknown') | translate">
-                      <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.recipientId }}</code>
-                      <app-bool-icon [value]="item.resolved" />
-                    </span>
-                  } @else {
-                    <span class="text-base-content/40">—</span>
-                  }
-                </td>
-                <td class="whitespace-nowrap text-base-content/70">{{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}</td>
-                <td class="text-right">
-                  <span class="tooltip tooltip-left" [attr.data-tip]="'DistributionLists.RemoveContact' | translate">
-                    <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="remove(item)"
-                      [attr.aria-label]="'DistributionLists.RemoveContact' | translate">
-                      <svg lucideTrash class="size-4"></svg>
-                    </button>
-                  </span>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">
-                  <app-empty-state [title]="'DistributionLists.NoContactsTitle' | translate" [message]="'DistributionLists.NoContactsMessage' | translate">
-                    <svg icon lucideUsers class="size-5"></svg>
-                    <div actions class="flex gap-2">
-                      <a class="btn btn-sm" [routerLink]="pane.link('import-contacts', paneParams())">
-                        <svg lucideUpload class="size-4"></svg>{{ 'DistributionLists.ImportContacts' | translate }}
-                      </a>
-                      <a class="btn btn-sm btn-primary" [routerLink]="pane.link('create-contact', paneParams())">
-                        <svg lucideUserPlus class="size-4"></svg>{{ 'DistributionLists.AddContacts' | translate }}
-                      </a>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ 'DistributionLists.Name' | translate }}</th>
+              <th>{{ 'DistributionLists.Email' | translate }}</th>
+              <th>{{ 'DistributionLists.Phone' | translate }}</th>
+              <th>{{ 'DistributionLists.ContactCode' | translate }}</th>
+              <th>{{ 'DistributionLists.UpdatedAt' | translate }}</th>
+              <th class="w-16 text-right"><span class="sr-only">{{ 'DistributionLists.Actions' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="6"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <app-contact-avatar [name]="displayName(item)" size="sm" />
+                      <a class="link link-hover truncate font-semibold" [routerLink]="pane.link(['edit-contact', item.id!], paneParams())">{{ displayName(item) || '—' }}</a>
                     </div>
-                  </app-empty-state>
-                </td>
-              </tr>
+                  </td>
+                  <td class="max-w-56 truncate">{{ item.email || '—' }}</td>
+                  <td class="whitespace-nowrap tabular">{{ item.phoneNumber || '—' }}</td>
+                  <td>
+                    @if (item.recipientId) {
+                      <span class="inline-flex items-center gap-1.5" [attr.title]="(item.resolved ? 'DistributionLists.Resolved' : 'DistributionLists.Unknown') | translate">
+                        <code class="rounded bg-base-200 px-1.5 py-0.5 text-xs">{{ item.recipientId }}</code>
+                        <app-bool-icon [value]="item.resolved" />
+                      </span>
+                    } @else {
+                      <span class="text-base-content/40">—</span>
+                    }
+                  </td>
+                  <td class="whitespace-nowrap text-base-content/70">{{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}</td>
+                  <td class="text-right">
+                    <span class="tooltip tooltip-left" [attr.data-tip]="'DistributionLists.RemoveContact' | translate">
+                      <button type="button" class="btn btn-ghost btn-xs btn-square text-error" (click)="remove(item)"
+                        [attr.aria-label]="'DistributionLists.RemoveContact' | translate">
+                        <svg lucideTrash class="size-4"></svg>
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6">
+                    <app-empty-state [title]="'DistributionLists.NoContactsTitle' | translate" [message]="'DistributionLists.NoContactsMessage' | translate">
+                      <svg icon lucideUsers class="size-5"></svg>
+                      <div actions class="flex gap-2">
+                        <a class="btn btn-sm" [routerLink]="pane.link('import-contacts', paneParams())">
+                          <svg lucideUpload class="size-4"></svg>{{ 'DistributionLists.ImportContacts' | translate }}
+                        </a>
+                        <a class="btn btn-sm btn-primary" [routerLink]="pane.link('create-contact', paneParams())">
+                          <svg lucideUserPlus class="size-4"></svg>{{ 'DistributionLists.AddContacts' | translate }}
+                        </a>
+                      </div>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

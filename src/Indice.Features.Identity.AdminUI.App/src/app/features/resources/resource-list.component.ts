@@ -84,74 +84,76 @@ const KINDS: Record<ResourceKind, KindConfig> = {
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="config().search | translate" (search)="list.setSearch($event)" />
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
-            <th app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</th>
-            <th class="hidden lg:table-cell">{{ 'Common.Description' | translate }}</th>
-            <th>{{ 'Resources.List.Claims' | translate }}</th>
-            <th class="w-12"><span class="sr-only">{{ 'Resources.List.Open' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="5"><div class="skeleton h-4 w-full"></div></td></tr>
-            }
-          } @else {
-            @for (row of list.items(); track $index) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <a class="flex items-center gap-3 hover:text-primary" [routerLink]="link(row)">
-                    <span class="grid size-8 shrink-0 place-items-center rounded-field bg-primary/10 text-primary">
-                      @switch (kind()) {
-                        @case ('identity') { <svg lucideIdCard class="size-4"></svg> }
-                        @case ('api') { <svg lucideBoxes class="size-4"></svg> }
-                        @default { <svg lucideKeyRound class="size-4"></svg> }
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="name">{{ 'Common.Name' | translate }}</th>
+              <th app-sort-header [list]="list" field="displayName">{{ 'Common.DisplayName' | translate }}</th>
+              <th class="hidden lg:table-cell">{{ 'Common.Description' | translate }}</th>
+              <th>{{ 'Resources.List.Claims' | translate }}</th>
+              <th class="w-12"><span class="sr-only">{{ 'Resources.List.Open' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="5"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (row of list.items(); track $index) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <a class="flex items-center gap-3 hover:text-primary" [routerLink]="link(row)">
+                      <span class="grid size-8 shrink-0 place-items-center rounded-field bg-primary/10 text-primary">
+                        @switch (kind()) {
+                          @case ('identity') { <svg lucideIdCard class="size-4"></svg> }
+                          @case ('api') { <svg lucideBoxes class="size-4"></svg> }
+                          @default { <svg lucideKeyRound class="size-4"></svg> }
+                        }
+                      </span>
+                      <span class="min-w-0">
+                        <span class="flex items-center gap-1.5 font-mono text-sm font-semibold">
+                          {{ row.name }}
+                          @if (row.nonEditable) { <svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg> }
+                        </span>
+                        <span class="mt-0.5 flex flex-wrap gap-1">
+                          @if (row.enabled === false) { <app-status-badge tone="neutral">{{ 'Common.Disabled' | translate }}</app-status-badge> }
+                          @if (row.required) { <app-status-badge tone="info">{{ 'Common.Required' | translate }}</app-status-badge> }
+                          @if (row.emphasize) { <app-status-badge tone="secondary">{{ 'Resources.List.Emphasized' | translate }}</app-status-badge> }
+                        </span>
+                      </span>
+                    </a>
+                  </td>
+                  <td>{{ row.displayName || '—' }}</td>
+                  <td class="hidden max-w-md text-base-content/75 lg:table-cell"><span class="line-clamp-2">{{ row.description || '—' }}</span></td>
+                  <td><span class="badge badge-sm badge-ghost tabular">{{ claimsOf(row).length }}</span></td>
+                  <td class="text-right">
+                    <a class="btn btn-ghost btn-xs btn-square" [routerLink]="link(row)" [attr.aria-label]="'Resources.List.OpenItem' | translate: { name: row.name }">
+                      <svg lucideChevronRight class="size-4"></svg>
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5">
+                    <app-empty-state [title]="(list.hasFilters() ? 'Resources.List.NoMatches' : 'Resources.List.NothingYet') | translate"
+                      [message]="(list.hasFilters() ? 'Resources.List.TryDifferentSearch' : config().emptyMessage) | translate">
+                      <svg icon lucideKeyRound class="size-5"></svg>
+                      @if (canEdit && !list.hasFilters()) {
+                        <a actions class="btn btn-sm" routerLink="/resources/add" [state]="{ origin: kind() }">
+                          <svg lucidePlus class="size-4"></svg>{{ config().newLabel | translate }}
+                        </a>
                       }
-                    </span>
-                    <span class="min-w-0">
-                      <span class="flex items-center gap-1.5 font-mono text-sm font-semibold">
-                        {{ row.name }}
-                        @if (row.nonEditable) { <svg lucideLock class="size-3.5 text-warning" [attr.aria-label]="'Common.Reserved' | translate"></svg> }
-                      </span>
-                      <span class="mt-0.5 flex flex-wrap gap-1">
-                        @if (row.enabled === false) { <app-status-badge tone="neutral">{{ 'Common.Disabled' | translate }}</app-status-badge> }
-                        @if (row.required) { <app-status-badge tone="info">{{ 'Common.Required' | translate }}</app-status-badge> }
-                        @if (row.emphasize) { <app-status-badge tone="secondary">{{ 'Resources.List.Emphasized' | translate }}</app-status-badge> }
-                      </span>
-                    </span>
-                  </a>
-                </td>
-                <td>{{ row.displayName || '—' }}</td>
-                <td class="hidden max-w-md text-base-content/75 lg:table-cell"><span class="line-clamp-2">{{ row.description || '—' }}</span></td>
-                <td><span class="badge badge-sm badge-ghost tabular">{{ claimsOf(row).length }}</span></td>
-                <td class="text-right">
-                  <a class="btn btn-ghost btn-xs btn-square" [routerLink]="link(row)" [attr.aria-label]="'Resources.List.OpenItem' | translate: { name: row.name }">
-                    <svg lucideChevronRight class="size-4"></svg>
-                  </a>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5">
-                  <app-empty-state [title]="(list.hasFilters() ? 'Resources.List.NoMatches' : 'Resources.List.NothingYet') | translate"
-                    [message]="(list.hasFilters() ? 'Resources.List.TryDifferentSearch' : config().emptyMessage) | translate">
-                    <svg icon lucideKeyRound class="size-5"></svg>
-                    @if (canEdit && !list.hasFilters()) {
-                      <a actions class="btn btn-sm" routerLink="/resources/add" [state]="{ origin: kind() }">
-                        <svg lucidePlus class="size-4"></svg>{{ config().newLabel | translate }}
-                      </a>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

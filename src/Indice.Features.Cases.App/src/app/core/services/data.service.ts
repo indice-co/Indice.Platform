@@ -10,19 +10,22 @@ export abstract class DataService implements OnDestroy {
 
     protected getDataFromCacheOrHttp<T>(key: string, clientMethod: Observable<T>, expiresAt?: number) {
         if (!this.cachedData[key]) {
-            this.cachedData[key] = new AsyncSubject<T>();
+            // keep a local reference: an invalidation while the request is in flight must not leave existing subscribers hanging
+            const subject = new AsyncSubject<T>();
+            this.cachedData[key] = subject;
 
             if (this.$subscriptions!.hasOwnProperty(key)) {
                 this.$subscriptions![key].unsubscribe();
             }
 
             this.$subscriptions![key] = clientMethod.subscribe((result: T) => {
-                if (this.cachedData[key]) {
-                    this.cachedData[key].next(result);
-                    this.cachedData[key].complete();
-                }
+                subject.next(result);
+                subject.complete();
             }, error => {
-                this.removeDataFromCache(key);
+                subject.error(error);
+                if (this.cachedData[key] === subject) {
+                    this.removeDataFromCache(key);
+                }
             });
             if (expiresAt) {
                 setTimeout(() => this.removeDataFromCache(key), expiresAt);
@@ -36,7 +39,6 @@ export abstract class DataService implements OnDestroy {
             delete this.cachedData[key];
         }
         if (this.$subscriptions!.hasOwnProperty(key)) {
-            this.$subscriptions![key].unsubscribe();
             delete this.$subscriptions![key];
         }
     }
