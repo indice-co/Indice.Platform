@@ -1,11 +1,12 @@
-﻿using System.Net.Mime;
+﻿using System.Globalization;
 using System.Net.Http.Headers;
-using System.Globalization;
-using System.Text.Json.Serialization;
+using System.Net.Mime;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text;
-using System.Security.Cryptography;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
@@ -81,7 +82,7 @@ public class EmailServiceBrevo : IEmailService
             if (!response.IsSuccessStatusCode) {
                 throw new EmailServiceException($"Brevo service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{responseContentJson}'.");
             }
-            
+
             if (!string.IsNullOrWhiteSpace(responseContentJson)) {
                 var responseContent = JsonSerializer.Deserialize<BrevoResponse>(responseContentJson, serializerOptions);
                 messageId = responseContent?.MessageId ?? messageId;
@@ -204,8 +205,8 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
     private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders) {
         var hasUsername = !string.IsNullOrWhiteSpace(_options.WebhookUsername);
         var hasPassword = !string.IsNullOrWhiteSpace(_options.WebhookPassword);
-        bool incompleteCredentials = hasUsername != hasPassword;
-        bool noAuth = !hasUsername && !hasPassword;
+        var incompleteCredentials = hasUsername != hasPassword;
+        var noAuth = !hasUsername && !hasPassword;
 
         if (incompleteCredentials) {
             return false;
@@ -218,41 +219,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         var authorization = requestHeaders
             .FirstOrDefault(header =>
                 string.Equals(header.Key, "Authorization", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-
-        if (!AuthenticationHeaderValue.TryParse(
-                authorization,
-                out var headerValue) ||
-            !string.Equals(
-                headerValue.Scheme,
-                "Basic",
-                StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
-            return false;
-        }
-
-        byte[] credentials;
-
-        try {
-            credentials = Convert.FromBase64String(headerValue.Parameter);
-        } catch (FormatException) {
-            return false;
-        }
-
-        var separator = Array.IndexOf(credentials, (byte)':');
-
-        if (separator < 0) {
-            return false;
-        }
-
-        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookUsername!));
-        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_options.WebhookPassword!));
-        var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
-        var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
-
-        var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
-        var passwordMatches = CryptographicOperations.FixedTimeEquals(passwordHash, expectedPasswordHash);
-
-        return usernameMatches & passwordMatches;
+        return WebhookAuthentication.IsValidBasicAuthentication(authorization, _options.WebhookUsername!, _options.WebhookPassword!);
     }
 }
 

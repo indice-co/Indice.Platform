@@ -279,25 +279,7 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
             return true;
         }
 
-        var encodedCredentials = authorization["Basic ".Length..].Trim();
-        byte[] credentialsBytes;
-        try {
-            credentialsBytes = Convert.FromBase64String(encodedCredentials);
-        } catch (FormatException) {
-            return true;
-        }
-
-        var credentials = Encoding.UTF8.GetString(credentialsBytes);
-        var separatorIndex = credentials.IndexOf(':');
-        if (separatorIndex <= 0 || separatorIndex == credentials.Length - 1) {
-            return true;
-        }
-
-        var username = credentials[..separatorIndex];
-        var password = credentials[(separatorIndex + 1)..];
-
-        return !string.Equals(username, _settings.WebhookUsername, StringComparison.Ordinal) ||
-               !string.Equals(password, _settings.WebhookPassword, StringComparison.Ordinal);
+        return !WebhookAuthentication.IsValidBasicAuthentication(authorization, _settings.WebhookUsername!, _settings.WebhookPassword!);
     }
 
 

@@ -699,33 +699,7 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             .FirstOrDefault(header =>
                 string.Equals(header.Key, "Authorization", StringComparison.OrdinalIgnoreCase)).Value.ToString();
 
-        if (!AuthenticationHeaderValue.TryParse(authorization, out var headerValue) ||
-            !string.Equals(headerValue.Scheme, "Basic", StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
-            return false;
-        }
-
-        byte[] credentials;
-        try {
-            credentials = Convert.FromBase64String(headerValue.Parameter);
-        } catch (FormatException) {
-            return false;
-        }
-
-        var separator = Array.IndexOf(credentials, (byte)':');
-        if (separator < 0) {
-            return false;
-        }
-
-        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookUsername!));
-        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookPassword!));
-        var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
-        var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
-
-        var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
-        var passwordMatches = CryptographicOperations.FixedTimeEquals(passwordHash, expectedPasswordHash);
-
-        return usernameMatches & passwordMatches;
+        return WebhookAuthentication.IsValidBasicAuthentication(authorization, _settings.WebhookUsername!, _settings.WebhookPassword!);
     }
 
     private static bool IsEqual(string? left, string? right) {
