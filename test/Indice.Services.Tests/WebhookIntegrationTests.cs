@@ -27,23 +27,7 @@ public sealed class WebhookIntegrationTests
             })
             .Build();
 
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var host = await StartHostAsync(configuration);
 
         var services = host.Services;
 
@@ -78,23 +62,7 @@ public sealed class WebhookIntegrationTests
             })
             .Build();
 
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var host = await StartHostAsync(configuration);
 
         var services = host.Services;
 
@@ -124,23 +92,7 @@ public sealed class WebhookIntegrationTests
             })
             .Build();
 
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var host = await StartHostAsync(configuration);
 
         var services = host.Services;
 
@@ -236,4 +188,23 @@ public sealed class WebhookIntegrationTests
         request.Headers.Add("X-Twilio-Signature", signature);
         return request;
     }
+
+    private static Task<IHost> StartHostAsync(IConfiguration configuration) =>
+        new HostBuilder()
+            .ConfigureWebHost(webHost => {
+                webHost.UseTestServer();
+                webHost.ConfigureServices(services => {
+                    services.AddRouting();
+                    services.AddSmsService(configuration);
+                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
+                });
+                webHost.Configure(app => {
+                    app.UseRouting();
+
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapWebhooks();
+                    });
+                });
+            })
+            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
 }
