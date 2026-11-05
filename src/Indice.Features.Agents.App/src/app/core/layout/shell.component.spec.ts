@@ -12,11 +12,17 @@ const SESSIONS = [
   new ConversationListItem({ id: 'c2', title: 'Onboarding', lastActivityAt: new Date() }),
 ];
 
+const signedInUser = {
+  expired: false,
+  profile: { sub: 'sub-1', name: 'Test User', email: 'test.user@example.com' },
+};
+
 const authStub = {
-  user$: of({ expired: false, profile: {} }),
+  user$: of(signedInUser),
+  getCurrentUser: () => signedInUser,
   getAuthorizationHeaderValue: () => 'Bearer user',
-  getDisplayName: () => 'Krikor Tzevachirian',
-  getEmail: () => 'k@indice.gr',
+  getDisplayName: () => 'Test User',
+  getEmail: () => 'test.user@example.com',
   getSubjectId: () => 'sub-1',
   signinRedirect: () => undefined,
   signoutRedirect: () => undefined,
@@ -62,7 +68,7 @@ describe('ShellComponent', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).not.toContain("You're chatting as a guest");
     expect(el.querySelectorAll('a[href="/profile"]').length).withContext('both rails').toBe(2);
-    expect(el.textContent).toContain('Krikor Tzevachirian');
+    expect(el.textContent).toContain('Test User');
   });
 
   it('collapse toggle switches the rail width and remembers it', async () => {
@@ -181,6 +187,7 @@ describe('ShellComponent (guest)', () => {
     list = jasmine.createSpy('list').and.returnValue(of({ count: 0, items: [] }));
     const guestAuth = {
       user$: of(null),
+      getCurrentUser: () => null,
       getAuthorizationHeaderValue: () => '',
       getDisplayName: () => '',
       getEmail: () => undefined,

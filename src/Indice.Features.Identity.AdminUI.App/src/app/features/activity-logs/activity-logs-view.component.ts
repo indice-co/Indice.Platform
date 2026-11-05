@@ -116,8 +116,10 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
                   }
                   <td class="max-w-80">
                     <div class="flex min-w-0 flex-col items-start gap-1">
-                      <div class="flex items-center gap-2">
-                        <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
+                      <div class="flex max-w-full min-w-0 items-center gap-2">
+                        <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'" [title]="entry.actionName ?? ''">
+                          <span class="truncate">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</span>
+                        </app-status-badge>
                         @if (entry.review) {
                           <!-- shrink-0: in a wide (overflowing) table the column shrinks to min-content and the svg would collapse to 0px -->
                           <span class="inline-flex shrink-0 text-warning" role="img" [title]="'Logs.Review.Marked' | translate" [attr.aria-label]="'Logs.Review.Marked' | translate">

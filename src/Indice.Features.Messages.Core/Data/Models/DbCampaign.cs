@@ -28,6 +28,9 @@ public class DbCampaign : DbAuditableEntity
     public MessageChannelKind MessageChannelKind { get; set; }
     /// <summary>The base href to access the media.</summary>
     public string? MediaBaseHref { get; set; }
+    /// <summary>The number of contacts the campaign was sent out to.</summary>
+    /// <remarks>Set when the published campaign is fanned out to its distribution list. Null for drafts and global campaigns.</remarks>
+    public int? RecipientCount { get; set; }
     /// <summary>Foreign key to the <see cref="DbMessageType"/>.</summary>
     public Guid? TypeId { get; set; }
     /// <summary>Foreign key to the <see cref="DbAttachment"/>.</summary>
