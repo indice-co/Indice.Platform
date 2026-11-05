@@ -236,11 +236,7 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
     }
 
     private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
-        var hasConfiguredWebhookCredentials = !string.IsNullOrWhiteSpace(_settings.WebhookUsername) || !string.IsNullOrWhiteSpace(_settings.WebhookPassword);
-        if (!hasConfiguredWebhookCredentials) {
-            return true;
-        }
-        if (string.IsNullOrWhiteSpace(_settings.WebhookUsername) || string.IsNullOrWhiteSpace(_settings.WebhookPassword)) {
+        if (!TryGetExpectedCredentials(out var expectedUsername, out var expectedPassword)) {
             return true;
         }
 
@@ -268,8 +264,34 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
         var username = decodedCredentials[..separatorIndex];
         var password = decodedCredentials[(separatorIndex + 1)..];
 
-        return !AreEqualConstantTime(username, _settings.WebhookUsername) ||
-               !AreEqualConstantTime(password, _settings.WebhookPassword);
+        return !AreEqualConstantTime(username, expectedUsername) ||
+               !AreEqualConstantTime(password, expectedPassword);
+    }
+
+    private bool TryGetExpectedCredentials(out string username, out string password) {
+        username = _settings.WebhookUsername ?? string.Empty;
+        password = _settings.WebhookPassword ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password)) {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(_settings.WebhookUrl) || !Uri.TryCreate(_settings.WebhookUrl, UriKind.Absolute, out var webhookUri)) {
+            return false;
+        }
+
+        var userInfo = webhookUri.UserInfo;
+        if (string.IsNullOrWhiteSpace(userInfo)) {
+            return false;
+        }
+
+        var separatorIndex = userInfo.IndexOf(':');
+        if (separatorIndex <= 0 || separatorIndex == userInfo.Length - 1) {
+            return false;
+        }
+
+        username = Uri.UnescapeDataString(userInfo[..separatorIndex]);
+        password = Uri.UnescapeDataString(userInfo[(separatorIndex + 1)..]);
+        return !string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password);
     }
 
     private static bool TryGetHeaderValue(IDictionary<string, StringValues> headers, string key, out string value) {
