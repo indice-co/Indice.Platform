@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Nodes;
 using System.Threading.Channels;
 using Indice.Services;
 using Microsoft.AspNetCore.Builder;
@@ -68,7 +69,7 @@ public static class WebhooksEndpointExtensions
         return group;
     }
 
-    internal static async Task<Results<ValidationProblem, NotFound, NoContent, Ok<object>, Ok>> HandleWebhook( 
+    internal static async Task<Results<ValidationProblem, NotFound, NoContent, Ok<JsonNode>, Ok>> HandleWebhook( 
         string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
         var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
         
@@ -92,7 +93,7 @@ public static class WebhooksEndpointExtensions
         
         return result.Status switch {
             204 => TypedResults.NoContent(),
-            >= 200 and <= 299 when result.SuccessPayload is not null => TypedResults.Ok<object>(result.SuccessPayload),
+            >= 200 and <= 299 when result.Result is not null => TypedResults.Ok(result.Result),
             _ => TypedResults.Ok()
         };
     }

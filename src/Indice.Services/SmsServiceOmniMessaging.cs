@@ -543,11 +543,15 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             }
 
             if (TryParseDeliveryReport(root, out var deliveryEvent, out var deliveryError)) {
-                return WebhookHttpResult.Ok([deliveryEvent], statusCode: 200, successPayload: new { success = true });
+                return WebhookHttpResult.Ok([deliveryEvent], statusCode: 200, successPayload: new JsonObject {
+                    ["success"] = true
+                });
             }
 
             if (TryParseInteraction(root, out var interactionEvent, out var interactionError)) {
-                return WebhookHttpResult.Ok([interactionEvent], statusCode: 200, successPayload: new { success = true });
+                return WebhookHttpResult.Ok([interactionEvent], statusCode: 200, successPayload: new JsonObject {
+                    ["success"] = true
+                });
             }
 
             return WebhookHttpResult.BadRequest(deliveryError, interactionError, "Unsupported OmniMessaging webhook payload format.");
