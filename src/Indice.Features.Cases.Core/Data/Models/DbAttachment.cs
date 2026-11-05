@@ -11,7 +11,7 @@ public class DbAttachment
         CaseId = caseId;
     }
     public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTimeOffset LastModified { get; set; } = DateTimeOffset.Now;
+    public DateTimeOffset LastModified { get; set; } = DateTimeOffset.UtcNow;
     public Guid CaseId { get; set; }
     public Guid Guid { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = null!;
