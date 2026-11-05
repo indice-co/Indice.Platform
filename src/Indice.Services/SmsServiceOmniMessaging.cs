@@ -1,11 +1,14 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -180,7 +183,7 @@ public sealed class SmsServiceOmniMessaging : ISmsService
                 "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) ||
                 "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase),
             _ => false
-    };
+        };
 
     /// <summary>
     /// Gets the JSON serializer options used for Omni requests and responses.
@@ -211,6 +214,22 @@ public enum SmsServiceOmniMessagingMode
     /// Sends the message using Viber with SMS fallback.
     /// </summary>
     ViberWithSmsFallback
+}
+
+/// <summary>
+/// Specifies the webhook authentication method used by Omni messaging callbacks.
+/// </summary>
+public enum SmsServiceOmniMessagingWebhookAuthenticationMethod
+{
+    /// <summary>
+    /// Validates an API key header against the configured secret.
+    /// </summary>
+    ApiKey,
+
+    /// <summary>
+    /// Validates HTTP Basic credentials from the Authorization header.
+    /// </summary>
+    Basic
 }
 
 /// <summary>
@@ -252,6 +271,32 @@ public sealed class SmsServiceOmniMessagingSettings
     /// Gets or sets messages supported character set (GSM or UTF-8).
     /// </summary>
     public bool UseUtf8 { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the optional shared secret used to validate incoming Omni webhooks.
+    /// If empty, webhook authentication validation is skipped.
+    /// </summary>
+    public string? WebhookSecret { get; set; }
+
+    /// <summary>
+    /// Gets or sets the webhook authentication method configured in Omni.
+    /// </summary>
+    public SmsServiceOmniMessagingWebhookAuthenticationMethod WebhookAuthenticationMethod { get; set; } = SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey;
+
+    /// <summary>
+    /// Gets or sets the API key header name used when <see cref="WebhookAuthenticationMethod"/> is <see cref="SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey"/>.
+    /// </summary>
+    public string? WebhookApiKeyHeaderName { get; set; } = "X-API-Key";
+
+    /// <summary>
+    /// Gets or sets the webhook username used when <see cref="WebhookAuthenticationMethod"/> is <see cref="SmsServiceOmniMessagingWebhookAuthenticationMethod.Basic"/>.
+    /// </summary>
+    public string? WebhookUsername { get; set; }
+
+    /// <summary>
+    /// Gets or sets the webhook password used when <see cref="WebhookAuthenticationMethod"/> is <see cref="SmsServiceOmniMessagingWebhookAuthenticationMethod.Basic"/>.
+    /// </summary>
+    public string? WebhookPassword { get; set; }
 }
 
 /// <summary>
@@ -455,6 +500,246 @@ internal sealed class SmsServiceOmniResponse
         }
 
         return RequestId?.ToString();
+    }
+}
+
+/// <inheritdoc/>
+public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
+{
+    private readonly SmsServiceOmniMessagingSettings _settings;
+
+    /// <inheritdoc/>
+    public OmnimessagingWebhookHttpHandler(IOptionsSnapshot<SmsServiceOmniMessagingSettings> settings) {
+        _settings = settings.Value;
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        if (!IsAuthorized(requestHeaders)) {
+            return WebhookHttpResult.BadRequest("Invalid OmniMessaging webhook authentication.");
+        }
+
+        using var reader = new StreamReader(requestBody);
+        var bodyString = await reader.ReadToEndAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(bodyString)) {
+            return WebhookHttpResult.BadRequest("OmniMessaging webhook body cannot be empty.");
+        }
+
+        JsonDocument document;
+        try {
+            document = JsonDocument.Parse(bodyString);
+        } catch (JsonException) {
+            return WebhookHttpResult.BadRequest("Invalid OmniMessaging webhook JSON.");
+        }
+
+        using (document) {
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object) {
+                return WebhookHttpResult.BadRequest("OmniMessaging webhook payload must be a JSON object.");
+            }
+
+            if (TryParseDeliveryReport(root, out var deliveryEvent, out var deliveryError)) {
+                return WebhookHttpResult.Ok([deliveryEvent], statusCode: 200, successPayload: new JsonObject {
+                    ["success"] = true
+                });
+            }
+
+            if (TryParseInteraction(root, out var interactionEvent, out var interactionError)) {
+                return WebhookHttpResult.Ok([interactionEvent], statusCode: 200, successPayload: new JsonObject {
+                    ["success"] = true
+                });
+            }
+
+            return WebhookHttpResult.BadRequest(deliveryError, interactionError, "Unsupported OmniMessaging webhook payload format.");
+        }
+    }
+
+    private static bool TryParseDeliveryReport(JsonElement root, out WebhookEvent webhookEvent, out string error) {
+        webhookEvent = null!;
+        error = string.Empty;
+
+        if (!root.TryGetProperty("delivery_report", out var deliveryReport) || deliveryReport.ValueKind != JsonValueKind.Object) {
+            error = "Missing 'delivery_report' object.";
+            return false;
+        }
+
+        var recipient = GetJsonValueAsString(root, "to");
+        if (string.IsNullOrWhiteSpace(recipient)) {
+            error = "Delivery report webhook requires 'to'.";
+            return false;
+        }
+
+        var rootId = GetJsonValueAsString(root, "id");
+        var messageId = GetJsonValueAsString(root, "message_id");
+        var campaignId = GetJsonValueAsString(root, "campaign_id");
+        var resolvedMessageId = messageId ?? campaignId ?? rootId;
+        if (string.IsNullOrWhiteSpace(resolvedMessageId)) {
+            error = "Delivery report webhook requires one of 'message_id', 'campaign_id' or 'id'.";
+            return false;
+        }
+        var status = GetJsonValueAsString(deliveryReport, "status");
+        var dateRaw = GetJsonValueAsString(deliveryReport, "date");
+
+        var timestamp = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrWhiteSpace(dateRaw) && !DateTimeOffset.TryParse(dateRaw, out timestamp)) {
+            error = "Invalid 'delivery_report.date' value.";
+            return false;
+        }
+
+        webhookEvent = new WebhookEvent {
+            Provider = "OmniMessaging",
+            EventType = string.IsNullOrWhiteSpace(status) ? "SmsDelivery" : status,
+            MessageId = resolvedMessageId,
+            EventId = rootId ?? resolvedMessageId,
+            Recipient = recipient,
+            Subject = GetJsonValueAsString(root, "campaign_reference"),
+            Timestamp = timestamp,
+            Payload = JsonNode.Parse(root.GetRawText())
+        };
+
+        return true;
+    }
+
+    private static bool TryParseInteraction(JsonElement root, out WebhookEvent webhookEvent, out string error) {
+        webhookEvent = null!;
+        error = string.Empty;
+
+        if (!root.TryGetProperty("webhook_data", out var webhookData) || webhookData.ValueKind != JsonValueKind.Object) {
+            error = "Missing 'webhook_data' object.";
+            return false;
+        }
+
+        var recipient = GetJsonValueAsString(webhookData, "to");
+        if (string.IsNullOrWhiteSpace(recipient)) {
+            error = "Interaction webhook requires 'webhook_data.to'.";
+            return false;
+        }
+
+        var rootId = GetJsonValueAsString(root, "id");
+        var messageId = GetJsonValueAsString(webhookData, "message_id");
+        var interaction = GetJsonValueAsString(webhookData, "interaction");
+        var webhookType = GetJsonValueAsString(root, "webhook_type");
+        var campaignId = GetJsonValueAsString(webhookData, "campaign_id");
+        var resolvedMessageId = messageId ?? campaignId ?? rootId;
+        if (string.IsNullOrWhiteSpace(resolvedMessageId)) {
+            error = "Interaction webhook requires one of 'webhook_data.message_id', 'webhook_data.campaign_id' or 'id'.";
+            return false;
+        }
+
+        var timestamp = DateTimeOffset.UtcNow;
+        if (webhookData.TryGetProperty("interaction_data", out var interactionData) &&
+            interactionData.ValueKind == JsonValueKind.Object) {
+            var dateRaw = GetJsonValueAsString(interactionData, "date");
+            if (!string.IsNullOrWhiteSpace(dateRaw) && !DateTimeOffset.TryParse(dateRaw, out timestamp)) {
+                error = "Invalid 'webhook_data.interaction_data.date' value.";
+                return false;
+            }
+        }
+
+        webhookEvent = new WebhookEvent {
+            Provider = "OmniMessaging",
+            EventType = interaction ?? webhookType ?? "Interaction",
+            MessageId = resolvedMessageId,
+            EventId = rootId ?? resolvedMessageId,
+            Recipient = recipient,
+            Subject = GetJsonValueAsString(webhookData, "campaign_reference"),
+            Timestamp = timestamp,
+            Payload = JsonNode.Parse(root.GetRawText())
+        };
+
+        return true;
+    }
+
+    private static string? GetJsonValueAsString(JsonElement json, string propertyName) {
+        if (!json.TryGetProperty(propertyName, out var property)) {
+            return null;
+        }
+
+        return property.ValueKind switch {
+            JsonValueKind.String => property.GetString(),
+            JsonValueKind.Number => property.GetRawText(),
+            JsonValueKind.True => bool.TrueString,
+            JsonValueKind.False => bool.FalseString,
+            JsonValueKind.Null => null,
+            _ => property.GetRawText()
+        };
+    }
+
+    private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders)
+        => _settings.WebhookAuthenticationMethod switch {
+            SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey => IsApiKeyAuthorized(requestHeaders),
+            SmsServiceOmniMessagingWebhookAuthenticationMethod.Basic => IsBasicAuthorized(requestHeaders),
+            _ => false
+        };
+
+    private bool IsApiKeyAuthorized(IDictionary<string, StringValues> requestHeaders) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
+            return false;
+        }
+
+        var headers = requestHeaders.ToDictionary(h => h.Key, h => h.Value, StringComparer.OrdinalIgnoreCase);
+        var headerName = string.IsNullOrWhiteSpace(_settings.WebhookApiKeyHeaderName) ? "X-API-Key" : _settings.WebhookApiKeyHeaderName;
+        var provided = headers.GetValueOrDefault(headerName).ToString();
+        return IsEqual(provided, _settings.WebhookSecret);
+    }
+
+    private bool IsBasicAuthorized(IDictionary<string, StringValues> requestHeaders) {
+        var hasUsername = !string.IsNullOrWhiteSpace(_settings.WebhookUsername);
+        var hasPassword = !string.IsNullOrWhiteSpace(_settings.WebhookPassword);
+        var incompleteCredentials = hasUsername != hasPassword;
+        if (incompleteCredentials) {
+            return false;
+        }
+
+        var authorization = requestHeaders
+            .FirstOrDefault(header =>
+                string.Equals(header.Key, "Authorization", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+
+        if (!AuthenticationHeaderValue.TryParse(authorization, out var headerValue) ||
+            !string.Equals(headerValue.Scheme, "Basic", StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
+            return false;
+        }
+
+        byte[] credentials;
+        try {
+            credentials = Convert.FromBase64String(headerValue.Parameter);
+        } catch (FormatException) {
+            return false;
+        }
+
+        var separator = Array.IndexOf(credentials, (byte)':');
+        if (separator < 0) {
+            return false;
+        }
+
+        var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookUsername!));
+        var expectedPasswordHash = SHA256.HashData(Encoding.UTF8.GetBytes(_settings.WebhookPassword!));
+        var usernameHash = SHA256.HashData(credentials.AsSpan(0, separator));
+        var passwordHash = SHA256.HashData(credentials.AsSpan(separator + 1));
+
+        var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
+        var passwordMatches = CryptographicOperations.FixedTimeEquals(passwordHash, expectedPasswordHash);
+
+        return usernameMatches & passwordMatches;
+    }
+
+    private static bool IsEqual(string? left, string? right) {
+        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right)) {
+            return false;
+        }
+
+        var leftBytes = Encoding.UTF8.GetBytes(left);
+        var rightBytes = Encoding.UTF8.GetBytes(right);
+        if (leftBytes.Length != rightBytes.Length) {
+            return false;
+        }
+
+        return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
     }
 }
 

@@ -45,6 +45,20 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task FilterClause_HandlesOffsetDateOnSqlServer_Test() {
+        var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+        const string name = "Κωνσταντίνος";
+        const string json = """{"birthDate":"2024-01-17T00:00:00+02:00"}""";
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE [Dummies] SET [Data] = {json} WHERE [Name] = {name}", TestContext.Current.CancellationToken);
+
+        var filters = new List<FilterClause> {
+            (FilterClause)"data.birthDate::gt::(DateTime)2024-01-16T22:00:00Z",
+        };
+        var results = await dbContext.Dummies.Where(filters).ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Empty(results);
+    }
+
+    [Fact]
     public async Task PrimitiveCollection_Contains_Translates_ToDatabaseQuery_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
 
@@ -125,7 +139,7 @@ public class DummyDbContext : DbContext
         modelBuilder.Entity<Dummy>().Property(x => x.ModernExtras).HasJsonConversion();
         modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasJsonConversion();
         modelBuilder.Entity<Dummy>().PrimitiveCollection(x => x.Tags);
-        modelBuilder.ApplyJsonFunctions();
+        modelBuilder.ApplyJsonFunctions(Database.ProviderName);
         base.OnModelCreating(modelBuilder);
     }
 }

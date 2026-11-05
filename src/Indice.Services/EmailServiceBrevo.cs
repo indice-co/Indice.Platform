@@ -115,7 +115,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         }
 
         var events = ParseEvents(payload).ToList();
-        return WebhookHttpResult.Ok(events, 204);
+        return WebhookHttpResult.Ok(events, statusCode: 204);
     }
 
     private IEnumerable<WebhookEvent> ParseEvents(JsonNode payload) {
