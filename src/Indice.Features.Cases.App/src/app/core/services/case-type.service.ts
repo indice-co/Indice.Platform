@@ -1,6 +1,7 @@
 import { DataService } from './data.service';
 import { forkJoin, Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet, CheckpointType } from './cases-api.service';
 import { map, switchMap } from 'rxjs/operators';
 
@@ -12,8 +13,11 @@ export class CaseTypeService extends DataService {
   private readonly checkCreationKey: string = 'checkCreationKey';
 
   constructor(
-    private _api: CasesApiService) {
+    private _api: CasesApiService,
+    translate: TranslateService) {
     super();
+    // case types are translated by the server, so cached ones are stale once the language changes
+    translate.onLangChange.subscribe(() => this.invalidateCaseTypes());
   }
 
   public getCaseTypes(): Observable<CaseTypePartialResultSet> {

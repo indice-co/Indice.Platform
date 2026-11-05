@@ -375,7 +375,7 @@
     <value>Εξωτερικοί πάροχοι</value>
   </data>
   <data name="Clients.Details.ExternalProvidersHint" xml:space="preserve">
-    <value>Πάροχοι που προσφέρονται στη σελίδα σύνδεσης αυτής της εφαρμογής πελάτη. Η επιλογή όλων ή κανενός σημαίνει χωρίς περιορισμό.</value>
+    <value>Πάροχοι που προσφέρονται στη σελίδα σύνδεσης αυτής της εφαρμογής πελάτη. Η επιλογή όλων σημαίνει χωρίς περιορισμό· η επιλογή κανενός απενεργοποιεί όλους τους εξωτερικούς παρόχους.</value>
   </data>
   <data name="Clients.Details.General" xml:space="preserve">
     <value>Γενικά</value>

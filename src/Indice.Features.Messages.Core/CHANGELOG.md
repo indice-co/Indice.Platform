@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [8.62.0]
+## [8.63.0]
 ### Added recipient counts to campaigns and distribution lists
 `Campaign.RecipientCount` stores how many contacts a published campaign was sent out to (null for drafts and global campaigns).
 `DistributionList.ContactCount` stores how many contacts a list currently has (unsubscribed ones included) and is recounted after every membership change.
@@ -61,6 +61,7 @@ WHERE c.[Published] = 1
 GO
 ```
 
+## [8.62.0]
 ### Added flag for system generated distribution lists
 
 Run the following migration script.<br/>

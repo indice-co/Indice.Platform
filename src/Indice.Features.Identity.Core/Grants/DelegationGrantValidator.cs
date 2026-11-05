@@ -40,6 +40,8 @@ public class DelegationGrantValidator : IExtensionGrantValidator
             return;
         }
         var subject = result.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
+        context.Request.SessionId = result.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId)?.Value;
+
         context.Result = new GrantValidationResult(subject, GrantType);
     }
 }

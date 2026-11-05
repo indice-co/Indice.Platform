@@ -69,6 +69,20 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'categories', canActivate: [adminGuard], data: { breadcrumb: { title: 'breadcrumb.categories' } },
+        children: [
+          { path: '', loadComponent: () => import('./features/categories/categories.component').then(m => m.CategoriesComponent) },
+          {
+            path: 'create', data: { breadcrumb: { title: 'breadcrumb.createCategory' } },
+            loadComponent: () => import('./features/categories/category-edit/category-edit.component').then(m => m.CategoryEditComponent)
+          },
+          {
+            path: ':categoryId/edit', data: { breadcrumb: { title: 'breadcrumb.editCategory' } },
+            loadComponent: () => import('./features/categories/category-edit/category-edit.component').then(m => m.CategoryEditComponent)
+          }
+        ]
+      },
+      {
         path: 'access-rules', canActivate: [adminGuard], data: { breadcrumb: { title: 'breadcrumb.accessRules' } },
         children: [
           { path: '', loadComponent: () => import('./features/access-rules/access-rules.component').then(m => m.AccessRulesComponent) },

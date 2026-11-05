@@ -64,4 +64,7 @@ public class CaseType
 
     /// <summary>Case type order.</summary>
     public int? Order { get; set; }
+
+    /// <summary>The Id of the category the case type belongs to.</summary>
+    public Guid? CategoryId { get; set; }
 }
