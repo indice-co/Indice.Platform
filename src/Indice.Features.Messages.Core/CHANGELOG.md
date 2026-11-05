@@ -62,6 +62,7 @@ WHERE c.[Published] = 1
 GO
 ```
 
+## [8.62.0]
 ### Added flag for system generated distribution lists
 
 Run the following migration script.<br/>
