@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+    <IndiceProduct>Cases</IndiceProduct>
     <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>browser</SpaProjectName>

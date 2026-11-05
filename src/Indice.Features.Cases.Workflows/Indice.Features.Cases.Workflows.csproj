@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <IndiceProduct>Cases</IndiceProduct>
     <Description>Indice Case Management Workflow</Description>
     <Authors>Constantinos Leftheris, Thanos Panousis, Dimitris Karkanas</Authors>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>

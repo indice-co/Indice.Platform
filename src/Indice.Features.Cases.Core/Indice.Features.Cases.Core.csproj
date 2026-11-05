@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <IndiceProduct>Cases</IndiceProduct>
     <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>

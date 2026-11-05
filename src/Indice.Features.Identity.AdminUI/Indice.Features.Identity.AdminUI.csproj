@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+    <IndiceProduct>Identity</IndiceProduct>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Identity.AdminUI.App</SpaSourceFolder>

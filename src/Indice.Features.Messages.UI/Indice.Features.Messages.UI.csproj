@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+    <IndiceProduct>Messaging</IndiceProduct>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Messages.App</SpaSourceFolder>

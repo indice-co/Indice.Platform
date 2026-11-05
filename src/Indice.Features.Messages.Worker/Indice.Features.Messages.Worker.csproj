@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+    <IndiceProduct>Messaging</IndiceProduct>
     <PackageReleaseNotes>Update Indice Packages.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Workers</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>

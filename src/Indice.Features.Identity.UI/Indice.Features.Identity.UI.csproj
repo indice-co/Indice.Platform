@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup Label="Package">
+    <IndiceProduct>Identity</IndiceProduct>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

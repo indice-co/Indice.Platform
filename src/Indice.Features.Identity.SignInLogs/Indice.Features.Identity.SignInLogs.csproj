@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <IndiceProduct>Identity</IndiceProduct>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentity;SignInLogs;</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>

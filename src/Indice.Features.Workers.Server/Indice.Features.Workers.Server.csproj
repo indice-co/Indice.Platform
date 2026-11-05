@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <IndiceProduct>Workers</IndiceProduct>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;WorkersUI;Jobs;MinimalApis</PackageTags>
     <VersionPrefix>$(VersionPrefixWorkers)</VersionPrefix>

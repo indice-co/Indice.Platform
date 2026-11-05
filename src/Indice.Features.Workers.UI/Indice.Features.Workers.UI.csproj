@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+    <IndiceProduct>Workers</IndiceProduct>
     <VersionPrefix>$(VersionPrefixWorkers)</VersionPrefix>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     
