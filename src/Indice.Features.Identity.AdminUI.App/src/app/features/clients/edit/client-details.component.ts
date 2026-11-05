@@ -8,6 +8,9 @@ import { CLIENT_CULTURES } from '../client-utils';
 import { ClientStore } from './client-store.service';
 import { TranslatableFieldComponent } from './translatable-field.component';
 
+/** Matches IdentityServerConstants.LocalIdentityProvider. */
+const LOCAL_IDENTITY_PROVIDER = 'local';
+
 /** General information, consent and sign in options of a client. */
 @Component({
   selector: 'app-client-details',
@@ -103,8 +106,16 @@ export class ClientDetailsComponent implements OnInit {
   protected readonly allowed = signal(new Set<string>());
   protected readonly restrictions = computed(() => {
     const all = this.providers().map(p => p.authenticationScheme!);
+    // nothing to choose from (or providers not loaded yet), so keep what the client already has
+    if (all.length === 0) {
+      return this._store.client()?.identityProviderRestrictions;
+    }
     const selected = all.filter(scheme => this.allowed().has(scheme));
-    return selected.length > 0 && selected.length < all.length ? selected : undefined;
+    if (selected.length === 0) {
+      // an empty list means 'all providers', so restricting to the local provider is how we disallow every external one
+      return [LOCAL_IDENTITY_PROVIDER];
+    }
+    return selected.length < all.length ? selected : undefined;
   });
 
   protected readonly switches = [
