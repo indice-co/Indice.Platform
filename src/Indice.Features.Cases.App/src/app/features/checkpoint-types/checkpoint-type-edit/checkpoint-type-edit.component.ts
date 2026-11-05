@@ -138,7 +138,7 @@ export class CheckpointTypeEditComponent implements OnInit {
   }
 
   protected backQueryParams(): Record<string, string> {
-    const caseTypeId = this.model().caseTypeId;
+    const caseTypeId = this.caseTypeId();
     return caseTypeId ? { caseTypeId } : {};
   }
 

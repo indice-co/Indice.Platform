@@ -64,69 +64,76 @@ const PARAMS = ['succeeded', 'signInType', 'from', 'to', 'review', 'subject', 'a
       }
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</th>
-            <th app-sort-header [list]="list" field="actionName">{{ 'Logs.Fields.Event' | translate }}</th>
-            @if (!subject()) { <th app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</th> }
-            <th>{{ 'Logs.Fields.Application' | translate }}</th>
-            <th>{{ 'Logs.Fields.Device' | translate }}</th>
-            <th app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</th>
-            <th app-sort-header [list]="list" field="location">{{ 'Logs.Fields.Location' | translate }}</th>
-            <th app-sort-header [list]="list" field="signInType">{{ 'Common.Type' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4, 5]; track row) {
-              <tr><td [attr.colspan]="columns()"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</th>
+              <th app-sort-header [list]="list" field="actionName">{{ 'Logs.Fields.Event' | translate }}</th>
+              @if (!subject()) { <th app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</th> }
+              <th>{{ 'Logs.Fields.Application' | translate }}</th>
+              <th>{{ 'Logs.Fields.Device' | translate }}</th>
+              <th app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</th>
+              <th app-sort-header [list]="list" field="location">{{ 'Logs.Fields.Location' | translate }}</th>
+              <th app-sort-header [list]="list" field="signInType">{{ 'Common.Type' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr><td [attr.colspan]="columns()"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (entry of list.items(); track entry.id) {
+                <tr class="cursor-pointer hover:bg-base-200/60" [class.opacity-60]="list.loading()" tabindex="0"
+                  (click)="open(entry)" (keydown.enter)="open(entry)">
+                  <td><app-log-time [value]="entry.createdAt" /></td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
+                      @if (entry.review) {
+                        <!-- shrink-0: in a wide (overflowing) table the column shrinks to min-content and the svg would collapse to 0px -->
+                        <span class="inline-flex shrink-0 text-warning" role="img" [title]="'Logs.Review.Marked' | translate" [attr.aria-label]="'Logs.Review.Marked' | translate">
+                          <svg lucideFlag class="size-3.5"></svg>
+                        </span>
+                      }
+                      @if (idp(entry); as icon) { <img [src]="icon" class="h-3.5 shrink-0" [alt]="entry.extraData?.provider" [title]="entry.extraData?.provider" /> }
+                    </div>
+                  </td>
+                  @if (!subject()) {
+                    <td class="max-w-48 truncate" [class.text-error]="entry.subjectUnknown" [title]="entry.subjectName ?? ''">{{ entry.subjectName || '—' }}</td>
+                  }
+                  <td class="max-w-48 truncate" [title]="entry.applicationId ?? ''">{{ entry.applicationName || entry.applicationId || '—' }}</td>
+                  <td>
+                    <app-log-device class="w-60 max-w-72" [displayName]="entry.extraData?.device?.displayName" [userAgentFamily]="entry.extraData?.device?.userAgentFamily"
+                      [platform]="entry.extraData?.device?.platform" />
+                  </td>
+                  <td><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" compact /></td>
+                  <td class="max-w-48 truncate text-base-content/75" [title]="entry.location ?? ''">{{ entry.location || '—' }}</td>
+                  <td>
+                    @if (entry.signInType) {
+                      <span class="badge badge-sm badge-ghost whitespace-nowrap">{{ signInTypeLabel(entry.signInType) | translate }}</span>
+                    } @else { <span class="text-base-content/40">—</span> }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td [attr.colspan]="columns()">
+                    <app-empty-state [title]="(list.failed() ? 'SignInLogs.Empty.LoadFailed' : 'SignInLogs.Empty.Title') | translate"
+                      [message]="(list.hasFilters() ? 'Logs.Filters.NoMatches' : 'SignInLogs.Empty.Message') | translate">
+                      <svg icon lucideLogIn class="size-5"></svg>
+                      @if (list.hasFilters()) {
+                        <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Logs.Filters.ResetFilters' | translate }}</button>
+                      }
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (entry of list.items(); track entry.id) {
-              <tr class="cursor-pointer hover:bg-base-200/60" [class.opacity-60]="list.loading()" tabindex="0"
-                (click)="open(entry)" (keydown.enter)="open(entry)">
-                <td><app-log-time [value]="entry.createdAt" /></td>
-                <td>
-                  <div class="flex items-center gap-2">
-                    <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
-                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" [attr.aria-label]="'Logs.Review.Marked' | translate"></svg> }
-                    @if (idp(entry); as icon) { <img [src]="icon" class="h-3.5" [alt]="entry.extraData?.provider" [title]="entry.extraData?.provider" /> }
-                  </div>
-                </td>
-                @if (!subject()) {
-                  <td class="max-w-48 truncate" [class.text-error]="entry.subjectUnknown" [title]="entry.subjectName ?? ''">{{ entry.subjectName || '—' }}</td>
-                }
-                <td class="max-w-48 truncate" [title]="entry.applicationId ?? ''">{{ entry.applicationName || entry.applicationId || '—' }}</td>
-                <td>
-                  <app-log-device class="w-60 max-w-72" [displayName]="entry.extraData?.device?.displayName" [userAgentFamily]="entry.extraData?.device?.userAgentFamily"
-                    [platform]="entry.extraData?.device?.platform" />
-                </td>
-                <td><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" compact /></td>
-                <td class="max-w-48 truncate text-base-content/75" [title]="entry.location ?? ''">{{ entry.location || '—' }}</td>
-                <td>
-                  @if (entry.signInType) {
-                    <span class="badge badge-sm badge-ghost whitespace-nowrap">{{ signInTypeLabel(entry.signInType) | translate }}</span>
-                  } @else { <span class="text-base-content/40">—</span> }
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td [attr.colspan]="columns()">
-                  <app-empty-state [title]="(list.failed() ? 'SignInLogs.Empty.LoadFailed' : 'SignInLogs.Empty.Title') | translate"
-                    [message]="(list.hasFilters() ? 'Logs.Filters.NoMatches' : 'SignInLogs.Empty.Message') | translate">
-                    <svg icon lucideLogIn class="size-5"></svg>
-                    @if (list.hasFilters()) {
-                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Logs.Filters.ResetFilters' | translate }}</button>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

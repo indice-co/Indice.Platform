@@ -51,6 +51,8 @@ jobs:
 
     - name: dotnet build SPAs
       shell: pwsh
+      env:
+        NPM_CONFIG_FETCH_RETRIES: 5
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     - name: dotnet build

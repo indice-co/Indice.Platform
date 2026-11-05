@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -21,7 +21,7 @@ const PUBLISHED_FILTER = 'published';
 @Component({
   selector: 'app-campaigns',
   imports: [
-    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ListCountComponent, DatePipe, DecimalPipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
     ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideMegaphone, LucidePlus
   ],
   template: `
@@ -50,82 +50,91 @@ const PUBLISHED_FILTER = 'published';
       </div>
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            @for (column of columns; track column.label) {
-              <th [class]="column.class ?? ''">
-                @if (column.sort) {
-                  <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              @for (column of columns; track column.label) {
+                <th [class]="column.class ?? ''">
+                  @if (column.sort) {
+                    <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+                      {{ column.label | translate }}
+                      @if (list.sort() === column.sort) {
+                        @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                      } @else {
+                        <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                      }
+                    </button>
+                  } @else {
                     {{ column.label | translate }}
-                    @if (list.sort() === column.sort) {
-                      @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                  }
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr><td [attr.colspan]="columns.length"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td class="min-w-56">
+                    <a class="link link-hover font-semibold" [routerLink]="[item.id]">{{ item.title }}</a>
+                    @if (item.createdBy) {
+                      <p class="text-xs text-base-content/60">{{ item.createdBy }}</p>
+                    }
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      @for (kind of channelKinds; track kind) {
+                        <app-channel-icon [kind]="kind" [muted]="!item.messageChannelKind?.includes($any(kind))" />
+                      }
+                    </div>
+                  </td>
+                  <td><app-message-type-badge [name]="item.type?.name" [classification]="item.type?.classification" /></td>
+                  <td class="whitespace-nowrap text-sm tabular">
+                    @if (item.activePeriod?.from || item.activePeriod?.to) {
+                      {{ item.activePeriod?.from ? (item.activePeriod?.from | date: 'mediumDate') : '' }} –
+                      {{ item.activePeriod?.to ? (item.activePeriod?.to | date: 'mediumDate') : ('Campaigns.InfiniteSymbol' | translate) }}
                     } @else {
-                      <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                      <span class="text-base-content/40">—</span>
                     }
-                  </button>
-                } @else {
-                  {{ column.label | translate }}
-                }
-              </th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4, 5]; track row) {
-              <tr><td [attr.colspan]="columns.length"><div class="skeleton h-4 w-full"></div></td></tr>
-            }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td class="min-w-56">
-                  <a class="link link-hover font-semibold" [routerLink]="[item.id]">{{ item.title }}</a>
-                  @if (item.createdBy) {
-                    <p class="text-xs text-base-content/60">{{ item.createdBy }}</p>
-                  }
-                </td>
-                <td>
-                  <div class="flex items-center gap-1">
-                    @for (kind of channelKinds; track kind) {
-                      <app-channel-icon [kind]="kind" [muted]="!item.messageChannelKind?.includes($any(kind))" />
+                  </td>
+                  <td>
+                    @if (item.published) {
+                      <span class="badge badge-sm badge-soft badge-success whitespace-nowrap">{{ 'Campaigns.StatusPublished' | translate }}</span>
+                    } @else {
+                      <span class="badge badge-sm badge-ghost whitespace-nowrap">{{ 'Campaigns.StatusDraft' | translate }}</span>
                     }
-                  </div>
-                </td>
-                <td><app-message-type-badge [name]="item.type?.name" [classification]="item.type?.classification" /></td>
-                <td class="whitespace-nowrap text-sm tabular">
-                  @if (item.activePeriod?.from || item.activePeriod?.to) {
-                    {{ item.activePeriod?.from ? (item.activePeriod?.from | date: 'mediumDate') : '' }} –
-                    {{ item.activePeriod?.to ? (item.activePeriod?.to | date: 'mediumDate') : ('Campaigns.InfiniteSymbol' | translate) }}
-                  } @else {
-                    <span class="text-base-content/40">—</span>
-                  }
-                </td>
-                <td>
-                  @if (item.published) {
-                    <span class="badge badge-sm badge-soft badge-success whitespace-nowrap">{{ 'Campaigns.StatusPublished' | translate }}</span>
-                  } @else {
-                    <span class="badge badge-sm badge-ghost whitespace-nowrap">{{ 'Campaigns.StatusDraft' | translate }}</span>
-                  }
-                </td>
-                <td class="whitespace-nowrap text-sm text-base-content/70 tabular">{{ item.createdAt | date: 'medium' }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td [attr.colspan]="columns.length">
-                  <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
-                    <svg icon lucideMegaphone class="size-5"></svg>
-                    <a actions class="btn btn-sm" routerLink="add-campaign">
-                      <svg lucidePlus class="size-4"></svg>{{ 'Campaigns.CreateCampaignAction' | translate }}
-                    </a>
-                  </app-empty-state>
-                </td>
-              </tr>
+                  </td>
+                  <td class="text-right text-sm tabular">
+                    @if (item.recipientCount != null) {
+                      {{ item.recipientCount | number }}
+                    } @else {
+                      <span class="text-base-content/40">—</span>
+                    }
+                  </td>
+                  <td class="whitespace-nowrap text-sm text-base-content/70 tabular">{{ item.createdAt | date: 'medium' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td [attr.colspan]="columns.length">
+                    <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
+                      <svg icon lucideMegaphone class="size-5"></svg>
+                      <a actions class="btn btn-sm" routerLink="add-campaign">
+                        <svg lucidePlus class="size-4"></svg>{{ 'Campaigns.CreateCampaignAction' | translate }}
+                      </a>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
@@ -151,6 +160,7 @@ export class CampaignsComponent implements OnInit {
     { label: 'Campaigns.Type', sort: 'type.name' },
     { label: 'Campaigns.ActivePeriodColumn', sort: 'activePeriod.from' },
     { label: 'Campaigns.StatusLabel', sort: 'published' },
+    { label: 'Campaigns.RecipientCount', sort: 'recipientCount', class: 'text-right' },
     { label: 'Campaigns.CreatedAt', sort: 'createdAt' }
   ];
 

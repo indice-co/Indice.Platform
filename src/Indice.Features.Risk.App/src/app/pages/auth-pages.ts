@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 import { SplashComponent } from './splash.component';
 
-/** Entry point: sends signed-in users to the risk events, everyone else to the identity provider. */
+/** Entry point: sends signed-in users to the dashboard, everyone else to the identity provider. */
 @Component({
   selector: 'app-home',
   imports: [SplashComponent],
@@ -16,9 +16,9 @@ export class HomeComponent implements OnInit {
   public ngOnInit(): void {
     this._auth.isLoggedIn().subscribe(isLoggedIn => {
       if (isLoggedIn) {
-        this._router.navigate(['/risk-events']);
+        this._router.navigate(['/dashboard']);
       } else {
-        this._auth.signinRedirect({ location: '/risk-events' });
+        this._auth.signinRedirect({ location: '/dashboard' });
       }
     });
   }

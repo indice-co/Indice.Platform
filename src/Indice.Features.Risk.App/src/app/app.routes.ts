@@ -22,6 +22,10 @@ export const routes: Routes = [
   {
     path: '', component: ShellComponent, canActivate: [AuthGuardService], children: [
       {
+        path: 'dashboard',
+        loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
+      {
         path: 'risk-events',
         loadComponent: () => import('./features/risk-events/risk-events.component').then(m => m.RiskEventsComponent)
       },

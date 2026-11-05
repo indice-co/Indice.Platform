@@ -242,6 +242,11 @@ export class TemplateContentEditorComponent {
       const data = this.data();
       untracked(() => this.reset(content, data));
     });
+    effect(() => {
+      // re-render when the preview data changes (media base href resolved after the content loaded, ...)
+      this.samplePayload();
+      untracked(() => this.renderPreview());
+    });
     this.form.valueChanges.pipe(debounceTime(250), takeUntilDestroyed()).subscribe(() => {
       this._dataText.set(this.form.controls.data.value ?? '');
       this.renderPreview();

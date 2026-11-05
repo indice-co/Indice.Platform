@@ -36,6 +36,8 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
         modelBuilder.Entity<DbRiskEvent>().ToTable("RiskEvent");
         modelBuilder.Entity<DbRiskEvent>().HasKey(x => x.Id);
         modelBuilder.Entity<DbRiskEvent>().HasIndex(x => x.SubjectId);
+        // Time frame counts of the admin dashboard and the default (newest first) ordering of the events list.
+        modelBuilder.Entity<DbRiskEvent>().HasIndex(x => x.CreatedAt);
         modelBuilder.Entity<DbRiskEvent>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<DbRiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<DbRiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
@@ -58,6 +60,14 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().ToTable("RiskResult");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.Id);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasIndex(x => x.SubjectId);
+        // Narrow index for the time frame and per risk level counts of the admin dashboard, so they avoid scanning the whole result table.
+        // It also serves the default (newest first) ordering of the results list. Include columns are set through the provider annotations
+        // (SQL Server and PostgreSQL) to keep this assembly provider agnostic.
+        string[] dashboardColumns = [nameof(DbAggregateRuleExecutionResult.RiskLevel)];
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>()
+            .HasIndex(x => x.CreatedAt)
+            .HasAnnotation("SqlServer:Include", dashboardColumns)
+            .HasAnnotation("Npgsql:IndexInclude", dashboardColumns);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.EventId).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);

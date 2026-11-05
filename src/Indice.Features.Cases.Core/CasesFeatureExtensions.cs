@@ -64,6 +64,7 @@ public static class CasesFeatureExtensions
         services.TryAddTransient<ICaseTypeService, CaseTypeService>();
         services.TryAddTransient<ISchemaValidator, CasesJsonSchemaValidator>();
         services.TryAddTransient<ICheckpointTypeService, CheckpointTypeService>();
+        services.TryAddTransient<ICategoryService, CategoryService>();
         services.TryAddTransient<ICaseTemplateService, NoOpCaseTemplateService>();
 
 

@@ -109,6 +109,7 @@ internal class CaseTypeService : ICaseTypeService
         if (codeExists) {
             throw new ValidationException("Case type code already exists.");
         }
+        await EnsureCategoryExists(caseType.CategoryId);
 
         var newCaseType = new DbCaseType {
             Id = Guid.NewGuid(),
@@ -123,6 +124,7 @@ internal class CaseTypeService : ICaseTypeService
             Config = caseType.Config,
             CanCreateRoles = caseType.CanCreateRoles,
             Order = caseType.Order,
+            CategoryId = caseType.CategoryId,
             IsMenuItem = caseType.IsMenuItem,
             GridFilterConfig = caseType.GridFilterConfig,
             GridColumnConfig = caseType.GridColumnConfig,
@@ -130,6 +132,12 @@ internal class CaseTypeService : ICaseTypeService
 
         await _dbContext.CaseTypes.AddAsync(newCaseType);
         await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task EnsureCategoryExists(Guid? categoryId) {
+        if (categoryId.HasValue && !await _dbContext.Categories.AnyAsync(x => x.Id == categoryId)) {
+            throw new BusinessException("Category does not exist.", nameof(CaseTypeRequest.CategoryId));
+        }
     }
 
     public async Task Delete(Guid caseTypeId) {
@@ -198,6 +206,7 @@ internal class CaseTypeService : ICaseTypeService
             Config = dbCaseType.Config,
             CanCreateRoles = dbCaseType.CanCreateRoles,
             Order = dbCaseType.Order,
+            CategoryId = dbCaseType.CategoryId,
             CheckpointTypes = dbCaseType.CheckpointTypes?.Select(checkpointType => new CheckpointTypeDetails {
                 Id = checkpointType.Id,
                 Code = checkpointType.Code,
@@ -228,8 +237,10 @@ internal class CaseTypeService : ICaseTypeService
         if (dbCaseType!.Code != caseType.Code) {
             throw new ValidationException("Case type code cannot be changed.");
         }
+        await EnsureCategoryExists(caseType.CategoryId);
 
         // Update case type entity
+        dbCaseType.CategoryId = caseType.CategoryId;
         dbCaseType.Title = caseType.Title!;
         dbCaseType.Description = caseType.Description;
         dbCaseType.DataSchema = caseType.DataSchema;

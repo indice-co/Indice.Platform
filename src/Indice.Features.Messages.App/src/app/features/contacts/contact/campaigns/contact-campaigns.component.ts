@@ -27,58 +27,60 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
       <app-list-sort [list]="list" [options]="sortOptions" />
     </div>
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>{{ 'Contacts.CampaignTitle' | translate }}</th>
-            <th>{{ 'Contacts.Channels' | translate }}</th>
-            <th>{{ 'Contacts.Type' | translate }}</th>
-            <th>{{ 'Contacts.From' | translate }}</th>
-            <th>{{ 'Contacts.To' | translate }}</th>
-            <th>{{ 'Contacts.CreatedBy' | translate }}</th>
-            <th>{{ 'Contacts.CreatedAt' | translate }}</th>
-            <th class="text-center">{{ 'Contacts.Published' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4]; track row) {
-              <tr><td colspan="8"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ 'Contacts.CampaignTitle' | translate }}</th>
+              <th>{{ 'Contacts.Channels' | translate }}</th>
+              <th>{{ 'Contacts.Type' | translate }}</th>
+              <th>{{ 'Contacts.From' | translate }}</th>
+              <th>{{ 'Contacts.To' | translate }}</th>
+              <th>{{ 'Contacts.CreatedBy' | translate }}</th>
+              <th>{{ 'Contacts.CreatedAt' | translate }}</th>
+              <th class="text-center">{{ 'Contacts.Published' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4]; track row) {
+                <tr><td colspan="8"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (item of list.items(); track item.id) {
+                <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
+                  <td>
+                    <a class="link link-hover font-semibold" [routerLink]="['/campaigns', item.id, 'campaign-details']"
+                      [attr.title]="'Contacts.CampaignDetails' | translate">{{ item.title }}</a>
+                  </td>
+                  <td>
+                    <div class="flex gap-1">
+                      @for (kind of channelKinds; track kind) {
+                        <app-channel-icon [kind]="kind" [muted]="!uses(item, kind)" />
+                      }
+                    </div>
+                  </td>
+                  <td><app-message-type-badge [name]="item.type?.name" [classification]="item.type?.classification" /></td>
+                  <td class="whitespace-nowrap">{{ item.activePeriod?.from ? (item.activePeriod?.from | date: 'medium') : '—' }}</td>
+                  <td class="whitespace-nowrap">{{ item.activePeriod?.to ? (item.activePeriod?.to | date: 'medium') : '—' }}</td>
+                  <td>{{ item.createdBy || '—' }}</td>
+                  <td class="whitespace-nowrap text-base-content/70">{{ item.createdAt | date: 'medium' }}</td>
+                  <td class="text-center"><app-bool-icon [value]="item.published" /></td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8">
+                    <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Contacts.NoCampaignsMessage' | translate">
+                      <svg icon lucideMegaphone class="size-5"></svg>
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (item of list.items(); track item.id) {
-              <tr class="hover:bg-base-200/60" [class.opacity-60]="list.loading()">
-                <td>
-                  <a class="link link-hover font-semibold" [routerLink]="['/campaigns', item.id, 'campaign-details']"
-                    [attr.title]="'Contacts.CampaignDetails' | translate">{{ item.title }}</a>
-                </td>
-                <td>
-                  <div class="flex gap-1">
-                    @for (kind of channelKinds; track kind) {
-                      <app-channel-icon [kind]="kind" [muted]="!uses(item, kind)" />
-                    }
-                  </div>
-                </td>
-                <td><app-message-type-badge [name]="item.type?.name" [classification]="item.type?.classification" /></td>
-                <td class="whitespace-nowrap">{{ item.activePeriod?.from ? (item.activePeriod?.from | date: 'medium') : '—' }}</td>
-                <td class="whitespace-nowrap">{{ item.activePeriod?.to ? (item.activePeriod?.to | date: 'medium') : '—' }}</td>
-                <td>{{ item.createdBy || '—' }}</td>
-                <td class="whitespace-nowrap text-base-content/70">{{ item.createdAt | date: 'medium' }}</td>
-                <td class="text-center"><app-bool-icon [value]="item.published" /></td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="8">
-                  <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Contacts.NoCampaignsMessage' | translate">
-                    <svg icon lucideMegaphone class="size-5"></svg>
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />

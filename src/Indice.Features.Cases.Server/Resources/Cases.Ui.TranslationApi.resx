@@ -550,7 +550,7 @@
     <value>Cases</value>
   </data>
   <data name="nav.caseTypes" xml:space="preserve">
-    <value>Case Management</value>
+    <value>Case Types</value>
   </data>
   <data name="nav.notifications" xml:space="preserve">
     <value>Notifications</value>
@@ -839,6 +839,9 @@
   </data>
   <data name="caseDetails.discardDraft.confirm" xml:space="preserve">
     <value>The draft and the data entered so far will be deleted. This can't be undone.</value>
+  </data>
+  <data name="caseDetails.customAction.confirm" xml:space="preserve">
+    <value>Are you sure you want to execute this action?</value>
   </data>
   <data name="caseDetails.form.editable" xml:space="preserve">
     <value>Editable</value>
@@ -1535,5 +1538,74 @@
   </data>
   <data name="caseGroup.saved" xml:space="preserve">
     <value>The group was updated.</value>
+  </data>
+  <data name="nav.categories" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="breadcrumb.categories" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="breadcrumb.createCategory" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="breadcrumb.editCategory" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="categories.title" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="categories.subtitle" xml:space="preserve">
+    <value>Groups used to organize case types.</value>
+  </data>
+  <data name="categories.create.title" xml:space="preserve">
+    <value>New Category</value>
+  </data>
+  <data name="categories.edit.title" xml:space="preserve">
+    <value>Edit Category</value>
+  </data>
+  <data name="categories.delete.title" xml:space="preserve">
+    <value>Delete Category</value>
+  </data>
+  <data name="categories.delete.confirmName" xml:space="preserve">
+    <value>Delete the category {{name}}? This can't be undone.</value>
+  </data>
+  <data name="categories.column.name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="categories.column.description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="categories.column.order" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="categories.column.actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="categories.empty.title" xml:space="preserve">
+    <value>No categories found</value>
+  </data>
+  <data name="categories.empty.message" xml:space="preserve">
+    <value>Try another search term or create a new category.</value>
+  </data>
+  <data name="toasts.categorySaved.body" xml:space="preserve">
+    <value>The category has been saved.</value>
+  </data>
+  <data name="toasts.categoryDeleted.body" xml:space="preserve">
+    <value>The category has been deleted.</value>
+  </data>
+  <data name="caseTypes.column.category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="caseTypes.form.category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="caseTypes.form.noCategory" xml:space="preserve">
+    <value>No category</value>
+  </data>
+  <data name="categories.translations.heading" xml:space="preserve">
+    <value>Translations</value>
+  </data>
+  <data name="categories.translations.hint" xml:space="preserve">
+    <value>The name and description shown per language. Leave empty to use the values above.</value>
   </data>
 </root>

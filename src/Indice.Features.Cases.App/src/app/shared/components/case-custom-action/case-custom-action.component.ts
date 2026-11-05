@@ -1,7 +1,8 @@
-import { Component, computed, input, linkedSignal, output } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideZap } from '@lucide/angular';
 import { CustomCaseAction, SuccessMessage } from 'src/app/core/services/cases-api.service';
+import { DialogService } from 'src/app/ui/dialog/dialog.service';
 
 export interface CustomActionEvent {
   redirectToList: boolean | undefined;
@@ -53,6 +54,8 @@ const DEFAULT_ACTION_CLASS = 'btn-info';
   `
 })
 export class CaseCustomActionComponent {
+  private readonly _dialog = inject(DialogService);
+
   public readonly action = input<CustomCaseAction | undefined>();
   public readonly compact = input(false);
   public readonly actionTriggered = output<CustomActionEvent>();
@@ -63,8 +66,21 @@ export class CaseCustomActionComponent {
   protected readonly buttonClass = computed(() => this.action()?.class || DEFAULT_ACTION_CLASS);
 
   protected triggerAction(): void {
-    this.triggered.set(true);
     const action = this.action();
+    this._dialog.confirm({
+      title: action?.label || action?.name || 'common.execute',
+      message: 'caseDetails.customAction.confirm',
+      confirmLabel: 'common.yes',
+      cancelLabel: 'common.no'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.emitAction(action);
+      }
+    });
+  }
+
+  private emitAction(action: CustomCaseAction | undefined): void {
+    this.triggered.set(true);
     this.actionTriggered.emit({
       redirectToList: action?.redirectToList,
       successMessage: action?.successMessage,

@@ -86,71 +86,84 @@ const ADVANCED = ['subject', 'action', 'category', 'resourceType', 'resourceId',
       </div>
     }
 
-    <div class="panel overflow-x-auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</th>
-            @if (!subject()) { <th app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</th> }
-            <th app-sort-header [list]="list" field="actionName">{{ 'ActivityLogs.Fields.Action' | translate }}</th>
-            <th>{{ 'Common.Description' | translate }}</th>
-            <th app-sort-header [list]="list" field="category">{{ 'ActivityLogs.Fields.Category' | translate }}</th>
-            <th app-sort-header [list]="list" field="resourceType">{{ 'ActivityLogs.Fields.Resource' | translate }}</th>
-            <th>{{ 'Logs.Fields.Application' | translate }}</th>
-            <th app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</th>
-            <th>{{ 'Logs.Fields.Device' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (list.loading() && !list.items()?.length) {
-            @for (row of [1, 2, 3, 4, 5]; track row) {
-              <tr><td [attr.colspan]="columns()"><div class="skeleton h-4 w-full"></div></td></tr>
+    <div class="panel">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th app-sort-header [list]="list" field="createdAt">{{ 'Logs.Columns.When' | translate }}</th>
+              @if (!subject()) { <th app-sort-header [list]="list" field="subjectName">{{ 'Logs.Fields.Subject' | translate }}</th> }
+              <th app-sort-header [list]="list" field="actionName">{{ 'ActivityLogs.Fields.Action' | translate }}</th>
+              <th app-sort-header [list]="list" field="category">{{ 'ActivityLogs.Fields.Category' | translate }}</th>
+              <th app-sort-header [list]="list" field="resourceType">{{ 'ActivityLogs.Fields.Resource' | translate }}</th>
+              <th>{{ 'Logs.Fields.Application' | translate }}</th>
+              <th app-sort-header [list]="list" field="ipAddress">{{ 'Logs.Fields.IpAddress' | translate }}</th>
+              <th>{{ 'Logs.Fields.Device' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (list.loading() && !list.items()?.length) {
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr><td [attr.colspan]="columns()"><div class="skeleton h-4 w-full"></div></td></tr>
+              }
+            } @else {
+              @for (entry of list.items(); track entry.id) {
+                <tr class="cursor-pointer hover:bg-base-200/60" [class.opacity-60]="list.loading()" tabindex="0"
+                  (click)="open(entry)" (keydown.enter)="open(entry)">
+                  <td><app-log-time [value]="entry.createdAt" /></td>
+                  @if (!subject()) {
+                    <td class="max-w-44 truncate" [class.text-error]="entry.subjectUnknown" [title]="entry.subjectName ?? ''">{{ entry.subjectName || '—' }}</td>
+                  }
+                  <td class="max-w-80">
+                    <div class="flex min-w-0 flex-col items-start gap-1">
+                      <div class="flex max-w-full min-w-0 items-center gap-2">
+                        <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'" [title]="entry.actionName ?? ''">
+                          <span class="truncate">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</span>
+                        </app-status-badge>
+                        @if (entry.review) {
+                          <!-- shrink-0: in a wide (overflowing) table the column shrinks to min-content and the svg would collapse to 0px -->
+                          <span class="inline-flex shrink-0 text-warning" role="img" [title]="'Logs.Review.Marked' | translate" [attr.aria-label]="'Logs.Review.Marked' | translate">
+                            <svg lucideFlag class="size-3.5"></svg>
+                          </span>
+                        }
+                      </div>
+                      @if (entry.description) {
+                        <span class="max-w-full truncate text-xs text-base-content/65" [title]="entry.description">{{ entry.description }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td class="whitespace-nowrap">{{ entry.category || '—' }}</td>
+                  <td class="max-w-56">
+                    <div class="flex min-w-0 flex-col leading-tight">
+                      <span class="truncate text-sm">{{ entry.resourceType || '—' }}</span>
+                      @if (entry.resourceId) { <span class="truncate font-mono text-xs text-base-content/55" [title]="entry.resourceId">{{ entry.resourceId }}</span> }
+                    </div>
+                  </td>
+                  <td class="max-w-44 truncate" [title]="entry.applicationId ?? ''">{{ entry.applicationName || entry.applicationId || '—' }}</td>
+                  <td class="whitespace-nowrap"><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" compact /></td>
+                  <td class="max-w-56">
+                    <!-- min-w-40 keeps the column from collapsing when the table is squeezed; max-w-full keeps the content inside the cell -->
+                    <app-log-device class="min-w-40 max-w-full" [displayName]="entry.extraData?.device?.displayName" [userAgentFamily]="entry.extraData?.device?.userAgentFamily"
+                      [platform]="entry.extraData?.device?.platform" wrap />
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td [attr.colspan]="columns()">
+                    <app-empty-state [title]="(list.failed() ? 'ActivityLogs.Empty.LoadFailed' : 'ActivityLogs.Empty.Title') | translate"
+                      [message]="(list.hasFilters() ? 'Logs.Filters.NoMatches' : 'ActivityLogs.Empty.Message') | translate">
+                      <svg icon lucideActivity class="size-5"></svg>
+                      @if (list.hasFilters()) {
+                        <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Logs.Filters.ResetFilters' | translate }}</button>
+                      }
+                    </app-empty-state>
+                  </td>
+                </tr>
+              }
             }
-          } @else {
-            @for (entry of list.items(); track entry.id) {
-              <tr class="cursor-pointer hover:bg-base-200/60" [class.opacity-60]="list.loading()" tabindex="0"
-                (click)="open(entry)" (keydown.enter)="open(entry)">
-                <td><app-log-time [value]="entry.createdAt" /></td>
-                @if (!subject()) {
-                  <td class="max-w-44 truncate" [class.text-error]="entry.subjectUnknown" [title]="entry.subjectName ?? ''">{{ entry.subjectName || '—' }}</td>
-                }
-                <td>
-                  <div class="flex items-center gap-2">
-                    <app-status-badge [tone]="entry.succeeded ? 'success' : 'error'">{{ entry.actionName || ((entry.succeeded ? 'Logs.Outcome.Succeeded' : 'Logs.Outcome.Failed') | translate) }}</app-status-badge>
-                    @if (entry.review) { <svg lucideFlag class="size-3.5 text-warning" [attr.aria-label]="'Logs.Review.Marked' | translate"></svg> }
-                  </div>
-                </td>
-                <td class="max-w-80 truncate text-base-content/75" [title]="entry.description ?? ''">{{ entry.description || '—' }}</td>
-                <td class="whitespace-nowrap">{{ entry.category || '—' }}</td>
-                <td class="max-w-56">
-                  <div class="flex min-w-0 flex-col leading-tight">
-                    <span class="truncate text-sm">{{ entry.resourceType || '—' }}</span>
-                    @if (entry.resourceId) { <span class="truncate font-mono text-xs text-base-content/55" [title]="entry.resourceId">{{ entry.resourceId }}</span> }
-                  </div>
-                </td>
-                <td class="max-w-44 truncate" [title]="entry.applicationId ?? ''">{{ entry.applicationName || entry.applicationId || '—' }}</td>
-                <td><app-log-ip [ip]="entry.ipAddress" [country]="entry.countryIsoCode" [location]="entry.location" /></td>
-                <td class="max-w-56">
-                  <app-log-device [displayName]="entry.extraData?.device?.displayName" [userAgentFamily]="entry.extraData?.device?.userAgentFamily"
-                    [platform]="entry.extraData?.device?.platform" />
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td [attr.colspan]="columns()">
-                  <app-empty-state [title]="(list.failed() ? 'ActivityLogs.Empty.LoadFailed' : 'ActivityLogs.Empty.Title') | translate"
-                    [message]="(list.hasFilters() ? 'Logs.Filters.NoMatches' : 'ActivityLogs.Empty.Message') | translate">
-                    <svg icon lucideActivity class="size-5"></svg>
-                    @if (list.hasFilters()) {
-                      <button actions type="button" class="btn btn-sm" (click)="list.clearFilters()">{{ 'Logs.Filters.ResetFilters' | translate }}</button>
-                    }
-                  </app-empty-state>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       @if (list.count() > 0) {
         <app-pagination class="border-t border-base-300 px-4 py-3" [page]="list.page()" [pageSize]="list.pageSize()" [count]="list.count()"
           (pageChange)="list.setPage($event)" (pageSizeChange)="list.setPageSize($event)" />
@@ -204,7 +217,7 @@ export class ActivityLogsViewComponent implements OnInit {
   }
 
   protected columns(): number {
-    return this.subject() ? 8 : 9;
+    return this.subject() ? 7 : 8;
   }
 
   public ngOnInit(): void {
