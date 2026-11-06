@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Duende.IdentityModel.Client;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Indice.AspNetCore.Http.Client;
 
@@ -105,6 +106,12 @@ public class OnBehalfOfHttpHandler : DelegatingHandler
         var userPresent = !string.IsNullOrWhiteSpace(currentAccessToken) && !string.IsNullOrWhiteSpace(currentSubjectId);
         var grantType = userPresent ? "delegation" : "client_credentials";
         var cacheKey = $"{_ApplicationName}|{_options.ClientId}|{grantType}|sub|{currentSubjectId}";
+        if (userPresent) {
+            var sessionId = GetSessionId(currentAccessToken!);
+            if (!string.IsNullOrWhiteSpace(sessionId)) {
+                cacheKey += $"|sid|{sessionId}";
+            }
+        }
         var accessToken = await _cache.GetStringAsync(cacheKey);
         if (accessToken != null) {
             return accessToken;
@@ -114,6 +121,18 @@ public class OnBehalfOfHttpHandler : DelegatingHandler
             AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(response.ExpiresIn - 30)
         });
         return response.AccessToken!;
+    }
+
+    private static string? GetSessionId(string accessToken) {
+        var tokenHandler = new JsonWebTokenHandler();
+        if (!tokenHandler.CanReadToken(accessToken)) {
+            return null;
+        }
+        try {
+            return tokenHandler.ReadJsonWebToken(accessToken).TryGetPayloadValue<string>("sid", out var sessionId) ? sessionId : null;
+        } catch (ArgumentException) {
+            return null;
+        }
     }
 
     private async Task<TokenResponse> GetOnBehalfOfOrClientCredentialsTokenResponse(string? userToken, bool userPresent) {
