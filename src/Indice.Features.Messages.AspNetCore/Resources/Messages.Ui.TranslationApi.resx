@@ -2859,4 +2859,118 @@ user_code_2</value>
   <data name="Settings.MediaSettingsCountOther" xml:space="preserve">
     <value>settings</value>
   </data>
+  <data name="Nav.Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Breadcrumb.Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Inbox.Title" xml:space="preserve">
+    <value>My inbox</value>
+  </data>
+  <data name="Inbox.Subtitle" xml:space="preserve">
+    <value>Messages you have received, new and past.</value>
+  </data>
+  <data name="Inbox.CountOne" xml:space="preserve">
+    <value>message</value>
+  </data>
+  <data name="Inbox.CountOther" xml:space="preserve">
+    <value>messages</value>
+  </data>
+  <data name="Inbox.Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="Inbox.UnreadCountOne" xml:space="preserve">
+    <value>{{count}} unread message</value>
+  </data>
+  <data name="Inbox.UnreadCountOther" xml:space="preserve">
+    <value>{{count}} unread messages</value>
+  </data>
+  <data name="Inbox.NoUnreadMessages" xml:space="preserve">
+    <value>You are all caught up!</value>
+  </data>
+  <data name="Inbox.ViewAll" xml:space="preserve">
+    <value>View all messages</value>
+  </data>
+  <data name="Inbox.NewMessage" xml:space="preserve">
+    <value>New message</value>
+  </data>
+  <data name="Inbox.NoTitle" xml:space="preserve">
+    <value>(no title)</value>
+  </data>
+  <data name="Inbox.MarkAllAsRead" xml:space="preserve">
+    <value>Mark all as read</value>
+  </data>
+  <data name="Inbox.MarkAsRead" xml:space="preserve">
+    <value>Mark as read</value>
+  </data>
+  <data name="Inbox.MarkAsUnread" xml:space="preserve">
+    <value>Mark as unread</value>
+  </data>
+  <data name="Inbox.MarkAllAsReadSuccessTitle" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Inbox.MarkAllAsReadSuccessMessage" xml:space="preserve">
+    <value>All messages were marked as read.</value>
+  </data>
+  <data name="Inbox.Delete" xml:space="preserve">
+    <value>Delete message</value>
+  </data>
+  <data name="Inbox.DeleteConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to delete the message '{{title}}'?</value>
+  </data>
+  <data name="Inbox.DeleteSuccessTitle" xml:space="preserve">
+    <value>Message deleted</value>
+  </data>
+  <data name="Inbox.DeleteSuccessMessage" xml:space="preserve">
+    <value>The message was deleted from your inbox.</value>
+  </data>
+  <data name="Inbox.Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Inbox.Search" xml:space="preserve">
+    <value>Search messages</value>
+  </data>
+  <data name="Inbox.Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Inbox.All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Inbox.Unread" xml:space="preserve">
+    <value>Unread</value>
+  </data>
+  <data name="Inbox.Read" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="Inbox.Type" xml:space="preserve">
+    <value>Message type</value>
+  </data>
+  <data name="Inbox.AllTypes" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="Inbox.ShowExpired" xml:space="preserve">
+    <value>Show expired</value>
+  </data>
+  <data name="Inbox.EmptyTitle" xml:space="preserve">
+    <value>No messages</value>
+  </data>
+  <data name="Inbox.EmptyMessage" xml:space="preserve">
+    <value>There are no messages matching your criteria.</value>
+  </data>
+  <data name="Inbox.SelectMessageTitle" xml:space="preserve">
+    <value>No message selected</value>
+  </data>
+  <data name="Inbox.SelectMessageMessage" xml:space="preserve">
+    <value>Select a message to read it.</value>
+  </data>
+  <data name="Inbox.BackToList" xml:space="preserve">
+    <value>Back to messages</value>
+  </data>
+  <data name="Inbox.OpenLink" xml:space="preserve">
+    <value>Open link</value>
+  </data>
+  <data name="Inbox.Attachment" xml:space="preserve">
+    <value>Attachment</value>
+  </data>
 </root>

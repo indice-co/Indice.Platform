@@ -114,6 +114,10 @@ The in-app channel is a full surface of its own — read state, bulk actions, an
 - **Bulk actions** — "mark all read" / "mark all unread".
 - **Read state feeds analytics** — Read, UnRead, Opened and Deleted are all recorded events.
 - **Preference self-service** — recipients manage their communication preferences through the same API.
+- **Real time notifications** — inbox clients subscribe to a SignalR hub and get a personalized push for every new
+  inbox message, instead of polling.
+- **Inbox in the admin UI** — a notifications bell (unread count + preview of the latest unread messages) and a
+  "My inbox" page with filters, built only on the user present `my/messages` API so other SPAs can do the same.
 
 ### 🖼️ Media library & attachments
 
@@ -128,6 +132,7 @@ A full operator surface, compiled and served embedded from the API host.
 - **Screens** — campaigns (create / edit builder), templates designer, distribution lists + CSV import, contacts,
   message types, media library, dashboard, events, settings.
 - **Template designer** — a Handlebars code editor for per-channel content.
+- **Personal inbox** — the signed-in operator's own messages: bell with unread count, preview dropdown and inbox page.
 - **Dashboard** — charts over the analytics KPIs.
 
 ### 📤 Transactional send API & access
@@ -218,6 +223,7 @@ One grid to take to your team — the capability on the left, the mechanism that
 | Delivery + engagement analytics | ✅ Reached / Engaged / Acted / Coverage |
 | CTA click tracking | ✅ tracked link + redirect |
 | In-app inbox with read state | ✅ `MyMessages` API |
+| Real time inbox notifications | ✅ SignalR proxy (`UseInboxSignalRNotifications`) |
 | Media library + attachments | ✅ local / Azure Blob storage |
 | Email / SMS / Viber / Push vendors | ✅ chosen by configuration |
 | Scheduled + global (broadcast) campaigns | ✅ `ActivePeriod` + `IsGlobal` |
@@ -326,6 +332,45 @@ flowchart TD
 
 - **`MyMessagesApi`** — list, get, mark read / unread, preferences.
 - **Bulk actions on queues** — `my-messages-mark-all-read` / `my-messages-mark-all-unread`.
+- **Notifications** — `IInboxNotifier` is called whenever an inbox message is created (per recipient by the resolve
+  handler, once for everybody for global campaigns). The default is a no-op; `UseInboxSignalRNotifications()` pushes
+  through the SignalR proxy. Only messages within their active period are pushed and a failed push never fails delivery.
+
+#### 🔔 Real time inbox notifications (SignalR)
+
+The integrator hosts the SignalR service (e.g. Azure SignalR); the API only proxies the negotiation through the
+SignalR proxy feature of `Indice.AspNetCore`, so clients connect with their usual access token.
+
+```csharp
+// API host: negotiate endpoints for the inbox clients
+builder.AddSignalRProxy();                       // reads the "SignalRProxy" section & ConnectionStrings:SignalR
+app.MapSignalRProxy();                           // POST /hubs/{hubName}/negotiate …
+
+// Whoever creates the inbox messages: the worker (AddMessageFunctions / AddMessageJobs),
+// or the API host when it processes the events in-process (AddMessaging)
+builder.AddMessageFunctions(options => {
+    options.UseInboxSignalRNotifications(o => {
+        o.HubName = "messaging";                 // must be in SignalRProxy:AllowedHubs
+        o.MethodName = "inboxMessageCreated";    // client method invoked with an InboxMessageNotification
+        o.NotifyGlobalMessages = true;           // push global (broadcast) campaigns to everybody
+    });
+});
+```
+
+```json
+{
+  "ConnectionStrings": { "SignalR": "Endpoint=https://…;AccessKey=…;Version=1.0;" },
+  "SignalRProxy": { "AllowedHubs": [ "messaging" ] }
+}
+```
+
+- **Addressing** — notifications go to the contact's `RecipientId`, the user id the proxy resolves from the `sub`
+  claim; register a custom `ISignalRProxyUserIdResolver` if recipients are identified by another claim.
+- **Client** — `@microsoft/signalr` with `withUrl('{api}/hubs/messaging', { accessTokenFactory })` and
+  `connection.on('inboxMessageCreated', notification => …)`; the payload carries `id`, `title`, `type`,
+  `activePeriod`, `isGlobal` and `createdAt`.
+- **Admin UI** — set `CampaignUIOptions.InboxHubName = "messaging"` (and `SignalRProxyUrl` when the proxy is not on the
+  API host root) for the bell to update live; without it the UI polls every minute.
 
 ### 🖼️ Media library
 

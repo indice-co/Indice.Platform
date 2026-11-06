@@ -14,6 +14,19 @@ public class CampaignUIOptions : SpaUIOptions
     /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg, .gif, .webp</i>.</summary>
     public string AcceptableFileExtensions { get; set; } = ".png, .jpg, .gif, .webp";
 
+    /// <summary>Enables the personal inbox (notifications bell and "my messages" page). Defaults to <i>true</i>.</summary>
+    public bool EnableInbox { get; set; } = true;
+
+    /// <summary>
+    /// The SignalR hub name used for real time inbox notifications (i.e. <i>messaging</i>). 
+    /// When not set the inbox periodically polls for new messages.
+    /// </summary>
+    /// <remarks>Must match the hub configured through <c>UseInboxSignalRNotifications()</c> and be part of the <c>SignalRProxy:AllowedHubs</c>.</remarks>
+    public string? InboxHubName { get; set; }
+
+    /// <summary>The base address of the SignalR proxy endpoints (<c>MapSignalRProxy()</c>). Defaults to the root (origin) of the api address.</summary>
+    public string? SignalRProxyUrl { get; set; }
+
     /// <summary>Creates a new instance <see cref="CampaignUIOptions"/>.</summary>
     public CampaignUIOptions() {
         ClientId = "messaging-ui";
@@ -23,6 +36,9 @@ public class CampaignUIOptions : SpaUIOptions
             args.Add($"%({nameof(EnableMediaLibrary)})", EnableMediaLibrary.ToString());
             args.Add($"%({nameof(MaxFileSize)})", MaxFileSize.ToString());
             args.Add($"%({nameof(AcceptableFileExtensions)})", AcceptableFileExtensions);
+            args.Add($"%({nameof(EnableInbox)})", EnableInbox.ToString());
+            args.Add($"%({nameof(InboxHubName)})", InboxHubName ?? string.Empty);
+            args.Add($"%({nameof(SignalRProxyUrl)})", SignalRProxyUrl ?? string.Empty);
         };
     }
 }

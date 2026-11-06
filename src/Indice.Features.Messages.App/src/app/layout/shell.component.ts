@@ -10,6 +10,7 @@ import {
 import { settings } from '../core/models/settings';
 import { AppLanguagesService } from '../shared/services/app-languages.service';
 import { LogoComponent } from '../ui/logo/logo.component';
+import { InboxBellComponent } from '../features/inbox/inbox-bell.component';
 import { BreadcrumbsComponent } from './breadcrumbs.component';
 import { NavService } from './nav.service';
 import { ThemeMode, ThemeService } from './theme.service';
@@ -18,7 +19,7 @@ import { ThemeMode, ThemeService } from './theme.service';
 @Component({
   selector: 'app-shell',
   imports: [
-    RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, ImgUserPictureDirective, LogoComponent, BreadcrumbsComponent,
+    RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, ImgUserPictureDirective, LogoComponent, BreadcrumbsComponent, InboxBellComponent,
     LucideDynamicIcon, LucideMenu, LucideSun, LucideMoon, LucideMonitor, LucideLanguages, LucideLogOut, LucideChevronsUpDown, LucideHeart
   ],
   styles: `
@@ -47,6 +48,10 @@ import { ThemeMode, ThemeService } from './theme.service';
             <svg lucideMenu class="size-5"></svg>
           </label>
           <app-breadcrumbs class="min-w-0 flex-1" />
+
+          @if (enableInbox) {
+            <app-inbox-bell />
+          }
 
           <div class="dropdown dropdown-end">
             <button type="button" tabindex="0" class="btn btn-ghost btn-sm gap-1.5" [attr.aria-label]="'Nav.Language' | translate">
@@ -158,6 +163,7 @@ export class ShellComponent {
   protected readonly languages = inject(AppLanguagesService);
   protected readonly theme = inject(ThemeService);
   protected readonly version = settings.version;
+  protected readonly enableInbox = settings.enableInbox;
   protected readonly drawerOpen = signal(false);
   protected readonly themeOptions: { mode: ThemeMode; label: string }[] = [
     { mode: 'light', label: 'Theme.Light' },
