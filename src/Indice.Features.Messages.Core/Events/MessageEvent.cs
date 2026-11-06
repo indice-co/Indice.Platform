@@ -23,6 +23,8 @@ public class MessageEvent
     public string Recipient { get; set; } = string.Empty;
     /// <summary>Indicates whether the event was successful.</summary>
     public bool Success { get; set; } = false;
+    /// <summary>The unique identifier given from the send provider for successful events.</summary>
+    public string? ReceiptId { get; set; }
     /// <summary>The date and time when the event occurred.</summary>   
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
 }

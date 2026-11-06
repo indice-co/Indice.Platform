@@ -27,6 +27,7 @@ public class DbMessageEventMap : IEntityTypeConfiguration<DbMessageEvent>
         builder.Property(x => x.Channel).HasMaxLength(TextSizePresets.S64);
         builder.Property(x => x.Recipient).HasMaxLength(TextSizePresets.M128);
         builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128);
+        builder.Property(x => x.ReceiptId).HasMaxLength(TextSizePresets.M128);
 
         // indexes
         builder.HasIndex(x => x.Type);
