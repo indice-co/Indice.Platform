@@ -46,12 +46,14 @@
         [busy]="threadLoading()"
         [questionsTotal]="questionsTotal()"
         (pick)="send($event)"
+        (paymentCompleted)="paymentCompleted()"
         (likeChanged)="setLike($event)"
       />
     </div>
     <app-chat-composer
       [streaming]="isStreaming()"
       [readOnly]="conversationReadOnly()"
+      [locked]="paymentPending()"
       [agents]="agents()"
       [(selectedAgent)]="selectedAgentName"
       (send)="send($event)"

@@ -42,6 +42,9 @@ public static class AgentsServerFeatureExtensions
         if (options.AllowAnonymousChatCreation) {
             services.AddHttpClient<IGuestTokenService, GuestTokenService>();
         }
+        if (options.EnablePayments) {
+            services.AddAgentsPayments();
+        }
         return services;
     }
 
@@ -104,6 +107,9 @@ public static class AgentsServerFeatureExtensions
         routes.MapAgentsDiscovery();
         if (options.Ingestion.Enabled) { 
             routes.MapIngestion();
+        }
+        if (routes.ServiceProvider.GetRequiredService<IOptions<AgentsServerOptions>>().Value.EnablePayments) {
+            routes.MapPayments();
         }
         return routes;
     }
