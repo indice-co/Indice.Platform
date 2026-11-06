@@ -1,10 +1,7 @@
 using System.Net;
-using System.Security.Claims;
 using System.Text.Json;
 using Indice.AspNetCore.Http.Client;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace Indice.AspNetCore.Tests;
@@ -18,11 +15,13 @@ public class OnBehalfOfHttpHandlerTests
     public async Task DelegationTokens_AreCachedPerSession_ForTheSameSubject() {
         string? currentAccessToken = null;
         string? currentSubjectId = null;
+        string? currentSessionId = null;
         var tokenRequests = new List<string>();
         var services = new ServiceCollection();
         services.AddDistributedMemoryCache();
         services.AddSingleton<OnBehalfOfAccessTokenSelector>(() => currentAccessToken);
         services.AddSingleton<OnBehalfOfSubjectIdSelector>(() => currentSubjectId);
+        services.AddSingleton<OnBehalfOfSessionIdSelector>(() => currentSessionId);
         services.AddHttpClient(TokenClientName)
                 .ConfigurePrimaryHttpMessageHandler(() => new StubHttpMessageHandler(async request => {
                     var form = await request.Content!.ReadAsStringAsync();
@@ -47,35 +46,30 @@ public class OnBehalfOfHttpHandlerTests
         using var serviceProvider = services.BuildServiceProvider();
         var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
 
-        async Task<string> GetDelegatedToken(string? accessToken, string? subjectId) {
+        async Task<string> GetDelegatedToken(string? accessToken, string? subjectId, string? sessionId) {
             currentAccessToken = accessToken;
             currentSubjectId = subjectId;
+            currentSessionId = sessionId;
             var response = await httpClientFactory.CreateClient(ApiClientName).GetAsync("/resource");
             return await response.Content.ReadAsStringAsync();
         }
 
-        var firstSessionToken = await GetDelegatedToken(CreateUserToken("alice", "session-1"), "alice");
-        var secondSessionToken = await GetDelegatedToken(CreateUserToken("alice", "session-2"), "alice");
-        var firstSessionTokenAgain = await GetDelegatedToken(CreateUserToken("alice", "session-1"), "alice");
+        var firstSessionToken = await GetDelegatedToken("opaque-reference-token-1", "alice", "session-1");
+        var secondSessionToken = await GetDelegatedToken("opaque-reference-token-2", "alice", "session-2");
+        var firstSessionTokenAgain = await GetDelegatedToken("opaque-reference-token-1", "alice", "session-1");
 
         Assert.NotEqual(firstSessionToken, secondSessionToken);
         Assert.Equal(firstSessionToken, firstSessionTokenAgain);
         Assert.Equal(2, tokenRequests.Count);
         Assert.All(tokenRequests, form => Assert.Contains("grant_type=delegation", form));
 
-        var clientCredentialsToken = await GetDelegatedToken(null, null);
-        var clientCredentialsTokenAgain = await GetDelegatedToken(null, null);
+        var clientCredentialsToken = await GetDelegatedToken(null, null, null);
+        var clientCredentialsTokenAgain = await GetDelegatedToken(null, null, "session-1");
 
         Assert.Equal(clientCredentialsToken, clientCredentialsTokenAgain);
         Assert.Equal(3, tokenRequests.Count);
         Assert.Contains("grant_type=client_credentials", tokenRequests[2]);
     }
-
-    private static string CreateUserToken(string subjectId, string sessionId) => new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor {
-        Subject = new ClaimsIdentity([new Claim("sub", subjectId), new Claim("sid", sessionId)]),
-        Issuer = "https://identity.example.com",
-        Expires = DateTime.UtcNow.AddHours(1)
-    });
 
     private class StubHttpMessageHandler(Func<HttpRequestMessage, Task<HttpResponseMessage>> handler) : HttpMessageHandler
     {
