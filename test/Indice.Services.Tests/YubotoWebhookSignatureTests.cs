@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using Indice.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Moq;
@@ -14,7 +15,7 @@ public sealed class YubotoWebhookSignatureTests
 
     [Fact]
     public async Task ValidBase64UrlSignature_IsAccepted() {
-        var signature = Convert.ToBase64String(ComputeHmac()).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var signature = ComputeHmac().ToBase64UrlSafe();
 
         var result = await ParseAsync(signature);
 
@@ -36,7 +37,7 @@ public sealed class YubotoWebhookSignatureTests
     public async Task TamperedSignature_IsRejected() {
         var hash = ComputeHmac();
         hash[0] ^= 0xFF;
-        var signature = Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var signature = hash.ToBase64UrlSafe();
 
         var result = await ParseAsync(signature);
 

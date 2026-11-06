@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Indice.Extensions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -574,7 +575,7 @@ internal static class YubotoSmsServiceExtensions {
         var payload = $"{referenceId}:{timestamp}";
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-        var signature = Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var signature = hash.ToBase64UrlSafe();
         var option1 = signature;
         request.Option1 = option1;
         var option2 = payload.Replace(":", "_");

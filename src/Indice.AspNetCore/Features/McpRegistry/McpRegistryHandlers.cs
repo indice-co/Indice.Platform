@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using Indice.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -143,8 +144,7 @@ internal static class McpRegistryHandlers
 
     private static DateTimeOffset? GetLastModified(McpServerEntry entry) => new[] { entry.UpdatedAt, entry.StatusChangedAt, entry.PublishedAt }.Max();
 
-    private static string EncodeCursor(int offset) =>
-        Convert.ToBase64String(Encoding.UTF8.GetBytes(offset.ToString(CultureInfo.InvariantCulture))).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+    private static string EncodeCursor(int offset) => offset.ToString(CultureInfo.InvariantCulture).Base64UrlSafeEncode();
 
     private static bool TryDecodeCursor(string? cursor, out int offset) {
         offset = 0;
@@ -152,9 +152,7 @@ internal static class McpRegistryHandlers
             return true;
         }
         try {
-            var base64 = cursor.Replace('-', '+').Replace('_', '/');
-            base64 = base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
-            var text = Encoding.UTF8.GetString(Convert.FromBase64String(base64));
+            var text = cursor.Base64UrlSafeDecode();
             return int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out offset);
         } catch (FormatException) {
             return false;
