@@ -56,10 +56,11 @@ internal abstract class BaseCaseService
             .Where(x => ids.Contains(x.Id))
             .Select(x => new { x.Id, x.Guid })
             .ToDictionaryAsync(x => x.Id, x => x.Guid);
-        foreach (var attachment in missing) {
-            if (guids.TryGetValue(attachment.Id, out var guid)) {
-                attachment.Data = await GetAttachmentData(guid, attachment.FileExtension, null);
-            }
+        var attachmentsWithGuid = missing
+            .Select(attachment => new { attachment, found = guids.TryGetValue(attachment.Id, out var guid), guid })
+            .Where(x => x.found);
+        foreach (var item in attachmentsWithGuid) {
+            item.attachment.Data = await GetAttachmentData(item.guid, item.attachment.FileExtension, null);
         }
     }
 

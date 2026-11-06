@@ -64,7 +64,9 @@ public class CaseAttachmentFileServiceTests
             FileName = "document.txt",
             FileStreamAccessor = () => new MemoryStream(content)
         }, AuditMeta.Create(Actor()));
-        Assert.NotNull(attachmentId);
+        if (attachmentId is null) {
+            throw new InvalidOperationException("Expected attachment id to be returned, but got null.");
+        }
         return attachmentId.Value;
     }
 
@@ -113,7 +115,8 @@ public class CaseAttachmentFileServiceTests
         var content = Encoding.UTF8.GetBytes("legacy attachment");
         var dbContext = serviceProvider.GetRequiredService<CasesDbContext>();
         var legacy = new DbAttachment(@case.Id);
-        legacy.PopulateFrom("legacy.txt", new MemoryStream(content), saveData: true);
+        using var stream = new MemoryStream(content);
+        legacy.PopulateFrom("legacy.txt", stream, saveData: true);
         dbContext.Attachments.Add(legacy);
         await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
