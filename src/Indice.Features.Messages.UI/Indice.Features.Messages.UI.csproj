@@ -26,5 +26,9 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
-  
+  <ItemGroup>
+    <None Include="../../docs/Messaging-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/messaging-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

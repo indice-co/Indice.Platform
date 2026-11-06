@@ -65,4 +65,8 @@
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Vite build failed. Run 'npm run build' in src/Indice.Features.Identity.UI and fix the reported errors before building the project." />
   </Target>
+  <ItemGroup>
+    <None Include="../../docs/Identity-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/identity-admin-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
 </Project>

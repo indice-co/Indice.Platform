@@ -51,7 +51,7 @@ public sealed class WebhookHttpResult
     /// <summary>Gets or sets the HTTP status code to return to the webhook sender.</summary>
     public int Status { get; set; } = 204;
     /// <summary>Gets or sets an optional success response payload.</summary>
-    public object? SuccessPayload { get; set; }
+    public JsonNode? Result { get; set; }
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing an error with the specified status code and error messages.</summary>
     public static WebhookHttpResult FromError(int statusCode, params string[] errors) {
         var result = new WebhookHttpResult(new List<WebhookEvent>());
@@ -66,12 +66,10 @@ public sealed class WebhookHttpResult
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a bad request with the specified error messages.</summary>
     public static WebhookHttpResult BadRequest(params string[] errors) => FromError(400, errors);
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a successful request with the specified events.</summary>
-    public static WebhookHttpResult Ok(List<WebhookEvent> events) => Ok(events, 204);
-    /// <summary>Creates a successful result with the specified events, HTTP status code, and optional response payload.</summary>
-    public static WebhookHttpResult Ok(List<WebhookEvent> events, int statusCode, object? successPayload = null) {
+    public static WebhookHttpResult Ok(List<WebhookEvent> events, int statusCode, JsonNode? successPayload = null) {
         var result = new WebhookHttpResult(events) {
             Status = statusCode,
-            SuccessPayload = successPayload
+            Result = successPayload
         };
         return result;
     }

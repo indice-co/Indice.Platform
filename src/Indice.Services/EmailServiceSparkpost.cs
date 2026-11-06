@@ -129,7 +129,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
 
         var events = ParseEvents(payload).ToList();
 
-        return WebhookHttpResult.Ok(events, 204);
+        return WebhookHttpResult.Ok(events, statusCode: 204);
     }
 
     private static IEnumerable<WebhookEvent> ParseEvents(JsonNode? root) {

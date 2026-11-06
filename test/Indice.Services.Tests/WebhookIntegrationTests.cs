@@ -114,6 +114,83 @@ public sealed class WebhookIntegrationTests
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
+    [Fact]
+    public async Task OmniMessagingWebhook_WithWebhooksEnabled() {
+        const string apiKeyName = "X-API-Key";
+        const string apiKeyValue = "omni-webhook-test-key";
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Webhooks:Enabled"] = true.ToString(),
+                ["Webhooks:ChannelCapacity"] = "100",
+                ["Sms:Provider"] = "omnimessaging",
+                ["Sms:WebhookAuthenticationMethod"] = "ApiKey",
+                ["Sms:WebhookApiKeyHeaderName"] = apiKeyName,
+                ["Sms:WebhookSecret"] = apiKeyValue
+            })
+            .Build();
+
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webHost => {
+                webHost.UseTestServer();
+                webHost.ConfigureServices(services => {
+                    services.AddRouting();
+                    services.AddSmsService(configuration);
+                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
+                });
+                webHost.Configure(app => {
+                    app.UseRouting();
+
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapWebhooks();
+                    });
+                });
+            })
+            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        var services = host.Services;
+
+        Assert.NotNull(
+            services.GetRequiredService<Channel<List<WebhookEvent>>>());
+
+        Assert.NotNull(
+            services.GetRequiredKeyedService<IWebhookHttpHandler>("omnimessaging"));
+
+        Assert.Contains(
+            services.GetServices<IHostedService>(),
+            service => service.GetType() == typeof(WebhookEventSink));
+
+        var payload = new {
+            id = 1735689600000000,
+            campaign_id = 2501000000000001,
+            campaign_reference = "ORDER-12345",
+            message_id = 2501010000000001,
+            contact_id = 123,
+            recipient_id = (long?)null,
+            unique_id = "CUSTOMER-100",
+            to = "306900000000",
+            type = "sms",
+            delivery_report = new {
+                status = "delivered",
+                date = "2025-01-01T00:00:00Z"
+            }
+        };
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/webhooks/omnimessaging") {
+            Content = JsonContent.Create(payload)
+        };
+        request.Headers.Add(apiKeyName, apiKeyValue);
+
+        using var response = await host.GetTestClient().SendAsync(
+            request,
+            TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var responsePayload = await response.Content.ReadFromJsonAsync<Dictionary<string, bool>>(TestContext.Current.CancellationToken);
+        Assert.NotNull(responsePayload);
+        Assert.True(responsePayload["success"]);
+    }
+
     private static HttpRequestMessage GetValidApifonPayload(string webhookSecret) {
         var timestamp = DateTimeOffset.UtcNow.ToString("O");
         var reference = Guid.NewGuid().ToString("N");

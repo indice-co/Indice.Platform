@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Nodes;
 using System.Threading.Channels;
 using Indice.Services;
 using Microsoft.AspNetCore.Builder;
@@ -49,6 +50,7 @@ public static class WebhooksEndpointExtensions
                 Receives a webhook notification from the specified provider, validates the request,
                 and processes the notification using the provider-specific webhook handler.
                 """)
+            .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest);
 
@@ -60,13 +62,14 @@ public static class WebhooksEndpointExtensions
                 Receives a webhook notification from the specified provider, validates the request,
                 and processes the notification using the provider-specific webhook handler.
                 """)
+            .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest);
 
         return group;
     }
 
-    internal static async Task<Results<ValidationProblem, NotFound, NoContent>> HandleWebhook( 
+    internal static async Task<Results<ValidationProblem, NotFound, NoContent, Ok<JsonNode>, Ok>> HandleWebhook( 
         string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
         var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
         
@@ -77,7 +80,6 @@ public static class WebhooksEndpointExtensions
         var result = await httpHandler.ParseAsync(context.Request.Headers, context.Request.Query, context.Request.Body, cancellationToken);
         if (!result.Success) {
             return result.Status switch {
-                >= 200 and <= 204 => TypedResults.NoContent(),
                 >= 400 and <= 403 => TypedResults.ValidationProblem(
                     ValidationErrors.AddErrors(provider, result.Errors)),
                 _ => TypedResults.ValidationProblem(
@@ -88,7 +90,11 @@ public static class WebhooksEndpointExtensions
         if (result.Events.Any()) {
             await channel.Writer.WriteAsync(result.Events, cancellationToken);
         }
-
-        return TypedResults.NoContent();
+        
+        return result.Status switch {
+            204 => TypedResults.NoContent(),
+            >= 200 and <= 299 when result.Result is not null => TypedResults.Ok(result.Result),
+            _ => TypedResults.Ok()
+        };
     }
 }

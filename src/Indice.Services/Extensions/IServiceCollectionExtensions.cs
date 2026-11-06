@@ -592,6 +592,12 @@ public static class IndiceServicesServiceCollectionExtensions
                 services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
                 services.AddWebhookServices<THandler, YubotoWebhookHttpHandler>(configuration, provider);
                 break;
+            case "mstat":
+            case "omnimessaging":
+            case "omni_messaging":
+                services.Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, OmnimessagingWebhookHttpHandler>(configuration, provider);
+                break;
         }
         return services;
     }
