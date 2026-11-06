@@ -506,12 +506,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
         DbContext.Remove(@case);
         await DbContext.SaveChangesAsync();
-        foreach (var path in attachmentPaths) {
-            try {
-                await FileService!.DeleteAsync(path);
-            } catch (FileServiceException) {
-                // Best effort, the case has already been deleted.
-            }
+        foreach (var batch in attachmentPaths.Chunk(5)) {
+            await Task.WhenAll(batch.Select(TryDeleteAttachmentFile));
+        }
+    }
+
+    private async Task TryDeleteAttachmentFile(string path) {
+        try {
+            await FileService!.DeleteAsync(path);
+        } catch (Exception) {
+            // Best effort, the case has already been deleted.
         }
     }
 
