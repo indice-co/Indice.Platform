@@ -19,4 +19,9 @@
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Features.Risk.Core\Indice.Features.Risk.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Risk-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/risk-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
 </Project>

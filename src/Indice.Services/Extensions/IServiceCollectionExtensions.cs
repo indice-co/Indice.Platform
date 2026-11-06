@@ -578,6 +578,16 @@ public static class IndiceServicesServiceCollectionExtensions
             case "ApiFon":
                 services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
                 break;
+            case "vonage":
+            case "Vonage":
+                services.Configure<SmsServiceVonageSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, VonageWebhookHttpHandler>(configuration, provider);
+                break;
+            case "twilio":
+            case "Twilio":
+                services.Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, TwilioWebhookHttpHandler>(configuration, provider);
+                break;
             case "Yuboto":
             case "yuboto":
             case "yuboto_omni":
@@ -586,6 +596,12 @@ public static class IndiceServicesServiceCollectionExtensions
             case "yuboto_omni_viber":
                 services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
                 services.AddWebhookServices<THandler, YubotoWebhookHttpHandler>(configuration, provider);
+                break;
+            case "mstat":
+            case "omnimessaging":
+            case "omni_messaging":
+                services.Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, OmnimessagingWebhookHttpHandler>(configuration, provider);
                 break;
         }
         return services;

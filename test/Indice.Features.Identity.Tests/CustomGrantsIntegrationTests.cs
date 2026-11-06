@@ -443,7 +443,70 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
     }
 
+    [Fact]
+    public async Task Delegation_Grant_Preserves_SessionId_From_Password_Login() {
+        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!);
+        
+        AssertSidClaimExists(delegationResponse);
+        Assert.StartsWith($"{SessionIdPrefixes.Password}.", loginSessionId);
+        Assert.Equal(loginSessionId, GetSessionId(delegationResponse));
+    }
+
+    [Fact]
+    public async Task Delegation_Grant_Preserves_SessionId_From_Device_Login() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var loginResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!);
+        
+        AssertSidClaimExists(delegationResponse);
+        Assert.StartsWith($"{SessionIdPrefixes.DeviceAuthentication}.", loginSessionId);
+        Assert.Equal(loginSessionId, GetSessionId(delegationResponse));
+    }
+
+    [Fact]
+    public async Task Delegation_Grant_Refresh_Preserves_SessionId() {
+        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!, requestOfflineAccess: true);
+        Assert.False(string.IsNullOrWhiteSpace(delegationResponse.RefreshToken));
+
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var refreshRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = delegationResponse.RefreshToken!
+        };
+        var refreshResponse = await _httpClient.RequestRefreshTokenAsync(refreshRequest, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
+    }
+
     #endregion
+
+    private async Task<TokenResponse> RequestDelegationToken(string token, bool requestOfflineAccess = false) {
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1";
+        if (requestOfflineAccess) {
+            scope = $"{scope} {IdentityServerConstants.StandardScopes.OfflineAccess}";
+        }
+        using var tokenRequest = new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.Delegation,
+            Parameters = {
+                { "token", token },
+                { "scope", scope }
+            }
+        };
+        return await _httpClient.RequestTokenAsync(tokenRequest);
+    }
 
     private static string? GetSessionId(TokenResponse tokenResponse) {
         Assert.False(tokenResponse.IsError, tokenResponse.ErrorDescription ?? tokenResponse.Error);

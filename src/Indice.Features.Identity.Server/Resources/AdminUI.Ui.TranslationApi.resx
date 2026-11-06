@@ -375,7 +375,7 @@
     <value>External providers</value>
   </data>
   <data name="Clients.Details.ExternalProvidersHint" xml:space="preserve">
-    <value>Providers offered on this client's sign in page. Selecting all, or none, means no restriction.</value>
+    <value>Providers offered on this client's sign in page. Selecting all means no restriction; selecting none disables every external provider.</value>
   </data>
   <data name="Clients.Details.General" xml:space="preserve">
     <value>General</value>

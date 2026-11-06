@@ -9,7 +9,6 @@ using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core;
 
@@ -18,7 +17,6 @@ public interface IDexChatClient : IChatClient
 {
 }
 
-/// <inheritdoc/>
 /// <summary>
 /// Creates a new <see cref="AgentsChatClient"/> instance.
 /// </summary>

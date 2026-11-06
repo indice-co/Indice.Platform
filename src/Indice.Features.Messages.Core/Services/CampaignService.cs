@@ -159,10 +159,7 @@ public class CampaignService : ICampaignService
                             where campaign.Id == campaignId.Value
                             select new RecipientMetrics {
                                 TotalCampaigns = 1,
-                                Total = (from contact in DbContext.ContactDistributionLists
-                                         join distributionList in DbContext.DistributionLists on contact.DistributionListId equals distributionList.Id
-                                         where distributionList.Id == campaign.DistributionListId
-                                         select contact.ContactId).Count(),
+                                Total = campaign.RecipientCount ?? 0,
                                 TotalMessages = (from messageEvent in DbContext.MessageEvents
                                                  where messageEvent.CampaignId == campaign.Id &&
                                                        (
@@ -200,11 +197,8 @@ public class CampaignService : ICampaignService
             };
         }
 
-        // Sum of distinct recipients per campaign
-        var totalRecipientsSum = await (from c in DbContext.Campaigns
-                                        join cd in DbContext.ContactDistributionLists on c.DistributionListId equals cd.DistributionListId into contacts
-                                        select contacts.Select(x => x.ContactId).Distinct().Count()
-                                       ).SumAsync();
+        // Sum of the recipients each campaign was sent out to; drafts and global campaigns count as 0.
+        var totalRecipientsSum = await DbContext.Campaigns.SumAsync(x => x.RecipientCount ?? 0);
         // Sum of distinct message ids per campaign that count as "reached"
         var messagesSum = await (from e in DbContext.MessageEvents
                                  where e.Type == nameof(MessageEventType.Sent) ||
@@ -331,6 +325,12 @@ public class CampaignService : ICampaignService
         await DbContext.SaveChangesAsync();
         return Mapper.ToCampaign(campaign);
     }
+
+    /// <inheritdoc />
+    public Task SetRecipientCount(Guid campaignId, int recipientCount) =>
+        DbContext.Campaigns
+            .Where(x => x.Id == campaignId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.RecipientCount, recipientCount));
     ///<inheritdoc/>
     public async Task<ResultSet<Recipient>> GetCampaignRecipients(Guid campaignId, ListOptions options) {
         var query = from messageEvent in DbContext.MessageEvents

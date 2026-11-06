@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.64.0]
+### Added recipient counts to campaigns and distribution lists
+`Campaign.RecipientCount` stores how many contacts a published campaign was sent out to (null for drafts and global campaigns).
+`DistributionList.ContactCount` stores how many contacts a list currently has (unsubscribed ones included) and is recounted after every membership change.
+Both are returned by the campaign and distribution list endpoints.
+The recipient analytics (`RecipientMetrics.Total`, campaign statistics and overview) now read `Campaign.RecipientCount` instead of counting the current list members, so a campaign reports the audience it was actually sent to. Campaigns that have not been sent to a distribution list (drafts, global campaigns) count as 0.
+
+Run the following migration script.<br/>
+**Caution!** Update table schema if not [cmp]
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[Campaign]')
+      AND name = N'RecipientCount'
+)
+BEGIN
+    ALTER TABLE [cmp].[Campaign]
+        ADD [RecipientCount] INT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[DistributionList]')
+      AND name = N'ContactCount'
+)
+BEGIN
+    ALTER TABLE [cmp].[DistributionList]
+        ADD [ContactCount] INT NOT NULL
+            CONSTRAINT [DF_DistributionList_ContactCount] DEFAULT (0);
+END;
+GO
+
+-- Backfill the current size of every list.
+UPDATE dl
+SET [ContactCount] = (
+    SELECT COUNT(*)
+    FROM [cmp].[DistributionListContact] dlc
+    WHERE dlc.[DistributionListId] = dl.[Id]
+)
+FROM [cmp].[DistributionList] dl;
+GO
+
+-- Backfill published, non-global campaigns from the current size of their list.
+-- Exact for system generated lists; approximate for shared lists that changed after the send.
+UPDATE c
+SET [RecipientCount] = dl.[ContactCount]
+FROM [cmp].[Campaign] c
+INNER JOIN [cmp].[DistributionList] dl ON dl.[Id] = c.[DistributionListId]
+WHERE c.[Published] = 1
+  AND c.[IsGlobal] = 0
+  AND c.[RecipientCount] IS NULL;
+GO
+```
+
 ## [8.62.0]
 ### Added flag for system generated distribution lists
 

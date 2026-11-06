@@ -27,6 +27,11 @@ public interface ICampaignService
     /// <summary>Publishes an existing campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     Task<Campaign> Publish(Guid campaignId);
+    /// <summary>Stores how many contacts the campaign was sent out to.</summary>
+    /// <param name="campaignId">The id of the campaign.</param>
+    /// <param name="recipientCount">The number of contacts.</param>
+    /// <remarks>Overwrites any previous value, so repeating the call with the same count is safe.</remarks>
+    Task SetRecipientCount(Guid campaignId, int recipientCount);
     /// <summary>Gets some statistics for the campaign.</summary>
     /// <param name="asOfDate">The date and time to use as a reference point for calculating the metrics. If not provided, the current date and time will be used.</param>
     Task<CampaignMetrics> GetMetrics(DateTimeOffset? asOfDate = null);
