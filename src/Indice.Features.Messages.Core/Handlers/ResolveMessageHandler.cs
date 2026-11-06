@@ -26,6 +26,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="options">Configuration for workers.</param>
     /// <param name="messageEventQueue">Campaign event listener queue</param>
     /// <param name="partialTemplateResolverFactory">Factory for creating partial template resolvers per channel.</param>
+    /// <param name="inboxNotifier">Notifies the recipient in real time when a new inbox message is created. Optional.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
         IEventDispatcherFactory eventDispatcherFactory,
@@ -35,7 +36,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
         MessageEventQueue messageEventQueue,
-        IPartialTemplateResolverFactory partialTemplateResolverFactory
+        IPartialTemplateResolverFactory partialTemplateResolverFactory,
+        IInboxNotifier? inboxNotifier = null
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
@@ -45,6 +47,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         MessageEventQueue = messageEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
+        InboxNotifier = inboxNotifier ?? new InboxNotifierNoop();
     }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactResolver ContactResolver { get; }
@@ -54,6 +57,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     private MessageEventQueue MessageEventQueue { get; }
     private MessageWorkerOptions Options { get; }
     private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
+    private IInboxNotifier InboxNotifier { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
@@ -155,6 +159,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
 
         if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
+            await NotifyInbox(campaign, contact);
         }
 
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
@@ -171,6 +176,19 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             await LogEvent(campaign, contact, MessageChannelKind.SMS, messageId);
             await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, messageId, broadcast: false),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
+        }
+    }
+
+    private async Task NotifyInbox(CampaignCreatedEvent campaign, Contact contact) {
+        // Messages that are not yet (or no longer) active are not visible in the inbox, so there is nothing to notify about.
+        if (string.IsNullOrWhiteSpace(contact.RecipientId) || !InboxMessageNotification.IsActive(campaign.ActivePeriod, DateTimeOffset.UtcNow)) {
+            return;
+        }
+        try {
+            await InboxNotifier.NotifyUserAsync(contact.RecipientId, InboxMessageNotification.FromCampaign(campaign));
+        } catch (Exception exception) {
+            // A failed real time notification should never fail (and retry) the message creation.
+            Logger.LogWarning(exception, "Failed to send the real time inbox notification for campaign {CampaignId}.", campaign.Id);
         }
     }
 
