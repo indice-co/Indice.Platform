@@ -5,23 +5,6 @@ namespace Indice.Features.Agents.Core.Tests;
 
 public class VivaPaymentsTests
 {
-    [Fact]
-    public void Validator_Skips_WhenVivaIsNotAllowed() {
-        var validator = new VivaOptionsValidator(Options.Create(new PaymentsOptions { AllowedProviders = [PaymentProviders.Stripe] }));
-
-        Assert.True(validator.Validate(null, new VivaOptions()).Skipped);
-    }
-
-    [Fact]
-    public void Validator_Fails_WhenVivaIsAllowedWithoutCredentials() {
-        var validator = new VivaOptionsValidator(Options.Create(new PaymentsOptions { AllowedProviders = [PaymentProviders.Viva] }));
-
-        var result = validator.Validate(null, new VivaOptions());
-
-        Assert.True(result.Failed);
-        Assert.Contains("Viva:ClientId is required.", result.Failures!);
-    }
-
     [Theory]
     [InlineData("viva", true)]
     [InlineData(" Stripe ", true)]

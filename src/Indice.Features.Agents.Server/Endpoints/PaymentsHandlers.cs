@@ -65,7 +65,7 @@ internal static class PaymentsHandlers
         return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
     }
 
-    /// <summary>GET /api/webhooks/viva
+    /// <summary>GET /api/webhooks/viva - Viva get public webhook key</summary>
     public static async Task<Results<Ok<VivaWebhookKey>, NotFound>> VivaWebhookVerification(IPaymentAttemptsService payments, CancellationToken cancellationToken) {
         if (payments.GetProvider(PaymentProviders.Viva) is not IVivaPaymentsService viva) {
             return TypedResults.NotFound();
