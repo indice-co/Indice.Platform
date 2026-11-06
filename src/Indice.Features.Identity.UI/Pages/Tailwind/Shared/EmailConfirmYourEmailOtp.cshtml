@@ -1,0 +1,43 @@
+@inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
+@inject UserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
+
+
+@{
+    Layout = "_LayoutEmail.cshtml";
+}
+
+@{
+    var settings = GeneralSettings.Value;
+    var subject = ViewData["Subject"];
+    var userName = Model?.UserName ?? UserManager.GetUserName(User);
+    var code = Model?.Code ?? throw new InvalidOperationException("Confirmation code cannot be null.");
+}
+
+@section preheader {
+    @Localizer.Email_ConfirmYourEmail_OtpCode
+}
+
+@section subject {
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@subject</h1>
+}
+
+<p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
+    @Localizer.Email_Body_Hi @(userName ?? string.Empty),
+    <br />
+    <br />
+    @Localizer.Email_ConfirmYourEmail_OtpCode
+    <br />
+    <br />
+    <h3>@code</h3>
+    <br />
+    <br />
+    @Localizer.Email_Body_Thanks.
+    <br />
+    <br />
+    @Localizer.Email_Body_Sincerely,
+    <br />
+    <br />
+    @Localizer.Email_Body_Organization_Signature(settings.Organization!)
+</p>

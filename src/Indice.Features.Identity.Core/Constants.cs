@@ -170,6 +170,8 @@ public static partial class RateLimiterPolicies
     public static readonly string ProfilePage = "manage/profile";
     /// <summary>Rate limiting policy for verify phone page.</summary>
     public static readonly string VerifyPhonePage = "login/verify-phone";
+    /// <summary>Rate limiting policy for verify email page.</summary>
+    public static readonly string VerifyEmailPage = "login/verify-email";
     
 
     /// <summary>All rate limiting policies.</summary>
@@ -201,7 +203,8 @@ public static partial class RateLimiterPolicies
             MfaAddPhonePage,
             MfaSetupAuthenticatorPage,
             ProfilePage,
-            VerifyPhonePage
+            VerifyPhonePage,
+            VerifyEmailPage
         };
 }
 

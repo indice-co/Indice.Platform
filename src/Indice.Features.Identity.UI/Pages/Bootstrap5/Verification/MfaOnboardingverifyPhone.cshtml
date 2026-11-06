@@ -1,0 +1,52 @@
+﻿@page "/login/mfa/onboarding/verify-phone"
+@using Microsoft.AspNetCore.Html
+
+@model BaseMfaOnboardingVerifyPhoneModel
+
+@inject IWebHostEnvironment HostingEnvironment
+@inject IdentityUILocalizer Localizer
+@inject ExtendedUserManager<User> UserManager
+
+@{
+    Layout = "_AuthLayout";
+    ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
+    var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
+}
+
+<section class="auth-card mfa">
+    <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src=""
+                     subtitle="new HtmlString(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone)" />
+    <partial name="_ValidationSummary" />
+    <partial name="_Alert" model="infoMessage?.Alert" />
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate class="auth-form">
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <input type="hidden" asp-for="Input.PhoneNumber" />
+        <div class="field">
+            <label asp-for="Input.Code" class="field__label">@Localizer.MfaOnBoardingVerifyPhone_Code</label>
+            <input class="form-control field__control otp-field__input" data-otp-length="6" type="text" inputmode="numeric"
+                   autocomplete="one-time-code" placeholder="@Localizer.MfaOnBoardingVerifyPhone_Code"
+                   asp-for="Input.Code" autofocus aria-describedby="Input_Code-error" />
+            <span asp-validation-for="Input.Code" class="field__error" id="Input_Code-error"></span>
+        </div>
+        <p class="otp-field__resend">
+            <button type="submit"
+                    id="otp-resend"
+                    name="Input.OtpResend"
+                    value="true"
+                    formnovalidate
+                    class="otp-field__resend-btn">
+                <span class="otp-field__resend-text">@Localizer.VerifyPhone_Resend</span>
+                <span class="otp-field__wait">@Localizer.Mfa_ResendAvailableIn <span class="countdown otp-field__countdown"></span></span>
+            </button>
+        </p>
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingVerifyPhone_Save</button>
+        </div>
+    </form>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/otp-field.js" csp-nonce></script>
+}

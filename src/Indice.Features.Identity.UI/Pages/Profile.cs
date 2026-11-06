@@ -99,12 +99,21 @@ public abstract class BaseProfileModel : BasePageModel
 
     /// <summary>Profile page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        // Account fields (user name, email, phone) are updated through their dedicated handlers.
+        foreach (var key in AccountFieldKeys.SelectMany(x => x.Value)) {
+            ModelState.Remove(key);
+        }
+        _ = PhoneNumber.TryParse(user.PhoneNumber!, out var currentPhoneNumber);
+        Input.UserName = user.UserName ?? string.Empty;
+        Input.Email = user.Email ?? string.Empty;
+        Input.PhoneNumber = currentPhoneNumber.Number;
+        Input.CallingCode = currentPhoneNumber.CallingCode;
         View = await BuildProfileViewModelAsync(Input);
         if (!ModelState.IsValid) {
             return Page();
         }
 
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         IdentityResult result;
         if (!View.DisableEditGivenName) {
             result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName ?? string.Empty);
@@ -128,25 +137,110 @@ public abstract class BaseProfileModel : BasePageModel
             result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.ZoneInfo, Input.ZoneInfo);
             AddModelErrors(result);
         }
-        if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
-            EmailChangeRequested = true;
-            if (!string.IsNullOrWhiteSpace(Input.Email)) {
-                if (!await SendChangeEmailConfirmationEmail(user, Input.Email)) {
-                    ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
-                    ProfileSuccessfullyChanged = false;
-                    return Page();
-                }
-            }
-        }
-        if (!UserManager.EmailAsUserName && user.UserName != Input.UserName) {
-            result = await UserManager.SetUserNameAsync(user, Input.UserName);
-            AddModelErrors(result);
-        }
-        _ = PhoneNumber.TryParse(Input!.PhoneNumberWithCallingCode!, out var phoneNumber);
-        user.PhoneNumber = phoneNumber;
-        result = await UserManager.UpdateAsync(user);
-        AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;
+        return Page();
+    }
+
+    /// <summary>Profile page update email POST handler. Starts the email change verification flow.</summary>
+    public virtual async Task<IActionResult> OnPostUpdateEmailAsync() {
+        if (IdentityUIOptions.DisableEmailEdit) {
+            return BadRequest();
+        }
+        KeepModelStateFor(AccountFieldEmail);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (!ModelState.IsValid) {
+            return await AccountFieldPageAsync(AccountFieldEmail);
+        }
+        if (user.NormalizedEmail != Input.Email?.Trim().ToUpper() && !string.IsNullOrWhiteSpace(Input.Email)) {
+            if (!await SendChangeEmailConfirmationEmail(user, Input.Email)) {
+                ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
+                return await AccountFieldPageAsync(AccountFieldEmail);
+            }
+            EmailChangeRequested = true;
+        }
+        return await AccountFieldSuccessPageAsync();
+    }
+
+    /// <summary>Profile page update phone number POST handler.</summary>
+    public virtual async Task<IActionResult> OnPostUpdatePhoneAsync() {
+        if (IdentityUIOptions.DisablePhoneEdit) {
+            return BadRequest();
+        }
+        KeepModelStateFor(AccountFieldPhone);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (!ModelState.IsValid) {
+            return await AccountFieldPageAsync(AccountFieldPhone);
+        }
+        // TODO: Replace direct update with the phone number verification flow.
+        _ = PhoneNumber.TryParse(Input.PhoneNumberWithCallingCode!, out var phoneNumber);
+        user.PhoneNumber = phoneNumber;
+        var result = await UserManager.UpdateAsync(user);
+        AddModelErrors(result);
+        if (!result.Succeeded) {
+            return await AccountFieldPageAsync(AccountFieldPhone);
+        }
+        await SignInManager.RefreshSignInAsync(user);
+        return await AccountFieldSuccessPageAsync();
+    }
+
+    /// <summary>Profile page update user name POST handler.</summary>
+    public virtual async Task<IActionResult> OnPostUpdateUserNameAsync() {
+        if (IdentityUIOptions.DisableEmailEdit || UserManager.EmailAsUserName) {
+            return BadRequest();
+        }
+        KeepModelStateFor(AccountFieldUserName);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (!ModelState.IsValid) {
+            return await AccountFieldPageAsync(AccountFieldUserName);
+        }
+        if (user.UserName != Input.UserName) {
+            var result = await UserManager.SetUserNameAsync(user, Input.UserName);
+            AddModelErrors(result);
+            if (!result.Succeeded) {
+                return await AccountFieldPageAsync(AccountFieldUserName);
+            }
+            await SignInManager.RefreshSignInAsync(user);
+        }
+        return await AccountFieldSuccessPageAsync();
+    }
+
+    /// <summary>Account field identifier for email.</summary>
+    protected const string AccountFieldEmail = "Email";
+    /// <summary>Account field identifier for phone number.</summary>
+    protected const string AccountFieldPhone = "Phone";
+    /// <summary>Account field identifier for user name.</summary>
+    protected const string AccountFieldUserName = "UserName";
+
+    private static readonly Dictionary<string, string[]> AccountFieldKeys = new() {
+        [AccountFieldEmail] = [$"{nameof(Input)}.{nameof(ProfileInputModel.Email)}"],
+        [AccountFieldPhone] = [
+            $"{nameof(Input)}.{nameof(ProfileInputModel.CallingCode)}",
+            $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumber)}",
+            $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumberWithCallingCode)}"
+        ],
+        [AccountFieldUserName] = [$"{nameof(Input)}.{nameof(ProfileInputModel.UserName)}"]
+    };
+
+    private void KeepModelStateFor(string field) {
+        var keep = AccountFieldKeys[field];
+        foreach (var key in ModelState.Keys.Where(x => x != string.Empty && !keep.Contains(x)).ToList()) {
+            ModelState.Remove(key);
+        }
+    }
+
+    private async Task<IActionResult> AccountFieldPageAsync(string field) {
+        var view = await BuildProfileViewModelAsync();
+        view.EditingField = field;
+        Input = View = view;
+        return Page();
+    }
+
+    private async Task<IActionResult> AccountFieldSuccessPageAsync() {
+        ModelState.Clear();
+        var view = await BuildProfileViewModelAsync();
+        view.EmailChangePending |= EmailChangeRequested;
+        Input = View = view;
+        ProfileSuccessfullyChanged = true;
         return Page();
     }
 
@@ -292,7 +386,9 @@ public abstract class BaseProfileModel : BasePageModel
             UserName = user.UserName ?? string.Empty,
             ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
             Locale = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.Locale)?.Value,
-            CallingCode = phoneNumber.CallingCode
+            CallingCode = phoneNumber.CallingCode,
+            CreateDate = user.CreateDate,
+            LastSignInDate = user.LastSignInDate
         };
     }
 
@@ -330,6 +426,9 @@ public abstract class BaseProfileModel : BasePageModel
             UserName = model.UserName,
             ZoneInfo = model.ZoneInfo ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.ZoneInfo)?.ClaimValue,
             Locale = model.Locale ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.Locale)?.ClaimValue,
+            CallingCode = model.CallingCode,
+            CreateDate = user.CreateDate,
+            LastSignInDate = user.LastSignInDate
         };
     }
 }

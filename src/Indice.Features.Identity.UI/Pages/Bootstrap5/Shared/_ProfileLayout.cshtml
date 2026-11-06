@@ -1,0 +1,17 @@
+@* Profile group (Pages/Bootstrap5/Profile): the signed-in account pages. Image header band, sub-navigation and a column of data cards. *@
+@{
+    Layout = "_IdentityLayout";
+    ViewData["Shell"] = "profile";
+}
+
+@section meta { @RenderSection("meta", required: false) }
+@section css { @RenderSection("css", required: false) }
+@section hero { @RenderSection("hero", required: false) }
+@section scripts { @RenderSection("scripts", required: false) }
+
+<div class="profile-shell">
+    <partial name="_ProfileNav" />
+    <div class="profile-shell__content">
+        @RenderBody()
+    </div>
+</div>

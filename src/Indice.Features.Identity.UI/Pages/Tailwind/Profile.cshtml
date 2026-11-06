@@ -40,7 +40,116 @@
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
+    @{
+        var uiOptions = identityUiOptions.Value;
+        var canEditUserName = !(uiOptions.DisableEmailEdit || userManager.EmailAsUserName);
+        var canEditEmail = !uiOptions.DisableEmailEdit;
+        var canEditPhone = !uiOptions.DisablePhoneEdit;
+        var phoneDisplay = string.IsNullOrWhiteSpace(Model.View.PhoneNumber) ? null : (uiOptions.EnablePhoneNumberCallingCodes && !string.IsNullOrWhiteSpace(Model.View.CallingCode) && !Model.View.PhoneNumber.StartsWith("+") ? $"+{Model.View.CallingCode} {Model.View.PhoneNumber}" : Model.View.PhoneNumber);
+        const string pencilPath = "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z";
+    }
+    <section class="mb-8">
+        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+            <h4 class="text-black">@Localizer.Profile_AccountDetails</h4>
+            <p class="text-sm">
+                @if (Model.View.CreateDate.HasValue)
+                {
+                    <span>@Localizer.Profile_AccountCreated(Model.View.CreateDate.Value.ToLocalTime().ToString("d"))</span>
+                }
+                @if (Model.View.LastSignInDate.HasValue)
+                {
+                    <span class="mx-2" aria-hidden="true">|</span>
+                    <span>@Localizer.Profile_LastLogin(Model.View.LastSignInDate.Value.ToLocalTime().ToString("g"))</span>
+                }
+            </p>
+        </div>
+        <form method="post" asp-page-handler="UpdateEmail" class="js-account-row border-b py-2" data-editing="@(Model.View.EditingField == "Email" ? "true" : "false")">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm">
+                    @Localizer.Email
+                    <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer.Profile_Confirmation →)</a>
+                </span>
+                <span class="js-account-view flex items-center gap-2">
+                    <span>@Model.View.Email</span>
+                    <button indice-if="canEditEmail" type="button" class="js-account-toggle account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Email">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="@pencilPath" /></svg>
+                    </button>
+                </span>
+            </div>
+            <div indice-if="canEditEmail" class="js-account-edit hidden mt-2">
+                <div class="input-group">
+                    <input class="peer" type="email" placeholder="@Localizer.Email" asp-for="Input.Email" autocomplete="email" />
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Email">@Localizer.Email</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="flex justify-end gap-2 mt-2">
+                    <button type="button" class="js-account-cancel btn btn-outline">@Localizer.Profile_Cancel</button>
+                    <button type="submit" class="btn btn-primary">@Localizer.Profile_Save</button>
+                </div>
+            </div>
+        </form>
+        <form method="post" asp-page-handler="UpdatePhone" class="js-account-row border-b py-2" data-editing="@(Model.View.EditingField == "Phone" ? "true" : "false")">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm">@Localizer.Profile_Phone_Number</span>
+                <span class="js-account-view flex items-center gap-2">
+                    <span>@phoneDisplay</span>
+                    <button indice-if="canEditPhone" type="button" class="js-account-toggle account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Phone_Number">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="@pencilPath" /></svg>
+                    </button>
+                </span>
+            </div>
+            <div indice-if="canEditPhone" class="js-account-edit hidden mt-2">
+                <div class="row">
+                    <div indice-if="uiOptions.EnablePhoneNumberCallingCodes" class="input-group">
+                        <select class="peer" asp-for="Input.CallingCode" required>
+                            <option value="" selected>@Localizer.Profile_Choose</option>
+                            @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                            {
+                                <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
+                            }
+                        </select>
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer.Profile_Calling_Code</label>
+                        <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+                    </div>
+                    <div class="input-group">
+                        <input class="peer" type="tel" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" autocomplete="tel" />
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer.Profile_Phone_Number</label>
+                        <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-2">
+                    <button type="button" class="js-account-cancel btn btn-outline">@Localizer.Profile_Cancel</button>
+                    <button type="submit" class="btn btn-primary">@Localizer.Profile_Save</button>
+                </div>
+            </div>
+        </form>
+        <form method="post" asp-page-handler="UpdateUserName" class="js-account-row border-b py-2" data-editing="@(Model.View.EditingField == "UserName" ? "true" : "false")">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm">@Localizer.Profile_Username</span>
+                <span class="js-account-view flex items-center gap-2">
+                    <span>@Model.View.UserName</span>
+                    <button indice-if="canEditUserName" type="button" class="js-account-toggle account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Username">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="@pencilPath" /></svg>
+                    </button>
+                </span>
+            </div>
+            <div indice-if="canEditUserName" class="js-account-edit hidden mt-2">
+                <div class="input-group">
+                    <input class="peer" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" autocomplete="username" />
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.UserName">@Localizer.Profile_Username</label>
+                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                </div>
+                <div class="flex justify-end gap-2 mt-2">
+                    <button type="button" class="js-account-cancel btn btn-outline">@Localizer.Profile_Cancel</button>
+                    <button type="submit" class="btn btn-primary">@Localizer.Profile_Save</button>
+                </div>
+            </div>
+        </form>
+    </section>
     <form method="post" class="md:max-h-[60vh] overflow-y-scroll pr-8">
+        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+            <h4 class="text-black">@Localizer.Profile_DetailsSection</h4>
+        </div>
         <div class="row">
         @if (Model.View.ShowFullName)
         {
@@ -67,46 +176,6 @@
         </div>
         <div class="row">
             <div class="input-group">
-                <input class="peer" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" readonly="@(identityUiOptions.Value.DisableEmailEdit || userManager.EmailAsUserName)" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.UserName">@Localizer.Profile_Username</label>
-                <span asp-validation-for="Input.UserName" class="text-danger"></span>
-            </div>
-            <div class="input-group">
-                <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer.Profile_Confirmation →)</a>
-                <input class="peer" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" readonly="@identityUiOptions.Value.DisableEmailEdit" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Email">@Localizer.Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="row">
-            @if (identityUiOptions.Value.EnablePhoneNumberCallingCodes)
-            {
-                <div class="input-group">
-                    <select class="peer" asp-for="Input.CallingCode" required>
-                        <option value="" selected>@Localizer.Profile_Choose</option>
-                        @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
-                        {
-                            <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
-                        }
-                    </select>
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer.Profile_Calling_Code</label>
-                    <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
-                </div>
-                <div class="input-group">
-                    <input class="peer" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" readonly="@identityUiOptions.Value.DisablePhoneEdit" />
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer.Profile_Phone_Number</label>
-                    <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
-                </div>
-            }
-            else
-            {
-                <div class="input-group">
-                    <input class="peer" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" readonly="@identityUiOptions.Value.DisablePhoneEdit" />
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer.Profile_Phone_Number</label>
-                    <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
-                </div>
-            }
-            <div class="input-group">
                 <select class="peer" asp-for="Input.ZoneInfo">
                     <option value="" selected>@Localizer.Profile_Choose</option>
                     @foreach (var timezone in zoneInfoProvider.GetTimeZones())
@@ -130,22 +199,6 @@
                 <span asp-validation-for="Input.BirthDate" class="text-danger"></span>
             </div>
         </div>
-        @if (identityUiOptions.Value.EnablePhoneNumberCallingCodes)
-        {
-            <div class="row">
-                <div class="input-group">
-                    <select class="peer" asp-for="Input.ZoneInfo">
-                        <option value="" selected>@Localizer.Profile_Choose</option>
-                        @foreach (var timezone in zoneInfoProvider.GetTimeZones())
-                        {
-                            <option value="@timezone.Id">@timezone.DisplayName</option>
-                        }
-                    </select>
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Profile_Timezone</label>
-                    <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
-                </div>
-            </div>
-        }
         <div class="row">
             <div class="col-span-12 flex flex-row text-left">
                 <input asp-for="Input.ConsentCommercial" type="checkbox" />
@@ -247,7 +300,36 @@
     </script>
     <partial name="_ValidationScripts" />
     <script csp-nonce="true">
-        document.querySelectorAll('.idp a').forEach(function (el) {
+        document.querySelectorAll('.js-account-row').forEach(function (row) {
+            var view = row.querySelector('.js-account-view');
+            var edit = row.querySelector('.js-account-edit');
+            var toggle = row.querySelector('.js-account-toggle');
+            var cancel = row.querySelector('.js-account-cancel');
+            if (!edit || !toggle) {
+                return;
+            }
+            function setEditing(editing) {
+                edit.classList.toggle('hidden', !editing);
+                toggle.classList.toggle('hidden', editing);
+            }
+            setEditing(row.dataset.editing === 'true');
+            toggle.addEventListener('click', function () {
+                setEditing(true);
+                var input = edit.querySelector('input, select');
+                if (input) {
+                    input.focus();
+                }
+            });
+            cancel.addEventListener('click', function () {
+                row.reset();
+                row.querySelectorAll('.text-danger').forEach(function (el) { el.textContent = ''; });
+                setEditing(false);
+                toggle.focus();
+            });
+        });
+    </script>
+    <script csp-nonce="true">
+        document.querySelectorAll('.idp a')
             el.onclick = function (link) {
                 if (!link.target.classList.contains('disabled')) {
                     link.target.classList.add('disabled');

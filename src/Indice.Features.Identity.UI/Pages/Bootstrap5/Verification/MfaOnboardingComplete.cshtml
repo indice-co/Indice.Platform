@@ -1,0 +1,33 @@
+@page "/login/mfa/onboarding/complete"
+@model BaseMfaOnboardingCompleteModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_AuthLayout";
+    ViewBag.Title = Localizer.MfaOnBoardingComplete_PageTitle;
+}
+
+<section class="auth-card mfa">
+    <vc:page-heading title="@Localizer.MfaOnBoardingComplete_PageHeader" image-src="" subtitle="@Localizer.MfaOnBoardingComplete_Message" />
+    <div class="mfa__method">
+        <div class="mfa__method-title">@Localizer.MfaOnBoardingComplete_MethodLabel <span class="mfa__method-name">@Localizer.MfaOnBoardingComplete_MethodName(Model.View.Method)</span></div>
+        <p class="mfa__method-detail">
+            @if (!string.IsNullOrEmpty(Model.View.MaskedDestination))
+            {
+                @Localizer.MfaOnBoardingComplete_Destination(Model.View.MaskedDestination)
+            }
+            else if (Model.View.Method == Indice.Features.Identity.Core.Models.AuthenticationMethodType.AuthenticatorApp)
+            {
+                @Localizer.MfaOnBoardingComplete_AuthenticatorHint
+            }
+        </p>
+    </div>
+    <p class="mfa__hint">@Localizer.MfaOnBoardingComplete_NextSignIn</p>
+
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.MfaOnBoardingComplete_Continue</button>
+        </div>
+    </form>
+</section>

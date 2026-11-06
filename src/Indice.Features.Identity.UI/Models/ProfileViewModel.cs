@@ -9,6 +9,12 @@ public class ProfileViewModel : ProfileInputModel
 {
     /// <summary>Indicates whether there is a pending email change. That requires verification</summary>
     public bool EmailChangePending { get; set; }
+    /// <summary>The date the user account was created.</summary>
+    public DateTimeOffset? CreateDate { get; set; }
+    /// <summary>The date the user last signed in.</summary>
+    public DateTimeOffset? LastSignInDate { get; set; }
+    /// <summary>The account field currently in edit mode, if any (used to re-open the inline editor on validation errors).</summary>
+    public string? EditingField { get; set; }
     /// <summary>List of associated external providers and their user login information.</summary>
     public IList<UserLoginInfo> CurrentLogins { get; set; } = [];
     /// <summary>List of available authentication providers. Non associated</summary>

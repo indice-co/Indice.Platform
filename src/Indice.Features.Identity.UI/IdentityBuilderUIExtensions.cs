@@ -41,6 +41,7 @@ public static class IdentityBuilderUIExtensions
             options.AvatarColorHex = configuredOptions.AvatarColorHex;
             options.OnBoardingPage = configuredOptions.OnBoardingPage;
             options.ContactUsUrl = configuredOptions.ContactUsUrl;
+            options.FooterLinks = configuredOptions.FooterLinks;
             options.CopyYear = configuredOptions.CopyYear;
             options.EmailLinkColorHex = configuredOptions.EmailLinkColorHex;
             options.EnableForgotPasswordPage = configuredOptions.EnableForgotPasswordPage;
@@ -52,6 +53,8 @@ public static class IdentityBuilderUIExtensions
             options.HomepageLinks.AddRange(extraHomePageLinks);
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
+            options.Theme = configuredOptions.Theme;
+            options.ShowMadeByCredit = configuredOptions.ShowMadeByCredit;
             options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
             options.PrivacyUrlResolver = configuredOptions.PrivacyUrlResolver;
             options.TermsUrlResolver = configuredOptions.TermsUrlResolver;
@@ -60,6 +63,7 @@ public static class IdentityBuilderUIExtensions
             options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
             options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
             options.EnablePasswordConfirmation = configuredOptions.EnablePasswordConfirmation;
+            options.EmailConfirmationMethod = configuredOptions.EmailConfirmationMethod;
             options.Events = configuredOptions.Events;
             options.EnablePhoneNumberCallingCodes = configuredOptions.EnablePhoneNumberCallingCodes;
             foreach (var url in configuredOptions.ValidReturnUrls) {
@@ -159,6 +163,9 @@ public static class IdentityBuilderUIExtensions
 
     internal sealed class ViewVersionFeatureProvider : IApplicationFeatureProvider<ViewsFeature>
     {
+        // Bootstrap5 pages are grouped in these folders for source organisation only. The folder is removed from the view path so that
+        // page names (RedirectToPage("/Login")), host overrides (Pages/Login.cshtml) and route ordering stay the same as a flat tree.
+        private static readonly string[] PageGroups = ["Profile", "Legal", "Verification"];
         private readonly UIFramework _framework;
 
         public ViewVersionFeatureProvider(UIFramework framework) => _framework = framework;
@@ -175,8 +182,8 @@ public static class IdentityBuilderUIExtensions
                                 // Remove V5 views
                                 viewsToRemove.Add(descriptor);
                             } else {
-                                // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", "");
+                                // Fix up paths to eliminate version subdir and page group subdir (/Pages/Bootstrap5/Auth/Login.cshtml -> /Pages/Login.cshtml).
+                                descriptor.RelativePath = StripPageGroup(descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", ""));
                             }
                             break;
                         case UIFramework.Tailwind:
@@ -198,6 +205,15 @@ public static class IdentityBuilderUIExtensions
             foreach (var descriptorToRemove in viewsToRemove) {
                 feature.ViewDescriptors.Remove(descriptorToRemove);
             }
+        }
+
+        private static string StripPageGroup(string relativePath) {
+            foreach (var prefix in PageGroups.Select(group => $"/Pages/{group}/")) {
+                if (relativePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) {
+                    return string.Concat("/Pages/", relativePath.AsSpan(prefix.Length));
+                }
+            }
+            return relativePath;
         }
 
         private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase) ||

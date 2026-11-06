@@ -1,8 +1,9 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '@indice/ng-auth';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 
+import { isEmbedded } from '../embed/embed';
 import { AuthGuestService } from './auth-guest.service';
 
 /**
@@ -27,7 +28,10 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   return next(authorized).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        if (userHeader) {
+        if (userHeader && isEmbedded) {
+          // The widget's panel cannot navigate to the identity server (it refuses to be framed) — drop to guest instead.
+          auth.removeUser().pipe(switchMap(() => auth.loadUser())).subscribe();
+        } else if (userHeader) {
           // Same as the package: a rejected user token means the session is gone — sign out cleanly.
           auth.removeUser().subscribe(() => auth.signoutRedirect());
         } else {

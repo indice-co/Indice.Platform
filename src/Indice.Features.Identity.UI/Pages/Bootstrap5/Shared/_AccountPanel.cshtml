@@ -1,0 +1,53 @@
+﻿@inject ExtendedUserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var hasPassword = user is not null && await UserManager.HasPasswordAsync(user);
+    var currentPage = (ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty);
+    string Current(string page) => string.Equals(currentPage, page, StringComparison.OrdinalIgnoreCase) ? "page" : null!;
+    var displayName = User.FindDisplayName();
+    var secondaryLine = user?.Email ?? user?.UserName ?? string.Empty;
+}
+
+<div class="offcanvas offcanvas-end account-panel" tabindex="-1" id="account-panel" aria-labelledby="account-panel-name">
+    <div class="account-panel__header">
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="@Localizer.Nav_CloseMenu"></button>
+    </div>
+    <div class="account-panel__card">
+        <img class="avatar avatar--lg account-panel__avatar" profile-pic="128" alt="" />
+        <p class="account-panel__name" id="account-panel-name" title="@displayName">@displayName</p>
+        <p class="account-panel__email" title="@secondaryLine">@secondaryLine</p>
+        <a class="account-panel__switch" asp-page="/Login">@Localizer.Account_SwitchAccount</a>
+    </div>
+    <nav class="account-panel__nav" aria-label="@Localizer.Account_NavLabel">
+        <a class="account-panel__link" asp-page="/Profile" aria-current="@Current("/Profile")">
+            <i class="fa-regular fa-circle-user account-panel__icon" aria-hidden="true"></i>
+            <span>@Localizer.Profile_PageTitle</span>
+        </a>
+        @if (hasPassword)
+        {
+            <a class="account-panel__link" asp-page="/ChangePassword" aria-current="@Current("/ChangePassword")">
+                <i class="fa-solid fa-key account-panel__icon" aria-hidden="true"></i>
+                <span>@Localizer.ChangePassword_PageTitle</span>
+            </a>
+        }
+        else
+        {
+            <a class="account-panel__link" asp-page="/AddPassword" aria-current="@Current("/AddPassword")">
+                <i class="fa-solid fa-key account-panel__icon" aria-hidden="true"></i>
+                <span>@Localizer.AddPassword_PageTitle</span>
+            </a>
+        }
+        <a class="account-panel__link" asp-page="/Grants" aria-current="@Current("/Grants")">
+            <i class="fa-solid fa-shield-halved account-panel__icon" aria-hidden="true"></i>
+            <span>@Localizer.Grants_PageTitle</span>
+        </a>
+    </nav>
+    <div class="account-panel__footer">
+        <a class="account-panel__link account-panel__logout" asp-page="/Logout" target="_top">
+            <i class="fa-solid fa-arrow-right-from-bracket account-panel__icon" aria-hidden="true"></i>
+            <span>@Localizer.LoggedOut_PageTitle</span>
+        </a>
+    </div>
+</div>

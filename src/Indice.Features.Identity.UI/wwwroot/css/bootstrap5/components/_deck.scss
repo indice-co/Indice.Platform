@@ -1,0 +1,79 @@
+﻿@use '../abstracts/tokens' as t;
+@use '../abstracts/mixins' as m;
+
+// Home page service cards.
+
+.deck {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: t.$space-4;
+    margin: t.$space-6 0;
+    padding: 0;
+    list-style: none;
+
+    &__link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: t.$space-3;
+        height: 100%;
+        padding: t.$space-5 t.$space-4;
+        border: 1px solid var(--idui-color-border);
+        border-radius: var(--idui-radius-lg);
+        background: var(--idui-color-surface);
+        color: var(--idui-color-ink);
+        text-align: center;
+        text-decoration: none;
+        transition: border-color t.$transition-fast, box-shadow t.$transition-fast, transform t.$transition-fast;
+
+        &:hover,
+        &:focus-visible {
+            border-color: var(--idui-color-ink);
+            box-shadow: var(--idui-shadow-card);
+            transform: translateY(-2px);
+        }
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background: var(--idui-color-surface-muted);
+        font-size: 1.25rem;
+    }
+
+    &__image img {
+        width: 3rem;
+        height: 3rem;
+        object-fit: contain;
+    }
+
+    &__title {
+        font-weight: t.$font-weight-medium;
+    }
+}
+
+.home {
+    &__intro {
+        color: var(--idui-color-text-muted);
+    }
+
+    &__section {
+        margin-top: t.$space-6;
+        padding-top: t.$space-5;
+        border-top: 1px solid var(--idui-color-border);
+    }
+
+    &__section-title {
+        font-size: t.$font-size-h3;
+        margin-bottom: t.$space-2;
+    }
+
+    &__note {
+        margin: 0;
+        color: var(--idui-color-text-muted);
+    }
+}

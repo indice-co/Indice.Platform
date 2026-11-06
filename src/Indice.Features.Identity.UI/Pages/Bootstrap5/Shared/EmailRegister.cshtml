@@ -31,7 +31,7 @@
     @Localizer.EmailRegister_Body_Welcome(settings.ApplicationName!)
     <br />
     <br />
-    @if (!UIOptions.Value.AutomaticSigninAfterRegister)
+    @if (UIOptions.Value.EmailConfirmationMethod == EmailConfirmationMethod.Link && !UIOptions.Value.AutomaticSigninAfterRegister)
     {
         @Localizer.EmailRegister_Body_ConfirmEmail
         <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>

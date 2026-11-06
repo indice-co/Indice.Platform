@@ -5,55 +5,35 @@
 <form id="mfa-form-push"
       asp-page="/Mfa"
       asp-route-returnUrl="@Model.Input.ReturnUrl"
-      method="post">
+      method="post"
+      class="auth-form">
     <input type="hidden" asp-for="Input.ReturnUrl" />
     <input type="hidden" asp-for="Input.OtpCode" />
     <input type="hidden" asp-for="Input.DeviceId" />
     <input type="hidden" asp-for="Input.SelectedAuthenticationMethodCode" value="@Model.View.AuthenticationMethod?.Code" />
 
-    <div id="panel-main" class="mb-4">
-        <p class="fs-5 fw-semibold">@Model.View.User?.UserName</p>
-        <p class="d-flex align-items-center text-muted">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="me-2 text-primary"
-                 width="20" height="20"
-                 fill="currentColor"
-                 viewBox="0 0 16 16">
-                <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5
-                            8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5
-                            3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2
-                            1 1 0 0 0 0 2z" />
-            </svg>
-            @Localizer.Mfa_Because_Youve_Turned_On_Two_Step_Verification_You_Need_To_Approve_Request_On_Your_Mobile_App
+    <div id="panel-main">
+        <p class="mfa__user">@Model.View.User?.UserName</p>
+        <p class="mfa__notice">
+            <i class="mfa__notice-icon fa-solid fa-mobile-screen" aria-hidden="true"></i>
+            <span>@Localizer.Mfa_Because_Youve_Turned_On_Two_Step_Verification_You_Need_To_Approve_Request_On_Your_Mobile_App</span>
         </p>
-
-        <div class="d-flex justify-content-center py-3" indice-if="!Model.View.IsExistingBrowser">
-            <div class="form-check">
-                <input asp-for="Input.RememberClient"
-                       type="checkbox"
-                       class="form-check-input" />
-                <label class="form-check-label" for="Input_RememberClient">
-                    @Localizer.Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser
-                </label>
-            </div>
+        <div class="form-check" indice-if="!Model.View.IsExistingBrowser">
+            <input asp-for="Input.RememberClient" type="checkbox" class="form-check-input" />
+            <label class="form-check-label" asp-for="Input.RememberClient">@Localizer.Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser</label>
         </div>
-
         @if (Model.View.AllowDowngradeAuthenticationMethod)
         {
-            <div class="text-center mt-4">
-                <button id="show-channels"
-                        type="button"
-                        class="btn btn-link text-decoration-none p-0">
-                    @Localizer.Mfa_I_Cant_Use_My_App_Right_Now
-                </button>
-            </div>
+            <p class="mfa__alt">
+                <button id="show-channels" type="button" class="mfa__link">@Localizer.Mfa_I_Cant_Use_My_App_Right_Now</button>
+            </p>
         }
         else
         {
-            <div class="d-flex gap-3">
+            <div class="auth-form__actions">
                 <button id="otp-resend"
                         type="button"
-                        class="flex-fill btn btn-primary"
+                        class="btn btn-primary auth-form__submit"
                         @(Model.View.ResendEnabled ? "" : "disabled")>
                     @Localizer.Mfa_I_Didnt_Receive_The_Notification_Resend
                 </button>
