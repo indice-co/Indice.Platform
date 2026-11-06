@@ -105,7 +105,7 @@ public static class DynamicExtensions
             case FilterOperator.Eq when filter.DataType == JsonDataType.Boolean && bool.TryParse(filter.Value, out var value):
                 predicate = (Expression<Func<bool, bool>>)(x => x == value);
                 break;
-            case FilterOperator.Eq when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
+            case FilterOperator.Eq when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value):
                 var period = new Period { From = value.Date, To = value.Date.AddDays(1) };
                 predicate = (Expression<Func<DateTime?, bool>>)(x => period.From <= x && period.To > x);
                 break;
@@ -122,7 +122,7 @@ public static class DynamicExtensions
             case FilterOperator.Neq when filter.DataType == JsonDataType.Boolean && bool.TryParse(filter.Value, out var value):
                 predicate = (Expression<Func<bool, bool>>)(x => x != value);
                 break;
-            case FilterOperator.Neq when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
+            case FilterOperator.Neq when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value):
                 period = new Period { From = value.Date, To = value.Date.AddDays(1) };
                 predicate = (Expression<Func<DateTime?, bool>>)(x => period.From > x && period.To <= x);
                 break;
@@ -136,7 +136,7 @@ public static class DynamicExtensions
             case FilterOperator.Gt when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
                 predicate = (Expression<Func<double, bool>>)(x => x > value);
                 break;
-            case FilterOperator.Gt when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
+            case FilterOperator.Gt when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value):
                 predicate = (Expression<Func<DateTime?, bool>>)(x => x > value);
                 break;
             // Greater than or equal
@@ -146,7 +146,7 @@ public static class DynamicExtensions
             case FilterOperator.Gte when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
                 predicate = (Expression<Func<double, bool>>)(x => x >= value);
                 break;
-            case FilterOperator.Gte when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
+            case FilterOperator.Gte when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value):
                 predicate = (Expression<Func<DateTime?, bool>>)(x => x >= value);
                 break;
             // Less than
@@ -156,7 +156,7 @@ public static class DynamicExtensions
             case FilterOperator.Lt when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
                 predicate = (Expression<Func<double, bool>>)(x => x < value);
                 break;
-            case FilterOperator.Lt when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
+            case FilterOperator.Lt when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value):
                 predicate = (Expression<Func<DateTime?, bool>>)(x => x < value);
                 break;
             // Less than or equal
@@ -166,7 +166,7 @@ public static class DynamicExtensions
             case FilterOperator.Lte when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
                 predicate = (Expression<Func<double, bool>>)(x => x <= value);
                 break;
-            case FilterOperator.Lte when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
+            case FilterOperator.Lte when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value):
                 predicate = (Expression<Func<DateTime?, bool>>)(x => x <= value);
                 break;
             // Contains
@@ -191,7 +191,7 @@ public static class DynamicExtensions
                         predicate = (Expression<Func<double, bool>>)(x => doubles.Contains(x));
                         break;
                     case JsonDataType.DateTime:
-                        var dates = values.Select(x => DateTime.TryParse(x, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value) ? value : (DateTime?)null)
+                        var dates = values.Select(x => DateTime.TryParse(x, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value) ? value : (DateTime?)null)
                             .Where(x => x.HasValue)
                             .Select(x => x!.Value)
                             .ToList();

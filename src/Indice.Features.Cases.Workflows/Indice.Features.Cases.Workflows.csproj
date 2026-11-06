@@ -60,4 +60,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Cases-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/cases-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
 </Project>
