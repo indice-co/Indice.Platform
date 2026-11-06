@@ -1,13 +1,13 @@
 ﻿using System.Security.Claims;
 using System.Text.Json.Serialization;
 using FluentValidation;
-using Indice.Events;
 using Indice.Features.Media.AspNetCore;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Messages.AspNetCore.Authorization;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Handlers;
 using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
@@ -15,6 +15,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Serialization;
 using Indice.Services;
+using Indice.Services.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -123,7 +124,40 @@ public static class MessageFeatureExtensions
             opt.Enabled = apiOptions.AnalyticsOptions.Enabled;
         });
         services.AddSingleton<MessageEventQueue>();
-        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
+        services.AddSingleton<IHostedService, MessageEventHostedService>();
+        return services;
+    }
+
+    /// <summary>
+    /// Registers webhook services for message-related SMS and email providers.
+    /// </summary>
+    /// <param name="services">The service collection to register the webhook services with.</param>
+    /// <param name="configuration">The application configuration used to resolve webhook settings and providers.</param>
+    /// <returns>The service collection so that additional registrations can be chained.</returns>
+    public static IServiceCollection AddMessagesWebhookServices(this IServiceCollection services, IConfiguration configuration) {
+        var webhooksOptions = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        if (webhooksOptions.Enabled) {
+            services.AddSmsWebhooks<MessagesWebhookHandler>(configuration);
+            services.AddEmailWebhooks<MessagesWebhookHandler>(configuration);
+        }
+        return services;
+    }
+
+    /// <summary>
+    /// Registers webhook services for message-related SMS and email providers
+    /// using a custom webhook handler.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook handler implementation to register.</typeparam>
+    /// <param name="services">The service collection to register the webhook services with.</param>
+    /// <param name="configuration">The application configuration used to resolve webhook settings and providers.</param>
+    /// <returns>The service collection so that additional registrations can be chained.</returns>
+    public static IServiceCollection AddMessagesWebhookServices<THandler>(this IServiceCollection services, IConfiguration configuration)
+        where THandler : class, IWebhookHandler {
+        var webhooksOptions = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        if (webhooksOptions.Enabled) {
+            services.AddSmsWebhooks<THandler>(configuration);
+            services.AddEmailWebhooks<THandler>(configuration);
+        }
         return services;
     }
 
@@ -286,8 +320,6 @@ public static class MessageFeatureExtensions
         options.Services!.AddMediaLibrary(configureAction);
     }
 
-
-
     /// <summary>Adds multi-tenancy capabilities in the Messages API endpoints.</summary>
     /// <param name="options">Options used to configure the Messages API feature.</param>
     /// <param name="accessLevel">The minimum access level required.</param>
@@ -308,8 +340,9 @@ public static class MessageFeatureExtensions
         return options;
     }
     private static void UseIdentityContactResolverInternal(CampaignOptionsBase options, Action<ContactResolverIdentityOptions> configure) {
-        var serviceOptions = new ContactResolverIdentityOptions();
-        serviceOptions.UserClaimType = options.UserClaimType;
+        var serviceOptions = new ContactResolverIdentityOptions {
+            UserClaimType = options.UserClaimType
+        };
         configure.Invoke(serviceOptions);
         options.Services!.Configure<ContactResolverIdentityOptions>(config => {
             config.BaseAddress = serviceOptions.BaseAddress;

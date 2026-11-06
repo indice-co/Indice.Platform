@@ -1,4 +1,5 @@
 ﻿using Indice.Security;
+using Indice.Services.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -92,4 +93,7 @@ public class CampaignOptionsBase
 
     /// <summary>Specifies the settings for the analytics feature.</summary>
     public AnalyticsOptions AnalyticsOptions { get; set; } = new ();
+
+    /// <summary>Specifies the settings for the webhooks event sink feature.</summary>
+    public WebhooksSettings WebhooksOptions { get; set; } = new();
 }

@@ -157,7 +157,7 @@ public static class WorkerHostBuilderExtensions
             opt.Enabled = options.Analytics.Enabled;
         });
         services.AddSingleton<MessageEventQueue>();
-        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
+        services.AddSingleton<IHostedService, MessageEventHostedService>();
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
