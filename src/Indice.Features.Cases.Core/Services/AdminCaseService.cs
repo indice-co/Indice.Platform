@@ -514,8 +514,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     private async Task TryDeleteAttachmentFile(string path) {
         try {
             await FileService!.DeleteAsync(path);
-        } catch (Exception) {
+        } catch (FileServiceException) {
             // Best effort, the case has already been deleted.
+            
+            // DEVNOTE: File service wraps inner exceptions "FileServiceException" to its own so that it normalizes 
+            // the abstraction for different implementations (Azure, FileSystem, S3 etc. with different intarnal behavior) 
+            // If the internal wrapper does not know what to do with the exception that means it should be let to bubble up
         }
     }
 
