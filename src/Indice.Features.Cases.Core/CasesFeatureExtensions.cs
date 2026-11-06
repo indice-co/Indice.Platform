@@ -13,6 +13,7 @@ using System.Security.Claims;
 using Indice.Features.Cases.Core;
 using Indice.Events;
 using Microsoft.Extensions.Options;
+using Indice.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -178,5 +179,35 @@ public static class CasesFeatureExtensions
             var configuration = sp.GetRequiredService<IConfiguration>();
             httpClient.BaseAddress = providerOptions.BaseAddress ?? new Uri(configuration.GetAuthority(tryInternal: true)!);
         });
+    }
+    /// <summary>
+    /// Stores the binary data of the case attachments to the local file system instead of the <c>Data</c> column of the <c>Attachment</c> table.
+    /// Only the attachment metadata are persisted to the database.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static CasesOptions UseFileServiceLocal(this CasesOptions options, Action<FileServiceLocalOptions>? configure = null) {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options.Services, nameof(options.Services));
+        options.Services.AddFiles(builder => builder.AddFileSystem(CasesCoreConstants.FileServiceKey, configure));
+        return options;
+    }
+
+    /// <summary>
+    /// Stores the binary data of the case attachments to Azure Blob Storage instead of the <c>Data</c> column of the <c>Attachment</c> table.
+    /// Only the attachment metadata are persisted to the database.
+    /// </summary>
+    /// <remarks>The container name defaults to <c>{environment}-cases</c>.</remarks>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static CasesOptions UseFileServiceAzure(this CasesOptions options, Action<FileServiceAzureOptions>? configure = null) {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options.Services, nameof(options.Services));
+        void defaultConfigureAction(FileServiceAzureOptions azureOptions) {
+            azureOptions.ContainerName = string.IsNullOrEmpty(azureOptions.ContainerName) ? "cases" : $"{azureOptions.ContainerName}-cases";
+            configure?.Invoke(azureOptions);
+        }
+        options.Services.AddFiles(builder => builder.AddAzureStorage(CasesCoreConstants.FileServiceKey, defaultConfigureAction));
+        return options;
     }
 }

@@ -4,6 +4,8 @@ using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Events;
+using Indice.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
@@ -14,8 +16,9 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
     public MyCaseMessageService(
         CasesDbContext dbContext,
         IPlatformEventService platformEventService,
-        ISchemaValidator schemaValidator)
-        : base(dbContext, platformEventService, schemaValidator) {
+        ISchemaValidator schemaValidator,
+        [FromKeyedServices(CasesCoreConstants.FileServiceKey)] IFileService? fileService = null)
+        : base(dbContext, platformEventService, schemaValidator, fileService) {
     }
 
     /// <inheritdoc />

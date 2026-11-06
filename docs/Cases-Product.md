@@ -1,4 +1,4 @@
-# 🗂️ Indice Cases
+﻿# 🗂️ Indice Cases
 
 *Owned, case management & back-office workflows.*
 
@@ -261,7 +261,7 @@ One grid to take to your team — the capability on the left, the mechanism that
 | Record-level access rules | ✅ case · case type · checkpoint type · user / group / role |
 | Role-based access levels | ✅ `CasesUser` · `CasesManager` · `CasesAdministrator` |
 | Human-readable reference numbers | ✅ DB sequence (`ReferenceNumberEnabled`) |
-| Data versions, comments, attachments, timeline | ✅ rows in `CasesDb` |
+| Data versions, comments, attachments, timeline | ✅ rows in `CasesDb` (attachments optionally in Azure Blob Storage / file system) |
 | Saved queries | ✅ per user |
 | Dashboard metrics and grouped reports | ✅ `manage/dashboard/metrics`, `manage/reports` |
 | PDF per case type | ✅ Razor template + pluggable `ICasePdfService` |
@@ -400,6 +400,10 @@ builder.AddCaseServer(options => {
 - **Upload limits** — size, extension allow-list and magic-byte checks on back-office attachment uploads
   (`POST {prefix}/manage/cases/{caseId}/attachments`). The customer route `POST {prefix}/my/cases/{caseId}/attachments` does
   not apply the `LimitUpload` filter, so these options do not protect it — validate customer uploads separately.
+- **Attachment storage** — by default the attachment binaries are stored in the `Data` column of the `Attachment` table.
+  Call `options.UseFileServiceAzure()` (Azure Blob Storage, container `{environment}-cases`, connection string `StorageConnection`)
+  or `options.UseFileServiceLocal()` (local file system) to store them in a file service instead; only the metadata stay in the
+  database. Attachments already stored in the database keep being served from there.
 
 ### 🔀 Workflows
 

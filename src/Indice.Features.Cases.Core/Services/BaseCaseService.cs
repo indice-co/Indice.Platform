@@ -5,6 +5,7 @@ using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,10 +16,52 @@ internal abstract class BaseCaseService
 {
     protected CasesDbContext DbContext { get; }
     protected CasesOptions Options { get; }
+    /// <summary>The optional file service used to store the attachment binary data. When null the data are stored in the database.</summary>
+    protected IFileService? FileService { get; }
 
-    protected BaseCaseService(CasesDbContext dbContext, IOptions<CasesOptions> options) {
+    protected BaseCaseService(CasesDbContext dbContext, IOptions<CasesOptions> options, IFileService? fileService = null) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         Options = options.Value;
+        FileService = fileService;
+    }
+
+    /// <summary>Gets the binary data of an attachment either from the database or from the configured file service.</summary>
+    /// <param name="guid">The <see cref="DbAttachment.Guid"/>.</param>
+    /// <param name="fileExtension">The <see cref="DbAttachment.FileExtension"/>.</param>
+    /// <param name="data">The <see cref="DbAttachment.Data"/> as stored in the database.</param>
+    protected async Task<byte[]?> GetAttachmentData(Guid guid, string? fileExtension, byte[]? data) {
+        if (data is not null || FileService is null) {
+            return data;
+        }
+        try {
+            return await FileService.GetAsync(DbAttachment.GetPath(guid, fileExtension));
+        } catch (FileNotFoundServiceException) {
+            return null;
+        }
+    }
+
+    /// <summary>Populates the binary data of the given attachments from the configured file service, for those not stored in the database.</summary>
+    /// <param name="attachments">The attachments to populate.</param>
+    protected async Task PopulateAttachmentData(IEnumerable<CaseAttachment>? attachments) {
+        if (FileService is null || attachments is null) {
+            return;
+        }
+        var missing = attachments.Where(x => x.Data is null).ToList();
+        if (missing.Count == 0) {
+            return;
+        }
+        var ids = missing.Select(x => x.Id).ToList();
+        var guids = await DbContext.Attachments
+            .AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .Select(x => new { x.Id, x.Guid })
+            .ToDictionaryAsync(x => x.Id, x => x.Guid);
+        var attachmentsWithGuid = missing
+            .Select(attachment => new { attachment, found = guids.TryGetValue(attachment.Id, out var guid), guid })
+            .Where(x => x.found);
+        foreach (var item in attachmentsWithGuid) {
+            item.attachment.Data = await GetAttachmentData(item.guid, item.attachment.FileExtension, null);
+        }
     }
 
     protected async Task<DbCaseType?> GetCaseTypeInternal(string caseTypeCode) {
