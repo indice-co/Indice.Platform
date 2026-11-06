@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Distributed;
 using System.Reflection;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Indice.Security;
@@ -22,6 +23,12 @@ public delegate string? OnBehalfOfAccessTokenSelector();
 /// <returns>The current user id/subject id</returns>
 /// <remarks>Usually this would be populated with a function that locates the current Httpcontext and extracts <strong>sub</strong> claim for the current claims principal</remarks>
 public delegate string? OnBehalfOfSubjectIdSelector();
+/// <summary>
+/// A function that when called will return the value of the current caller session id (<strong>sid</strong> claim), if any.
+/// </summary>
+/// <returns>The current session id</returns>
+/// <remarks>Usually this would be populated with a function that locates the current Httpcontext and extracts <strong>sid</strong> claim for the current claims principal</remarks>
+public delegate string? OnBehalfOfSessionIdSelector();
 
 /// <summary>
 /// The options used to configure a <see cref="OnBehalfOfHttpHandler"/>
@@ -60,6 +67,11 @@ public class OnBehalfOfHttpHandlerOptions
     /// </summary>
     /// <remarks>Usually this would be populated with a function that locates the current Httpcontext and extracts <strong>sub</strong> claim for the current claims principal</remarks>
     internal OnBehalfOfSubjectIdSelector SubjectIdSelector { get; set; } = null!;
+    /// <summary>
+    /// A function that when called will return the value of the current caller session id, if any. 
+    /// </summary>
+    /// <remarks>Usually this would be populated with a function that locates the current Httpcontext and extracts <strong>sid</strong> claim for the current claims principal</remarks>
+    internal OnBehalfOfSessionIdSelector SessionIdSelector { get; set; } = null!;
     /// <summary>The HttpClient name to use when resolving the <seealso cref="HttpClient"/> to use.</summary>
     /// <remarks>It is important that the client has the base uri configured to the correct authority if the <seealso cref="TokenEndpoint"/> is not an absolute path.</remarks>
     internal string TokenClientName { get; set; } = DefaultTokenClientName;
@@ -105,6 +117,12 @@ public class OnBehalfOfHttpHandler : DelegatingHandler
         var userPresent = !string.IsNullOrWhiteSpace(currentAccessToken) && !string.IsNullOrWhiteSpace(currentSubjectId);
         var grantType = userPresent ? "delegation" : "client_credentials";
         var cacheKey = $"{_ApplicationName}|{_options.ClientId}|{grantType}|sub|{currentSubjectId}";
+        if (userPresent) {
+            var sessionId = _options.SessionIdSelector?.Invoke();
+            if (!string.IsNullOrWhiteSpace(sessionId)) {
+                cacheKey += $"|sid|{sessionId}";
+            }
+        }
         var accessToken = await _cache.GetStringAsync(cacheKey);
         if (accessToken != null) {
             return accessToken;
@@ -187,11 +205,13 @@ public static class OnBehalfOfHttpHandlerExtensions
 
         httpClientBuilder.Services.TryAddTransient<OnBehalfOfAccessTokenSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.ResolveAuthorizationHeaderValue()));
         httpClientBuilder.Services.TryAddTransient<OnBehalfOfSubjectIdSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User.FindSubjectId()));
+        httpClientBuilder.Services.TryAddTransient<OnBehalfOfSessionIdSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User.FindFirstValue(BasicClaimTypes.SessionId)));
         httpClientBuilder.Services.Configure(configureAction);
         httpClientBuilder.Services.TryAddTransient(sp => {
             var options = sp.GetRequiredService<IOptions<OnBehalfOfHttpHandlerOptions>>().Value;
             options.AccessTokenSelector = sp.GetRequiredService<OnBehalfOfAccessTokenSelector>();
             options.SubjectIdSelector = sp.GetRequiredService<OnBehalfOfSubjectIdSelector>();
+            options.SessionIdSelector = sp.GetRequiredService<OnBehalfOfSessionIdSelector>();
             options.TokenClientName = tokenClientName;
             return options;
         });
