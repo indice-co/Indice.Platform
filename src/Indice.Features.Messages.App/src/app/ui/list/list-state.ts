@@ -2,7 +2,7 @@ import { DestroyRef, WritableSignal, computed, inject, signal } from '@angular/c
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { FilterClause } from './filter-clause';
 
 export type SortDirection = 'asc' | 'desc';
@@ -86,7 +86,11 @@ export class ListState<T> {
       return;
     }
     this._started = true;
-    combineLatest([this._route.queryParamMap, this._reload$])
+    combineLatest([
+      // other query params (i.e. a selected item) must not reload the list
+      this._route.queryParamMap.pipe(distinctUntilChanged((a, b) => ListState.listKey(a) === ListState.listKey(b))),
+      this._reload$
+    ])
       .pipe(
         map(([params]) => this.readParams(params)),
         tap(() => {
@@ -162,6 +166,10 @@ export class ListState<T> {
 
   private navigate(queryParams: Params): void {
     this._router.navigate([], { relativeTo: this._route, queryParams, queryParamsHandling: 'merge' });
+  }
+
+  private static listKey(params: ParamMap): string {
+    return JSON.stringify(['page', 'pagesize', 'sort', 'dir', 'search', 'filter'].map(name => params.get(name)));
   }
 
   private readParams(params: ParamMap): ListQuery {
