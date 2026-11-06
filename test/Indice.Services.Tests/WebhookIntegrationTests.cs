@@ -27,23 +27,7 @@ public sealed class WebhookIntegrationTests
             })
             .Build();
 
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var host = await StartHostAsync(configuration);
 
         var services = host.Services;
 
@@ -65,6 +49,40 @@ public sealed class WebhookIntegrationTests
     }
 
     [Fact]
+    public async Task TwilioWebhook_WithWebhooksEnabled() {
+        const string webhookAuthToken = "twilio-webhook-token";
+        const string webhookUrl = "https://example.com/webhooks/twilio";
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Webhooks:Enabled"] = true.ToString(),
+                ["Webhooks:ChannelCapacity"] = "100",
+                ["Sms:Provider"] = "twilio",
+                ["Sms:WebhookAuthToken"] = webhookAuthToken,
+                ["Sms:WebhookUrl"] = webhookUrl
+            })
+            .Build();
+
+        using var host = await StartHostAsync(configuration);
+
+        var services = host.Services;
+
+        Assert.NotNull(
+            services.GetRequiredService<Channel<List<WebhookEvent>>>());
+
+        Assert.NotNull(
+            services.GetRequiredKeyedService<IWebhookHttpHandler>("twilio"));
+
+        Assert.Contains(
+            services.GetServices<IHostedService>(),
+            service => service.GetType() == typeof(WebhookEventSink));
+
+        var request = GetValidTwilioPayload(webhookAuthToken, webhookUrl);
+        using var response = await host.GetTestClient().SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
     public async Task YubotoWebhook_WithWebhooksEnabled() {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> {
@@ -74,23 +92,7 @@ public sealed class WebhookIntegrationTests
             })
             .Build();
 
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var host = await StartHostAsync(configuration);
 
         var services = host.Services;
 
@@ -237,4 +239,49 @@ public sealed class WebhookIntegrationTests
             Content = JsonContent.Create(payload)
         };
     }
+
+    private static HttpRequestMessage GetValidTwilioPayload(string authToken, string webhookUrl) {
+        var parameters = new SortedDictionary<string, string>(StringComparer.Ordinal) {
+            ["Body"] = "Hello from Twilio",
+            ["From"] = "+306900000001",
+            ["MessageSid"] = "SM00000000000000000000000000000001",
+            ["MessageStatus"] = "delivered",
+            ["To"] = "+306900000002"
+        };
+
+        var signedPayload = new StringBuilder(webhookUrl);
+        foreach (var parameter in parameters) {
+            signedPayload.Append(parameter.Key).Append(parameter.Value);
+        }
+
+        var signature = Convert.ToBase64String(
+            HMACSHA1.HashData(
+                Encoding.UTF8.GetBytes(authToken),
+                Encoding.UTF8.GetBytes(signedPayload.ToString())));
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/webhooks/twilio") {
+            Content = new FormUrlEncodedContent(parameters)
+        };
+        request.Headers.Add("X-Twilio-Signature", signature);
+        return request;
+    }
+
+    private static Task<IHost> StartHostAsync(IConfiguration configuration) =>
+        new HostBuilder()
+            .ConfigureWebHost(webHost => {
+                webHost.UseTestServer();
+                webHost.ConfigureServices(services => {
+                    services.AddRouting();
+                    services.AddSmsService(configuration);
+                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
+                });
+                webHost.Configure(app => {
+                    app.UseRouting();
+
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapWebhooks();
+                    });
+                });
+            })
+            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
 }
