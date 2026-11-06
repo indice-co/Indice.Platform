@@ -49,10 +49,7 @@ public static class WebhooksEndpointExtensions
                 """
                 Receives a webhook notification from the specified provider, validates the request,
                 and processes the notification using the provider-specific webhook handler.
-                """)
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status400BadRequest);
+                """);
 
         group.MapGet("{provider}", HandleWebhook)
             .WithName("ReceiveWebhookGet")
@@ -61,10 +58,7 @@ public static class WebhooksEndpointExtensions
                 """
                 Receives a webhook notification from the specified provider, validates the request,
                 and processes the notification using the provider-specific webhook handler.
-                """)
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status400BadRequest);
+                """);
 
         return group;
     }
@@ -87,7 +81,7 @@ public static class WebhooksEndpointExtensions
             };
         }
 
-        if (result.Events.Any()) {
+        if (result.Events.Count > 0) {
             await channel.Writer.WriteAsync(result.Events, cancellationToken);
         }
         
