@@ -49,6 +49,37 @@ public sealed class WebhookIntegrationTests
     }
 
     [Fact]
+    public async Task VonageWebhook_WithWebhooksEnabled() {
+        var webhookSecret = "Tx43Joi7HFw8k9K2Yqa1DPy5t6W0Zsm7";
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["Webhooks:Enabled"] = true.ToString(),
+                ["Webhooks:ChannelCapacity"] = "100",
+                ["Sms:Provider"] = "vonage",
+                ["Sms:SignatureSecret"] = webhookSecret,
+                ["Sms:SignatureMethod"] = "hmac-sha256"
+            })
+            .Build();
+
+        using var host = await StartHostAsync(configuration);
+        var services = host.Services;
+
+        Assert.NotNull(
+            services.GetRequiredService<Channel<List<WebhookEvent>>>());
+
+        Assert.NotNull(
+            services.GetRequiredKeyedService<IWebhookHttpHandler>("vonage"));
+
+        Assert.Contains(
+            services.GetServices<IHostedService>(),
+            service => service.GetType() == typeof(WebhookEventSink));
+
+        var request = GetValidVonagePayload(webhookSecret);
+        using var response = await host.GetTestClient().SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+    [Fact]
     public async Task TwilioWebhook_WithWebhooksEnabled() {
         const string webhookAuthToken = "twilio-webhook-token";
         const string webhookUrl = "https://example.com/webhooks/twilio";
