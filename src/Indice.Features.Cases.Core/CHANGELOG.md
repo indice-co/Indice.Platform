@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.64.0]
+### Added Azure Storage / file system support for the case attachments.
+- The binary data of the case attachments can now be stored to a file service instead of the database. Only the attachment metadata
+  are stored in the `Attachment` table and its `Data` column is left empty (`NULL`).
+```csharp
+builder.AddCaseServer(options => {
+    options.UseFileServiceAzure(azure => azure.ConnectionStringName = "StorageConnection"); // container defaults to "{environment}-cases"
+    // or
+    options.UseFileServiceLocal(local => local.Path = "App_Data");
+});
+```
+- Attachments already stored in the database keep being served from the `Data` column, so no data migration is needed.
+- Before deploying this version, make the `Data` column nullable:
+```sql
+-- SQL Server
+ALTER TABLE [case].[Attachment] ALTER COLUMN [Data] VARBINARY(MAX) NULL;
+GO
+-- PostgreSQL
+ALTER TABLE "case"."Attachment" ALTER COLUMN "Data" DROP NOT NULL;
+```
+
 ### Added PostgreSQL support for the cases db.
 - The json functions (`JsonFunctions.JsonValue`, `CastToDate`, `CastToDouble`) used to filter and sort on the json columns (case data, metadata etc.) are now translated according to the configured database engine.
   On PostgreSQL they are translated to `jsonb_extract_path(column::jsonb, ...)` (returning NULL for objects and arrays, like `JSON_VALUE`) and `::timestamptz` / `::double precision` casts, while on SQL Server they keep using `JSON_VALUE` and `CONVERT`.
