@@ -507,7 +507,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         DbContext.Remove(@case);
         await DbContext.SaveChangesAsync();
         foreach (var path in attachmentPaths) {
-            await FileService!.DeleteAsync(path);
+            try {
+                await FileService!.DeleteAsync(path);
+            } catch (FileServiceException) {
+                // Best effort, the case has already been deleted.
+            }
         }
     }
 
