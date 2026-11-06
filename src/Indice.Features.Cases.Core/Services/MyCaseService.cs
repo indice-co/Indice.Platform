@@ -8,8 +8,10 @@ using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -29,7 +31,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         IPlatformEventService platformEventService,
         IMyCaseMessageService caseMessageService,
         IJsonTranslationService jsonTranslationService,
-        CaseSharedResourceService caseSharedResourceService) : base(dbContext, options) {
+        CaseSharedResourceService caseSharedResourceService,
+        [FromKeyedServices(CasesCoreConstants.FileServiceKey)] IFileService? fileService = null) : base(dbContext, options, fileService) {
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         _jsonTranslationService = jsonTranslationService ?? throw new ArgumentNullException(nameof(jsonTranslationService));
@@ -116,6 +119,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         if (CasesCoreConstants.Channels.Normalize(@case.Channel) == CasesCoreConstants.Channels.Managed) {
             throw new BusinessException("Case not found.");
         }
+
+        await PopulateAttachmentData(@case.Attachments);
 
         @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;

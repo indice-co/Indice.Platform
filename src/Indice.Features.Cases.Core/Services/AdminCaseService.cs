@@ -3,15 +3,18 @@ using System.Linq.Expressions;
 using System.Text.Json.Nodes;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
+using Indice.Services;
 using Indice.Types;
 using Json.Patch;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Core.Services;
@@ -27,7 +30,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         IOptions<CasesOptions> options,
         ICaseAuthorizationProvider memberAuthorizationProvider,
         IAdminCaseMessageService adminCaseMessageService,
-        IPlatformEventService platformEventService) : base(dbContext, options) {
+        IPlatformEventService platformEventService,
+        [FromKeyedServices(CasesCoreConstants.FileServiceKey)] IFileService? fileService = null) : base(dbContext, options, fileService) {
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
@@ -469,6 +473,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (@case == null) {
             return null;
         }
+        if (includeAttachmentData == true) {
+            await PopulateAttachmentData(@case.Attachments);
+        }
         @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
@@ -488,8 +495,20 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             throw new BusinessException("Cannot delete a submitted case.");
         }
 
+        var attachmentPaths = new List<string>();
+        if (FileService is not null) {
+            var attachments = await DbContext.Attachments
+                .AsNoTracking()
+                .Where(x => x.CaseId == caseId && x.Data == null)
+                .Select(x => new { x.Guid, x.FileExtension })
+                .ToListAsync();
+            attachmentPaths = attachments.Select(x => DbAttachment.GetPath(x.Guid, x.FileExtension)).ToList();
+        }
         DbContext.Remove(@case);
         await DbContext.SaveChangesAsync();
+        foreach (var path in attachmentPaths) {
+            await FileService!.DeleteAsync(path);
+        }
     }
 
     public async Task<CaseAttachment?> GetAttachmentById(Guid attachmentId) {
@@ -500,10 +519,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             return null;
         }
 
+        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
+        if (data is null) {
+            return null;
+        }
+
         return new CaseAttachment {
             Id = attachmentId,
             ContentType = attachment.ContentType,
-            Data = attachment.Data,
+            Data = data,
             FileExtension = attachment.FileExtension,
             FileName = attachment.Name
         };
@@ -526,16 +550,21 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
         var attachment = await DbContext.Attachments
             .AsNoTracking()
-            .Where(a => a.CaseId == caseId)
-            .Select(db => new CaseAttachment {
-                Id = db.Id,
-                ContentType = db.ContentType,
-                FileName = db.Name,
-                FileExtension = db.FileExtension,
-                Data = db.Data
-            })
-            .SingleOrDefaultAsync(x => x.Id == attachmentId);
-        return attachment;
+            .SingleOrDefaultAsync(x => x.CaseId == caseId && x.Id == attachmentId);
+        if (attachment is null) {
+            return null;
+        }
+        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
+        if (data is null) {
+            return null;
+        }
+        return new CaseAttachment {
+            Id = attachment.Id,
+            ContentType = attachment.ContentType,
+            FileName = attachment.Name,
+            FileExtension = attachment.FileExtension,
+            Data = data
+        };
     }
 
     public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {

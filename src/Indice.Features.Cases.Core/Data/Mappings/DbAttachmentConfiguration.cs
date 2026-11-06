@@ -22,6 +22,6 @@ internal class DbAttachmentConfiguration : IEntityTypeConfiguration<DbAttachment
             .IsRequired();
         builder
             .Property(p => p.Data)
-            .IsRequired();
+            .IsRequired(false);
     }
 }
