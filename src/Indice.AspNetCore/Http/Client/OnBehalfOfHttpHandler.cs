@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Distributed;
 using System.Reflection;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Indice.Security;
@@ -204,7 +205,7 @@ public static class OnBehalfOfHttpHandlerExtensions
 
         httpClientBuilder.Services.TryAddTransient<OnBehalfOfAccessTokenSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.ResolveAuthorizationHeaderValue()));
         httpClientBuilder.Services.TryAddTransient<OnBehalfOfSubjectIdSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User.FindSubjectId()));
-        httpClientBuilder.Services.TryAddTransient<OnBehalfOfSessionIdSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User.FindFirst("sid")?.Value));
+        httpClientBuilder.Services.TryAddTransient<OnBehalfOfSessionIdSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User.FindFirstValue(BasicClaimTypes.SessionId)));
         httpClientBuilder.Services.Configure(configureAction);
         httpClientBuilder.Services.TryAddTransient(sp => {
             var options = sp.GetRequiredService<IOptions<OnBehalfOfHttpHandlerOptions>>().Value;
