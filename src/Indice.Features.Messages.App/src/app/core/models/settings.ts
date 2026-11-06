@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, maxFileSize = undefined, acceptableFileExtensions = undefined;
+    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, maxFileSize = undefined, acceptableFileExtensions = undefined, enableInbox = undefined, inboxHubName = undefined, signalRProxyUrl = undefined;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -19,6 +19,9 @@ function createAppSettings(): IAppSettings {
         maxFileSize = appRoot.getAttribute('maxFileSize') ? parseInt(appRoot.getAttribute('maxFileSize')!, 10) : undefined;
         maxFileSize = (maxFileSize !== undefined) && maxFileSize >= 0 ? maxFileSize : undefined;
         acceptableFileExtensions = appRoot.getAttribute('acceptableFileExtensions') || undefined;
+        enableInbox = appRoot.getAttribute('enableInbox') || undefined;
+        inboxHubName = appRoot.getAttribute('inboxHubName') || undefined;
+        signalRProxyUrl = appRoot.getAttribute('signalRProxyUrl') || undefined;
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -34,9 +37,11 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('enableMediaLibrary');
         appRoot.attributes.removeNamedItem('maxFileSize');
         appRoot.attributes.removeNamedItem('acceptableFileExtensions');
+        ['enableInbox', 'inboxHubName', 'signalRProxyUrl'].forEach(name => appRoot.hasAttribute(name) && appRoot.attributes.removeNamedItem(name));
     }
+    const apiUrl = !isTemplate ? environment.api_url : (api || [host.replace(/\/$/su, ""), 'api'].join('/'));
     return {
-        api_url: !isTemplate ? environment.api_url : (api || [host.replace(/\/$/su, ""), 'api'].join('/')),
+        api_url: apiUrl,
         auth_settings: {
             accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
             authority: !isTemplate ? environment.auth_settings.authority : authority,
@@ -63,7 +68,10 @@ function createAppSettings(): IAppSettings {
         tenantId: tenantId,
         enableMediaLibrary: enableMediaLibrary ? enableMediaLibrary === 'True' : environment.enableMediaLibrary,
         maxFileSize: maxFileSize !== undefined ? maxFileSize : environment.maxFileSize,
-        acceptableFileExtensions: acceptableFileExtensions || environment.acceptableFileExtensions
+        acceptableFileExtensions: acceptableFileExtensions || environment.acceptableFileExtensions,
+        enableInbox: enableInbox ? enableInbox === 'True' : environment.enableInbox,
+        inboxHubName: (!isTemplate ? environment.inboxHubName : inboxHubName) || undefined,
+        signalRProxyUrl: ((!isTemplate ? environment.signalRProxyUrl : signalRProxyUrl) || new URL(apiUrl, document.baseURI).origin).replace(/\/$/su, '')
     };
 }
 

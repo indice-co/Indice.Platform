@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-  LucideActivity, LucideBookUser, LucideIcon, LucideImages, LucideLayoutDashboard, LucideLayoutTemplate, LucideMegaphone,
+  LucideActivity, LucideBookUser, LucideIcon, LucideInbox, LucideImages, LucideLayoutDashboard, LucideLayoutTemplate, LucideMegaphone,
   LucideSettings, LucideTags, LucideUsers
 } from '@lucide/angular';
 import { settings } from '../core/models/settings';
@@ -18,13 +18,14 @@ export interface NavSection {
   items: NavItem[];
 }
 
-/** Sidebar navigation. The media library entry depends on the `enableMediaLibrary` setting. */
+/** Sidebar navigation. The media library and inbox entries depend on the `enableMediaLibrary` and `enableInbox` settings. */
 @Injectable({ providedIn: 'root' })
 export class NavService {
   public readonly sections: NavSection[] = [
     {
       items: [
         { label: 'Nav.Dashboard', link: '/dashboard', icon: LucideLayoutDashboard },
+        ...(settings.enableInbox ? [{ label: 'Nav.Inbox', link: '/inbox', icon: LucideInbox }] : []),
         { label: 'Nav.Campaigns', link: '/campaigns', icon: LucideMegaphone },
         { label: 'Nav.Templates', link: '/templates', icon: LucideLayoutTemplate }
       ]

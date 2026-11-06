@@ -20,6 +20,9 @@ export const environment = {
     production: true,
     enableMediaLibrary: true,
     maxFileSize: 10485760,
-    acceptableFileExtensions: ".png, .jpg, .gif, .webp"
+    acceptableFileExtensions: ".png, .jpg, .gif, .webp",
+    enableInbox: true,
+    inboxHubName: '',
+    signalRProxyUrl: ''
 
 };

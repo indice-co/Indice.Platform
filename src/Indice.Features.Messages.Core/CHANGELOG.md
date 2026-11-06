@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.64.0]
+### Added real time inbox notifications
+`IInboxNotifier` is invoked whenever an inbox message is created: per recipient when a campaign is resolved, once for everybody for global campaigns.
+The default implementation does nothing. Call `UseInboxSignalRNotifications()` on the worker (`AddMessageFunctions` / `AddMessageJobs`) or api (`AddMessaging`) options
+to push an `InboxMessageNotification` (method `inboxMessageCreated`) to the recipient through the SignalR proxy (`ConnectionStrings:SignalR`).
+Inbox clients connect through the `MapSignalRProxy()` endpoints of the api; the hub (default `messaging`) must be listed in `SignalRProxy:AllowedHubs`.
+
+```csharp
+builder.AddMessageFunctions(options => options.UseInboxSignalRNotifications(o => o.HubName = "messaging"));
+```
+
 ### Added recipient counts to campaigns and distribution lists
 `Campaign.RecipientCount` stores how many contacts a published campaign was sent out to (null for drafts and global campaigns).
 `DistributionList.ContactCount` stores how many contacts a list currently has (unsubscribed ones included) and is recounted after every membership change.
