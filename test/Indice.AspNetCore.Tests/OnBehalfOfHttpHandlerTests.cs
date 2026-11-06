@@ -50,7 +50,7 @@ public class OnBehalfOfHttpHandlerTests
             currentAccessToken = accessToken;
             currentSubjectId = subjectId;
             currentSessionId = sessionId;
-            var response = await httpClientFactory.CreateClient(ApiClientName).GetAsync("/resource");
+            using var response = await httpClientFactory.CreateClient(ApiClientName).GetAsync("/resource");
             return await response.Content.ReadAsStringAsync();
         }
 
