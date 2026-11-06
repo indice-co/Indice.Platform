@@ -582,6 +582,10 @@ public static class IndiceServicesServiceCollectionExtensions
             case "Vonage":
                 services.Configure<SmsServiceVonageSettings>(configuration.GetSection(SmsServiceSettings.Name));
                 services.AddWebhookServices<THandler, VonageWebhookHttpHandler>(configuration, provider);
+            case "twilio":
+            case "Twilio":
+                services.Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, TwilioWebhookHttpHandler>(configuration, provider);
                 break;
             case "Yuboto":
             case "yuboto":
