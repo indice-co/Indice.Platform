@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, maxFileSize = undefined, acceptableFileExtensions = undefined, enableInbox = undefined, inboxHubName = undefined, signalRProxyUrl = undefined;
+    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, maxFileSize = undefined, acceptableFileExtensions = undefined, enableInbox = undefined, inboxHubUrl = undefined;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -20,8 +20,7 @@ function createAppSettings(): IAppSettings {
         maxFileSize = (maxFileSize !== undefined) && maxFileSize >= 0 ? maxFileSize : undefined;
         acceptableFileExtensions = appRoot.getAttribute('acceptableFileExtensions') || undefined;
         enableInbox = appRoot.getAttribute('enableInbox') || undefined;
-        inboxHubName = appRoot.getAttribute('inboxHubName') || undefined;
-        signalRProxyUrl = appRoot.getAttribute('signalRProxyUrl') || undefined;
+        inboxHubUrl = appRoot.getAttribute('inboxHubUrl') || undefined;
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -37,7 +36,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('enableMediaLibrary');
         appRoot.attributes.removeNamedItem('maxFileSize');
         appRoot.attributes.removeNamedItem('acceptableFileExtensions');
-        ['enableInbox', 'inboxHubName', 'signalRProxyUrl'].forEach(name => appRoot.hasAttribute(name) && appRoot.attributes.removeNamedItem(name));
+        ['enableInbox', 'inboxHubUrl'].forEach(name => appRoot.hasAttribute(name) && appRoot.attributes.removeNamedItem(name));
     }
     const apiUrl = !isTemplate ? environment.api_url : (api || [host.replace(/\/$/su, ""), 'api'].join('/'));
     return {
@@ -70,9 +69,16 @@ function createAppSettings(): IAppSettings {
         maxFileSize: maxFileSize !== undefined ? maxFileSize : environment.maxFileSize,
         acceptableFileExtensions: acceptableFileExtensions || environment.acceptableFileExtensions,
         enableInbox: enableInbox ? enableInbox === 'True' : environment.enableInbox,
-        inboxHubName: (!isTemplate ? environment.inboxHubName : inboxHubName) || undefined,
-        signalRProxyUrl: ((!isTemplate ? environment.signalRProxyUrl : signalRProxyUrl) || new URL(apiUrl, document.baseURI).origin).replace(/\/$/su, '')
+        inboxHubUrl: resolveHubUrl((!isTemplate ? environment.inboxHubUrl : inboxHubUrl) || undefined, apiUrl)
     };
+}
+
+/** Resolves a hub url that may be relative (e.g. `/hubs/messaging`) against the origin of the api. */
+function resolveHubUrl(hubUrl: string | undefined, apiUrl: string): string | undefined {
+    if (!hubUrl) {
+        return undefined;
+    }
+    return new URL(hubUrl, new URL(apiUrl, document.baseURI).origin).href.replace(/\/$/su, '');
 }
 
 export const settings = createAppSettings();

@@ -28,8 +28,7 @@ export const environment = {
   maxFileSize: 10 * 1024 * 1024,
   acceptableFileExtensions: ".png, .jpg, .gif, .webp",
   enableInbox: true,
-  inboxHubName: '',
-  signalRProxyUrl: ''
+  inboxHubUrl: ''
 };
 
 /*

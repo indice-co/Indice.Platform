@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, Subject, Subscription, catchError, finalize, fromEvent, merge, of, tap, timer } from 'rxjs';
-import { filter, switchMap } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ToastService, ToastType } from 'src/app/ui/toast/toast.service';
 import { InboxApiService } from './inbox-api.service';
@@ -9,10 +9,11 @@ import { InboxRealtimeService } from './inbox-realtime.service';
 
 /** Number of unread messages shown in the bell preview. */
 export const INBOX_PREVIEW_SIZE = 5;
-/** Polling interval when real time notifications are not available. */
-const POLLING_INTERVAL = 60_000;
-/** Safety polling interval while real time notifications are connected. */
-const REALTIME_POLLING_INTERVAL = 5 * 60_000;
+/**
+ * Rare fallback polling of the unread count, used only while real time notifications are not connected (not configured or unavailable).
+ * The count is also refreshed whenever the page becomes visible again and after every change made through this store.
+ */
+const POLLING_INTERVAL = 5 * 60_000;
 /** Mark all as read is processed asynchronously by the server, so give it some time before refreshing. */
 const MARK_ALL_REFRESH_DELAY = 3_000;
 
@@ -22,8 +23,9 @@ export type InboxChange =
   | { kind: 'all-read' };
 
 /**
- * Application wide state of the current user's inbox: the unread count and a preview of the latest unread messages.
- * Keeps itself up to date through {@link InboxRealtimeService} (SignalR) with a polling fallback.
+ * Application wide state of the current user's inbox: the unread count and, on demand, a preview of the latest unread messages.
+ * The count is kept up to date through {@link InboxRealtimeService} (SignalR) and falls back to rare polling when that is not available.
+ * All background requests are silent (they do not reveal the global progress bar).
  */
 @Injectable({ providedIn: 'root' })
 export class InboxStore {
@@ -34,44 +36,46 @@ export class InboxStore {
   private readonly _changes$ = new Subject<InboxChange>();
   private readonly _realtimeStatus$ = toObservable(this._realtime.status);
   private _subscription?: Subscription;
+  private _previewSubscription?: Subscription;
 
   public readonly unreadCount = signal(0);
   public readonly latestUnread = signal<InboxMessage[]>([]);
-  public readonly loading = signal(false);
-  public readonly loaded = signal(false);
+  /** Whether the latest unread preview is being loaded. */
+  public readonly previewLoading = signal(false);
+  /** Whether the latest unread preview has been loaded at least once. */
+  public readonly previewLoaded = signal(false);
   public readonly hasUnread = computed(() => this.unreadCount() > 0);
   public readonly realtimeStatus = this._realtime.status;
   /** Emits whenever the inbox changes (new message, read state etc.) so that views can refresh. */
   public readonly changes$: Observable<InboxChange> = this._changes$.asObservable();
 
-  /** Starts tracking the inbox. Safe to call multiple times. */
+  /** Starts tracking the unread count. Safe to call multiple times. */
   public start(): void {
     if (this._subscription) {
       return;
     }
+    // poll only while real time notifications are not connected; (re)connecting fetches the count once to catch up.
     const polling$ = this._realtimeStatus$.pipe(
-      switchMap(status => timer(0, status === 'connected' ? REALTIME_POLLING_INTERVAL : POLLING_INTERVAL))
+      map(status => status === 'connected'),
+      distinctUntilChanged(),
+      switchMap(connected => connected ? of(0) : timer(0, POLLING_INTERVAL))
     );
     const visible$ = fromEvent(document, 'visibilitychange').pipe(filter(() => document.visibilityState === 'visible'));
-    this._subscription = merge(polling$, visible$, this._refresh$)
-      .pipe(
-        filter(() => document.visibilityState !== 'hidden' || !this.loaded()),
-        tap(() => this.loading.set(true)),
-        switchMap(() => this._api.getUnread(INBOX_PREVIEW_SIZE).pipe(
-          catchError(() => of(null)),
-          finalize(() => this.loading.set(false))
-        ))
-      )
-      .subscribe(result => {
-        if (result) {
-          this.unreadCount.set(result.count);
-          this.latestUnread.set(result.items);
-          this.loaded.set(true);
+    this._subscription = merge(
+      polling$.pipe(filter(() => document.visibilityState !== 'hidden')),
+      visible$,
+      this._refresh$
+    )
+      .pipe(switchMap(() => this._api.getUnreadCount().pipe(catchError(() => of(null)))))
+      .subscribe(count => {
+        if (count !== null) {
+          this.unreadCount.set(count);
         }
       });
     this._subscription.add(this._realtime.messageCreated$.subscribe(notification => {
       this._toasts.show(ToastType.Info, 'Inbox.NewMessage', notification.title ?? undefined);
-      this.refresh();
+      this.unreadCount.update(count => count + 1);
+      this.previewLoaded.set(false);
       this._changes$.next({ kind: 'created', notification });
     }));
     void this._realtime.start();
@@ -80,7 +84,23 @@ export class InboxStore {
   public stop(): void {
     this._subscription?.unsubscribe();
     this._subscription = undefined;
+    this._previewSubscription?.unsubscribe();
     void this._realtime.stop();
+  }
+
+  /** Loads the latest unread messages (and the unread count along with them). Meant to be called when the preview is opened. */
+  public loadPreview(): void {
+    this._previewSubscription?.unsubscribe();
+    this.previewLoading.set(true);
+    this._previewSubscription = this._api.getLatestUnread(INBOX_PREVIEW_SIZE)
+      .pipe(catchError(() => of(null)), finalize(() => this.previewLoading.set(false)))
+      .subscribe(result => {
+        if (result) {
+          this.unreadCount.set(result.count);
+          this.latestUnread.set(result.items);
+          this.previewLoaded.set(true);
+        }
+      });
   }
 
   public refresh(): void {
@@ -124,11 +144,6 @@ export class InboxStore {
   }
 
   private removeFromPreview(messageId: string): void {
-    const before = this.latestUnread();
-    const after = before.filter(m => m.id !== messageId);
-    if (after.length !== before.length) {
-      this.latestUnread.set(after);
-      this.unreadCount.update(count => Math.max(0, count - 1));
-    }
+    this.latestUnread.update(messages => messages.filter(m => m.id !== messageId));
   }
 }

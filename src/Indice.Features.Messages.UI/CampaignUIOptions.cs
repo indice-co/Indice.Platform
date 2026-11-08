@@ -18,14 +18,14 @@ public class CampaignUIOptions : SpaUIOptions
     public bool EnableInbox { get; set; } = true;
 
     /// <summary>
-    /// The SignalR hub name used for real time inbox notifications (i.e. <i>messaging</i>). 
-    /// When not set the inbox periodically polls for new messages.
+    /// The url of the SignalR hub used for real time inbox notifications (i.e. <i>/hubs/messaging</i> or <i>https://api.example.com/hubs/messaging</i>).
+    /// Relative urls are resolved against the root (origin) of the api address. When not set the inbox rarely polls for the unread count.
     /// </summary>
-    /// <remarks>Must match the hub configured through <c>UseInboxSignalRNotifications()</c> and be part of the <c>SignalRProxy:AllowedHubs</c>.</remarks>
-    public string? InboxHubName { get; set; }
-
-    /// <summary>The base address of the SignalR proxy endpoints (<c>MapSignalRProxy()</c>). Defaults to the root (origin) of the api address.</summary>
-    public string? SignalRProxyUrl { get; set; }
+    /// <remarks>
+    /// When using the SignalR proxy (<c>MapSignalRProxy()</c>) the hub must match the one configured through <c>UseInboxSignalRNotifications()</c>
+    /// and be part of the <c>SignalRProxy:AllowedHubs</c>.
+    /// </remarks>
+    public string? InboxHubUrl { get; set; }
 
     /// <summary>Creates a new instance <see cref="CampaignUIOptions"/>.</summary>
     public CampaignUIOptions() {
@@ -37,8 +37,7 @@ public class CampaignUIOptions : SpaUIOptions
             args.Add($"%({nameof(MaxFileSize)})", MaxFileSize.ToString());
             args.Add($"%({nameof(AcceptableFileExtensions)})", AcceptableFileExtensions);
             args.Add($"%({nameof(EnableInbox)})", EnableInbox.ToString());
-            args.Add($"%({nameof(InboxHubName)})", InboxHubName ?? string.Empty);
-            args.Add($"%({nameof(SignalRProxyUrl)})", SignalRProxyUrl ?? string.Empty);
+            args.Add($"%({nameof(InboxHubUrl)})", InboxHubUrl ?? string.Empty);
         };
     }
 }

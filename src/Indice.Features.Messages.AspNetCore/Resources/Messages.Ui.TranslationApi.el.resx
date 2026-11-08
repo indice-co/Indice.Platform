@@ -2790,7 +2790,7 @@
     <value>ρυθμίσεις</value>
   </data>
   <data name="Nav.Inbox" xml:space="preserve">
-    <value>Εισερχόμενα</value>
+    <value>Τα εισερχόμενά μου</value>
   </data>
   <data name="Breadcrumb.Inbox" xml:space="preserve">
     <value>Εισερχόμενα</value>

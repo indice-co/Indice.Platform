@@ -8,14 +8,14 @@ import { InboxStore } from './inbox.store';
 
 /**
  * The classic notifications "bell": shows the number of unread inbox messages and a dropdown preview of the latest unread ones.
- * Starts tracking the inbox (real time notifications / polling) when rendered.
+ * Starts tracking the unread count (real time notifications / rare polling) when rendered; the preview is only fetched when the bell is opened.
  */
 @Component({
   selector: 'app-inbox-bell',
   imports: [DatePipe, RouterLink, TranslatePipe, LucideBell, LucideCheckCheck, LucideInbox],
   template: `
     <div class="dropdown dropdown-end">
-      <button type="button" tabindex="0" class="btn btn-ghost btn-sm btn-square indicator"
+      <button type="button" tabindex="0" class="btn btn-ghost btn-sm btn-square indicator" (focus)="store.loadPreview()"
         [attr.aria-label]="'Inbox.Notifications' | translate" [title]="'Inbox.Notifications' | translate">
         <svg lucideBell class="size-4"></svg>
         @if (store.unreadCount() > 0) {
@@ -39,24 +39,28 @@ import { InboxStore } from './inbox.store';
           }
         </div>
         <ul class="max-h-96 divide-y divide-base-300 overflow-y-auto">
-          @for (message of store.latestUnread(); track message.id) {
-            <li>
-              <button type="button" class="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-base-200/70" (click)="open(message)">
-                <span class="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-hidden="true"></span>
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate text-sm font-semibold">{{ message.title || ('Inbox.NoTitle' | translate) }}</span>
-                  <span class="mt-0.5 flex items-center gap-2 text-xs text-base-content/60">
-                    @if (message.type?.name) { <span class="truncate">{{ message.type?.name }}</span><span aria-hidden="true">·</span> }
-                    <span class="whitespace-nowrap">{{ message.createdAt | date: 'short' }}</span>
+          @if (store.previewLoading() && !store.previewLoaded()) {
+            <li class="flex justify-center px-4 py-8"><span class="loading loading-spinner loading-sm text-base-content/40"></span></li>
+          } @else {
+            @for (message of store.latestUnread(); track message.id) {
+              <li>
+                <button type="button" class="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-base-200/70" (click)="open(message)">
+                  <span class="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-hidden="true"></span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-semibold">{{ message.title || ('Inbox.NoTitle' | translate) }}</span>
+                    <span class="mt-0.5 flex items-center gap-2 text-xs text-base-content/60">
+                      @if (message.type?.name) { <span class="truncate">{{ message.type?.name }}</span><span aria-hidden="true">·</span> }
+                      <span class="whitespace-nowrap">{{ message.createdAt | date: 'short' }}</span>
+                    </span>
                   </span>
-                </span>
-              </button>
-            </li>
-          } @empty {
-            <li class="flex flex-col items-center gap-2 px-4 py-8 text-center text-sm text-base-content/60">
-              <svg lucideInbox class="size-6"></svg>
-              {{ 'Inbox.NoUnreadMessages' | translate }}
-            </li>
+                </button>
+              </li>
+            } @empty {
+              <li class="flex flex-col items-center gap-2 px-4 py-8 text-center text-sm text-base-content/60">
+                <svg lucideInbox class="size-6"></svg>
+                {{ 'Inbox.NoUnreadMessages' | translate }}
+              </li>
+            }
           }
         </ul>
         <div class="border-t border-base-300 p-1">
