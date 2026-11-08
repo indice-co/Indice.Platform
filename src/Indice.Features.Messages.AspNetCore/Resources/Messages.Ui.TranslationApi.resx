@@ -2860,7 +2860,7 @@ user_code_2</value>
     <value>settings</value>
   </data>
   <data name="Nav.Inbox" xml:space="preserve">
-    <value>Inbox</value>
+    <value>My inbox</value>
   </data>
   <data name="Breadcrumb.Inbox" xml:space="preserve">
     <value>Inbox</value>

@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.64.0]
 
 ### Personal inbox
-The admin UI now has a notifications bell (unread count and a preview of the latest unread messages) and a "My inbox" page
-(filter by status, type, text and expired messages; read / unread / delete) built on the `my/messages` api.
+The admin UI now has a notifications bell (unread count and, when opened, a preview of the latest unread messages) and a "My inbox"
+page (filter by status, type, text and expired messages; read / unread / delete) built on the `my/messages` api. The page is reachable
+from the bell and from the user menu (next to sign out). The unread count is fetched with a page size of zero (count only).
 `CampaignUIOptions.EnableInbox` (default `true`) toggles it. Set `CampaignUIOptions.InboxHubName` (e.g. `messaging`) to receive
-real time updates through the SignalR proxy (`SignalRProxyUrl` defaults to the api origin), otherwise the UI polls every minute.
+real time updates through the SignalR proxy (`SignalRProxyUrl` defaults to the api origin), otherwise the UI refreshes the unread count
+every 5 minutes and when the tab becomes visible. These background requests do not show the top progress bar.
 
 ```csharp
 app.UseMessagesUI(options => { options.InboxHubName = "messaging"; });

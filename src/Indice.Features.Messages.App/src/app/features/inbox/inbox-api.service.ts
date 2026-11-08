@@ -1,8 +1,11 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { MESSAGES_API_BASE_URL } from 'src/app/core/services/messages-api.service';
 import { InboxMessage, InboxMessageType, InboxMessagesQuery, InboxResultSet } from './inbox.models';
+
+/** Requests carrying this header do not reveal the global (ngx-progressbar) progress bar; the header is removed before sending. */
+const SILENT_HEADERS = new HttpHeaders({ ignoreProgressBar: 'true' });
 
 /** Thin client over the user present "my messages" (inbox) endpoints of the messaging api. */
 @Injectable({ providedIn: 'root' })
@@ -10,8 +13,11 @@ export class InboxApiService {
   private readonly _http = inject(HttpClient);
   private readonly _baseUrl = (inject(MESSAGES_API_BASE_URL, { optional: true }) ?? '').replace(/\/$/u, '');
 
-  /** Gets the messages of the current user. */
-  public getMessages(query: InboxMessagesQuery = {}): Observable<InboxResultSet<InboxMessage>> {
+  /**
+   * Gets the messages of the current user.
+   * @param silent When true the request does not reveal the global progress bar (background requests).
+   */
+  public getMessages(query: InboxMessagesQuery = {}, silent = false): Observable<InboxResultSet<InboxMessage>> {
     let params = new HttpParams();
     const set = (name: string, value: unknown) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -26,13 +32,18 @@ export class InboxApiService {
     set('ShowExpired', query.showExpired);
     query.typeId?.forEach(id => set('TypeId', id));
     return this._http
-      .get<InboxResultSet<InboxMessage>>(`${this._baseUrl}/my/messages`, { params })
+      .get<InboxResultSet<InboxMessage>>(`${this._baseUrl}/my/messages`, { params, headers: silent ? SILENT_HEADERS : undefined })
       .pipe(map(result => ({ count: result?.count ?? 0, items: result?.items ?? [] })));
   }
 
-  /** Gets the number of unread messages along with the latest of them. */
-  public getUnread(size = 5): Observable<InboxResultSet<InboxMessage>> {
-    return this.getMessages({ page: 1, size, sort: 'createdAt-', isRead: false });
+  /** Gets only the number of unread messages. A page size of zero makes the server return the count without any items. */
+  public getUnreadCount(): Observable<number> {
+    return this.getMessages({ page: 1, size: 0, isRead: false }, true).pipe(map(result => result.count));
+  }
+
+  /** Gets the latest unread messages (along with the total unread count). */
+  public getLatestUnread(size: number): Observable<InboxResultSet<InboxMessage>> {
+    return this.getMessages({ page: 1, size, sort: 'createdAt-', isRead: false }, true);
   }
 
   public getMessage(messageId: string): Observable<InboxMessage> {

@@ -116,8 +116,10 @@ The in-app channel is a full surface of its own — read state, bulk actions, an
 - **Preference self-service** — recipients manage their communication preferences through the same API.
 - **Real time notifications** — inbox clients subscribe to a SignalR hub and get a personalized push for every new
   inbox message, instead of polling.
-- **Inbox in the admin UI** — a notifications bell (unread count + preview of the latest unread messages) and a
-  "My inbox" page with filters, built only on the user present `my/messages` API so other SPAs can do the same.
+- **Inbox in the admin UI** — a notifications bell (unread count + preview of the latest unread messages, fetched only
+  when the bell is opened) and a "My inbox" page (reachable from the bell and the user menu) with filters, built only on
+  the user present `my/messages` API so other SPAs can do the same. The unread count uses `my/messages?isRead=false&size=0`
+  (a page size of zero returns only the count).
 
 ### 🖼️ Media library & attachments
 
@@ -370,7 +372,8 @@ builder.AddMessageFunctions(options => {
   `connection.on('inboxMessageCreated', notification => …)`; the payload carries `id`, `title`, `type`,
   `activePeriod`, `isGlobal` and `createdAt`.
 - **Admin UI** — set `CampaignUIOptions.InboxHubName = "messaging"` (and `SignalRProxyUrl` when the proxy is not on the
-  API host root) for the bell to update live; without it the UI polls every minute.
+  API host root) for the bell to update live; without it the UI refreshes the unread count rarely (every 5 minutes and
+  whenever the browser tab becomes visible again).
 
 ### 🖼️ Media library
 
