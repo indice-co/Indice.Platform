@@ -72,6 +72,85 @@ WHERE c.[Published] = 1
 GO
 ```
 
+### Faster analytics overview and user inbox
+The user inbox (`my/messages`) no longer scans every campaign: it starts from the recipient's own messages (plus the global campaigns), so recipients
+with few or no messages get their inbox and unread count in milliseconds instead of seconds. On SQL Server the inbox query is tagged and gets
+`OPTION (RECOMPILE, USE HINT('DISABLE_OPTIMIZER_ROWGOAL'))` (`QueryHintsInterceptor`, registered by `CampaignsDbContext`), so a plan built for one recipient
+is not reused for a very different one. Other providers (PostgreSQL) run the query unchanged.
+The analytics overview computes its metrics concurrently, and the active campaigns, recipient and message type metrics use fewer, cheaper queries.
+
+New indexes (`IX_Message_RecipientId_CampaignId` replaces `IX_Message_RecipientId`):
+- `IX_Campaign_Published_IsGlobal` on `Campaign (Published, IsGlobal) INCLUDE (TypeId, RecipientCount)`
+- `IX_Campaign_From_To` on `Campaign (From, To)`
+- `IX_Message_RecipientId_CampaignId` on `Message (RecipientId, CampaignId) INCLUDE (IsDeleted, IsRead)`
+
+Run the following migration script. Both scripts can safely run more than once.<br/>
+**Caution!** Update table schema if not [cmp]
+
+SQL Server
+```tsql
+-- Creating the indexes blocks writes to the table while they build. On Enterprise edition, Azure SQL Database and Managed Instance
+-- add WITH (ONLINE = ON) to each CREATE INDEX to keep the tables writable.
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Campaign]')
+      AND name = N'IX_Campaign_Published_IsGlobal'
+)
+BEGIN
+    CREATE INDEX [IX_Campaign_Published_IsGlobal] ON [cmp].[Campaign] ([Published], [IsGlobal]) INCLUDE ([TypeId], [RecipientCount]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Campaign]')
+      AND name = N'IX_Campaign_From_To'
+)
+BEGIN
+    CREATE INDEX [IX_Campaign_From_To] ON [cmp].[Campaign] ([From], [To]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Message]')
+      AND name = N'IX_Message_RecipientId_CampaignId'
+)
+BEGIN
+    CREATE INDEX [IX_Message_RecipientId_CampaignId] ON [cmp].[Message] ([RecipientId], [CampaignId]) INCLUDE ([IsDeleted], [IsRead]);
+END;
+GO
+
+-- Superseded by IX_Message_RecipientId_CampaignId, dropped only after the new index exists.
+IF EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Message]')
+      AND name = N'IX_Message_RecipientId'
+)
+BEGIN
+    DROP INDEX [IX_Message_RecipientId] ON [cmp].[Message];
+END;
+GO
+```
+
+PostgreSQL (11 or later)
+```sql
+-- Creating the indexes blocks writes to the table while they build. To keep the tables writable use CREATE INDEX CONCURRENTLY IF NOT EXISTS
+-- (outside of a transaction). If a concurrent build fails it leaves an invalid index behind: drop it before running the script again.
+CREATE INDEX IF NOT EXISTS "IX_Campaign_Published_IsGlobal" ON cmp."Campaign" ("Published", "IsGlobal") INCLUDE ("TypeId", "RecipientCount");
+
+CREATE INDEX IF NOT EXISTS "IX_Campaign_From_To" ON cmp."Campaign" ("From", "To");
+
+CREATE INDEX IF NOT EXISTS "IX_Message_RecipientId_CampaignId" ON cmp."Message" ("RecipientId", "CampaignId") INCLUDE ("IsDeleted", "IsRead");
+
+-- Superseded by IX_Message_RecipientId_CampaignId, dropped only after the new index exists.
+DROP INDEX IF EXISTS cmp."IX_Message_RecipientId";
+```
+
 ## [8.62.0]
 ### Added flag for system generated distribution lists
 
