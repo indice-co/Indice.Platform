@@ -297,42 +297,6 @@
   <data name="Contacts.MergeDuplicatesSuccessMessage" xml:space="preserve">
     <value>The duplicate contacts of {{name}} were merged successfully.</value>
   </data>
-  <data name="Contacts.SortCreatedOnOption" xml:space="preserve">
-    <value>Created On</value>
-  </data>
-  <data name="Contacts.SortTitleOption" xml:space="preserve">
-    <value>Title</value>
-  </data>
-  <data name="Contacts.SortActiveFromOption" xml:space="preserve">
-    <value>Active From</value>
-  </data>
-  <data name="Contacts.SortTypeOption" xml:space="preserve">
-    <value>Type</value>
-  </data>
-  <data name="Contacts.SortPublishedOption" xml:space="preserve">
-    <value>Published</value>
-  </data>
-  <data name="Contacts.SortUpdatedAtOption" xml:space="preserve">
-    <value>Updated at</value>
-  </data>
-  <data name="Contacts.SortFullNameOption" xml:space="preserve">
-    <value>Full name</value>
-  </data>
-  <data name="Contacts.SortEmailOption" xml:space="preserve">
-    <value>Email</value>
-  </data>
-  <data name="Contacts.SortPhoneOption" xml:space="preserve">
-    <value>Phone</value>
-  </data>
-  <data name="Contacts.SortContactCodeOption" xml:space="preserve">
-    <value>Contact code</value>
-  </data>
-  <data name="Contacts.SortResolvedOption" xml:space="preserve">
-    <value>Resolved</value>
-  </data>
-  <data name="Contacts.SortLastResolutionDateOption" xml:space="preserve">
-    <value>Last resolution date</value>
-  </data>
   <data name="Contacts.UpdateSuccessTitle" xml:space="preserve">
     <value>Successful save</value>
   </data>
@@ -611,30 +575,6 @@
   </data>
   <data name="DistributionLists.TitleFormat" xml:space="preserve">
     <value>Distribution list - {{name}}</value>
-  </data>
-  <data name="DistributionLists.SortFirstNameOption" xml:space="preserve">
-    <value>First name</value>
-  </data>
-  <data name="DistributionLists.SortLastNameOption" xml:space="preserve">
-    <value>Last name</value>
-  </data>
-  <data name="DistributionLists.SortEmailOption" xml:space="preserve">
-    <value>Email</value>
-  </data>
-  <data name="DistributionLists.SortPhoneOption" xml:space="preserve">
-    <value>Phone</value>
-  </data>
-  <data name="DistributionLists.SortUpdatedAtOption" xml:space="preserve">
-    <value>Updated at</value>
-  </data>
-  <data name="DistributionLists.SortContactCodeOption" xml:space="preserve">
-    <value>Contact code</value>
-  </data>
-  <data name="DistributionLists.SortResolvedOption" xml:space="preserve">
-    <value>Resolved</value>
-  </data>
-  <data name="DistributionLists.SortLastResolutionDateOption" xml:space="preserve">
-    <value>Last resolution date</value>
   </data>
   <data name="DistributionLists.ExportContactsTooltip" xml:space="preserve">
     <value>Export contacts to CSV file.</value>
@@ -2648,15 +2588,6 @@ user_code_2</value>
   </data>
   <data name="DistributionLists.ImportCompletedWithErrors" xml:space="preserve">
     <value>Import finished: {{added}} added, {{updated}} updated. Some rows could not be imported:</value>
-  </data>
-  <data name="Shared.SortBy" xml:space="preserve">
-    <value>Sort by</value>
-  </data>
-  <data name="Shared.SortAscending" xml:space="preserve">
-    <value>Ascending</value>
-  </data>
-  <data name="Shared.SortDescending" xml:space="preserve">
-    <value>Descending</value>
   </data>
   <data name="Shared.ContactSearchPlaceholder" xml:space="preserve">
     <value>Search by name, email or phone…</value>

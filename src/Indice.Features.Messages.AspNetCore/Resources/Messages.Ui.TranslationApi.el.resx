@@ -297,42 +297,6 @@
   <data name="Contacts.MergeDuplicatesSuccessMessage" xml:space="preserve">
     <value>Τα διπλότυπα της επαφής {{name}} συγχονεύτηκαν με επιτυχία.</value>
   </data>
-  <data name="Contacts.SortCreatedOnOption" xml:space="preserve">
-    <value>Ημ/νια Δημιουργίας</value>
-  </data>
-  <data name="Contacts.SortTitleOption" xml:space="preserve">
-    <value>Τίτλος</value>
-  </data>
-  <data name="Contacts.SortActiveFromOption" xml:space="preserve">
-    <value>Ενεργή Από</value>
-  </data>
-  <data name="Contacts.SortTypeOption" xml:space="preserve">
-    <value>Τύπος</value>
-  </data>
-  <data name="Contacts.SortPublishedOption" xml:space="preserve">
-    <value>Δημοσιευμένη</value>
-  </data>
-  <data name="Contacts.SortUpdatedAtOption" xml:space="preserve">
-    <value>Τροποποιήθηκε</value>
-  </data>
-  <data name="Contacts.SortFullNameOption" xml:space="preserve">
-    <value>Ονοματεπώνυμο</value>
-  </data>
-  <data name="Contacts.SortEmailOption" xml:space="preserve">
-    <value>e-mail</value>
-  </data>
-  <data name="Contacts.SortPhoneOption" xml:space="preserve">
-    <value>Τηλέφωνο</value>
-  </data>
-  <data name="Contacts.SortContactCodeOption" xml:space="preserve">
-    <value>Κωδικός</value>
-  </data>
-  <data name="Contacts.SortResolvedOption" xml:space="preserve">
-    <value>Resolved</value>
-  </data>
-  <data name="Contacts.SortLastResolutionDateOption" xml:space="preserve">
-    <value>Last Resolution</value>
-  </data>
   <data name="Contacts.UpdateSuccessTitle" xml:space="preserve">
     <value>Επιτυχής αποθήκευση</value>
   </data>
@@ -611,30 +575,6 @@
   </data>
   <data name="DistributionLists.TitleFormat" xml:space="preserve">
     <value>Λίστα διανομής - {{name}}</value>
-  </data>
-  <data name="DistributionLists.SortFirstNameOption" xml:space="preserve">
-    <value>Όνομα</value>
-  </data>
-  <data name="DistributionLists.SortLastNameOption" xml:space="preserve">
-    <value>Επίθετο</value>
-  </data>
-  <data name="DistributionLists.SortEmailOption" xml:space="preserve">
-    <value>Email</value>
-  </data>
-  <data name="DistributionLists.SortPhoneOption" xml:space="preserve">
-    <value>Τηλέφωνο</value>
-  </data>
-  <data name="DistributionLists.SortUpdatedAtOption" xml:space="preserve">
-    <value>Ενημερώθηκε</value>
-  </data>
-  <data name="DistributionLists.SortContactCodeOption" xml:space="preserve">
-    <value>Κωδικός επαφής</value>
-  </data>
-  <data name="DistributionLists.SortResolvedOption" xml:space="preserve">
-    <value>Επιλυμένη</value>
-  </data>
-  <data name="DistributionLists.SortLastResolutionDateOption" xml:space="preserve">
-    <value>Τελευταία ημερομηνία επίλυσης</value>
   </data>
   <data name="DistributionLists.ExportContactsTooltip" xml:space="preserve">
     <value>Εξαγωγή επαφών σε αρχείο CSV.</value>
@@ -2647,15 +2587,6 @@
   </data>
   <data name="DistributionLists.ImportCompletedWithErrors" xml:space="preserve">
     <value>Η εισαγωγή ολοκληρώθηκε: {{added}} προστέθηκαν, {{updated}} ενημερώθηκαν. Κάποιες γραμμές δεν εισήχθησαν:</value>
-  </data>
-  <data name="Shared.SortBy" xml:space="preserve">
-    <value>Ταξινόμηση κατά</value>
-  </data>
-  <data name="Shared.SortAscending" xml:space="preserve">
-    <value>Αύξουσα</value>
-  </data>
-  <data name="Shared.SortDescending" xml:space="preserve">
-    <value>Φθίνουσα</value>
   </data>
   <data name="Shared.ContactSearchPlaceholder" xml:space="preserve">
     <value>Αναζήτηση με όνομα, email ή τηλέφωνο…</value>
