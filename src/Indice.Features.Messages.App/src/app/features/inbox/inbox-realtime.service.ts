@@ -13,9 +13,8 @@ export type InboxRealtimeStatus = 'disabled' | 'disconnected' | 'connecting' | '
 /**
  * Receives personalized real time inbox notifications through SignalR.
  *
- * Connects to the SignalR proxy endpoints (`MapSignalRProxy()`) of the host: the client negotiates at
- * `{signalRProxyUrl}/hubs/{inboxHubName}/negotiate` with the user's access token and is then redirected to the actual
- * (Azure) SignalR service. Disabled when no `inboxHubName` is configured.
+ * Connects to the configured `inboxHubUrl` with the user's access token. Whatever serves that url (i.e. the SignalR proxy that
+ * redirects to Azure SignalR) is transparent to the client. Disabled when no `inboxHubUrl` is configured.
  */
 @Injectable({ providedIn: 'root' })
 export class InboxRealtimeService {
@@ -24,7 +23,7 @@ export class InboxRealtimeService {
   private _connection?: HubConnection;
   private _starting?: Promise<void>;
 
-  public readonly enabled = !!settings.inboxHubName;
+  public readonly enabled = !!settings.inboxHubUrl;
   public readonly status = signal<InboxRealtimeStatus>(this.enabled ? 'disconnected' : 'disabled');
   /** Emits every time the server pushes a new inbox message notification. */
   public readonly messageCreated$: Observable<InboxMessageNotification> = this._messageCreated$.asObservable();
@@ -59,7 +58,7 @@ export class InboxRealtimeService {
     try {
       const signalR = await import('@microsoft/signalr');
       const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${settings.signalRProxyUrl}/hubs/${encodeURIComponent(settings.inboxHubName!)}`, {
+        .withUrl(settings.inboxHubUrl!, {
           accessTokenFactory: () => this._auth.getCurrentUser()?.access_token ?? ''
         })
         .withAutomaticReconnect()

@@ -371,8 +371,8 @@ builder.AddMessageFunctions(options => {
 - **Client** — `@microsoft/signalr` with `withUrl('{api}/hubs/messaging', { accessTokenFactory })` and
   `connection.on('inboxMessageCreated', notification => …)`; the payload carries `id`, `title`, `type`,
   `activePeriod`, `isGlobal` and `createdAt`.
-- **Admin UI** — set `CampaignUIOptions.InboxHubName = "messaging"` (and `SignalRProxyUrl` when the proxy is not on the
-  API host root) for the bell to update live; without it the UI refreshes the unread count rarely (every 5 minutes and
+- **Admin UI** — set `CampaignUIOptions.InboxHubUrl = "/hubs/messaging"` (relative urls resolve against the API
+  origin; use an absolute url when the hub lives elsewhere) for the bell to update live; without it the UI refreshes the unread count rarely (every 5 minutes and
   whenever the browser tab becomes visible again).
 
 ### 🖼️ Media library
