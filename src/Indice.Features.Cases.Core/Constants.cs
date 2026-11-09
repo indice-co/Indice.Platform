@@ -20,6 +20,9 @@ internal class CasesCoreConstants
     /// <summary>The default contact reference claim type. Would be <strong>customer_code</strong></summary>
     public static string DefaultReferenceIdClaimType = "customer_code";
 
+    /// <summary>Key of the <see cref="Indice.Services.IFileService"/> used to store the case attachments.</summary>
+    public const string FileServiceKey = "Cases:FileServiceKey";
+
     /// <summary>The default language key that will be used at <see cref="IJsonTranslationService"/>.</summary>
     public static string DefaultTranslationLanguage = "el";
 
