@@ -20,6 +20,7 @@
     <PackageReference Include="ModelContextProtocol.Core" Version="2.3.0" />
 
     <!-- 3rd Party -->
+    <PackageReference Include="Stripe.net" Version="48.3.0" />
     <PackageReference Include="Duende.IdentityModel" Version="8.1.0" />
     <PackageReference Include="Duende.AccessTokenManagement" Version="4.3.0" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
