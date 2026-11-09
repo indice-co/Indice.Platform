@@ -545,7 +545,7 @@ public static class IndiceServicesServiceCollectionExtensions
     public static IServiceCollection AddWebhookServices<THandler, THttpHandler>(this IServiceCollection services, IConfiguration configuration, string providerName) 
         where THandler : class, IWebhookHandler
         where THttpHandler : class, IWebhookHttpHandler {
-        var settings = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        var settings = configuration.GetSection(WebhookOptions.Name).Get<WebhookOptions>() ?? new WebhookOptions();
         var enableWebhooks = settings.Enabled;
         if (!enableWebhooks) {
             return services;

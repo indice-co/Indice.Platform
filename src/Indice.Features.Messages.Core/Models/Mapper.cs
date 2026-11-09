@@ -188,7 +188,8 @@ internal static class Mapper
         Channel = messageEvent.Channel,
         Recipient = messageEvent.Recipient,
         Title = messageEvent.Title,
-        Success = messageEvent.Success
+        Success = messageEvent.Success,
+        ReceiptId = messageEvent.ReceiptId
     };
 
     public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {

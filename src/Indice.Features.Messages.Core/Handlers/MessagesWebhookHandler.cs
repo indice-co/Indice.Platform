@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -17,33 +18,26 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
     public async Task HandleAsync(List<WebhookEvent> events, CancellationToken cancellationToken) {
         foreach (var webhookEvent in events) {
             cancellationToken.ThrowIfCancellationRequested();
-            if (Guid.TryParse(webhookEvent.MessageId, out var messageId)) {
-                var message = await dbContext.Messages.FirstOrDefaultAsync(x => x.Id == messageId, cancellationToken);
-                if (message is null) {
-                    logger.LogWarning("Message with ID {MessageId} not found for webhook event {Provider}/{EventId}", messageId, webhookEvent.Provider, webhookEvent.EventId);
-                    continue;
-                }
-                var entity = new DbMessageEvent {
-                    Id = Guid.NewGuid(),
-                    MessageId = messageId,
-                    CampaignId = message.CampaignId,
-                    ContactId = message.ContactId!.Value,
-                    CreatedOn = DateTimeOffset.UtcNow,
-                    Success = true,
-                    Channel = Models.MessageChannelKind.Email.ToString(),
-                    Title = webhookEvent.Subject ?? message.GetContentTitle(Models.MessageChannelKind.Email),
-                    Type = $"Webhook-{webhookEvent.Provider}"
-                };
-                /*
-                    string MessageId
-                    DateTimeOffset Timestamp
-                    string EventId
-                    string Recipient
-                    string? Subject
-                    JsonNode? Payload
-                 */
-                dbContext.MessageEvents.Add(entity);
+            if (string.IsNullOrEmpty(webhookEvent.MessageId)) {
+                logger.LogWarning("Message with ID {MessageId} not found for webhook event {Provider}/{EventId}", webhookEvent.MessageId, webhookEvent.Provider, webhookEvent.EventId);
             }
+            var createdEvent = await dbContext.MessageEvents.FirstOrDefaultAsync(x => x.ReceiptId == webhookEvent.MessageId && x.Type == nameof(MessageEventType.Sent), cancellationToken);
+            if (createdEvent is null) {
+                logger.LogWarning("Message with ID {MessageId} not found for webhook event {Provider}/{EventId}", webhookEvent.MessageId, webhookEvent.Provider, webhookEvent.EventId);
+                continue;
+            }
+            var entity = new DbMessageEvent {
+                Id = Guid.NewGuid(),
+                MessageId = createdEvent.MessageId,
+                CampaignId = createdEvent.CampaignId,
+                ContactId = createdEvent.ContactId,
+                Title = createdEvent.Title,
+                Channel = createdEvent.Channel,
+                CreatedOn = DateTimeOffset.UtcNow,
+                Success = true,
+                Type = webhookEvent.EventType
+            };
+            dbContext.MessageEvents.Add(entity);
         }
         try {
             await dbContext.SaveChangesAsync(cancellationToken);

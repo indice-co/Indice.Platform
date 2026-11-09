@@ -135,7 +135,7 @@ public static class MessageFeatureExtensions
     /// <param name="configuration">The application configuration used to resolve webhook settings and providers.</param>
     /// <returns>The service collection so that additional registrations can be chained.</returns>
     public static IServiceCollection AddMessagesWebhookServices(this IServiceCollection services, IConfiguration configuration) {
-        var webhooksOptions = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        var webhooksOptions = configuration.GetSection(WebhookOptions.Name).Get<WebhookOptions>() ?? new WebhookOptions();
         if (webhooksOptions.Enabled) {
             services.AddSmsWebhooks<MessagesWebhookHandler>(configuration);
             services.AddEmailWebhooks<MessagesWebhookHandler>(configuration);
@@ -153,7 +153,7 @@ public static class MessageFeatureExtensions
     /// <returns>The service collection so that additional registrations can be chained.</returns>
     public static IServiceCollection AddMessagesWebhookServices<THandler>(this IServiceCollection services, IConfiguration configuration)
         where THandler : class, IWebhookHandler {
-        var webhooksOptions = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        var webhooksOptions = configuration.GetSection(WebhookOptions.Name).Get<WebhookOptions>() ?? new WebhookOptions();
         if (webhooksOptions.Enabled) {
             services.AddSmsWebhooks<THandler>(configuration);
             services.AddEmailWebhooks<THandler>(configuration);

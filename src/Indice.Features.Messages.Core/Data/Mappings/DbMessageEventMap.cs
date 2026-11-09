@@ -33,6 +33,8 @@ public class DbMessageEventMap : IEntityTypeConfiguration<DbMessageEvent>
         builder.HasIndex(x => x.Type);
         builder.HasIndex(x => x.Channel);
         builder.HasIndex(x => x.Recipient);
+        // receipt lookups filtered by event type (e.g. sent)
+        builder.HasIndex(x => new { x.ReceiptId, x.Type });
         // events list (newest first) and date ranged analytics
         builder.HasIndex(x => x.CreatedOn);
         // campaign reports and the per campaign analytics, covering so they do not read the whole row

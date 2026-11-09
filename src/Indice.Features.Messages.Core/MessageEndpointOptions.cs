@@ -95,5 +95,5 @@ public class CampaignOptionsBase
     public AnalyticsOptions AnalyticsOptions { get; set; } = new ();
 
     /// <summary>Specifies the settings for the webhooks event sink feature.</summary>
-    public WebhooksSettings WebhooksOptions { get; set; } = new();
+    public WebhookOptions WebhooksOptions { get; set; } = new();
 }
