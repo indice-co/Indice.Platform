@@ -130,36 +130,27 @@ public static class MessageFeatureExtensions
 
     /// <summary>
     /// Registers webhook services for message-related SMS and email providers.
+    /// <see cref="WebhookOptions"/> are bound from configuration and can be further customized via <paramref name="configure"/>.
     /// </summary>
-    /// <param name="services">The service collection to register the webhook services with.</param>
-    /// <param name="configuration">The application configuration used to resolve webhook settings and providers.</param>
-    /// <returns>The service collection so that additional registrations can be chained.</returns>
-    public static IServiceCollection AddMessagesWebhookServices(this IServiceCollection services, IConfiguration configuration) {
-        var webhooksOptions = configuration.GetSection(WebhookOptions.Name).Get<WebhookOptions>() ?? new WebhookOptions();
-        if (webhooksOptions.Enabled) {
-            services.AddSmsWebhooks<MessagesWebhookHandler>(configuration);
-            services.AddEmailWebhooks<MessagesWebhookHandler>(configuration);
-        }
-        return services;
-    }
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="configure">Optional delegate to configure <see cref="WebhookOptions"/>.</param>
+    /// <returns>The <see cref="WebhooksBuilder"/> so that additional HTTP handlers can be registered.</returns>
+    public static WebhooksBuilder AddMessagesWebhookServices(this IHostApplicationBuilder builder, Action<WebhookOptions>? configure = null) =>
+        builder.AddMessagesWebhookServices<MessagesWebhookHandler>(configure);
 
     /// <summary>
     /// Registers webhook services for message-related SMS and email providers
     /// using a custom webhook handler.
     /// </summary>
     /// <typeparam name="THandler">The webhook handler implementation to register.</typeparam>
-    /// <param name="services">The service collection to register the webhook services with.</param>
-    /// <param name="configuration">The application configuration used to resolve webhook settings and providers.</param>
-    /// <returns>The service collection so that additional registrations can be chained.</returns>
-    public static IServiceCollection AddMessagesWebhookServices<THandler>(this IServiceCollection services, IConfiguration configuration)
-        where THandler : class, IWebhookHandler {
-        var webhooksOptions = configuration.GetSection(WebhookOptions.Name).Get<WebhookOptions>() ?? new WebhookOptions();
-        if (webhooksOptions.Enabled) {
-            services.AddSmsWebhooks<THandler>(configuration);
-            services.AddEmailWebhooks<THandler>(configuration);
-        }
-        return services;
-    }
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="configure">Optional delegate to configure <see cref="WebhookOptions"/>.</param>
+    /// <returns>The <see cref="WebhooksBuilder"/> so that additional HTTP handlers can be registered.</returns>
+    public static WebhooksBuilder AddMessagesWebhookServices<THandler>(this IHostApplicationBuilder builder, Action<WebhookOptions>? configure = null)
+        where THandler : class, IWebhookHandler =>
+        builder.AddWebhooks<THandler>(configure)
+                .AddSmsWebhooks()
+                .AddEmailWebhooks();
 
     /// <summary>
     /// Registers all the basic dependencies for the campaign tool with sensible defaults.
