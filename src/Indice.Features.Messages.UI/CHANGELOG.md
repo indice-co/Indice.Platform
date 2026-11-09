@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [8.64.0]
+
+### Personal inbox
+The admin UI now has a notifications bell (unread count and, when opened, a preview of the latest unread messages) and a "My inbox"
+page (filter by status, type, text and expired messages; read / unread / delete) built on the `my/messages` api. The page is reachable
+from the bell and from the user menu (next to sign out). The unread count is fetched with a page size of zero (count only).
+`CampaignUIOptions.EnableInbox` (default `true`) toggles it. Set `CampaignUIOptions.InboxHubUrl` (e.g. `/hubs/messaging`, relative
+urls resolve against the api origin) to receive real time updates, otherwise the UI refreshes the unread count
+every 5 minutes and when the tab becomes visible. These background requests do not show the top progress bar.
+
+```csharp
+app.UseMessagesUI(options => { options.InboxHubUrl = "/hubs/messaging"; });
+```
+
 ## [8.50.0] - 2026-06-16
 
 ### Disabling the MapTranslationsGraph endpoints.

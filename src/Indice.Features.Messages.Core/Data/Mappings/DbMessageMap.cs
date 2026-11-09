@@ -26,6 +26,8 @@ public class DbMessageMap : IEntityTypeConfiguration<DbMessage>
         builder.Property(x => x.Content).HasRequiredJsonConversion().IsRequired();
         builder.Property(x => x.RecipientId).IsRequired(false);
         // Configure indexes.
-        builder.HasIndex(x => x.RecipientId).IsUnique(false);
+        var recipientIndex = builder.HasIndex(x => new { x.RecipientId, x.CampaignId }).IsUnique(false);
+        SqlServerIndexBuilderExtensions.IncludeProperties(recipientIndex, x => new { x.IsDeleted, x.IsRead });
+        NpgsqlIndexBuilderExtensions.IncludeProperties(recipientIndex, x => new { x.IsDeleted, x.IsRead });
     }
 }

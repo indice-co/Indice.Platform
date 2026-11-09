@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
-import { LucideDownload, LucideTrash, LucideUpload, LucideUserPlus, LucideUsers } from '@lucide/angular';
+import { LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideDownload, LucideTrash, LucideUpload, LucideUserPlus, LucideUsers } from '@lucide/angular';
 import { Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ContactAvatarComponent, contactDisplayName } from 'src/app/shared/components/list-contact-create/contact-avatar.component';
 import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
@@ -16,7 +16,6 @@ import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { RefreshBus } from 'src/app/ui/list/refresh-bus';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
-import { ListSortComponent, SortOption } from 'src/app/features/contacts/list-sort.component';
 import { DistributionListEditStore } from '../distribution-list-edit-store.service';
 import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
@@ -24,15 +23,14 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 @Component({
   selector: 'app-distribution-list-contacts',
   imports: [
-    ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent, ContactAvatarComponent,
-    BoolIconComponent, LucideDownload, LucideTrash, LucideUpload, LucideUserPlus, LucideUsers
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ContactAvatarComponent,
+    BoolIconComponent, LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideDownload, LucideTrash, LucideUpload, LucideUserPlus, LucideUsers
   ],
   template: `
     <app-list-count class="mb-3" [count]="list.items() ? list.count() : null" one="Contacts.CountOne" other="Contacts.CountOther" />
     <div class="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
-        <app-list-sort [list]="list" [options]="sortOptions" />
       </div>
       <div class="flex flex-wrap gap-2">
         <button type="button" class="btn btn-sm btn-ghost" [disabled]="exporting()" (click)="export()" [attr.title]="'DistributionLists.ExportContactsTooltip' | translate">
@@ -53,11 +51,22 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'DistributionLists.Name' | translate }}</th>
-              <th>{{ 'DistributionLists.Email' | translate }}</th>
-              <th>{{ 'DistributionLists.Phone' | translate }}</th>
-              <th>{{ 'DistributionLists.ContactCode' | translate }}</th>
-              <th>{{ 'DistributionLists.UpdatedAt' | translate }}</th>
+              @for (column of columns; track column.label) {
+                <th [class]="column.class ?? ''">
+                  @if (column.sort) {
+                    <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+                      {{ column.label | translate }}
+                      @if (list.sort() === column.sort) {
+                        @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                      } @else {
+                        <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                      }
+                    </button>
+                  } @else {
+                    {{ column.label | translate }}
+                  }
+                </th>
+              }
               <th class="w-16 text-right"><span class="sr-only">{{ 'DistributionLists.Actions' | translate }}</span></th>
             </tr>
           </thead>
@@ -134,15 +143,12 @@ export class DistributionListContactsComponent implements OnInit {
   protected readonly displayName = contactDisplayName;
   protected readonly exporting = signal(false);
 
-  protected readonly sortOptions: SortOption[] = [
-    { value: 'firstName', label: 'DistributionLists.SortFirstNameOption' },
-    { value: 'lastName', label: 'DistributionLists.SortLastNameOption' },
-    { value: 'email', label: 'DistributionLists.SortEmailOption' },
-    { value: 'phone', label: 'DistributionLists.SortPhoneOption' },
-    { value: 'updatedAt', label: 'DistributionLists.SortUpdatedAtOption' },
-    { value: 'recipientId', label: 'DistributionLists.SortContactCodeOption' },
-    { value: 'resolved', label: 'DistributionLists.SortResolvedOption' },
-    { value: 'lastResolutionDate', label: 'DistributionLists.SortLastResolutionDateOption' }
+  protected readonly columns: { label: string; sort?: string; class?: string }[] = [
+    { label: 'DistributionLists.Name', sort: 'fullName' },
+    { label: 'DistributionLists.Email', sort: 'email' },
+    { label: 'DistributionLists.Phone', sort: 'phoneNumber' },
+    { label: 'DistributionLists.ContactCode', sort: 'recipientId' },
+    { label: 'DistributionLists.UpdatedAt', sort: 'updatedAt' }
   ];
 
   protected readonly list = new ListState<Contact>({

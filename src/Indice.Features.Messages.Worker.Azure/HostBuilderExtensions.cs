@@ -111,6 +111,7 @@ public static class HostBuilderExtensions
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
+        services.TryAddTransient<IInboxNotifier, InboxNotifierNoop>();
 
 
         services.Configure<AnalyticsOptions>(opt => {
@@ -133,6 +134,17 @@ public static class HostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<MessagingDatabaseCleanUpTimerEvent>, MessagingDatabaseCleanUpHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
         return services;
+    }
+
+    /// <summary>
+    /// Pushes a personalized real time notification through SignalR to the recipient (using the <i>SignalR proxy</i> infrastructure) every time a new inbox message is created.
+    /// </summary>
+    /// <remarks>The SignalR connection string is read from <c>ConnectionStrings:SignalR</c>.</remarks>
+    /// <param name="options">Options used when configuring campaign Azure Functions.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageOptions UseInboxSignalRNotifications(this MessageOptions options, Action<MessageInboxNotificationOptions>? configure = null) {
+        options.Services.AddMessageInboxSignalRNotifications(configure);
+        return options;
     }
 
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
