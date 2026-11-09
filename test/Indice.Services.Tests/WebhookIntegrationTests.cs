@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -161,23 +161,7 @@ public sealed class WebhookIntegrationTests
             })
             .Build();
 
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var host = await StartHostAsync(configuration);
 
         var services = host.Services;
 
@@ -327,22 +311,17 @@ public sealed class WebhookIntegrationTests
         return request;
     }
 
-    private static Task<IHost> StartHostAsync(IConfiguration configuration) =>
-        new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
+    private static async Task<IHost> StartHostAsync(IConfiguration configuration) {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Configuration.AddConfiguration(configuration);
+        builder.Services.AddRouting();
+        builder.Services.AddSmsService(builder.Configuration);
+        builder.AddWebhooks<NoOpWebhookHandler>().AddSmsWebhooks();
+        var app = builder.Build();
+        app.UseRouting();
+        app.MapWebhooks();
+        await app.StartAsync(TestContext.Current.CancellationToken);
+        return app;
+    }
 }
