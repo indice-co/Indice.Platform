@@ -140,13 +140,12 @@ public class CampaignService : ICampaignService
     /// <inheritdoc />
     public async Task<CampaignMetrics> GetMetrics(DateTimeOffset? asOfDate = null) {
         var now = asOfDate ?? DateTimeOffset.UtcNow;
-        // Counting the active period alone is served by the narrow (From, To) index, while the few unpublished ones are found through the Published index.
-        // Combining both predicates in one query makes the database intersect the two indexes over every campaign, which is far slower.
-        var inActivePeriod = DbContext.Campaigns.Where(x => x.ActivePeriod!.From <= now && (x.ActivePeriod!.To == null || x.ActivePeriod.To > now));
         var campaignMetrics = new CampaignMetrics {
             Total = asOfDate.HasValue ? await DbContext.Campaigns.CountAsync(x => x.CreatedAt <= now) :
                                         await DbContext.Campaigns.CountAsync(),
-            Active = await inActivePeriod.CountAsync() - await inActivePeriod.CountAsync(x => !x.Published),
+            // A single statement keeps the count consistent. IX_Campaign_From_To includes Published (see CHANGELOG), so it covers this query.
+            Active = await DbContext.Campaigns.CountAsync(x => x.Published &&
+                                                               (x.ActivePeriod!.From <= now) && (x.ActivePeriod!.To == null || x.ActivePeriod.To > now)),
             TotalToday = await DbContext.Campaigns.CountAsync(x => x.CreatedAt >= now.Date && x.CreatedAt <= now.AddDays(1).Date),
             TotalYesterday = await DbContext.Campaigns.CountAsync(x => x.CreatedAt >= now.AddDays(-1).Date && x.CreatedAt < now.Date),
         };

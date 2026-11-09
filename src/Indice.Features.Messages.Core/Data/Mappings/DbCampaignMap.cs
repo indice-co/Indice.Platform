@@ -33,6 +33,8 @@ public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
         
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
+        // The migration scripts (see CHANGELOG) also INCLUDE Published so the active campaigns count is served by this index alone.
+        // EF cannot express it, since an index declared on the owned type may only include the owned type's own properties.
         builder.OwnsOne(x => x.ActivePeriod).HasIndex(x => new { x.From, x.To });
         builder.Property(x => x.IsGlobal).IsRequired();
         builder.Property(x => x.Data).HasJsonConversion();

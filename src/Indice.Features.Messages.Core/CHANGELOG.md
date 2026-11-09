@@ -81,7 +81,7 @@ The analytics overview computes its metrics concurrently, and the active campaig
 
 New indexes (`IX_Message_RecipientId_CampaignId` replaces `IX_Message_RecipientId`):
 - `IX_Campaign_Published_IsGlobal` on `Campaign (Published, IsGlobal) INCLUDE (TypeId, RecipientCount)`
-- `IX_Campaign_From_To` on `Campaign (From, To)`
+- `IX_Campaign_From_To` on `Campaign (From, To) INCLUDE (Published)`
 - `IX_Message_RecipientId_CampaignId` on `Message (RecipientId, CampaignId) INCLUDE (IsDeleted, IsRead)`
 
 Run the following migration script. Both scripts can safely run more than once.<br/>
@@ -109,7 +109,7 @@ IF NOT EXISTS (
       AND name = N'IX_Campaign_From_To'
 )
 BEGIN
-    CREATE INDEX [IX_Campaign_From_To] ON [cmp].[Campaign] ([From], [To]);
+    CREATE INDEX [IX_Campaign_From_To] ON [cmp].[Campaign] ([From], [To]) INCLUDE ([Published]);
 END;
 GO
 
@@ -143,7 +143,7 @@ PostgreSQL (11 or later)
 -- (outside of a transaction). If a concurrent build fails it leaves an invalid index behind: drop it before running the script again.
 CREATE INDEX IF NOT EXISTS "IX_Campaign_Published_IsGlobal" ON cmp."Campaign" ("Published", "IsGlobal") INCLUDE ("TypeId", "RecipientCount");
 
-CREATE INDEX IF NOT EXISTS "IX_Campaign_From_To" ON cmp."Campaign" ("From", "To");
+CREATE INDEX IF NOT EXISTS "IX_Campaign_From_To" ON cmp."Campaign" ("From", "To") INCLUDE ("Published");
 
 CREATE INDEX IF NOT EXISTS "IX_Message_RecipientId_CampaignId" ON cmp."Message" ("RecipientId", "CampaignId") INCLUDE ("IsDeleted", "IsRead");
 
