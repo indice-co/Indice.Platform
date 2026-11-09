@@ -144,7 +144,7 @@ public sealed class WebhookIntegrationTests
             })
             .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-        var request = new HttpRequestMessage(
+        using var request = new HttpRequestMessage(
             HttpMethod.Post,
             "/webhooks/kapatel?id=3f8df07f349ea6c2dbeb5d90cc4de275&foreign_id=KAPATEL3&notification_status=1&notification_datetime_stamp=2024-11-21%2010:13:21&msisdn=306900000000");
         var authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{webhookUsername}:{webhookPassword}"));
@@ -308,7 +308,7 @@ public sealed class WebhookIntegrationTests
             services.GetServices<IHostedService>(),
             service => service.GetType() == typeof(WebhookEventSink));
 
-        var request = new HttpRequestMessage(
+        using var request = new HttpRequestMessage(
             HttpMethod.Post,
             "/webhooks/kapatel?id=3f8df07f349ea6c2dbeb5d90cc4de275&foreign_id=KAPATEL3&notification_status=1&notification_datetime_stamp=2024-11-21%2010:13:21&msisdn=306900000000");
         var authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{webhookUsername}:{webhookPassword}"));

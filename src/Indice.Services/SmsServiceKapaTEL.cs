@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Globalization;
+using System.Linq;
 using Indice.Globalization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -278,15 +279,10 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
     }
 
     private static string GetFirstNonEmptyParameter(IDictionary<string, StringValues> parameters, params string[] keys) {
-        foreach (var key in keys) {
-            if (parameters.TryGetValue(key, out var value)) {
-                var candidate = value.ToString();
-                if (!string.IsNullOrWhiteSpace(candidate)) {
-                    return candidate;
-                }
-            }
-        }
-        return string.Empty;
+        return keys
+            .Select(key => parameters.TryGetValue(key, out var value) ? value.ToString() : null)
+            .FirstOrDefault(candidate => !string.IsNullOrWhiteSpace(candidate))
+            ?? string.Empty;
     }
 
     private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {

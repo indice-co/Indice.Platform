@@ -604,7 +604,7 @@ public static class IndiceServicesServiceCollectionExtensions
                 services.AddWebhookServices<THandler, OmnimessagingWebhookHttpHandler>(configuration, provider);
                 break;
             case "kapatel":
-            case "KapaTEL":
+            case "kapa_tel":
                 services.Configure<SmsServiceKapaTELSettings>(configuration.GetSection(SmsServiceSettings.Name));
                 services.AddWebhookServices<THandler, KapaTELWebhookHttpHandler>(configuration, provider);
                 break;
