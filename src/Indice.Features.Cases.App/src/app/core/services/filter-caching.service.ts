@@ -1,35 +1,37 @@
 import { Injectable } from '@angular/core';
 
 type Dictionary = {
-    [key: string]: object;
+    [key: string]: object | undefined;
 };
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilterCachingService {
-  private filterParams: Dictionary = {};
-
+  private filterParams: Dictionary = Object.create(null);
   constructor() { }
 
   /**
    * Stores params.
    */
   setParams(key: string, filterParams: object) {
-    this.filterParams[key] = filterParams;
+    let internalKey = '$' + key;
+    this.filterParams[internalKey] = filterParams;
   }
 
   /**
    * Gets Stored params.
    */
-  getParams(key: string): object {
-    return this.filterParams[key];
+  getParams(key: string): object | undefined {
+    let internalKey = '$' + key;
+    return this.filterParams[internalKey];
   }
 
   /**
    * Clears Stored params.
    */
   resetParams(key: string) {
-    delete this.filterParams[key];
+    let internalKey = '$' + key;
+    delete this.filterParams[internalKey];
   }
 }

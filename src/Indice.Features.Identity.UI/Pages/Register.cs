@@ -3,17 +3,22 @@ using Duende.IdentityModel;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
+using Indice.AspNetCore.Features.Recaptcha;
+
 #else
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.AspNetCore.Features.Recaptcha;
+
 #endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
+using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +42,7 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
+    /// <param name="recaptchaService">Service for validating reCAPTCHA tokens.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseRegisterModel(
         ExtendedUserManager<User> userManager,
@@ -45,7 +51,8 @@ public abstract class BaseRegisterModel : BasePageModel
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
         ILogger<BaseRegisterModel> logger,
-        IOptions<IdentityUIOptions> identityUiOptions
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IRecaptchaService recaptchaService
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -54,6 +61,7 @@ public abstract class BaseRegisterModel : BasePageModel
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
+        RecaptchaService = recaptchaService ?? throw new ArgumentNullException(nameof(recaptchaService));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -71,6 +79,8 @@ public abstract class BaseRegisterModel : BasePageModel
     protected ILogger<BaseRegisterModel> Logger { get; }
     /// <summary>Configuration options for Identity UI.</summary>
     protected IdentityUIOptions IdentityUIOptions { get; set; }
+    /// <summary>Service for validating reCAPTCHA tokens.</summary>
+    protected IRecaptchaService RecaptchaService { get; }
 
     /// <summary>The view model for registration page.</summary>
     public RegisterViewModel View { get; set; } = new RegisterViewModel();
@@ -101,6 +111,22 @@ public abstract class BaseRegisterModel : BasePageModel
         if (!UiOptions.EnableRegisterPage) {
             return Redirect("/404");
         }
+
+        // Validate reCAPTCHA if enabled
+        // Note: For v3, token is pre-validated via /RecaptchaValidate endpoint to check score before form submission.
+        //       For v2, this is the first and only validation (v2 is shown when v3 score < threshold).
+        if (RecaptchaService.ShouldValidate(Input.RecaptchaVersion, Input.RecaptchaToken)) {
+            var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var recaptchaResult = await RecaptchaService.ValidateAsync(Input.RecaptchaToken, Input.RecaptchaVersion, remoteIp);
+
+            if (!recaptchaResult.Success) {
+                Logger.LogWarning("reCAPTCHA validation failed for registration.");
+                ModelState.AddModelError(string.Empty, "reCAPTCHA validation failed. Please try again.");
+                View = await BuildRegisterViewModelAsync(Input.ReturnUrl);
+                return Page();
+            }
+        }
+
         if (!ModelState.IsValid) {
             return Page();
         }
@@ -156,11 +182,9 @@ public abstract class BaseRegisterModel : BasePageModel
                 AuthenticationScheme = x.Name
             })
             .ToList();
-        var enableLocalLogin = IdentityUIOptions.EnableLocalLogin;
-        if (context?.Client.ClientId is not null) {
-            var client = await ClientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
+        if (context?.Client?.ClientId is string clientId) {
+            var client = await ClientStore.FindEnabledClientByIdAsync(clientId);
             if (client is not null) {
-                enableLocalLogin = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
                     providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
                 }
@@ -199,7 +223,7 @@ public abstract class BaseRegisterModel : BasePageModel
         if (!string.IsNullOrWhiteSpace(input.ZoneInfo)) {
             user.Claims.Add(new() {
                 ClaimType = JwtClaimTypes.ZoneInfo,
-                ClaimValue = input.ZoneInfo,
+                ClaimValue = TimeZoneInfo.FindSystemTimeZoneById(input.ZoneInfo).Id,
                 UserId = user.Id
             });
         }
@@ -221,7 +245,7 @@ public abstract class BaseRegisterModel : BasePageModel
         if (input.HasConsentedToCommercialCommunications) {
             user.Claims.Add(new() {
                 ClaimType = BasicClaimTypes.ConsentCommercial,
-                ClaimValue = input.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                ClaimValue = bool.TrueString.ToLower(),
                 UserId = user.Id
             });
             user.Claims.Add(new() {
@@ -254,6 +278,7 @@ internal class RegisterModel : BaseRegisterModel
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
         ILogger<RegisterModel> logger,
-        IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(userManager, signInManager, schemeProvider, clientStore, interaction, logger, identityUiOptions) { }
+        IOptions<IdentityUIOptions> identityUiOptions,
+        IRecaptchaService recaptchaService
+    ) : base(userManager, signInManager, schemeProvider, clientStore, interaction, logger, identityUiOptions, recaptchaService) { }
 }

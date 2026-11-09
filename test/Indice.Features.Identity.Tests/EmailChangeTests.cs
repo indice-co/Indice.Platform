@@ -14,15 +14,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Polly;
 using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 
-public class EmailChangeTests
+public class EmailChangeTests : IAsyncLifetime
 {
+    private readonly IHost _host;
+
     public EmailChangeTests() {
-        var builder = new WebHostBuilder();
+        _host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["IdentityOptions:User:EmailAsUserName"] = "true"
@@ -47,10 +51,21 @@ public class EmailChangeTests
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
-        TestServer = new TestServer(builder);
+        }).Start();
+        TestServer = _host.GetTestServer();
     }
 
     public TestServer TestServer { get; }
+
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    public async ValueTask DisposeAsync() {
+        try {
+            await _host.StopAsync();
+        } finally {
+            _host.Dispose();
+        }
+    }
 
     [Fact]
     public async Task ChangeUserEmail() {

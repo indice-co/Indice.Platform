@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -378,6 +378,27 @@
   <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="EmailFooter_SentTo" xml:space="preserve">
+    <value>Diese E-Mail wurde an &lt;strong&gt;{0}&lt;/strong&gt;gesendet.</value>
+  </data>
+  <data name="OrganizationLegalName" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OrganizationAddress" xml:space="preserve">
+    <value />
+  </data>
+  <data name="EmailFooter_RegistryNumber" xml:space="preserve">
+    <value>GEMH: {0}</value>
+  </data>
+  <data name="EmailFooter_NeedHelp" xml:space="preserve">
+    <value>Brauchen Sie Hilfe?</value>
+  </data>
+  <data name="EmailFooter_CallSupport" xml:space="preserve">
+    <value>Rufen Sie {0} an</value>
+  </data>
+  <data name="EmailFooter_EmailSupport" xml:space="preserve">
+    <value>Schreiben Sie an {0}</value>
+  </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>Passwort zurücksetzen</value>
   </data>
@@ -728,6 +749,57 @@
   </data>
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>Telefonnummer verifizieren</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>Authenticator-App einrichten</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>Authenticator-App einrichten</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>Scannen Sie den QR-Code mit Ihrer Authenticator-App oder geben Sie den Schlüssel manuell ein.</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>Oder geben Sie diesen Schlüssel manuell ein:</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>Bestätigungscode</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>Bestätigen</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>Der Bestätigungscode ist ungültig.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>Wiederherstellungscodes</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>Speichern Sie Ihre Wiederherstellungscodes</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>Bewahren Sie diese Wiederherstellungscodes an einem sicheren Ort auf. Jeder Code kann einmal verwendet werden, falls Sie den Zugriff auf Ihre Authenticator-App verlieren.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>Ich habe meine Codes gespeichert</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Herunterladen</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>Dies sind Ihre Wiederherstellungscodes für das Konto {0}. Bewahren Sie sie sicher auf!</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>Öffnen Sie Ihre Authenticator-App und geben Sie den Bestätigungscode ein.</value>
+  </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Wiederherstellungscode</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Sie haben angefordert, sich mit einem Wiederherstellungscode anzumelden. Diese Anmeldung wird nicht gespeichert, bis Sie beim Anmelden einen Authentifizierungs-App-Code angeben oder 2FA deaktivieren und sich erneut anmelden.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Ungültiger Wiederherstellungscode eingegeben.</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Passwort ändern</value>
@@ -1106,5 +1178,17 @@
   </data>
   <data name="AcceptTerms_LastUpdated" xml:space="preserve">
     <value>Zuletzt aktualisiert am</value>
+  </data>
+  <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Register_Password_Confirmation" xml:space="preserve">
+    <value>Passwort bestätigen</value>
+  </data>
+  <data name="ChangePassword_NewPasswordConfirmation" xml:space="preserve">
+    <value>Neues Passwort bestätigen</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
+    <value>Neues Passwort bestätigen</value>
   </data>
 </root>

@@ -1,0 +1,1861 @@
+{
+    "countryLegend": {
+        "GR": {
+            "countryCode": "GR",
+            "displayName": "Greece",
+            "location": "37.9842,23.7353",
+            "count": 8493
+        },
+        "BG": {
+            "countryCode": "BG",
+            "displayName": "Bulgaria",
+            "location": "42.6826,23.3223",
+            "count": 324
+        },
+        "TR": {
+            "countryCode": "TR",
+            "displayName": "Turkey",
+            "location": "41.0329,28.9529",
+            "count": 208
+        },
+        "US": {
+            "countryCode": "US",
+            "displayName": "United States",
+            "location": "39.0469,-77.4903",
+            "count": 119
+        },
+        "RO": {
+            "countryCode": "RO",
+            "displayName": "Romania",
+            "location": "44.4865,26.1738",
+            "count": 61
+        },
+        "UA": {
+            "countryCode": "UA",
+            "displayName": "Ukraine",
+            "location": "48.4604,35.033",
+            "count": 34
+        },
+        "DE": {
+            "countryCode": "DE",
+            "displayName": "Germany",
+            "location": "48.1203,11.5807",
+            "count": 29
+        },
+        "AL": {
+            "countryCode": "AL",
+            "displayName": "Albania",
+            "location": "41.3253,19.8184",
+            "count": 27
+        },
+        "GB": {
+            "countryCode": "GB",
+            "displayName": "United Kingdom",
+            "location": "51.5164,-0.093",
+            "count": 25
+        },
+        "IS": {
+            "countryCode": "IS",
+            "displayName": "Iceland",
+            "location": "64.1336,-21.8934",
+            "count": 22
+        },
+        "NL": {
+            "countryCode": "NL",
+            "displayName": "Netherlands",
+            "location": "52.3672,4.918",
+            "count": 21
+        },
+        "FR": {
+            "countryCode": "FR",
+            "displayName": "France",
+            "location": "48.8582,2.3387",
+            "count": 19
+        },
+        "IT": {
+            "countryCode": "IT",
+            "displayName": "Italy",
+            "location": "43.1479,12.1097",
+            "count": 18
+        },
+        "AT": {
+            "countryCode": "AT",
+            "displayName": "Austria",
+            "location": "48.2049,16.3662",
+            "count": 16
+        },
+        "RS": {
+            "countryCode": "RS",
+            "displayName": "Serbia",
+            "location": "44.8165,20.4479",
+            "count": 14
+        },
+        "CH": {
+            "countryCode": "CH",
+            "displayName": "Switzerland",
+            "location": "47.3826,8.6585",
+            "count": 14
+        },
+        "AR": {
+            "countryCode": "AR",
+            "displayName": "Argentina",
+            "location": "-34.6142,-58.3811",
+            "count": 12
+        },
+        "BE": {
+            "countryCode": "BE",
+            "displayName": "Belgium",
+            "location": "50.8534,4.347",
+            "count": 11
+        },
+        "LU": {
+            "countryCode": "LU",
+            "displayName": "Luxembourg",
+            "location": "49.6113,6.1294",
+            "count": 4
+        },
+        "BY": {
+            "countryCode": "BY",
+            "displayName": "Belarus",
+            "location": "52.432,30.9731",
+            "count": 4
+        },
+        "SE": {
+            "countryCode": "SE",
+            "displayName": "Sweden",
+            "location": "59.3287,18.0717",
+            "count": 4
+        },
+        "SK": {
+            "countryCode": "SK",
+            "displayName": "Slovakia",
+            "location": "48.3762,17.5829",
+            "count": 3
+        },
+        "XK": {
+            "countryCode": "XK",
+            "displayName": "Kosovo",
+            "location": "42.6631,21.169",
+            "count": 2
+        },
+        "LB": {
+            "countryCode": "LB",
+            "displayName": "Lebanon",
+            "location": "33.8916,35.5024",
+            "count": 2
+        },
+        "HK": {
+            "countryCode": "HK",
+            "displayName": "Hong Kong",
+            "location": "22.3638,114.1091",
+            "count": 2
+        },
+        "CA": {
+            "countryCode": "CA",
+            "displayName": "Canada",
+            "location": "43.6934,-79.4857",
+            "count": 2
+        },
+        "NO": {
+            "countryCode": "NO",
+            "displayName": "Norway",
+            "location": "59.7535,10.8414",
+            "count": 2
+        },
+        "PL": {
+            "countryCode": "PL",
+            "displayName": "Poland",
+            "location": "53.4329,14.5483",
+            "count": 2
+        },
+        "MK": {
+            "countryCode": "MK",
+            "displayName": "North Macedonia",
+            "location": "41.6667,21.75",
+            "count": 2
+        },
+        "HU": {
+            "countryCode": "HU",
+            "displayName": "Hungary",
+            "location": "47.5,19.0412",
+            "count": 2
+        },
+        "CY": {
+            "countryCode": "CY",
+            "displayName": "Cyprus",
+            "location": "35.1681,33.3503",
+            "count": 1
+        },
+        "CZ": {
+            "countryCode": "CZ",
+            "displayName": "Czechia",
+            "location": "50.0883,14.4124",
+            "count": 1
+        },
+        "EG": {
+            "countryCode": "EG",
+            "displayName": "Egypt",
+            "location": "30.9977,29.7432",
+            "count": 1
+        },
+        "ES": {
+            "countryCode": "ES",
+            "displayName": "Spain",
+            "location": "40.4543,-3.7857",
+            "count": 1
+        },
+        "IE": {
+            "countryCode": "IE",
+            "displayName": "Ireland",
+            "location": "53.3843,-6.4203",
+            "count": 1
+        },
+        "SI": {
+            "countryCode": "SI",
+            "displayName": "Slovenia",
+            "location": "46.5554,15.6465",
+            "count": 1
+        }
+    },
+    "count": 273,
+    "items": [
+        {
+            "countryCode": "GR",
+            "displayName": "Athens, Attica, Greece, Europe",
+            "location": "37.9842,23.7353",
+            "count": 5009
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Greece, Europe",
+            "location": "37.9667,23.7167",
+            "count": 1367
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Thessaloniki, Central Macedonia, Greece, Europe",
+            "location": "40.6439,22.9358",
+            "count": 788
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Sofia 1000, Sofia-Capital, Bulgaria, Europe",
+            "location": "42.6826,23.3223",
+            "count": 210
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Attica, Greece, Europe",
+            "location": "37.9842,23.7353",
+            "count": 139
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Athens 11854, Attica, Greece, Europe",
+            "location": "37.9842,23.7353",
+            "count": 126
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Attiki, Attica, Greece, Europe",
+            "location": "38.0025,23.7337",
+            "count": 101
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Central Macedonia, Greece, Europe",
+            "location": "40.6439,22.9358",
+            "count": 79
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Pátrai, West Greece, Greece, Europe",
+            "location": "38.2475,21.7311",
+            "count": 67
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kifissia, Attica, Greece, Europe",
+            "location": "38.0729,23.8101",
+            "count": 61
+        },
+        {
+            "countryCode": "US",
+            "displayName": "Ashburn 20149, Virginia, United States, North America",
+            "location": "39.0469,-77.4903",
+            "count": 61
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Volos, Thessaly, Greece, Europe",
+            "location": "39.3616,22.9414",
+            "count": 57
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34080, Istanbul, Türkiye, Asia",
+            "location": "41.0329,28.9529",
+            "count": 54
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Piraeus, Attica, Greece, Europe",
+            "location": "37.9437,23.6421",
+            "count": 52
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Vrilissia, Attica, Greece, Europe",
+            "location": "38.033,23.8248",
+            "count": 48
+        },
+        {
+            "countryCode": "US",
+            "displayName": "United States, North America",
+            "location": "37.751,-97.822",
+            "count": 45
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Chalandri, Attica, Greece, Europe",
+            "location": "38.0354,23.8035",
+            "count": 43
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Bulgaria, Europe",
+            "location": "42.696,23.332",
+            "count": 43
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Varna 9000, Varna, Bulgaria, Europe",
+            "location": "43.2186,27.9123",
+            "count": 38
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34375, Istanbul, Türkiye, Asia",
+            "location": "41.0479,28.9773",
+            "count": 37
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Porto Rafti, Attica, Greece, Europe",
+            "location": "37.8833,24.0167",
+            "count": 34
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Larissa, Thessaly, Greece, Europe",
+            "location": "39.644,22.4217",
+            "count": 33
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Serres, Central Macedonia, Greece, Europe",
+            "location": "41.0847,23.5466",
+            "count": 29
+        },
+        {
+            "countryCode": "AL",
+            "displayName": "Tirana, Tirana, Albania, Europe",
+            "location": "41.3253,19.8184",
+            "count": 25
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34365, Istanbul, Türkiye, Asia",
+            "location": "41.0529,29.0013",
+            "count": 23
+        },
+        {
+            "countryCode": "IS",
+            "displayName": "Reykjavik 108, Capital Region | Reykjavíkurborg, Iceland, Europe",
+            "location": "64.1336,-21.8934",
+            "count": 22
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Ioannina, Epirus, Greece, Europe",
+            "location": "39.6672,20.8599",
+            "count": 22
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Salamina, Attica, Greece, Europe",
+            "location": "37.9621,23.497",
+            "count": 19
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Peristeri, Attica, Greece, Europe",
+            "location": "38.0165,23.6864",
+            "count": 19
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Keratsini, Attica, Greece, Europe",
+            "location": "37.9625,23.6197",
+            "count": 17
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kalamata, Peloponnese, Greece, Europe",
+            "location": "37.0388,22.1078",
+            "count": 17
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Voluntari 077190, Ilfov, Romania, Europe",
+            "location": "44.4865,26.1738",
+            "count": 17
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34096, Istanbul, Türkiye, Asia",
+            "location": "41.0146,28.9532",
+            "count": 16
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Corinth, Peloponnese, Greece, Europe",
+            "location": "37.9437,22.949",
+            "count": 16
+        },
+        {
+            "countryCode": "AT",
+            "displayName": "Vienna 1010, Vienna, Austria, Europe",
+            "location": "48.2049,16.3662",
+            "count": 16
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kastoria, West Macedonia, Greece, Europe",
+            "location": "40.5165,21.2614",
+            "count": 15
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Petroúpolis, Attica, Greece, Europe",
+            "location": "38.0529,23.6867",
+            "count": 15
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Marousi, Attica, Greece, Europe",
+            "location": "38.0459,23.7968",
+            "count": 14
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Katerini, Central Macedonia, Greece, Europe",
+            "location": "40.271,22.4998",
+            "count": 14
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Bodrum 48400, Muğla, Türkiye, Asia",
+            "location": "37.0347,27.4267",
+            "count": 14
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Serres 62122, Central Macedonia, Greece, Europe",
+            "location": "41.0847,23.5466",
+            "count": 13
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Heraklion, Crete, Greece, Europe",
+            "location": "35.3272,25.1371",
+            "count": 12
+        },
+        {
+            "countryCode": "AR",
+            "displayName": "Buenos Aires 1871, Buenos Aires F.D., Argentina, South America",
+            "location": "-34.6142,-58.3811",
+            "count": 12
+        },
+        {
+            "countryCode": "FR",
+            "displayName": "France, Europe",
+            "location": "48.8582,2.3387",
+            "count": 12
+        },
+        {
+            "countryCode": "GB",
+            "displayName": "City of London EC4R, England | City of London, United Kingdom, Europe",
+            "location": "51.5164,-0.093",
+            "count": 11
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Ilioúpoli, Attica, Greece, Europe",
+            "location": "37.9309,23.7728",
+            "count": 11
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Chalcis, Central Greece, Greece, Europe",
+            "location": "38.4658,23.5939",
+            "count": 10
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Fira, South Aegean, Greece, Europe",
+            "location": "36.4151,25.4289",
+            "count": 9
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Paianía, Attica, Greece, Europe",
+            "location": "37.9495,23.8474",
+            "count": 9
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Sparti, Peloponnese, Greece, Europe",
+            "location": "37.0799,22.4282",
+            "count": 9
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Thessaloniki 54623, Central Macedonia, Greece, Europe",
+            "location": "40.6439,22.9358",
+            "count": 9
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Amsterdam 1018, North Holland, The Netherlands, Europe",
+            "location": "52.3672,4.918",
+            "count": 9
+        },
+        {
+            "countryCode": "RS",
+            "displayName": "Serbia, Europe",
+            "location": "44.8165,20.4479",
+            "count": 9
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Zakynthos, Ionian Islands, Greece, Europe",
+            "location": "37.7919,20.9004",
+            "count": 8
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Dnipro 49000, Dnipropetrovsk Oblast, Ukraine, Europe",
+            "location": "48.4604,35.033",
+            "count": 8
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Old Faliron, Attica, Greece, Europe",
+            "location": "37.9312,23.7032",
+            "count": 8
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Rhodes, South Aegean, Greece, Europe",
+            "location": "36.4383,28.2282",
+            "count": 8
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Munich 81541, Bavaria, Germany, Europe",
+            "location": "48.1203,11.5807",
+            "count": 8
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Sliven 8800, Sliven, Bulgaria, Europe",
+            "location": "42.6842,26.3342",
+            "count": 8
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Burgas 8000, Burgas, Bulgaria, Europe",
+            "location": "42.4963,27.4646",
+            "count": 7
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Stuttgart 70469, Baden-Wurttemberg, Germany, Europe",
+            "location": "48.767,9.1827",
+            "count": 7
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Preveza, Epirus, Greece, Europe",
+            "location": "38.9465,20.7523",
+            "count": 7
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Glyfáda, Peloponnese, Greece, Europe",
+            "location": "36.9994,21.749",
+            "count": 7
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34440, Istanbul, Türkiye, Asia",
+            "location": "41.0301,28.9651",
+            "count": 7
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Xánthi, East Macedonia and Thrace, Greece, Europe",
+            "location": "41.1441,24.882",
+            "count": 7
+        },
+        {
+            "countryCode": "IT",
+            "displayName": "Italy, Europe",
+            "location": "43.1479,12.1097",
+            "count": 7
+        },
+        {
+            "countryCode": "IT",
+            "displayName": "Milan 20123, Lombardy | Province of Milan, Italy, Europe",
+            "location": "45.4722,9.1922",
+            "count": 7
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Ploieşti 100076, Prahova, Romania, Europe",
+            "location": "44.9467,26.0135",
+            "count": 7
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Aiud 515200, Alba County, Romania, Europe",
+            "location": "46.3139,23.7203",
+            "count": 6
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Ankara 06370, Ankara, Türkiye, Asia",
+            "location": "39.9707,32.7316",
+            "count": 6
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Edessa, Central Macedonia, Greece, Europe",
+            "location": "40.8031,22.0435",
+            "count": 6
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Ioannina 45500, Epirus, Greece, Europe",
+            "location": "39.6672,20.8599",
+            "count": 6
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Igoumenitsa, Epirus, Greece, Europe",
+            "location": "39.5032,20.2604",
+            "count": 6
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Néa Smýrni, Attica, Greece, Europe",
+            "location": "37.9433,23.7098",
+            "count": 6
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Lefkada, Ionian Islands, Greece, Europe",
+            "location": "38.8292,20.6993",
+            "count": 6
+        },
+        {
+            "countryCode": "GB",
+            "displayName": "United Kingdom, Europe",
+            "location": "51.4964,-0.1224",
+            "count": 6
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Áno Liósia, Attica, Greece, Europe",
+            "location": "38.082,23.6985",
+            "count": 6
+        },
+        {
+            "countryCode": "BE",
+            "displayName": "Brussels 1000, Brussels Capital, Belgium, Europe",
+            "location": "50.8534,4.347",
+            "count": 6
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Smolyan 4700, Smolyan, Bulgaria, Europe",
+            "location": "41.5851,24.6971",
+            "count": 6
+        },
+        {
+            "countryCode": "CH",
+            "displayName": "Schwerzenbach 8603, Zurich, Switzerland, Europe",
+            "location": "47.3826,8.6585",
+            "count": 5
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Chios, North Aegean, Greece, Europe",
+            "location": "38.369,26.1399",
+            "count": 5
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Mykonos, South Aegean, Greece, Europe",
+            "location": "37.449,25.3296",
+            "count": 5
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Lamia, Central Greece, Greece, Europe",
+            "location": "38.9007,22.426",
+            "count": 5
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Pallini, Attica, Greece, Europe",
+            "location": "38.0018,23.8809",
+            "count": 5
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kopanós, Central Macedonia, Greece, Europe",
+            "location": "40.6339,22.1351",
+            "count": 5
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kalymnos, South Aegean, Greece, Europe",
+            "location": "36.9492,26.9871",
+            "count": 5
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kalývia Thorikoú, Attica, Greece, Europe",
+            "location": "37.8377,23.9294",
+            "count": 5
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Bucharest 021172, București, Romania, Europe",
+            "location": "44.4205,26.169",
+            "count": 5
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Türkiye, Asia",
+            "location": "41.0214,28.9948",
+            "count": 5
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Kolomyia 78206, Ivano-Frankivsk Oblast, Ukraine, Europe",
+            "location": "48.5355,25.0398",
+            "count": 4
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Kyiv 03187, Kyiv City, Ukraine, Europe",
+            "location": "50.458,30.5303",
+            "count": 4
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Çanakkale 17900, Canakkale, Türkiye, Asia",
+            "location": "40.1564,26.4173",
+            "count": 4
+        },
+        {
+            "countryCode": "US",
+            "displayName": "Carrollton 75006, Texas, United States, North America",
+            "location": "32.9657,-96.8825",
+            "count": 4
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Cluj-Napoca 400124, Cluj County, Romania, Europe",
+            "location": "46.7656,23.5945",
+            "count": 4
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Ankara 06420, Ankara, Türkiye, Asia",
+            "location": "39.9207,32.854",
+            "count": 4
+        },
+        {
+            "countryCode": "LU",
+            "displayName": "Luxembourg L-1341, Luxembourg, Luxembourg, Europe",
+            "location": "49.6113,6.1294",
+            "count": 4
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kyparíssi, Peloponnese, Greece, Europe",
+            "location": "36.9656,22.9826",
+            "count": 4
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Elefsina, Attica, Greece, Europe",
+            "location": "38.0363,23.535",
+            "count": 4
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Nea Moudania, Central Macedonia, Greece, Europe",
+            "location": "40.2529,23.2841",
+            "count": 4
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Aigáleo, Attica, Greece, Europe",
+            "location": "37.9834,23.6811",
+            "count": 4
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Central Greece, Greece, Europe",
+            "location": "38.4658,23.5939",
+            "count": 4
+        },
+        {
+            "countryCode": "GB",
+            "displayName": "London EC1N, England, United Kingdom, Europe",
+            "location": "51.5081,-0.1278",
+            "count": 4
+        },
+        {
+            "countryCode": "FR",
+            "displayName": "Nord-Pas-de-Calais 59100, France, Europe",
+            "location": "50.6974,3.178",
+            "count": 4
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Bielefeld 33719, North Rhine-Westphalia, Germany, Europe",
+            "location": "52.0097,8.595",
+            "count": 4
+        },
+        {
+            "countryCode": "CH",
+            "displayName": "Wettingen 5430, Aargau, Switzerland, Europe",
+            "location": "47.4663,8.3471",
+            "count": 4
+        },
+        {
+            "countryCode": "BY",
+            "displayName": "Homyel 246000, Homyel’ Voblasc’, Belarus, Europe",
+            "location": "52.432,30.9731",
+            "count": 4
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Plovdiv 4000, Plovdiv, Bulgaria, Europe",
+            "location": "42.1513,24.7518",
+            "count": 3
+        },
+        {
+            "countryCode": "FR",
+            "displayName": "Paris 75001, Île-de-France | Paris, France, Europe",
+            "location": "48.8558,2.3494",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Acharnes, Attica, Greece, Europe",
+            "location": "38.0832,23.7312",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Nafplion, Peloponnese, Greece, Europe",
+            "location": "37.5596,22.8084",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Livadeia, Central Greece, Greece, Europe",
+            "location": "38.4341,22.8665",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Loutsa, Attica, Greece, Europe",
+            "location": "37.966,24.007",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Ptolemaida, West Macedonia, Greece, Europe",
+            "location": "40.5147,21.6786",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Spata, Attica, Greece, Europe",
+            "location": "37.9723,23.9135",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Thebes, Central Greece, Greece, Europe",
+            "location": "38.3197,23.3207",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Glyfada, Attica, Greece, Europe",
+            "location": "37.8524,23.7619",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kalamaria, Central Macedonia, Greece, Europe",
+            "location": "40.5814,22.9452",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Lagkadás, Central Macedonia, Greece, Europe",
+            "location": "40.75,23.0667",
+            "count": 3
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Amsterdam 1051, North Holland, The Netherlands, Europe",
+            "location": "52.3806,4.8738",
+            "count": 3
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Vouliagméni, Attica, Greece, Europe",
+            "location": "37.8189,23.7875",
+            "count": 3
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Bursa 16265, Bursa Province, Türkiye, Asia",
+            "location": "40.2776,28.9464",
+            "count": 3
+        },
+        {
+            "countryCode": "SK",
+            "displayName": "Trnava 917 01, Trnava Region, Slovakia, Europe",
+            "location": "48.3762,17.5829",
+            "count": 3
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Adana 01220, Adana, Türkiye, Asia",
+            "location": "36.9483,35.3543",
+            "count": 3
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Bucharest 051855, București, Romania, Europe",
+            "location": "44.4022,26.0624",
+            "count": 3
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Bucharest 012244, București, Romania, Europe",
+            "location": "44.4946,26.0578",
+            "count": 3
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Ploieşti 100225, Prahova, Romania, Europe",
+            "location": "44.9467,26.0135",
+            "count": 3
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Piteşti 110336, Arges, Romania, Europe",
+            "location": "44.8493,24.8623",
+            "count": 3
+        },
+        {
+            "countryCode": "US",
+            "displayName": "New York 10118, New York, United States, North America",
+            "location": "40.7126,-74.0066",
+            "count": 3
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34126, Istanbul, Türkiye, Asia",
+            "location": "41.0125,28.9545",
+            "count": 3
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Lviv 79035, Lviv, Ukraine, Europe",
+            "location": "49.839,24.0191",
+            "count": 3
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Lviv 79060, Lviv, Ukraine, Europe",
+            "location": "49.839,24.0191",
+            "count": 3
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Kremenchug 39600, Poltava Oblast, Ukraine, Europe",
+            "location": "49.0718,33.4212",
+            "count": 3
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Vize 39400, Kırklareli, Türkiye, Asia",
+            "location": "41.5661,27.773",
+            "count": 3
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Magnesia ad Sipylum 45140, Manisa, Türkiye, Asia",
+            "location": "38.6645,27.3294",
+            "count": 2
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34373, Istanbul, Türkiye, Asia",
+            "location": "41.0479,28.9773",
+            "count": 2
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Izmir 35590, İzmir Province, Türkiye, Asia",
+            "location": "38.4957,27.1261",
+            "count": 2
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34010, Istanbul, Türkiye, Asia",
+            "location": "41.0207,28.9285",
+            "count": 2
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34093, Istanbul, Türkiye, Asia",
+            "location": "41.0207,28.9285",
+            "count": 2
+        },
+        {
+            "countryCode": "XK",
+            "displayName": "Pristina, Kosovo, Europe",
+            "location": "42.6631,21.169",
+            "count": 2
+        },
+        {
+            "countryCode": "RS",
+            "displayName": "Belgrade, Belgrade, Serbia, Europe",
+            "location": "44.8046,20.4637",
+            "count": 2
+        },
+        {
+            "countryCode": "RS",
+            "displayName": "Pančevo, Vojvodina | South Banat, Serbia, Europe",
+            "location": "44.8683,20.6358",
+            "count": 2
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Chiajna 077040, Ilfov, Romania, Europe",
+            "location": "44.4626,25.969",
+            "count": 2
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Cluj-Napoca 400031, Cluj County, Romania, Europe",
+            "location": "46.7656,23.5945",
+            "count": 2
+        },
+        {
+            "countryCode": "LB",
+            "displayName": "Beirut, Beyrouth, Lebanon, Asia",
+            "location": "33.8916,35.5024",
+            "count": 2
+        },
+        {
+            "countryCode": "IT",
+            "displayName": "Budrio 40054, Emilia-Romagna | Bologna, Italy, Europe",
+            "location": "44.5335,11.5359",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Zográfos, Attica, Greece, Europe",
+            "location": "37.9798,23.7725",
+            "count": 2
+        },
+        {
+            "countryCode": "HK",
+            "displayName": "Tsuen Wan, Tsuen Wan District, Hong Kong, Asia",
+            "location": "22.3638,114.1091",
+            "count": 2
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Utrecht 3511, Utrecht, The Netherlands, Europe",
+            "location": "52.0874,5.1168",
+            "count": 2
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Utrecht 3527, Utrecht, The Netherlands, Europe",
+            "location": "52.0765,5.0901",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kilkis, Central Macedonia, Greece, Europe",
+            "location": "40.989,22.8737",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Karditsa, Thessaly, Greece, Europe",
+            "location": "39.3648,21.9282",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Agía Varvára, Attica, Greece, Europe",
+            "location": "37.9826,23.6514",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Giannitsá, Central Macedonia, Greece, Europe",
+            "location": "40.7919,22.4075",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Drama, East Macedonia and Thrace, Greece, Europe",
+            "location": "41.1574,24.1396",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Skýdra, Central Macedonia, Greece, Europe",
+            "location": "40.7628,22.1454",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Nikaia, Attica, Greece, Europe",
+            "location": "37.9703,23.6413",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Nea Liosia, Attica, Greece, Europe",
+            "location": "38.0311,23.6956",
+            "count": 2
+        },
+        {
+            "countryCode": "GB",
+            "displayName": "Newham E13, England | Newham, United Kingdom, Europe",
+            "location": "51.5277,0.0252",
+            "count": 2
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Corfu, Ionian Islands, Greece, Europe",
+            "location": "39.619,19.9172",
+            "count": 2
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Rousse 7000, Ruse, Bulgaria, Europe",
+            "location": "43.8627,25.9648",
+            "count": 2
+        },
+        {
+            "countryCode": "BE",
+            "displayName": "Belgium, Europe",
+            "location": "50.8509,4.3447",
+            "count": 2
+        },
+        {
+            "countryCode": "BE",
+            "displayName": "Brussels 1040, Brussels Capital, Belgium, Europe",
+            "location": "50.8345,4.386",
+            "count": 2
+        },
+        {
+            "countryCode": "CH",
+            "displayName": "Zurich 8098, Zurich, Switzerland, Europe",
+            "location": "47.3643,8.5437",
+            "count": 2
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Germany, Europe",
+            "location": "51.2993,9.491",
+            "count": 2
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Hamburg 22115, Hamburg, Germany, Europe",
+            "location": "53.527,10.1431",
+            "count": 1
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Hamburg, Germany, Europe",
+            "location": "53.5544,9.9946",
+            "count": 1
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Ludwigshafen am Rhein 67059, Rheinland-Pfalz, Germany, Europe",
+            "location": "49.4823,8.4397",
+            "count": 1
+        },
+        {
+            "countryCode": "CY",
+            "displayName": "Nicosia, Nicosia, Cyprus, Europe",
+            "location": "35.1681,33.3503",
+            "count": 1
+        },
+        {
+            "countryCode": "CZ",
+            "displayName": "Prague 110 00, Prague, Czechia, Europe",
+            "location": "50.0883,14.4124",
+            "count": 1
+        },
+        {
+            "countryCode": "CH",
+            "displayName": "Zurich 8004, Zurich, Switzerland, Europe",
+            "location": "47.3779,8.5236",
+            "count": 1
+        },
+        {
+            "countryCode": "CA",
+            "displayName": "Toronto M6M, Ontario, Canada, North America",
+            "location": "43.6934,-79.4857",
+            "count": 1
+        },
+        {
+            "countryCode": "CA",
+            "displayName": "Toronto M6P, Ontario, Canada, North America",
+            "location": "43.6591,-79.4626",
+            "count": 1
+        },
+        {
+            "countryCode": "CH",
+            "displayName": "Basel 4054, Basel-City, Switzerland, Europe",
+            "location": "47.5507,7.5718",
+            "count": 1
+        },
+        {
+            "countryCode": "CH",
+            "displayName": "Opfikon 8152, Zurich, Switzerland, Europe",
+            "location": "47.43,8.5718",
+            "count": 1
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Veliko Tarnovo 5000, Veliko Tarnovo, Bulgaria, Europe",
+            "location": "43.0839,25.6552",
+            "count": 1
+        },
+        {
+            "countryCode": "BE",
+            "displayName": "Mortsel 2640, Flanders | Antwerp Province, Belgium, Europe",
+            "location": "51.1662,4.4487",
+            "count": 1
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Aksakovo Municipality 9154, Varna, Bulgaria, Europe",
+            "location": "43.2535,27.8182",
+            "count": 1
+        },
+        {
+            "countryCode": "AL",
+            "displayName": "Albania, Europe",
+            "location": "41,20",
+            "count": 1
+        },
+        {
+            "countryCode": "AL",
+            "displayName": "Korçë, Korçë County, Albania, Europe",
+            "location": "40.6188,20.7896",
+            "count": 1
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Dupnitsa 2600, Kyustendil, Bulgaria, Europe",
+            "location": "42.2684,23.1157",
+            "count": 1
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Elin Pelin 2100, Sofia, Bulgaria, Europe",
+            "location": "42.6661,23.5993",
+            "count": 1
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Gotse Delchev 2900, Blagoevgrad, Bulgaria, Europe",
+            "location": "41.5692,23.7291",
+            "count": 1
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Kardzhali 6600, Kardzhali, Bulgaria, Europe",
+            "location": "41.6439,25.3594",
+            "count": 1
+        },
+        {
+            "countryCode": "BG",
+            "displayName": "Pernik 2300, Pernik, Bulgaria, Europe",
+            "location": "42.6034,23.0257",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Chania, Crete, Greece, Europe",
+            "location": "35.5174,24.0169",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Chaïdári, Attica, Greece, Europe",
+            "location": "38.0117,23.6655",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Athens 15123, Attica, Greece, Europe",
+            "location": "37.9842,23.7353",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Alexándreia, Central Macedonia, Greece, Europe",
+            "location": "40.6287,22.4511",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Argos, Peloponnese, Greece, Europe",
+            "location": "37.634,22.7408",
+            "count": 1
+        },
+        {
+            "countryCode": "GB",
+            "displayName": "Poplar E14, England | Tower Hamlets, United Kingdom, Europe",
+            "location": "51.5064,-0.02",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Agía Paraskeví, Attica, Greece, Europe",
+            "location": "38.0207,23.8366",
+            "count": 1
+        },
+        {
+            "countryCode": "GB",
+            "displayName": "Islington N19, England | Islington, United Kingdom, Europe",
+            "location": "51.5648,-0.1374",
+            "count": 1
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Frankfurt am Main 60313, Hesse, Germany, Europe",
+            "location": "50.1169,8.6837",
+            "count": 1
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Frankfurt am Main 60326, Hesse, Germany, Europe",
+            "location": "50.1049,8.6295",
+            "count": 1
+        },
+        {
+            "countryCode": "EG",
+            "displayName": "Alexandria, Alexandria, Egypt, Africa",
+            "location": "30.9977,29.7432",
+            "count": 1
+        },
+        {
+            "countryCode": "ES",
+            "displayName": "Madrid 28023, Madrid | Madrid, Spain, Europe",
+            "location": "40.4543,-3.7857",
+            "count": 1
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Neuwied 56564, Rheinland-Pfalz, Germany, Europe",
+            "location": "50.4305,7.4498",
+            "count": 1
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Nuremberg 90402, Bavaria, Germany, Europe",
+            "location": "49.4527,11.0783",
+            "count": 1
+        },
+        {
+            "countryCode": "DE",
+            "displayName": "Stuttgart 70176, Baden-Wurttemberg, Germany, Europe",
+            "location": "48.767,9.1827",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Melíssia, Attica, Greece, Europe",
+            "location": "38.0534,23.834",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Nigrita, Central Macedonia, Greece, Europe",
+            "location": "40.901,23.4943",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Náousa, South Aegean, Greece, Europe",
+            "location": "37.1234,25.2337",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Nea Ionia, Thessaly, Greece, Europe",
+            "location": "39.3816,22.9183",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Saronida, Attica, Greece, Europe",
+            "location": "37.7487,23.9004",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Pýrgos, Thessaly, Greece, Europe",
+            "location": "39.3688,22.0799",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Heraklion 71201, Crete, Greece, Europe",
+            "location": "35.3272,25.1371",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kato Synoikia Trikalon, Peloponnese, Greece, Europe",
+            "location": "37.9936,22.4783",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kavala, East Macedonia and Thrace, Greece, Europe",
+            "location": "40.9342,24.399",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Komotini, East Macedonia and Thrace, Greece, Europe",
+            "location": "41.1228,25.3964",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Kozani, West Macedonia, Greece, Europe",
+            "location": "40.2969,21.7855",
+            "count": 1
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Utrecht 3566, Utrecht, The Netherlands, Europe",
+            "location": "52.1244,5.1283",
+            "count": 1
+        },
+        {
+            "countryCode": "NO",
+            "displayName": "Langhus 1405, Akershus, Norway, Europe",
+            "location": "59.7535,10.8414",
+            "count": 1
+        },
+        {
+            "countryCode": "NO",
+            "displayName": "Sandefjord 3242, Vestfold, Norway, Europe",
+            "location": "59.1491,10.1741",
+            "count": 1
+        },
+        {
+            "countryCode": "PL",
+            "displayName": "Szczecin 70-452, West Pomerania, Poland, Europe",
+            "location": "53.4329,14.5483",
+            "count": 1
+        },
+        {
+            "countryCode": "PL",
+            "displayName": "Warsaw 00-004, Mazovia, Poland, Europe",
+            "location": "52.2344,21.0065",
+            "count": 1
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Naaldwijk 2671, South Holland, The Netherlands, Europe",
+            "location": "51.9968,4.2057",
+            "count": 1
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Santpoort-Zuid 2082, North Holland, The Netherlands, Europe",
+            "location": "52.4182,4.6342",
+            "count": 1
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "The Netherlands, Europe",
+            "location": "52.3824,4.8995",
+            "count": 1
+        },
+        {
+            "countryCode": "MK",
+            "displayName": "North Macedonia, Europe",
+            "location": "41.6667,21.75",
+            "count": 1
+        },
+        {
+            "countryCode": "MK",
+            "displayName": "Skopje 1000, North Macedonia, Europe",
+            "location": "41.9985,21.4313",
+            "count": 1
+        },
+        {
+            "countryCode": "NL",
+            "displayName": "Amsterdam 1012, North Holland, The Netherlands, Europe",
+            "location": "52.3716,4.8883",
+            "count": 1
+        },
+        {
+            "countryCode": "IT",
+            "displayName": "Milan 20152, Lombardy | Province of Milan, Italy, Europe",
+            "location": "45.4722,9.1922",
+            "count": 1
+        },
+        {
+            "countryCode": "IT",
+            "displayName": "Lombardy, Italy, Europe",
+            "location": "45.4722,9.1922",
+            "count": 1
+        },
+        {
+            "countryCode": "HU",
+            "displayName": "Budapest 1045, Budapest, Hungary, Europe",
+            "location": "47.5,19.0412",
+            "count": 1
+        },
+        {
+            "countryCode": "HU",
+            "displayName": "Budapest 1134, Budapest, Hungary, Europe",
+            "location": "47.5,19.0412",
+            "count": 1
+        },
+        {
+            "countryCode": "IE",
+            "displayName": "Dublin D15, Leinster, Ireland, Europe",
+            "location": "53.3843,-6.4203",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Voula, Attica, Greece, Europe",
+            "location": "37.8522,23.7768",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Thessaloniki 55236, Central Macedonia, Greece, Europe",
+            "location": "40.6439,22.9358",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Tripoli 22100, Peloponnese, Greece, Europe",
+            "location": "37.5039,22.3872",
+            "count": 1
+        },
+        {
+            "countryCode": "GR",
+            "displayName": "Tripoli, Peloponnese, Greece, Europe",
+            "location": "37.5039,22.3872",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Beşiktaş 34365, Istanbul, Türkiye, Asia",
+            "location": "41.0484,29.0156",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Bursa 16110, Bursa Province, Türkiye, Asia",
+            "location": "40.2641,28.6961",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Bursa 16140, Bursa Province, Türkiye, Asia",
+            "location": "40.2347,28.9729",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Bursa 16220, Bursa Province, Türkiye, Asia",
+            "location": "40.2344,29.0174",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Adapazarı 54100, Sakarya, Türkiye, Asia",
+            "location": "40.7782,30.4017",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Altinordu 52000, Ordu, Türkiye, Asia",
+            "location": "40.8933,37.8661",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Ankara 06135, Ankara, Türkiye, Asia",
+            "location": "39.974,32.8763",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Ankara 06220, Ankara, Türkiye, Asia",
+            "location": "39.9894,32.8319",
+            "count": 1
+        },
+        {
+            "countryCode": "RS",
+            "displayName": "Vranić, Belgrade, Serbia, Europe",
+            "location": "44.601,20.3277",
+            "count": 1
+        },
+        {
+            "countryCode": "SE",
+            "displayName": "Stockholm 100 04, Stockholm County, Sweden, Europe",
+            "location": "59.3287,18.0717",
+            "count": 1
+        },
+        {
+            "countryCode": "SE",
+            "displayName": "Stockholm 121 30, Stockholm County, Sweden, Europe",
+            "location": "59.3333,18.05",
+            "count": 1
+        },
+        {
+            "countryCode": "SE",
+            "displayName": "Sweden, Europe",
+            "location": "59.3247,18.056",
+            "count": 1
+        },
+        {
+            "countryCode": "SE",
+            "displayName": "Vittsjö 282 66, Skåne County, Sweden, Europe",
+            "location": "56.3455,13.6665",
+            "count": 1
+        },
+        {
+            "countryCode": "SI",
+            "displayName": "Maribor 2000, Maribor City Municipality, Slovenia, Europe",
+            "location": "46.5554,15.6465",
+            "count": 1
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Focşani 620118, Vrancea, Romania, Europe",
+            "location": "45.6998,27.1875",
+            "count": 1
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Bucharest 020331, București, Romania, Europe",
+            "location": "44.4205,26.169",
+            "count": 1
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Bucharest 052834, București, Romania, Europe",
+            "location": "44.4291,26.1006",
+            "count": 1
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Ploieşti 100066, Prahova, Romania, Europe",
+            "location": "44.9467,26.0135",
+            "count": 1
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Târgu Jiu 210160, Gorj County, Romania, Europe",
+            "location": "45.0489,23.2904",
+            "count": 1
+        },
+        {
+            "countryCode": "RO",
+            "displayName": "Timișoara 300774, Timiș County, Romania, Europe",
+            "location": "45.7537,21.2257",
+            "count": 1
+        },
+        {
+            "countryCode": "US",
+            "displayName": "Newark 07192, New Jersey, United States, North America",
+            "location": "40.7399,-74.1691",
+            "count": 1
+        },
+        {
+            "countryCode": "US",
+            "displayName": "Pennsylvania, United States, North America",
+            "location": "39.9522,-75.1647",
+            "count": 1
+        },
+        {
+            "countryCode": "US",
+            "displayName": "New York 10004, New York, United States, North America",
+            "location": "40.7126,-74.0066",
+            "count": 1
+        },
+        {
+            "countryCode": "US",
+            "displayName": "New York 10023, New York, United States, North America",
+            "location": "40.7785,-73.9898",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34098, Istanbul, Türkiye, Asia",
+            "location": "41.0105,28.9345",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34104, Istanbul, Türkiye, Asia",
+            "location": "41.0107,28.9345",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Çankaya 06680, Ankara, Türkiye, Asia",
+            "location": "39.9107,32.8554",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34091, Istanbul, Türkiye, Asia",
+            "location": "41.0278,28.9392",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "İzmit 41100, Kocaeli, Türkiye, Asia",
+            "location": "40.704,29.9957",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34668, Istanbul, Türkiye, Asia",
+            "location": "41.0108,29.0219",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Istanbul 34367, Istanbul, Türkiye, Asia",
+            "location": "41.0394,28.9944",
+            "count": 1
+        },
+        {
+            "countryCode": "TR",
+            "displayName": "Mersin 33100, Mersin, Türkiye, Asia",
+            "location": "36.8466,34.7035",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Kyiv 03124, Kyiv City, Ukraine, Europe",
+            "location": "50.458,30.5303",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Kharkiv 61124, Kharkivs’ka Oblast’, Ukraine, Europe",
+            "location": "49.982,36.2566",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Odesa 65007, Odessa, Ukraine, Europe",
+            "location": "46.4888,30.7474",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Odesa 65036, Odessa, Ukraine, Europe",
+            "location": "46.4752,30.7338",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Odessa, Ukraine, Europe",
+            "location": "46.4888,30.7474",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Sofiyivska Borschagivka 08131, Kyiv Oblast, Ukraine, Europe",
+            "location": "50.4172,30.3603",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Ukraine, Europe",
+            "location": "50.4522,30.5287",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Kyiv 04201, Kyiv City, Ukraine, Europe",
+            "location": "50.458,30.5303",
+            "count": 1
+        },
+        {
+            "countryCode": "UA",
+            "displayName": "Lviv 79007, Lviv, Ukraine, Europe",
+            "location": "49.839,24.0191",
+            "count": 1
+        },
+        {
+            "countryCode": "US",
+            "displayName": "Atlanta 30301, Georgia, United States, North America",
+            "location": "33.7485,-84.3871",
+            "count": 1
+        },
+        {
+            "countryCode": "US",
+            "displayName": "California, United States, North America",
+            "location": "34.0544,-118.244",
+            "count": 1
+        }
+    ]
+}

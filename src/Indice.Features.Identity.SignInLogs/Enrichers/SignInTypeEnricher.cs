@@ -37,10 +37,10 @@ public sealed class SignInTypeEnricher : ISignInLogEntryEnricher
     public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Default;
 
     /// <inheritdoc />
-    public ValueTask EnrichAsync(SignInLogEntry logEntry) {
-        if (logEntry?.SignInType is not null || string.IsNullOrWhiteSpace(logEntry?.GrantType)) {
-            return ValueTask.CompletedTask;
-        }
+     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
+         if (logEntry is null || logEntry.SignInType is not null || string.IsNullOrWhiteSpace(logEntry.GrantType)) {
+             return ValueTask.CompletedTask;
+         }
         if (INTERACTIVE_GRANT_TYPES.Contains(logEntry.GrantType)) {
             logEntry.SignInType = SignInType.Interactive;
         }

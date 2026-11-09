@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
 using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Enums;
 using Indice.Features.Risk.Core.Models.Requests;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
@@ -53,7 +54,7 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
                 query = query.Where(c => c.CreatedAt >= dateFrom);
             }
 
-            if (clause.Member.ToLower() == "from" && DateTimeOffset.TryParse(clause.Value, out var dateTo)) {
+            if (clause.Member.ToLower() == "to" && DateTimeOffset.TryParse(clause.Value, out var dateTo)) {
                 query = query.Where(c => c.CreatedAt <= dateTo);
             }
 
@@ -95,6 +96,19 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
                         break;
                     case FilterOperator.Contains:
                         query = query.Where(x => x.Type.Contains(clause.Value));
+                        break;
+                }
+            }
+
+            if (clause.Member.Equals(nameof(DbAggregateRuleExecutionResult.RiskLevel), StringComparison.OrdinalIgnoreCase) &&
+                Enum.TryParse<RiskLevel>(clause.Value, ignoreCase: true, out var riskLevel)) {
+                var level = riskLevel.ToString();
+                switch (clause.Operator) {
+                    case FilterOperator.Eq:
+                        query = query.Where(x => x.RiskLevel == level);
+                        break;
+                    case FilterOperator.Neq:
+                        query = query.Where(x => x.RiskLevel != level);
                         break;
                 }
             }

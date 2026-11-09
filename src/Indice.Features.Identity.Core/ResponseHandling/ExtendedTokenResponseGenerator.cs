@@ -16,6 +16,7 @@ using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
 #endif
 using Indice.AspNetCore.Extensions;
+using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Grants;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
@@ -86,6 +87,8 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
 
     /// <inheritdoc />
     protected override async Task<TokenResponse> ProcessPasswordRequestAsync(TokenRequestValidationResult request) {
+        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
+        request.ValidatedRequest.SessionId ??= httpContext.GetSessionId();
         var tokenResponse = await base.ProcessPasswordRequestAsync(request);
         var config = ServiceProvider.GetService<ResourceOwnerPasswordValidatorOptions>();
         if (config?.IncludeIdToken == false) {
@@ -121,6 +124,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
     /// <inheritdoc/>
     protected override async Task<TokenResponse> ProcessExtensionGrantRequestAsync(TokenRequestValidationResult request) {
         var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
+        request.ValidatedRequest.SessionId ??= httpContext.GetSessionId();
         var ip = httpContext.GetClientIpAddress();
         request.ValidatedRequest.Subject!.AddIdentity(new(claims: [
             new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())

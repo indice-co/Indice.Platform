@@ -20,9 +20,8 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 
@@ -33,47 +32,51 @@ public class MessagesIntegrationTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider = null!;
+    private readonly IHost _host;
+    private readonly IServiceProvider _serviceProvider;
 
     public MessagesIntegrationTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
-                ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true"
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+            builder.UseTestServer();
+            builder.ConfigureAppConfiguration(builder => {
+                builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                    ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+                    ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true"
+                });
             });
-        });
-        builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-            services.AddRouting();
-            services.AddMessaging(options => {
-                        options.PathPrefix = "api";
-                        options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                        options.DatabaseSchema = "cmp";
-                        options.RequiredScope = MessagesApi.Scope;
-                        options.UseFilesLocal();
-                        options.UseContactResolver<MockContactResolver>();
-                    });
-            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
-                    .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
-                    })
-                    .AddMock(() => DummyPrincipals.IndiceUser);
-        });
-        builder.Configure(app => {
-            app.UseAuthentication();
-            app.UseRouting();
-            app.UseAuthorization();
-            app.UseEndpoints(e => e.MapMessaging());
-        });
-        var server = new TestServer(builder);
+            builder.ConfigureServices((context, services) => {
+                var configuration = context.Configuration;
+                services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+                services.AddRouting();
+                services.AddMessaging(options => {
+                            options.PathPrefix = "api";
+                            options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+                            options.DatabaseSchema = "cmp";
+                            options.RequiredScope = MessagesApi.Scope;
+                            options.UseFilesLocal();
+                            options.UseContactResolver<MockContactResolver>();
+                        });
+                services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
+                        .AddJwtBearer((options) => {
+                            options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
+                        })
+                        .AddMock(() => DummyPrincipals.IndiceUser);
+            });
+            builder.Configure(app => {
+                app.UseAuthentication();
+                app.UseRouting();
+                app.UseAuthorization();
+                app.UseEndpoints(e => e.MapMessaging());
+            });
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     [Fact]
@@ -96,7 +99,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent, TestContext.Current.CancellationToken);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -110,15 +115,16 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateId = new GuidOrAlias(templateAlias)
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
-        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent, TestContext.Current.CancellationToken);
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
-        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery, TestContext.Current.CancellationToken);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
         }
@@ -158,7 +164,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent, TestContext.Current.CancellationToken);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -173,15 +181,16 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.PushNotification]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
-        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent, TestContext.Current.CancellationToken);
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
-        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery, TestContext.Current.CancellationToken);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
         }
@@ -221,7 +230,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateHttpContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateHttpContent, TestContext.Current.CancellationToken);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -236,15 +247,16 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.Inbox]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
-        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        using var createCampaignHttpContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignHttpContent, TestContext.Current.CancellationToken);
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
         }
 
         //assert
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
-        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery, TestContext.Current.CancellationToken);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
         }
@@ -283,7 +295,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+        using var createTemplateHttpContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateHttpContent, TestContext.Current.CancellationToken);
+        createTemplateResponse.EnsureSuccessStatusCode();
 
         //action
         var createCampaignRequest = new CreateCampaignRequest {
@@ -298,8 +312,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             MessageTemplateChannels = [MessageChannelKind.Inbox, MessageChannelKind.SMS]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
-        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        using var createCampaignHttpContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignHttpContent, TestContext.Current.CancellationToken);
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
         }
@@ -327,15 +342,16 @@ public class MessagesIntegrationTests : IAsyncLifetime
             )
         };
         var payload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(payload, Encoding.UTF8, "application/json"));
-        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", requestContent, TestContext.Current.CancellationToken);
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
         }
 
         //Retrieve the Created Campaign
-        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery);
-        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery, TestContext.Current.CancellationToken);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!getCampaignResponse.IsSuccessStatusCode) {
             _output.WriteLine(getCampaignResponseJson);
         }
@@ -357,7 +373,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"]
         };
         var payload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(payload, Encoding.UTF8, "application/json"));
+        using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", requestContent, TestContext.Current.CancellationToken);
 
         Assert.False(createCampaignResponse.IsSuccessStatusCode);
         Assert.Equal(System.Net.HttpStatusCode.BadRequest, createCampaignResponse.StatusCode);
@@ -370,8 +387,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Name = "Test-Distribution-List"
         };
         var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"));
-        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync();
+        using var requestContent = new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json");
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", requestContent, TestContext.Current.CancellationToken);
+        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(createDistributionListResponseJson);
         }
@@ -394,15 +412,16 @@ public class MessagesIntegrationTests : IAsyncLifetime
             { byteArrayContent, "File", "contacts.csv" }
         };
 
-        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/import", form);
+        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/import", form, TestContext.Current.CancellationToken);
+        Assert.True(response.IsSuccessStatusCode);
 
         var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
-        var contactInDb = await context.Contacts.FirstOrDefaultAsync(c => c.RecipientId == "ABC123");
+        var contactInDb = await context.Contacts.FirstOrDefaultAsync(c => c.RecipientId == "ABC123", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(contactInDb);
         Assert.Equal("test@example.com", contactInDb!.Email);
 
         var link = await context.ContactDistributionLists
-            .FirstOrDefaultAsync(x => x.DistributionListId == distributionListId && x.ContactId == contactInDb.Id);
+            .FirstOrDefaultAsync(x => x.DistributionListId == distributionListId && x.ContactId == contactInDb.Id, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(link);
     }
@@ -419,14 +438,14 @@ public class MessagesIntegrationTests : IAsyncLifetime
         };
         context.DistributionLists.Add(list);
         context.Contacts.Add(contact);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var link = new DbDistributionListContact {
             ContactId = contact.Id,
             DistributionListId = list.Id
         };
         context.ContactDistributionLists.Add(link);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var requests = new List<CreateDistributionListContactRequest>
         {
@@ -443,7 +462,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         var service = _serviceProvider.GetRequiredService<IContactService>();
         await service.BulkAddToDistributionList(list.Id, requests);
 
-        var updated = await context.Contacts.FirstOrDefaultAsync(c => c.Email == "match@example.com");
+        var updated = await context.Contacts.FirstOrDefaultAsync(c => c.Email == "match@example.com", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updated);
         Assert.Equal("Updated", updated!.FirstName);
         Assert.Equal("1234567890", updated.PhoneNumber);
@@ -461,14 +480,14 @@ public class MessagesIntegrationTests : IAsyncLifetime
         };
         context.DistributionLists.Add(list);
         context.Contacts.Add(contact);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var link = new DbDistributionListContact {
             ContactId = contact.Id,
             DistributionListId = list.Id
         };
         context.ContactDistributionLists.Add(link);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var requests = new List<CreateDistributionListContactRequest>
         {
@@ -485,7 +504,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         await service.BulkAddToDistributionList(list.Id, requests);
 
         var duplicates = await context.ContactDistributionLists
-            .CountAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id);
+            .CountAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(1, duplicates);
     }
 
@@ -496,8 +515,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Name = "Test Distribution List"
         };
         var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"));
-        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync();
+        using var createDistributionListContent = new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json");
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", createDistributionListContent, TestContext.Current.CancellationToken);
+        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(createDistributionListResponseJson);
         }
@@ -513,8 +533,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             //CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
-        var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync();
+        using var addContactContent = new StringContent(addContactPayload, Encoding.UTF8, "application/json");
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", addContactContent, TestContext.Current.CancellationToken);
+        var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
         }
@@ -523,8 +544,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts");
-        var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
+        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", TestContext.Current.CancellationToken);
+        var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!getDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(getDistributionListResponseJson);
         }
@@ -543,8 +564,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Name = "Test Distribution List"
         };
         var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"));
-        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync();
+        using var createDistributionListContent = new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json");
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", createDistributionListContent, TestContext.Current.CancellationToken);
+        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(createDistributionListResponseJson);
         }
@@ -559,8 +581,9 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Salutation = "Mr"
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
-        var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync();
+        using var addContactContent = new StringContent(addContactPayload, Encoding.UTF8, "application/json");
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", addContactContent, TestContext.Current.CancellationToken);
+        var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!addContactResponse.IsSuccessStatusCode) {
             _output.WriteLine(addContactResponseJson);
         }
@@ -569,8 +592,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts");
-        var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
+        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", TestContext.Current.CancellationToken);
+        var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!getDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(getDistributionListResponseJson);
         }
@@ -599,15 +622,16 @@ public class MessagesIntegrationTests : IAsyncLifetime
             }
         };
         var payload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
-        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(payload, Encoding.UTF8, "application/json"));
-        var createCampaignResponseJson = await createTemplateResponse.Content.ReadAsStringAsync();
+        using var createTemplateContent = new StringContent(payload, Encoding.UTF8, "application/json");
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent, TestContext.Current.CancellationToken);
+        var createCampaignResponseJson = await createTemplateResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!createTemplateResponse.IsSuccessStatusCode) {
             _output.WriteLine(createCampaignResponseJson);
         }
 
         //Retrieve the Created Campaign
-        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location?.PathAndQuery);
-        var getTemplateResponseJson = await getTemplateResponse.Content.ReadAsStringAsync();
+        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location?.PathAndQuery, TestContext.Current.CancellationToken);
+        var getTemplateResponseJson = await getTemplateResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!getTemplateResponse.IsSuccessStatusCode) {
             _output.WriteLine(getTemplateResponseJson);
         }
@@ -616,14 +640,97 @@ public class MessagesIntegrationTests : IAsyncLifetime
         Assert.True(getTemplateResponse.IsSuccessStatusCode);
     }
 
-    public async Task InitializeAsync() {
+    [Fact]
+    public async Task Create_Campaign_Without_Title_Uses_Template_Name_As_Title() {
+        // arrange: create a template whose Name will be used as the campaign Title
+        const string templateAlias = "title-fallback-template";
+        const string templateName = "My Welcome Email Template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = templateName,
+            Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Subject", "Body")
+                }
+            )
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createTemplateContent = new StringContent(createTemplatePayload, Encoding.UTF8, "application/json");
+        using var createTemplateResponse = await _httpClient.PostAsync("/api/templates", createTemplateContent, TestContext.Current.CancellationToken);
+        Assert.True(createTemplateResponse.IsSuccessStatusCode);
+
+        // act: create a campaign WITHOUT a Title but with a valid MessageTemplateId
+        var createCampaignRequest = new CreateCampaignRequest {
+            // Title intentionally omitted
+            Published = false,
+            ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias)
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent, TestContext.Current.CancellationToken);
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+
+        // assert: the created campaign's Title is derived from the template Name
+        using var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location?.PathAndQuery, TestContext.Current.CancellationToken);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        Assert.Equal(templateName, campaignDetails!.Title);
+    }
+
+    [Fact]
+    public async Task Create_Campaign_Without_Title_And_Without_Template_Fails() {
+        // act: no Title and no MessageTemplateId
+        var createCampaignRequest = new CreateCampaignRequest {
+            Published = false,
+            ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"]
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent, TestContext.Current.CancellationToken);
+
+        // assert: the API must NOT crash; it must return a non-success status code
+        Assert.False(createCampaignResponse.IsSuccessStatusCode);
+    }
+
+    [Fact]
+    public async Task Create_Campaign_Without_Title_With_Invalid_Template_Fails() {
+        // act: no Title and an unknown MessageTemplateId
+        var createCampaignRequest = new CreateCampaignRequest {
+            Published = false,
+            ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias("non-existent-template-alias")
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var createCampaignContent = new StringContent(createCampaignPayload, Encoding.UTF8, "application/json");
+        using var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", createCampaignContent, TestContext.Current.CancellationToken);
+
+        // assert: the API must NOT crash; it must return a non-success status code
+        Assert.False(createCampaignResponse.IsSuccessStatusCode);
+    }
+
+    public async ValueTask InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
-        await _serviceProvider.DisposeAsync();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 }

@@ -5,6 +5,152 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.64.0]
+### Added recipient counts to campaigns and distribution lists
+`Campaign.RecipientCount` stores how many contacts a published campaign was sent out to (null for drafts and global campaigns).
+`DistributionList.ContactCount` stores how many contacts a list currently has (unsubscribed ones included) and is recounted after every membership change.
+Both are returned by the campaign and distribution list endpoints.
+The recipient analytics (`RecipientMetrics.Total`, campaign statistics and overview) now read `Campaign.RecipientCount` instead of counting the current list members, so a campaign reports the audience it was actually sent to. Campaigns that have not been sent to a distribution list (drafts, global campaigns) count as 0.
+
+Run the following migration script.<br/>
+**Caution!** Update table schema if not [cmp]
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[Campaign]')
+      AND name = N'RecipientCount'
+)
+BEGIN
+    ALTER TABLE [cmp].[Campaign]
+        ADD [RecipientCount] INT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[DistributionList]')
+      AND name = N'ContactCount'
+)
+BEGIN
+    ALTER TABLE [cmp].[DistributionList]
+        ADD [ContactCount] INT NOT NULL
+            CONSTRAINT [DF_DistributionList_ContactCount] DEFAULT (0);
+END;
+GO
+
+-- Backfill the current size of every list.
+UPDATE dl
+SET [ContactCount] = (
+    SELECT COUNT(*)
+    FROM [cmp].[DistributionListContact] dlc
+    WHERE dlc.[DistributionListId] = dl.[Id]
+)
+FROM [cmp].[DistributionList] dl;
+GO
+
+-- Backfill published, non-global campaigns from the current size of their list.
+-- Exact for system generated lists; approximate for shared lists that changed after the send.
+UPDATE c
+SET [RecipientCount] = dl.[ContactCount]
+FROM [cmp].[Campaign] c
+INNER JOIN [cmp].[DistributionList] dl ON dl.[Id] = c.[DistributionListId]
+WHERE c.[Published] = 1
+  AND c.[IsGlobal] = 0
+  AND c.[RecipientCount] IS NULL;
+GO
+```
+
+## [8.62.0]
+### Added flag for system generated distribution lists
+
+Run the following migration script.<br/>
+**Caution!** Update table schema if not [cmp]
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[DistributionList]')
+      AND name = N'SystemGenerated'
+)
+BEGIN
+    ALTER TABLE [cmp].[DistributionList]
+        ADD [SystemGenerated] BIT NOT NULL
+            CONSTRAINT [DF_DistributionList_SystemGenerated] DEFAULT (0);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[DistributionList]')
+      AND name = N'IX_DistributionList_SystemGenerated'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_DistributionList_SystemGenerated]
+        ON [cmp].[DistributionList]([SystemGenerated] ASC);
+END;
+GO
+
+UPDATE [cmp].[DistributionList]
+SET [SystemGenerated] = 1
+WHERE [CreatedBy] = 'system';
+GO
+```
+
+### Added message event indexes for the analytics and the events list
+The dashboard overview, the campaign reports and the events list aggregate or page the `MessageEvent` table, which had no index for them.
+
+Run the following migration script.<br/>
+**Caution!** Update table schema if not [cmp]. Building the indexes on a large table takes time and blocks writes to it, so run it off-peak (or add `WITH (ONLINE = ON)` where the edition supports it).
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND name = N'IX_MessageEvent_CreatedOn'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_MessageEvent_CreatedOn]
+        ON [cmp].[MessageEvent]([CreatedOn] ASC);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND name = N'IX_MessageEvent_CampaignId_Type'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_MessageEvent_CampaignId_Type]
+        ON [cmp].[MessageEvent]([CampaignId] ASC, [Type] ASC)
+        INCLUDE ([Channel], [MessageId], [ContactId], [Success]);
+END;
+GO
+```
+
+### Added the `concat` Handlebars helper
+Message templates (and the partials/layouts they use) can join values into one string, e.g. to build a link passed to a partial:
+```handlebars
+{{> text_link url=(concat data.uiBaseUrl "/my-profile/buying/" data.propertyInfo.code "/documents") text="My documents"}}
+```
+Missing values render as empty. The helper is registered on every server render and in the admin UI preview. Templates that use it fail to render on servers running an older version, so deploy this version before authoring them.
+
+## [8.47.0] - 2026-05-13
+### Added partial template functionality
+
+To categorize the new template types a new column must be added. This column is not nullable, defaults to 0 (Full template) and all the existing templates should be categorized as Full.
+<br>
+Example script:
+```sql
+ALTER TABLE [cmp].[Template]
+ADD [Type] TINYINT NOT NULL 
+CONSTRAINT DF_Template_TemplateType DEFAULT 0;
+```
+**Note:** This example assumes SQLServer.
+
 ## [8.31.0] - 2025-01-07
 ### Added Messaging Database Cleanup Job
 The following configuration should be added in the appsettings.json and local.settings.json to determine the frequency of the clean up job:
@@ -361,7 +507,7 @@ ADD [MediaBaseHref] [nvarchar](1024) NULL
 ## [7.4.1] - 2023-09-22
 ### Changed
 - CampaignId is returned in PushNotification data in property "messageId". 
-  Intentioanally added for naming consistency. external MessageId == internal CampaignId.
+  Intentionally added for naming consistency. external MessageId == internal CampaignId.
 
 ## [7.3.8] - 2023-08-07
 ### Added

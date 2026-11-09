@@ -1,0 +1,34 @@
+﻿namespace Indice.Features.Identity.Server.Manager.Models;
+
+/// <summary>
+/// Represents information about a user server-side session.
+/// </summary>
+public class ServerSideSessionInfo
+{
+    /// <summary>The key.</summary>
+    public string Key { get; set; } = null!;
+
+    /// <summary>The cookie handler scheme.</summary>
+    public string Scheme { get; set; } = null!;
+
+    /// <summary>The subject ID.</summary>
+    public string SubjectId { get; set; } = null!;
+
+    /// <summary>The session ID.</summary>
+    public string SessionId { get; set; } = null!;
+
+    /// <summary>The display name for the user.</summary>
+    public string? DisplayName { get; set; }
+
+    /// <summary>The creation time.</summary>
+    public DateTime Created { get; set; }
+
+    /// <summary>The renewal time.</summary>
+    public DateTime Renewed { get; set; }
+
+    /// <summary>The expiration time.</summary>
+    public DateTime? Expires { get; set; }
+
+    /// <summary>The serialized ticket.</summary>
+    public string Ticket { get; set; } = null!;
+}

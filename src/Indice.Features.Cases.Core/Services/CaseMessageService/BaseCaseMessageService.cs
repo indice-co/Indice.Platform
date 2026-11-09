@@ -6,6 +6,7 @@ using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Events;
 using Indice.Types;
+using Indice.Services;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
@@ -14,14 +15,17 @@ internal abstract class BaseCaseMessageService
     protected CasesDbContext DbContext { get; }
     private readonly IPlatformEventService _platformEventService;
     private readonly ISchemaValidator _schemaValidator;
+    private readonly IFileService? _fileService;
 
     protected BaseCaseMessageService(
         CasesDbContext dbContext,
         IPlatformEventService platformEventService,
-        ISchemaValidator schemaValidator) {
+        ISchemaValidator schemaValidator,
+        IFileService? fileService = null) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _schemaValidator = schemaValidator ?? throw new ArgumentNullException(nameof(schemaValidator));
+        _fileService = fileService;
     }
 
     protected async Task<Guid?> SendInternal(DbCase @case, Message message, AuditMeta createdBy) {
@@ -45,8 +49,8 @@ internal abstract class BaseCaseMessageService
             throw new BusinessException($"Invalid checkpoint. Not checkpoint was found for the current case with name {message.CheckpointTypeName}.");
         }
 
-        if (message.ReplyToCommentId.HasValue) {
-            var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
+        if (message.ReplyToCommentId is Guid replyToCommentId) {
+            var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == replyToCommentId);
             if (!exists) {
                 throw new BusinessException("Invalid reply to comment id. Not found on the current case.");
             }
@@ -104,7 +108,13 @@ internal abstract class BaseCaseMessageService
 
     private async Task<CasesAttachmentLink> AddAttachment(AuditMeta createdBy, DbCase @case, string? comment, string fileName, Func<Stream> fileStreamAccessor) {
         var attachment = new DbAttachment(@case.Id);
-        attachment.PopulateFrom(fileName, fileStreamAccessor, saveData: true);
+        var stream = fileStreamAccessor();
+        // When a file service is configured only the metadata are stored in the database.
+        attachment.PopulateFrom(fileName, stream, saveData: _fileService is null);
+        if (_fileService is not null) {
+            stream.Seek(0, SeekOrigin.Begin);
+            await _fileService.SaveAsync(attachment.GetPath(), stream, attachment.ContentType);
+        }
         DbContext.Attachments.Add(attachment);
         @case.Attachments.Add(attachment);
         var link = new CasesAttachmentLink {

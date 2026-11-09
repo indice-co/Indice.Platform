@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#if NET8_0
+using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -46,3 +47,4 @@ public class FileUploadOperationFilter : IOperationFilter
         }
     }
 }
+#endif

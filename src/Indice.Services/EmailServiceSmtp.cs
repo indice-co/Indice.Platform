@@ -21,14 +21,14 @@ public class EmailServiceSmtp : IEmailService
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender, Settings.SenderName));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
     }
 
     private EmailServiceSettings Settings { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
-    /// <inheritdoc/>
+    /// <summary>Gets the email provider configuration used by this SMTP service.</summary>
     public EmailProvider Provider { get; }
 
     /// <inheritdoc/>
@@ -44,7 +44,7 @@ public class EmailServiceSmtp : IEmailService
         message.Subject = subject;
         message.MessageId = messageId;
         var bodyPart = new TextPart(TextFormat.Html) {
-            Text = body
+            Text = body ?? string.Empty
         };
         if (attachments?.Length > 0) {
             var multipart = new Multipart("mixed") {
@@ -60,14 +60,12 @@ public class EmailServiceSmtp : IEmailService
                     FileName = attachment.FileName
                 };
                 multipart.Add(attachmentPart);
-                message.Body = multipart;
             }
+            message.Body = multipart;
         } else {
             message.Body = bodyPart;
         }
         using (var client = new SmtpClient()) {
-            // If UseSSL = true then you need to provide certificate in order to send the email, or else you get security exception.
-            var useSSL = Settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;
             // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS).
             client.ServerCertificateValidationCallback = (s, c, h, e) => true;
             client.CheckCertificateRevocation = Settings.CheckCertificateRevocation;
@@ -76,8 +74,14 @@ public class EmailServiceSmtp : IEmailService
             // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
             // https://portal.smartertools.com/kb/a2862/smtp-settings-for-outlook365-and-gmail.aspx
             // Only needed if the SMTP server requires authentication.
+            if (string.IsNullOrEmpty(Settings.SmtpHost)) {
+                throw new EmailServiceException("SmtpHost parameter cannot be empty.");
+            }
             await client.ConnectAsync(Settings.SmtpHost, Settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)Settings.SecureSocket);
-            if (!string.IsNullOrEmpty(Settings.Username)) {
+            if (!string.IsNullOrWhiteSpace(Settings.Username)) {
+                if (string.IsNullOrWhiteSpace(Settings.Password)) {
+                    throw new EmailServiceException("Password parameter cannot be empty when Username is provided.");
+                }
                 client.Authenticate(Settings.Username, Settings.Password);
             }
             var response = await client.SendAsync(message);

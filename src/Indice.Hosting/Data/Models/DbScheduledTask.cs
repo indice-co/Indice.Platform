@@ -59,6 +59,7 @@ public class DbScheduledTask
         Description = model.Description;
         Group = model.Group;
         Errors = model.Errors;
+        LastErrorDate = model.LastErrorDate;
         ExecutionCount = model.ExecutionCount;
         LastExecution = model.LastExecution;
         NextExecution = model.NextExecution;

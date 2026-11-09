@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Routing;
 using System.Text.Json.Nodes;
 using Indice.AspNetCore.Views;
@@ -17,47 +16,50 @@ public class EndpointTests : IAsyncLifetime
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private readonly IServiceProvider _serviceProvider;
 
     public EndpointTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
-        builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string?> {
-                ["MySection:MyKey"] = "TestValue"
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+            builder.UseTestServer();
+            builder.ConfigureAppConfiguration(builder => {
+                builder.AddInMemoryCollection(new Dictionary<string, string?> {
+                    ["MySection:MyKey"] = "TestValue"
+                });
             });
-        });
-        builder.ConfigureServices(services => {
-            
-            services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-            services.AddRouting();
+            builder.ConfigureServices(services => {
+                services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+                services.AddRouting();
 
-            services.AddTranslationGraph((o) => {
-                o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
-                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
-                o.AddResource("Resources.Alternate.TranslationsAlternateSource"); // same assemby different resex. same path
-                o.AddResource("Resources.Alternate.TranslationsAlternateSource", "/translations-alternate.{lang:culture}.json"); // same assemby different resex. different path
-                o.AddResource("Resources.TranslationsApi", "/translations-original.{lang:culture}.json"); // same assemby different resex. different path
-                o.AddResource("TranslationsAlternateSource2", "/translations-alternate.{lang:culture}.json", translationsLocation: typeof(ViewsMarker).Assembly.GetName().Name); // alternate assemby different resex. different path
+                services.AddTranslationGraph((o) => {
+                    o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
+                    o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
+                    o.AddResource("Resources.Alternate.TranslationsAlternateSource"); // same assemby different resex. same path
+                    o.AddResource("Resources.Alternate.TranslationsAlternateSource", "/translations-alternate.{lang:culture}.json"); // same assemby different resex. different path
+                    o.AddResource("Resources.TranslationsApi", "/translations-original.{lang:culture}.json"); // same assemby different resex. different path
+                    o.AddResource("TranslationsAlternateSource2", "/translations-alternate.{lang:culture}.json", translationsLocation: typeof(ViewsMarker).Assembly.GetName().Name); // alternate assemby different resex. different path
+                });
             });
-        });
-        builder.Configure(app => {
-            app.UseRouting();
-            app.UseEndpoints(e => e.MapTranslationGraph());
-        });
-        var server = new TestServer(builder);
+            builder.Configure(app => {
+                app.UseRouting();
+                app.UseEndpoints(e => e.MapTranslationGraph());
+            });
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     #region Facts
     [Fact]
     public async Task Test_GetTranslatio_English() {
-        var translationResponse = await _httpClient.GetAsync("/translations.en.json");
-        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
+        var translationResponse = await _httpClient.GetAsync("/translations.en.json", TestContext.Current.CancellationToken);
+        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!translationResponse.IsSuccessStatusCode) {
             _output.WriteLine(translationResponseJson);
         }
@@ -67,8 +69,8 @@ public class EndpointTests : IAsyncLifetime
     }
     [Fact]
     public async Task Test_GetTranslation_Greek() {
-        var translationResponse = await _httpClient.GetAsync("/translations.el.json");
-        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
+        var translationResponse = await _httpClient.GetAsync("/translations.el.json", TestContext.Current.CancellationToken);
+        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!translationResponse.IsSuccessStatusCode) {
             _output.WriteLine(translationResponseJson);
         }
@@ -78,8 +80,8 @@ public class EndpointTests : IAsyncLifetime
     }
     [Fact]
     public async Task Test_GetTranslation_For_Culture_Not_Exists() {
-        var translationResponse = await _httpClient.GetAsync("/translations.ru.json");
-        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
+        var translationResponse = await _httpClient.GetAsync("/translations.ru.json", TestContext.Current.CancellationToken);
+        var translationResponseJson = await translationResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!translationResponse.IsSuccessStatusCode) {
             _output.WriteLine(translationResponseJson);
         }
@@ -89,7 +91,7 @@ public class EndpointTests : IAsyncLifetime
     }
     [Fact]
     public async Task Test_GetTranslation_For_Invalid_Culture() {
-        var translationResponse = await _httpClient.GetAsync("/translations.invalid.json");
+        var translationResponse = await _httpClient.GetAsync("/translations.invalid.json", TestContext.Current.CancellationToken);
         Assert.False(translationResponse.IsSuccessStatusCode);
     }
 
@@ -126,10 +128,11 @@ public class EndpointTests : IAsyncLifetime
     #endregion
 
 
-    public Task InitializeAsync() {
-        return Task.CompletedTask;
+    public ValueTask InitializeAsync() {
+        return ValueTask.CompletedTask;
     }
-    public async Task DisposeAsync() {
-        await _serviceProvider.DisposeAsync();
+    public async ValueTask DisposeAsync() {
+        await _host.StopAsync();
+        _host.Dispose();
     }
 }

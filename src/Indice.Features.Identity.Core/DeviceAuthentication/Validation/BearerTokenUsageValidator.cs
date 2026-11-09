@@ -66,7 +66,7 @@ internal class BearerTokenUsageValidator
                 };
             }
         } else {
-            _logger.LogTrace("[{ClassName}] Unexpected header format: '{Header}'.", nameof(BearerTokenUsageValidator), header?.ReplaceLineEndings());
+            _logger.LogTrace("[{ClassName}] Unexpected header format: '{Header}'.", nameof(BearerTokenUsageValidator), header.ReplaceLineEndings());
         }
         return new BearerTokenUsageValidationResult();
     }

@@ -131,7 +131,11 @@ public abstract class BaseProfileModel : BasePageModel
         if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
             if (!string.IsNullOrWhiteSpace(Input.Email)) {
-                await SendChangeEmailConfirmationEmail(user, Input.Email);
+                if (!await SendChangeEmailConfirmationEmail(user, Input.Email)) {
+                    ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
+                    ProfileSuccessfullyChanged = false;
+                    return Page();
+                }
             }
         }
         if (!UserManager.EmailAsUserName && user.UserName != Input.UserName) {
@@ -192,7 +196,7 @@ public abstract class BaseProfileModel : BasePageModel
             TempData.Put("Alert", AlertModel.Error($"file cannot be empty."));
             return RedirectToPage("/Profile");
         }
-        if (file?.Length > UiOptions.PictureUploadSizeLimit) {
+        if (file.Length > UiOptions.PictureUploadSizeLimit) {
             TempData.Put("Alert", AlertModel.Error($"file cannot over {UiOptions.PictureUploadSizeLimit.ToFileSize()}."));
             return RedirectToPage("/Profile");
         }

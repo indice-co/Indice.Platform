@@ -15,7 +15,7 @@
     <StaticWebAssetsFingerprintContent>true</StaticWebAssetsFingerprintContent>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build\*" Pack="true" PackagePath="build\" />
@@ -25,7 +25,7 @@
  
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.3" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.13.1" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
   </ItemGroup>
   <ItemGroup>
@@ -53,21 +53,20 @@
       <LastGenOutput>TelemetryJavascriptResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
-    <Exec Command="npm install --force" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+    <Exec Command="npm install" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  <Target Name="CopyLibs" AfterTargets="NpmInstall">
-    <Exec Command="npm run gulp -- copy:libs" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+  <Target Name="ViteBuild" AfterTargets="NpmInstall">
+    <Exec Command="npm run build" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Vite build failed. Run 'npm run build' in src/Indice.Features.Identity.UI and fix the reported errors before building the project." />
   </Target>
-  <Target Name="Sass" AfterTargets="NpmInstall">
-    <Exec Command="npm run gulp -- sass" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-  </Target>
+  <ItemGroup>
+    <None Include="../../docs/Identity-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/identity-admin-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
 </Project>

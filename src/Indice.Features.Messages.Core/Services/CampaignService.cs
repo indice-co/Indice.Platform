@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Azure.Messaging;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Data;
@@ -23,17 +24,21 @@ public class CampaignService : ICampaignService
     /// <summary>Creates a new instance of <see cref="CampaignService"/>.</summary>
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>
+    /// <param name="partialTemplateResolverFactory">Factory used to create partial template resolvers.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public CampaignService(
         CampaignsDbContext dbContext,
-        IOptions<MessageManagementOptions> campaignManagementOptions
+        IOptions<MessageManagementOptions> campaignManagementOptions,
+        IPartialTemplateResolverFactory partialTemplateResolverFactory
     ) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
+        PartialTemplateResolverFactory = partialTemplateResolverFactory ?? throw new ArgumentNullException(nameof(partialTemplateResolverFactory));
     }
 
     private CampaignsDbContext DbContext { get; }
     private MessageManagementOptions CampaignManagementOptions { get; }
+    private IPartialTemplateResolverFactory PartialTemplateResolverFactory { get; }
 
     /// <inheritdoc />
     public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignListFilter> options) {
@@ -43,10 +48,10 @@ public class CampaignService : ICampaignService
                 .Include(x => x.DistributionList)
                 .AsNoTracking();
 
-        if (options.Filter?.ContactId.HasValue == true) {
+        if (options.Filter?.ContactId is Guid contactId) {
             query = from o in query
                     join c in DbContext.ContactDistributionLists on o.DistributionListId equals c.DistributionListId
-                    where c.ContactId == options.Filter.ContactId.Value
+                    where c.ContactId == contactId
                     select o;
         }
 
@@ -62,8 +67,8 @@ public class CampaignService : ICampaignService
             var searchTerm = options.Search.Trim();
             projectedQuery = projectedQuery.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }
-        if (options.Filter?.Published.HasValue == true) {
-            projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);
+        if (options.Filter?.Published is bool published) {
+            projectedQuery = projectedQuery.Where(x => x.Published == published);
         }
         if (options.Filter?.TypeId?.Length > 0) {
             var types = options.Filter.TypeId.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => GuidOrAlias.Parse(x));
@@ -154,10 +159,7 @@ public class CampaignService : ICampaignService
                             where campaign.Id == campaignId.Value
                             select new RecipientMetrics {
                                 TotalCampaigns = 1,
-                                Total = (from contact in DbContext.ContactDistributionLists
-                                         join distributionList in DbContext.DistributionLists on contact.DistributionListId equals distributionList.Id
-                                         where distributionList.Id == campaign.DistributionListId
-                                         select contact.ContactId).Count(),
+                                Total = campaign.RecipientCount ?? 0,
                                 TotalMessages = (from messageEvent in DbContext.MessageEvents
                                                  where messageEvent.CampaignId == campaign.Id &&
                                                        (
@@ -195,11 +197,8 @@ public class CampaignService : ICampaignService
             };
         }
 
-        // Sum of distinct recipients per campaign
-        var totalRecipientsSum = await (from c in DbContext.Campaigns
-                                        join cd in DbContext.ContactDistributionLists on c.DistributionListId equals cd.DistributionListId into contacts
-                                        select contacts.Select(x => x.ContactId).Distinct().Count()
-                                       ).SumAsync();
+        // Sum of the recipients each campaign was sent out to; drafts and global campaigns count as 0.
+        var totalRecipientsSum = await DbContext.Campaigns.SumAsync(x => x.RecipientCount ?? 0);
         // Sum of distinct message ids per campaign that count as "reached"
         var messagesSum = await (from e in DbContext.MessageEvents
                                  where e.Type == nameof(MessageEventType.Sent) ||
@@ -235,13 +234,30 @@ public class CampaignService : ICampaignService
     }
 
     ///<inheritdoc/>
-    public async Task<Dictionary<string, int>> GetChannelMetrics(Guid? campaignId = null) =>
-                await DbContext.MessageEvents
-                        .Where(x => (campaignId == null || x.CampaignId == campaignId) &&
-                                    x.Type == MessageEventType.Sent.ToString() ||
-                                    (x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created)))
-                        .GroupBy(m => m.Channel)
-                        .ToDictionaryAsync(g => g.Key, g => g.Count());
+    public async Task<List<ChannelMetrics>> GetChannelMetrics(Guid? campaignId = null) {
+        // A failed send is retried and every attempt logs a "Sent" event, so collapse the attempts of a message on a channel
+        // into one outcome: delivered when any attempt succeeded, failed otherwise.
+        var query = DbContext.MessageEvents.AsQueryable();
+
+        if (campaignId != null) {
+            query = query.Where(x => x.CampaignId == campaignId);
+        }
+
+        query = query.Where(x => x.Type == nameof(MessageEventType.Sent) ||
+                                 (x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created)));
+
+        var metrics = await query
+            .GroupBy(x => new { x.Channel, x.CampaignId, x.MessageId, x.ContactId })
+            .Select(g => new { g.Key.Channel, Delivered = g.Max(x => x.Success ? 1 : 0) })
+            .GroupBy(x => x.Channel)
+            .Select(g => new { Channel = g.Key, Total = g.Count(), Failures = g.Count(x => x.Delivered == 0) })
+            .ToListAsync();
+        return metrics.Select(x => new ChannelMetrics {
+            Kind = Enum.Parse<MessageChannelKind>(x.Channel),
+            Total = x.Total,
+            Failures = x.Failures
+        }).ToList();
+    }
 
 
     /// <inheritdoc />
@@ -309,6 +325,12 @@ public class CampaignService : ICampaignService
         await DbContext.SaveChangesAsync();
         return Mapper.ToCampaign(campaign);
     }
+
+    /// <inheritdoc />
+    public Task SetRecipientCount(Guid campaignId, int recipientCount) =>
+        DbContext.Campaigns
+            .Where(x => x.Id == campaignId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.RecipientCount, recipientCount));
     ///<inheritdoc/>
     public async Task<ResultSet<Recipient>> GetCampaignRecipients(Guid campaignId, ListOptions options) {
         var query = from messageEvent in DbContext.MessageEvents
@@ -330,10 +352,10 @@ public class CampaignService : ICampaignService
     public async Task<RecipientMessageEvents> GetCampaignRecipientDetails(Guid campaignId, Guid contactId) {
         var details = new RecipientMessageEvents();
         var contact = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        var campaign = Mapper.ToCampaign(await DbContext.Campaigns.AsNoTracking().FirstAsync(x => x.Id == campaignId));
+        var dbMessage = await DbContext.Messages.AsNoTracking().FirstAsync( x => x.CampaignId == campaignId && x.ContactId == contactId);
         details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
-        GenerateMessageContent(campaign, contact);
-        details.Content = campaign.Content;
+        var content = new MessageContentDictionary(dbMessage.Content);
+        details.Content = content;
         details.Events.AddRange(await DbContext.MessageEvents
                         .Where(x => x.CampaignId == campaignId && x.ContactId == contactId)
                         .Select(x => new MessageEvent {
@@ -349,33 +371,4 @@ public class CampaignService : ICampaignService
         return details;
     }
 
-    private static void GenerateMessageContent(Campaign campaign, Contact? contact) {
-        var handlebars = Handlebars.Create();
-        handlebars.Configuration.TextEncoder = new HtmlEncoder();
-        handlebars.Configuration.UseJson();
-        foreach (var content in campaign!.Content) {
-            handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create(content.Key);
-            dynamic templateData = new {
-                id = campaign.Id,
-                title = campaign.Title,
-                type = campaign.Type?.Name,
-                classification = campaign.Type?.Classification,
-                actionLink = new {
-                    href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
-                    text = campaign.ActionLink?.Text,
-                },
-                mediaBaseHref = campaign.MediaBaseHref,
-                now = DateTimeOffset.UtcNow,
-                contact = contact is not null
-                    ? JsonDocument.Parse(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                    : null,
-                data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
-                    ? JsonDocument.Parse(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()))
-                    : null
-            };
-            var messageContent = campaign.Content[content.Key];
-            messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
-            messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
-        }
-    }
 }

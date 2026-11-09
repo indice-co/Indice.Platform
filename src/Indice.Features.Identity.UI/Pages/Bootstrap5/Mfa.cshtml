@@ -1,6 +1,7 @@
 ﻿@page "/login/mfa"
 @using Indice.Extensions
 @using Indice.Features.Identity.Core.Models
+@using Microsoft.AspNetCore.Html
 
 @model BaseMfaModel
 
@@ -8,10 +9,10 @@
 @inject IConfiguration Configuration
 
 @{
-    ViewData["Title"] = Localizer.Mfa_PageTitle;
+    ViewData["Title"] = Localizer.Mfa_PageTitle + " - " + Model.View.AuthenticationMethod?.DisplayName;
 }
 
-<div class="sign-in m-auto">
+<section class="sign-in m-auto">
     <vc:page-heading title="@Localizer.Mfa_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <div indice-if="!Model.View.HasError">
@@ -29,8 +30,18 @@
         {
             <partial name="_MfaPushNotification" model="Model" />
         }
+
+        @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.AuthenticatorApp)
+        {
+            <partial name="_MfaAuthenticatorApp" model="Model" />
+        }
+
+        @if (Model.View.AuthenticationMethod?.Type == AuthenticationMethodType.RecoveryCode)
+        {
+            <partial name="_MfaRecoveryCodes" model="Model" />
+        }
     </div>
-</div>
+</section>
 
 @section scripts {
     <partial name="_ValidationScripts" />
@@ -56,8 +67,8 @@
             var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
             viewModel.init();
 
-            $('button[name="ChangeSelectedDeliveryChannel"]').on('click', function() {
-                $('input[name="Input.SelectedDeliveryChannel"]').val($(this).val());
+            $('button[name="ChangeSelectedMethodCode"]').on('click', function() {
+                $('input[name="Input.SelectedAuthenticationMethodCode"]').val($(this).val());
                 $('input[name="Input.ResendOtp"]').val('true');
             });
         });

@@ -12,7 +12,7 @@ public class UploadFileRequest
     /// A file attached
     /// </summary>
     [Required]
-    public IFormFile? File { get; set; }
+    public IFormFile File { get; set; } = null!;
 
 
     /// <summary>
@@ -25,7 +25,7 @@ public class UploadFileRequest
         var form = await context.Request.ReadFormAsync();
         var file = form.Files[nameof(File)];
         return new UploadFileRequest {
-            File = file,
+            File = file!,
         };
     }
 

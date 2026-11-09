@@ -12,7 +12,7 @@ public interface ISignInGuard<TUser> where TUser : User
     /// <summary>Runs various rules and determines whether a login attempt is considered suspicious or not.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
     /// <param name="user">The current user.</param>
-    Task<SignInGuardResult> IsSuspiciousLogin(HttpContext? httpContext, TUser user);
+    Task<SignInGuardResult> IsSuspiciousLogin(HttpContext httpContext, TUser user);
 }
 
 /// <summary>Implementation of <see cref="ISignInGuard{TUser}"/> where no check is made.</summary>

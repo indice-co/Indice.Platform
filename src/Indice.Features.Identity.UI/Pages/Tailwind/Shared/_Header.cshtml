@@ -5,11 +5,7 @@
 
 @{
 	var displayMenu = SignInManager.IsSignedIn(User);// todo: check && !SignInManager.IsSignedInWithScheme(User, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-	var showRibbon = !Environment.IsProduction();
-	var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-	var langSuffix = (lang == "el") ? ".el" : string.Empty;
 	var userName = User.Claims.Where(x => x.Type == JwtClaimTypes.Name).FirstOrDefault()?.Value;
-	var initials = $"{User.FindFirst(JwtClaimTypes.GivenName)?.Value?[0]}{User.FindFirst(JwtClaimTypes.FamilyName)?.Value?[0]}";
 }
 
 @if (displayMenu)

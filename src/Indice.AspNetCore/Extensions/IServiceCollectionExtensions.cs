@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Net;
 using System.Text.RegularExpressions;
-using Azure.Storage.Blobs;
 using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Middleware;
@@ -87,15 +86,19 @@ public static class ServiceCollectionExtensions
     /// <param name="configure">Configures the available options. Null to use defaults.</param>
     public static IServiceCollection AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions>? configure = null) {
         services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
+        services.TryAddSingleton<AzureClientFactory>();
         var serviceProvider = services.BuildServiceProvider();
         var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
         var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         const int defaultKeyLifetime = 90;
         var options = new AzureDataProtectionOptions {
-            StorageConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("StorageConnection")!,
             ContainerName = environmentName,
             ApplicationName = hostingEnvironment.ApplicationName,
             KeyLifetime = defaultKeyLifetime,
+            CryptographicAlgorithms = new AuthenticatedEncryptorConfiguration {
+                EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
+                ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
+            },
             Services = services
         };
         configure?.Invoke(options);
@@ -103,17 +106,12 @@ public static class ServiceCollectionExtensions
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
-        var container = new BlobContainerClient(options.StorageConnectionString, options.ContainerName);
-        container.CreateIfNotExists();
         // Enables data protection services to the specified IServiceCollection.
         var dataProtectionBuilder = services.AddDataProtection()
-                                            // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
-                                            // The algorithms selected below are the default and they are added just for completeness.
-                                            .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration {
-                                                EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
-                                                ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
-                                            })
-                                            .PersistKeysToAzureBlobStorage(options.StorageConnectionString, options.ContainerName, "keys.xml")
+                                            // Configures the data protection system to use the cryptographic algorithms from options.CryptographicAlgorithms
+                                            // when generating protected payloads. Default values are initialized above and may be overridden by configure.
+                                            .UseCryptographicAlgorithms(options.CryptographicAlgorithms)
+                                            .PersistKeysToAzureBlobStorage(sp =>  sp.GetRequiredService<AzureClientFactory>().GetOrCreateBlobContainerClient(options.ConnectionStringName, options.ContainerName).GetBlobClient("keys.xml"))
                                             // Configure the system to use a key lifetime. Default is 90 days.
                                             .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
                                             // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 
@@ -225,6 +223,8 @@ public static class ServiceCollectionExtensions
             limit.DefaultAllowedFileExtensions = options.DefaultAllowedFileExtensions;
         }));
 
+        services.AddMagicBytesValidator();
+
         return services;
     }
 
@@ -236,6 +236,7 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddLimitUpload(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<LimitUploadOptions>(configuration);
+        services.AddMagicBytesValidator();
         return services;
     }
 
@@ -261,7 +262,11 @@ public static class ServiceCollectionExtensions
             return services;
         }
         services.Configure<ForwardedHeadersOptions>(options => {
+#if NET10_0_OR_GREATER
+            options.KnownIPNetworks.Clear();
+#else
             options.KnownNetworks.Clear();
+#endif
             options.KnownProxies.Clear();
             var forwardLimit = configuration.GetProxyForwardLimit();
             var knownNetworks = configuration.GetProxyKnownNetworks();
@@ -272,9 +277,15 @@ public static class ServiceCollectionExtensions
                 : forwardLimit;
 
             foreach (var entry in knownNetworks) {
+#if NET10_0_OR_GREATER
+                if (System.Net.IPNetwork.TryParse(entry, out var network)) {
+                    options.KnownIPNetworks.Add(network);
+                }
+#else
                 if (AspNetCore.HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
                     options.KnownNetworks.Add(network);
                 }
+#endif
             }
 
             foreach (var entry in knownProxies) {

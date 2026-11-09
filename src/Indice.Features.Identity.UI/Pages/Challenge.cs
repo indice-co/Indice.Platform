@@ -111,9 +111,11 @@ public abstract class BaseChallengeModel : BasePageModel
         if (user is null) {
             return await UserNotFound(externalLoginInfo, returnUrl);
         }
-        // Save user tokes retrieved from external provider.
-        await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
         var result = await SignInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
+        // Save user tokens retrieved from external provider.
+        // This must happen after ExternalLoginSignInAsync because it updates the security stamp,
+        // which would invalidate the MFA remember cookie if read beforehand.
+        await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
 
         await UserUpdateFromExternalInformation(user, externalLoginInfo);
 

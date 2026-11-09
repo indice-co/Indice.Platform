@@ -25,4 +25,9 @@ public static class BasicRoleNames
     public const string CasesManager = nameof(CasesManager);
     /// <summary>A user that can access cases.</summary>
     public const string CasesUser = nameof(CasesUser);
+    /// <summary>Administrator of the Agents feature.</summary>
+    public const string AgentsAdmin = nameof(AgentsAdmin);
+    /// <summary>Administrator of the Workers feature.</summary>
+    public const string WorkersAdmin = nameof(WorkersAdmin);
+
 }

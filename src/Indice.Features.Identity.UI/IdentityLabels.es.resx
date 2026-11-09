@@ -378,6 +378,27 @@
   <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="EmailFooter_SentTo" xml:space="preserve">
+    <value>Este correo electrónico se envió a &lt;strong&gt;{0}&lt;/strong&gt;.</value>
+  </data>
+  <data name="OrganizationLegalName" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OrganizationAddress" xml:space="preserve">
+    <value />
+  </data>
+  <data name="EmailFooter_RegistryNumber" xml:space="preserve">
+    <value>GEMH: {0}</value>
+  </data>
+  <data name="EmailFooter_NeedHelp" xml:space="preserve">
+    <value>¿Necesita ayuda?</value>
+  </data>
+  <data name="EmailFooter_CallSupport" xml:space="preserve">
+    <value>Llame al {0}</value>
+  </data>
+  <data name="EmailFooter_EmailSupport" xml:space="preserve">
+    <value>Escriba a {0}</value>
+  </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>Restablecer contraseña</value>
   </data>
@@ -728,6 +749,57 @@
   </data>
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>Verificar número de teléfono</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>Configurar aplicación de autenticación</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>Configurar aplicación de autenticación</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>Escanee el código QR con su aplicación de autenticación o introduzca la clave manualmente.</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>O introduzca esta clave manualmente:</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>Código de verificación</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>Verificar</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>El código de verificación no es válido.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>Códigos de recuperación</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>Guarde sus códigos de recuperación</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>Guarde estos códigos de recuperación en un lugar seguro. Cada código se puede usar una vez si pierde el acceso a su aplicación de autenticación.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>He guardado mis códigos</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Descargar</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>Estos son sus códigos de respaldo para la cuenta {0}. ¡Manténgalos seguros!</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>Abra su aplicación de autenticación e introduzca el código de verificación.</value>
+  </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Código de recuperación</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Ha solicitado iniciar sesión con un código de recuperación. Este inicio de sesión no se recordará hasta que proporcione un código de aplicación de autenticación al iniciar sesión o deshabilite 2FA e inicie sesión de nuevo.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Código de recuperación no válido.</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Cambiar contraseña</value>
@@ -1106,5 +1178,17 @@
   </data>
   <data name="AcceptTerms_LastUpdated" xml:space="preserve">
     <value>Última actualización</value>
+  </data>
+  <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Register_Password_Confirmation" xml:space="preserve">
+    <value>Confirmar contraseña</value>
+  </data>
+  <data name="ChangePassword_NewPasswordConfirmation" xml:space="preserve">
+    <value>Confirmar nueva contraseña</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
+    <value>Confirmar nueva contraseña</value>
   </data>
 </root>

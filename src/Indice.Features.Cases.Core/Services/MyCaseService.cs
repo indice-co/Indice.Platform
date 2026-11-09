@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Linq.Expressions;
-using System.Security.Claims;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
@@ -9,9 +8,12 @@ using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Indice.Features.Cases.Core.Services;
 
@@ -29,7 +31,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         IPlatformEventService platformEventService,
         IMyCaseMessageService caseMessageService,
         IJsonTranslationService jsonTranslationService,
-        CaseSharedResourceService caseSharedResourceService) : base(dbContext, options) {
+        CaseSharedResourceService caseSharedResourceService,
+        [FromKeyedServices(CasesCoreConstants.FileServiceKey)] IFileService? fileService = null) : base(dbContext, options, fileService) {
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         _jsonTranslationService = jsonTranslationService ?? throw new ArgumentNullException(nameof(jsonTranslationService));
@@ -41,7 +44,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         string? groupId,
         ContactMeta? customer,
         Dictionary<string, string> metadata,
-        string? channel) {
+        string? channel,
+        string? referenceNumber = null,
+        string? relationKey = null) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(caseTypeCode);
 
@@ -53,7 +58,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             groupId,
             customer,
             metadata,
-            string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.Customer : channel);
+            string.IsNullOrEmpty(channel) ? CasesCoreConstants.Channels.External : channel,
+            referenceNumber: referenceNumber,
+            relationKey: relationKey);
 
         return new CreateCaseResponse {
             Id = entity.Id,
@@ -109,46 +116,59 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // the customer should be able to see only cases that have been created from him/herself!
-        if (@case.Channel == CasesCoreConstants.Channels.Agent) {
+        if (CasesCoreConstants.Channels.Normalize(@case.Channel) == CasesCoreConstants.Channels.Managed) {
             throw new BusinessException("Case not found.");
         }
+
+        await PopulateAttachmentData(@case.Attachments);
 
         @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
 
+    /// <summary>We do not return draft cases as a default behaviour either when</summary>
+    /// <remarks>Change this constant to true if you want to include draft cases by default</remarks>
+    private const bool DEFAULT_INCLUDE_DRAFTS = false; // We do not return draft cases as a default behaviour;
+
     public async Task<ResultSet<MyCasePartial>> GetCases(UserActor user, ListOptions<GetMyCasesListFilter> options) {
-        
+
+        var filter = options.Filter;
+        var includeData = filter is not null && filter.IncludeData == true;
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == user.Id || p.Owner.UserId == user.Id) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
-            .Where(options.Filter.Metadata!);
+            .Where(p => (p.CreatedBy.Id == user.Id || p.Owner.UserId == user.Id) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted);
+        dbCaseQueryable = WhereMetadata(dbCaseQueryable, filter?.Metadata);
 
-        // We do not return draft cases as a default behaviour either when
         // IncludeDrafts does not have value or IncludeDrafts is false.
         // If IncludeDrafts is true we return both draft and non draft cases
-        //
-        // TODO: as an alternative we can return (however this will result in breaking changes)
-        // * both draft and non draft cases if IncludeDrafts is null
-        // * only non draft cases if IncludeDrafts is false
-        // * only drafts cases if IncludeDrafts is true
-        if (!options.Filter.IncludeDrafts.HasValue || !options.Filter.IncludeDrafts.Value) {
+
+        bool includeDrafts = DEFAULT_INCLUDE_DRAFTS; // Start with the default behaviour;
+        if (filter?.IncludeDrafts is bool includeDraftsFilter) {
+            includeDrafts = includeDraftsFilter; // override the default behaviour if IncludeDrafts has value
+        }
+        if (!includeDrafts) {   // apply the filter to exclude drafts when IncludeDrafts is not true
             dbCaseQueryable = dbCaseQueryable.Where(p => !p.Draft);
         }
 
-        foreach (var tag in options.Filter?.CaseTypeTags ?? []) {
+        foreach (var tag in filter?.CaseTypeTags ?? []) {
             // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
         }
 
-        // filter ReferenceNumbers
-        if (options.Filter?.ReferenceNumbers is { Length: > 0 }) {
-            dbCaseQueryable = dbCaseQueryable.Where(dbCase => dbCase.ReferenceNumber.HasValue && options.Filter.ReferenceNumbers.Contains(dbCase.ReferenceNumber.Value));
+        // filter by Reference Number
+        if (filter?.ReferenceNumbers is { Length: > 0 } referenceNumbers) {
+            var expressions = referenceNumbers.Select<string, Expression<Func<DbCase, bool>>>(referenceNumber => c => c.ReferenceNumber == referenceNumber);
+            // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
+            var aggregatedExpression = expressions.Aggregate((expression, next) => {
+                var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
+            });
+            dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
         }
 
         // filter Statuses
-        if (options.Filter?.Statuses is { Length: > 0 }) {
-            var expressions = options.Filter.Statuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Status == status));
+        if (filter?.Statuses is { Length: > 0 } statuses) {
+            var expressions = statuses.Select<CaseStatus, Expression<Func<DbCase, bool>>>(status => c => c.PublicCheckpoint.CheckpointType.Status == status);
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Status == status1 OR == status2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
                 var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
@@ -158,25 +178,25 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter CreatedFrom
-        if (options.Filter?.CreatedFrom != null) {
-            dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When >= options.Filter.CreatedFrom);
+        if (filter?.CreatedFrom is DateTimeOffset createdFrom) {
+            dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When >= createdFrom);
         }
         // filter CreatedTo
-        if (options.Filter?.CreatedTo != null) {
-            dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When < options.Filter.CreatedTo.Value.AddDays(1));
+        if (filter?.CreatedTo is DateTimeOffset createdTo) {
+            dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When < createdTo.AddDays(1));
         }
         // filter CompletedFrom
-        if (options.Filter?.CompletedFrom != null) {
-            dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When >= options.Filter.CompletedFrom);
+        if (filter?.CompletedFrom is DateTimeOffset completedFrom) {
+            dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When >= completedFrom);
         }
         // filter CompletedTo
-        if (options.Filter?.CompletedTo != null) {
-            dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When < options.Filter.CompletedTo.Value.AddDays(1));
+        if (filter?.CompletedTo is DateTimeOffset completedTo) {
+            dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When < completedTo.AddDays(1));
         }
 
         // filter by Checkpoint Code
-        if (options.Filter?.Checkpoints is { Length: > 0 }) {
-            var expressions = options.Filter.Checkpoints.Select(checkpoints => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Code == checkpoints));
+        if (filter?.Checkpoints is { Length: > 0 } checkpoints) {
+            var expressions = checkpoints.Select<string, Expression<Func<DbCase, bool>>>(checkpoint => c => c.PublicCheckpoint.CheckpointType.Code == checkpoint);
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
                 var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
@@ -186,8 +206,19 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter CaseTypeCodes
-        if (options.Filter?.CaseTypeCodes is { Length: > 0 }) {
-            dbCaseQueryable = dbCaseQueryable.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
+        if (filter?.CaseTypeCodes is { Length: > 0 } caseTypeCodes) {
+            dbCaseQueryable = dbCaseQueryable.Where(c => caseTypeCodes.Contains(c.CaseType.Code));
+        }
+        var term = options.Search?.Trim().ToLower();
+        if (!string.IsNullOrWhiteSpace(term) && term.Length > 2) {
+            if (Guid.TryParse(term, out var guidTerm)) {
+                dbCaseQueryable = dbCaseQueryable.Where(x => x.Id == guidTerm);
+            } else {
+                dbCaseQueryable = dbCaseQueryable.Where(x => (x.Owner.FullName != null && EF.Functions.Like(x.Owner.FullName.ToLower(), $"%{term}%")) ||
+                                         (x.Owner.UserId != null && EF.Functions.Like(x.Owner.UserId.ToLower(), $"%{term}%")) ||
+                                         (x.Owner.Tin != null && EF.Functions.Like(x.Owner.Tin.ToLower(), $"%{term}%")) ||
+                                         (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
+            }
         }
 
         var myCasePartialQueryable = from c in dbCaseQueryable
@@ -198,6 +229,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                      select new MyCasePartial {
                                          Id = c.Id,
                                          ReferenceNumber = c.ReferenceNumber,
+                                         RelationKey = c.RelationKey,
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
                                          CheckpointType = new CheckpointType {
@@ -210,14 +242,14 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          Metadata = c.Metadata,
                                          Message = reasonMessage,
                                          Translations = c.CaseType.Translations,
-                                         Data = options.Filter!.IncludeData == true ? c.Data.Data : null
+                                         Data = includeData ? c.Data.Data : null
                                      };
         // sorting option
         if (string.IsNullOrEmpty(options.Sort)) {
             options.Sort = $"{nameof(MyCasePartial.Created)}-";
         }
 
-        if (options.Filter?.Data != null) {
+        if (filter?.Data != null) {
             // Execute the query with all the previous "my cases" filters and 
             // select the case Ids
             var caseIds = await dbCaseQueryable.Select(x => x.Id).ToListAsync();
@@ -225,7 +257,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             // For those Ids, execute a second query to filter the cases by caseData json filter
             var caseData = await DbContext.CaseData
                 .AsNoTracking()
-                .Where(options.Filter.Data)
+                .Where(filter.Data)
                 .Where(x => caseIds.Contains(x.CaseId))
                 .Select(x => x.CaseId)
                 .ToListAsync();

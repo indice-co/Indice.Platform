@@ -2,7 +2,7 @@ import { DataService } from './data.service';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { CasesApiService, LookupItemResultSet } from './cases-api.service';
-import { FilterClause } from '@indice/ng-components';
+import { FilterClause } from 'src/app/ui/list/filter-clause';
 
 @Injectable({
     providedIn: 'root'

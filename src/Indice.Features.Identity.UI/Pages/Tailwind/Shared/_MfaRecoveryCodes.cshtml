@@ -1,0 +1,47 @@
+@using Indice.Features.Identity.Core.Models
+@inject IdentityUILocalizer Localizer
+@model BaseMfaModel
+
+<form id="mfa-form"
+      asp-page="/Mfa"
+      asp-page-handler="RecoveryCode"
+      asp-route-returnUrl="@Model.Input.ReturnUrl"
+      method="post"
+      class="space-y-6">
+    <input type="hidden" asp-for="Input.ReturnUrl" />
+    <input type="hidden" asp-for="Input.DeviceId" />
+    <input type="hidden" asp-for="Input.SelectedAuthenticationMethodCode" value="@Model.View.AuthenticationMethod?.Code" />
+
+    <div id="panel-main" class="space-y-4">
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-4">
+            @Localizer.Mfa_EnterRecoveryCode
+        </div>
+        <div>
+            <label asp-for="Input.RecoveryCode" class="block text-sm font-medium text-gray-700">
+                @Localizer.Mfa_RecoveryCode
+            </label>
+            <input asp-for="Input.RecoveryCode"
+                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm
+            focus:ring-tenant-500 focus:border-tenant-500"
+                   placeholder="@Localizer.Mfa_RecoveryCode"
+                   autocomplete="off"
+                   autofocus />
+            <span asp-validation-for="Input.RecoveryCode" class="text-red-600 text-sm"></span>
+        </div>
+        <div class="flex items-center justify-end">
+            <button type="submit"
+                    class="py-2 px-4 bg-tenant-800 hover:bg-tenant-900 text-white font-semibold rounded-md">
+                @Localizer.Mfa_Authenticate
+            </button>
+        </div>
+        <div class="flex justify-center">
+            <button id="show-channels"
+                    type="button"
+                    class="text-tenant-600 hover:text-tenant-800 hover:underline font-medium">
+                @Localizer.Mfa_Other_Authentication_Methods
+            </button>
+        </div>
+    </div>
+
+    <partial name="_MfaChannelSelector" model="Model" />
+</form>

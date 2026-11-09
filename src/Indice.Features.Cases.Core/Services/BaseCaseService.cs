@@ -5,6 +5,7 @@ using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,10 +16,52 @@ internal abstract class BaseCaseService
 {
     protected CasesDbContext DbContext { get; }
     protected CasesOptions Options { get; }
+    /// <summary>The optional file service used to store the attachment binary data. When null the data are stored in the database.</summary>
+    protected IFileService? FileService { get; }
 
-    protected BaseCaseService(CasesDbContext dbContext, IOptions<CasesOptions> options) {
+    protected BaseCaseService(CasesDbContext dbContext, IOptions<CasesOptions> options, IFileService? fileService = null) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         Options = options.Value;
+        FileService = fileService;
+    }
+
+    /// <summary>Gets the binary data of an attachment either from the database or from the configured file service.</summary>
+    /// <param name="guid">The <see cref="DbAttachment.Guid"/>.</param>
+    /// <param name="fileExtension">The <see cref="DbAttachment.FileExtension"/>.</param>
+    /// <param name="data">The <see cref="DbAttachment.Data"/> as stored in the database.</param>
+    protected async Task<byte[]?> GetAttachmentData(Guid guid, string? fileExtension, byte[]? data) {
+        if (data is not null || FileService is null) {
+            return data;
+        }
+        try {
+            return await FileService.GetAsync(DbAttachment.GetPath(guid, fileExtension));
+        } catch (FileNotFoundServiceException) {
+            return null;
+        }
+    }
+
+    /// <summary>Populates the binary data of the given attachments from the configured file service, for those not stored in the database.</summary>
+    /// <param name="attachments">The attachments to populate.</param>
+    protected async Task PopulateAttachmentData(IEnumerable<CaseAttachment>? attachments) {
+        if (FileService is null || attachments is null) {
+            return;
+        }
+        var missing = attachments.Where(x => x.Data is null).ToList();
+        if (missing.Count == 0) {
+            return;
+        }
+        var ids = missing.Select(x => x.Id).ToList();
+        var guids = await DbContext.Attachments
+            .AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .Select(x => new { x.Id, x.Guid })
+            .ToDictionaryAsync(x => x.Id, x => x.Guid);
+        var attachmentsWithGuid = missing
+            .Select(attachment => new { attachment, found = guids.TryGetValue(attachment.Id, out var guid), guid })
+            .Where(x => x.found);
+        foreach (var item in attachmentsWithGuid) {
+            item.attachment.Data = await GetAttachmentData(item.guid, item.attachment.FileExtension, null);
+        }
     }
 
     protected async Task<DbCaseType?> GetCaseTypeInternal(string caseTypeCode) {
@@ -56,6 +99,7 @@ internal abstract class BaseCaseService
             select new Case {
                 Id = c.Id,
                 ReferenceNumber = c.ReferenceNumber,
+                RelationKey = c.RelationKey,
                 CheckpointType = new CheckpointType {
                     Id = publicData ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
                     Status = publicData ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
@@ -134,6 +178,8 @@ internal abstract class BaseCaseService
     /// <param name="metadata">The metadata the case might have.</param>
     /// <param name="channel">The channel the case was created from.</param>
     /// <param name="assignee">The assigned of the case (optional).</param>
+    /// <param name="referenceNumber">The reference number of the case</param>
+    /// <param name="relationKey">The key that correlates the case with other cases. Falls back to the <c>ExternalCorrelationKey</c> metadata entry.</param>
     /// <returns></returns>
     protected async Task<DbCase> CreateDraftInternal(
         ICaseMessageService caseMessageService,
@@ -143,7 +189,9 @@ internal abstract class BaseCaseService
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
-        UserActor? assignee = null) {
+        UserActor? assignee = null,
+        string? referenceNumber = null,
+        string? relationKey = null) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
         if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));
@@ -160,12 +208,14 @@ internal abstract class BaseCaseService
             Metadata = metadata,
             Draft = true,
             Channel = channel,
-            AssignedTo = assignee == null ? null : AuditMeta.Create(assignee)
+            AssignedTo = assignee == null ? null : AuditMeta.Create(assignee),
+            ReferenceNumber = referenceNumber
         };
+        SetRelationKey(entity, relationKey);
 
         // If enabled get a new reference number from the sequence.
-        if (Options.ReferenceNumberEnabled) {
-            entity.ReferenceNumber = await DbContext.GetNextReferenceNumber();
+        if (Options.ReferenceNumberEnabled && string.IsNullOrWhiteSpace(referenceNumber)) {
+            entity.ReferenceNumber = (await DbContext.GetNextReferenceNumber()).ToString();
         }
 
         // Create entity
@@ -176,4 +226,56 @@ internal abstract class BaseCaseService
         await caseMessageService.Send(entity.Id, user, new Message { CheckpointTypeName = "Submitted" });
         return entity;
     }
+
+    /// <summary>
+    /// Sets the relation key of the case and its <c>ExternalCorrelationKey</c> metadata entry to the same value.
+    /// <paramref name="value"/> wins; when it is empty the metadata entry is used.
+    /// </summary>
+    /// <param name="case">The case to update.</param>
+    /// <param name="value">The relation key.</param>
+    protected static void SetRelationKey(DbCase @case, string? value) {
+        const string key = CasesCoreConstants.MetadataKeys.ExternalCorrelationKey;
+        if (string.IsNullOrWhiteSpace(value)) {
+            value = @case.Metadata?.GetValueOrDefault(key);
+        }
+        @case.RelationKey = string.IsNullOrWhiteSpace(value) ? null : value;
+        if (@case.RelationKey is not null) {
+            @case.Metadata ??= [];
+            @case.Metadata[key] = @case.RelationKey;
+        }
+    }
+
+    /// <summary>
+    /// Filters the cases on their metadata. The relation key column answers the <c>metadata.ExternalCorrelationKey</c> clauses,
+    /// for the clients that still filter it as metadata.
+    /// </summary>
+    /// <param name="query">The cases.</param>
+    /// <param name="metadata">The metadata clauses.</param>
+    protected static IQueryable<DbCase> WhereMetadata(IQueryable<DbCase> query, FilterClause[]? metadata) {
+        if (metadata is null || metadata.Length == 0) {
+            return query;
+        }
+        var keyClauses = metadata.Where(IsRelationKeyClause).ToArray();
+        return WhereRelationKey(query.Where(metadata.Where(clause => !IsRelationKeyClause(clause))), keyClauses);
+    }
+
+    /// <summary>Filters the cases on their relation key.</summary>
+    /// <param name="query">The cases.</param>
+    /// <param name="clauses">The clauses. Supports the <c>eq</c>, <c>neq</c> and <c>contains</c> operators.</param>
+    protected static IQueryable<DbCase> WhereRelationKey(IQueryable<DbCase> query, FilterClause[]? clauses) {
+        foreach (var clause in clauses ?? []) {
+            var value = clause.Value;
+            query = clause.Operator switch {
+                FilterOperator.Eq => query.Where(c => c.RelationKey == value),
+                FilterOperator.Neq => query.Where(c => c.RelationKey != value),
+                FilterOperator.Contains => query.Where(c => c.RelationKey!.Contains(value)),
+                _ => query
+            };
+        }
+        return query;
+    }
+
+    private static bool IsRelationKeyClause(FilterClause clause) =>
+        string.Equals(clause.Member, $"metadata.{CasesCoreConstants.MetadataKeys.ExternalCorrelationKey}", StringComparison.OrdinalIgnoreCase) &&
+        clause.Operator is FilterOperator.Eq or FilterOperator.Neq or FilterOperator.Contains;
 }

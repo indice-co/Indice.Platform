@@ -9,8 +9,8 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminReportsHandlers
 {
-    public static async Task<Ok<List<GroupByReportResult>>> GetCaseReport(ReportTag reportTag, IAdminReportService adminReportService, 
-        ClaimsPrincipal currentUser, 
+    public static async Task<Ok<List<GroupByReportResult>>> GetCaseReport(ReportTag reportTag, string? channel, IAdminReportService adminReportService,
+        ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) =>
-        TypedResults.Ok(await adminReportService.GenerateReport(currentUser.UserToActor(casesOptions.Value), reportTag));
+        TypedResults.Ok(await adminReportService.GenerateReport(currentUser.UserToActor(casesOptions.Value), reportTag, channel));
 }

@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 public class UserHandlersTests : IAsyncLifetime
@@ -55,7 +54,7 @@ public class UserHandlersTests : IAsyncLifetime
 
         //seed database
         identityDbContext.Roles.Add(new Role("Developer") { NormalizedName = "DEVELOPER" });
-        await identityDbContext.SaveChangesAsync();
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // execute
         _ = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
@@ -83,7 +82,7 @@ public class UserHandlersTests : IAsyncLifetime
 
         //seed database
         identityDbContext.Roles.Add(new Role("Developer") { NormalizedName = "DEVELOPER" });
-        await identityDbContext.SaveChangesAsync();
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // execute
         _ = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
@@ -108,6 +107,25 @@ public class UserHandlersTests : IAsyncLifetime
         // execute
         _ = await UserHandlers.GetUsers(identityDbContext, options, filter, ["locale", "customer_code"]);
         Assert.True(true);
+    }
+
+    [Fact]
+    public async Task GetUsers_FiltersByAdmin_Test() {
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        foreach (var (name, admin) in new[] { ("admin.user@indice.gr", true), ("plain.user@indice.gr", false) }) {
+            identityDbContext.Users.Add(new User(name) { Email = name, NormalizedUserName = name.ToUpperInvariant(), NormalizedEmail = name.ToUpperInvariant(), Admin = admin });
+        }
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var options = new ListOptions { Page = 1, Size = 10 };
+
+        var admins = await UserHandlers.GetUsers(identityDbContext, options, new UserListFilter { Admin = true }, null);
+        var others = await UserHandlers.GetUsers(identityDbContext, options, new UserListFilter { Admin = false }, null);
+
+        var adminItems = Assert.IsType<Ok<ResultSet<UserInfo>>>(admins.Result).Value!.Items;
+        var otherItems = Assert.IsType<Ok<ResultSet<UserInfo>>>(others.Result).Value!.Items;
+        Assert.Equal("admin.user@indice.gr", Assert.Single(adminItems).UserName);
+        Assert.True(adminItems[0].IsAdmin);
+        Assert.Equal("plain.user@indice.gr", Assert.Single(otherItems).UserName);
     }
 
 
@@ -151,12 +169,12 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.NotNull(jwk);
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         await dbContext.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         await dbContext.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();
@@ -182,7 +200,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
         Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
@@ -197,9 +215,10 @@ public class UserHandlersTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.Null(updatedUser.PhoneNumber);
     }
@@ -224,7 +243,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user2@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user2@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
         Assert.NotNull(createdUser.PhoneNumber); // Ensure it starts with a phone number
 
@@ -235,9 +254,10 @@ public class UserHandlersTests : IAsyncLifetime
             PhoneNumber = "   ",
             PhoneNumberConfirmed = false
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was cleared
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.Null(updatedUser.PhoneNumber);
     }
@@ -261,7 +281,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user3@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user3@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
 
         // Update user with invalid phone number
@@ -295,7 +315,7 @@ public class UserHandlersTests : IAsyncLifetime
             ],
         });
 
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user4@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user4@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(createdUser);
 
         // Update user with valid phone number that has surrounding whitespace
@@ -304,9 +324,10 @@ public class UserHandlersTests : IAsyncLifetime
             Email = "test.user4@indice.gr",
             PhoneNumber = "  +306912345678  "
         });
+        Assert.IsType<Ok<SingleUserInfo>>(result.Result);
 
         // Verify phone number was formatted and stored
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.NotNull(updatedUser.PhoneNumber);
         Assert.Equal(PhoneNumber.Parse("+306912345678").ToString(), updatedUser.PhoneNumber); // Should be trimmed/formatted
@@ -337,7 +358,7 @@ public class UserHandlersTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
         });
-        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user5@indice.gr");
+        var createdUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Email == "test.user5@indice.gr", cancellationToken: TestContext.Current.CancellationToken);
         var orgiginalPasswordHash = createdUser?.PasswordHash;
         Assert.NotNull(createdUser);
 
@@ -346,13 +367,13 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.IsType<NoContent>(result.Result);
 
         // Verify the user has null password hash stored in database
-        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id);
+        var updatedUser = await identityDbContext.Users.FirstOrDefaultAsync(u => u.Id == createdUser.Id, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.Null(updatedUser.PasswordHash);
 
         // check password history after removal
         if (configuration.GetIdentityOption<int?>("Password", "PasswordHistoryLimit").GetValueOrDefault() > 0) {
-            bool isOriginalPasswordInHistory = await identityDbContext.UserPasswordHistory.AnyAsync(u => u.UserId == createdUser.Id && u.PasswordHash == orgiginalPasswordHash);
+            bool isOriginalPasswordInHistory = await identityDbContext.UserPasswordHistory.AnyAsync(u => u.UserId == createdUser.Id && u.PasswordHash == orgiginalPasswordHash, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(isOriginalPasswordInHistory, "Password removed should be in userPassword history");
         }
 
@@ -373,6 +394,64 @@ public class UserHandlersTests : IAsyncLifetime
         // Verify that trying to remove password for self returns bad request since user cannot remove his own password.
         var selfRemovePasswordResult = await UserHandlers.RemovePassword(userManager, self, updatedUser.Id);
         Assert.IsType<ValidationProblem>(selfRemovePasswordResult.Result);
+    }
+
+    [Fact]
+    public async Task GeneratePassword_ShouldSatisfyConfiguredPasswordRules_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var identityDbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
+        await UserHandlers.CreateUser(userManager, identityDbContext, new CreateUserRequest {
+            UserName = "test.user6@indice.gr",
+            Email = "test.user6@indice.gr",
+            Password = "password",
+            BypassPasswordValidation = true,
+            FirstName = "Test",
+            LastName = "User",
+            Claims = [
+                new() { Type = "customer_code", Value = "000001" },
+                new() { Type = "locale", Value = "el" }
+            ]
+        });
+        var user = await identityDbContext.Users.SingleAsync(u => u.Email == "test.user6@indice.gr", TestContext.Current.CancellationToken);
+        var options = userManager.Options.Password;
+        var passwords = new HashSet<string>();
+        for (var i = 0; i < 20; i++) {
+            var result = await UserHandlers.GeneratePassword(userManager, configuration, new GeneratePasswordRequest { UserId = i % 2 == 0 ? user.Id : null, UserName = "new.user@indice.gr" });
+            var password = Assert.IsType<Ok<GeneratedPasswordInfo>>(result.Result).Value!.Password;
+            Assert.True(password.Length >= Math.Max(16, options.RequiredLength));
+            Assert.Contains(password, char.IsLower);
+            Assert.Contains(password, char.IsUpper);
+            Assert.Contains(password, char.IsDigit);
+            Assert.Contains(password, c => "!#$%&*+-=?@^_".Contains(c));
+            foreach (var validator in userManager.PasswordValidators) {
+                Assert.True((await validator.ValidateAsync(userManager, user, password)).Succeeded);
+            }
+            passwords.Add(password);
+        }
+        Assert.Equal(20, passwords.Count);
+    }
+
+    [Fact]
+    public async Task GeneratePassword_ShouldOnlyUseAllowedSpecialCharacters_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
+            ["IdentityOptions:Password:AllowedCharacters"] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.~"
+        }).Build();
+        for (var i = 0; i < 20; i++) {
+            var result = await UserHandlers.GeneratePassword(userManager, configuration, null);
+            var password = Assert.IsType<Ok<GeneratedPasswordInfo>>(result.Result).Value!.Password;
+            Assert.All(password, c => Assert.True(char.IsAsciiLetterOrDigit(c) || c is '.' or '~', $"Unexpected character '{c}' in '{password}'."));
+            Assert.Contains(password, c => c is '.' or '~');
+        }
+    }
+
+    [Fact]
+    public async Task GeneratePassword_UnknownUser_ShouldReturnNotFound_Test() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
+        var result = await UserHandlers.GeneratePassword(userManager, configuration, new GeneratePasswordRequest { UserId = Guid.NewGuid().ToString() });
+        Assert.IsType<NotFound>(result.Result);
     }
 
     public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>

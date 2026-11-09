@@ -1,9 +1,8 @@
 ﻿using Indice.AspNetCore.Features.SignalRProxy;
-using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 
-using Microsoft.Extensions.Hosting;
+namespace Microsoft.Extensions.Hosting;
 
 /// <summary>
 /// Service registration extensions for SignalR endpoints.

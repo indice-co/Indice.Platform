@@ -109,15 +109,13 @@ internal static class ClientHandlers
                     clientScope => clientScope.Scope,
                     apiScope => apiScope.Scope,
                     (clientScope, apiScope) => apiScope.Scope
-                )
-                .Select(x => x),
+                ),
                 IdentityResources = x.AllowedScopes.Join(
                     configurationDbContext.IdentityResources,
                     clientScope => clientScope.Scope,
                     identityResource => identityResource.Name,
                     (clientScope, identityResource) => identityResource.Name
-                )
-                .Select(x => x),
+                ),
                 Claims = x.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.Type,
@@ -366,6 +364,12 @@ internal static class ClientHandlers
             ClientId = client.Id
         };
         client.AllowedGrantTypes = [grantTypeToAdd];
+#if NET9_0_OR_GREATER
+        if (IdSrvModels.GrantType.ClientCredentials.Equals(grantTypeToAdd.GrantType, StringComparison.OrdinalIgnoreCase)) {
+            // ensure that client has secret if client credentials grant type is added
+            client.RequireClientSecret = true;
+        }
+#endif
         await configurationDbContext.SaveChangesAsync();
         await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new GrantTypeInfo {
@@ -537,6 +541,9 @@ internal static class ClientHandlers
         var client = await configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
+        }
+        if (client.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(clientId), "Cannot delete a reserved client."));
         }
         configurationDbContext.Clients.Remove(client);
         await configurationDbContext.SaveChangesAsync();

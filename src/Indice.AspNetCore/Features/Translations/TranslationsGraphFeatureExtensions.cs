@@ -25,7 +25,8 @@ public static class TranslationsGraphFeatureExtensions
     /// <returns>The service collection for further configuration</returns>
     public static IServiceCollection AddTranslationGraph(this IServiceCollection services, Action<TranslationsGraphOptions>? configureAction = null) {
         services.AddLocalization();
-        services.Configure<RouteOptions>(options => options.ConstraintMap.Add("culture", typeof(CultureRouteConstraint)));
+        // several features (e.g. identity, messages, cases) may register their translations in the same host
+        services.Configure<RouteOptions>(options => options.ConstraintMap.TryAdd("culture", typeof(CultureRouteConstraint)));
         var options = new TranslationsGraphOptions();
         configureAction?.Invoke(options);
         services.Configure<TranslationsGraphOptions>((o) => {
@@ -36,6 +37,25 @@ public static class TranslationsGraphFeatureExtensions
             o.ExcludeFromDescription = options.ExcludeFromDescription;
             o.ConfigureCachePolicy = options.ConfigureCachePolicy;
             o.AvailableLanguagesRoutePattern = options.AvailableLanguagesRoutePattern;
+        });
+        return services;
+    }
+
+    /// <summary>
+    /// Adds translation resources. Used when we want to add translation endpoints with the
+    /// default configuration without the need to configure options.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="resourceName">A dot-delimited path to the folder containing the Resx file with the translation key-values. For example <strong>Resources.UiTranslations</strong>.</param>
+    /// <param name="endpointRoutePattern">The route pattern for the translation endpoint.</param>
+    /// <param name="resourceLocation">The assembly name containing the translation Resx files as embedded resources.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddTranslationsResource(this IServiceCollection services, string resourceName, string? endpointRoutePattern, string? resourceLocation) {
+        if(string.IsNullOrWhiteSpace(resourceName)) {
+            throw new ArgumentException("Resource name must be provided", nameof(resourceName));
+        }
+        services.Configure<TranslationsGraphOptions>(options => {
+            options.AddResource(resourceName, endpointRoutePattern, resourceLocation);
         });
         return services;
     }

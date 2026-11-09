@@ -1,4 +1,11 @@
-<svg viewBox="0 0 32 32" fill="currentColor" width="32" height="32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <path opacity="0.2" d="M28 7v5H4V7a1 1 0 0 1 1-1h22a1 1 0 0 1 1 1z" />
-    <path d="M27 5H5a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h22a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zM27 7v4H5V7zM27 25H5V13h22z" />
+<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2.5" y="5" width="27" height="22" rx="3" fill="#64748b" />
+    <rect x="4.5" y="11" width="23" height="14" rx="1.5" fill="#f1f5f9" />
+    <circle cx="6.5" cy="8" r="1.1" fill="#f87171" />
+    <circle cx="9.5" cy="8" r="1.1" fill="#fbbf24" />
+    <circle cx="12.5" cy="8" r="1.1" fill="#34d399" />
+    <rect x="15" y="7" width="12" height="2" rx="1" fill="#cbd5e1" />
+    <rect x="7" y="14" width="10" height="2" rx="1" fill="#3b82f6" />
+    <rect x="7" y="18" width="18" height="1.5" rx=".75" fill="#94a3b8" />
+    <rect x="7" y="21" width="13" height="1.5" rx=".75" fill="#94a3b8" />
 </svg>

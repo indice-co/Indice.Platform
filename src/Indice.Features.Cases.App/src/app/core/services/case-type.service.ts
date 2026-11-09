@@ -1,8 +1,9 @@
 import { DataService } from './data.service';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet, CheckpointType } from './cases-api.service';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,15 +11,22 @@ import { map } from 'rxjs/operators';
 export class CaseTypeService extends DataService {
   private readonly key: string = 'caseTypeCacheKey';
   private readonly checkCreationKey: string = 'checkCreationKey';
-  private readonly distinctCheckpointsKey: string = 'distinctCheckpointsKey';
 
   constructor(
-    private _api: CasesApiService) {
+    private _api: CasesApiService,
+    translate: TranslateService) {
     super();
+    // case types are translated by the server, so cached ones are stale once the language changes
+    translate.onLangChange.subscribe(() => this.invalidateCaseTypes());
   }
 
   public getCaseTypes(): Observable<CaseTypePartialResultSet> {
     return this.getDataFromCacheOrHttp(this.key, this._api.getCaseTypesList());
+  }
+
+  public invalidateCaseTypes(): void {
+    this.removeDataFromCache(this.key);
+    this.removeDataFromCache(this.checkCreationKey);
   }
 
   public getCaseType(code: string): Observable<CaseTypePartial | undefined> {
@@ -47,8 +55,28 @@ export class CaseTypeService extends DataService {
     return this.getDataFromCacheOrHttp(this.checkCreationKey, this._api.getCaseTypesList(true));
   }
 
-  public getDistinctCheckpointTypes():Observable<CheckpointType[]> {
-    return this.getDataFromCacheOrHttp(this.distinctCheckpointsKey, this._api.getDistinctCheckpointTypes());
+  public getCheckpointTypes(distinct = false): Observable<CheckpointType[]> {
+    if (distinct) {
+      return this._api.getCheckpointTypesList(undefined, undefined, undefined, undefined, undefined, true).pipe(
+        map(result => result.items ?? [])
+      );
+    }
+    const pageSize = 1000;
+    return this._api.getCheckpointTypesList(1, pageSize, 'caseTypeCode').pipe(
+      switchMap(result => {
+        const items = result.items ?? [];
+        const pageCount = Math.ceil((result.count ?? items.length) / pageSize);
+        if (pageCount <= 1) {
+          return of(items);
+        }
+        return forkJoin(Array.from(
+          { length: pageCount - 1 },
+          (_, index) => this._api.getCheckpointTypesList(index + 2, pageSize, 'caseTypeCode')
+        )).pipe(
+          map(pages => [...items, ...pages.flatMap(page => page.items ?? [])])
+        );
+      })
+    );
   }
 }
 

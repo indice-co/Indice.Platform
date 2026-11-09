@@ -1,189 +1,335 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ToasterService, ToastType } from '@indice/ng-components';
-import { iif, Observable, ReplaySubject, of } from 'rxjs';
-import { filter, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Component, DestroyRef, computed, inject, linkedSignal, signal, untracked } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { AuthService } from '@indice/ng-auth';
+import { Observable, Subscription, of } from 'rxjs';
+import { distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
+import {
+  LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
+} from '@lucide/angular';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial } from 'src/app/core/services/cases-api.service';
+import {
+  ActionRequest, Case, CaseActions, CasePartial, CaseStatus, CasesApiService, CustomCaseAction, TimelineEntry
+} from 'src/app/core/services/cases-api.service';
+import { ApprovalButtonsComponent } from 'src/app/shared/components/approval-buttons/approval-buttons.component';
+import { CaseCustomActionComponent, CustomActionEvent } from 'src/app/shared/components/case-custom-action/case-custom-action.component';
+import { CaseDetailInfoComponent, InfoEntry } from 'src/app/shared/components/case-detail-info/case-detail-info.component';
+import { ToastType, TranslatedToasterService } from 'src/app/shared/services/translated-toaster.service';
+import { DialogService } from 'src/app/ui/dialog/dialog.service';
+import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
+import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
+import { TABS } from 'src/app/ui/tabs/tabs';
+import { CaseAttachmentsComponent } from './case-attachments/case-attachments.component';
+import { CaseCommentComposerComponent } from './case-comment-composer/case-comment-composer.component';
+import { CaseDataVersionsComponent } from './case-data-versions/case-data-versions.component';
+import { CaseFormComponent } from './case-form/case-form.component';
+import { CasePrintPdfComponent } from './case-print-pdf/case-print-pdf.component';
+import { CaseTimelineComponent } from './case-timeline/case-timeline.component';
+import { RelatedCasesComponent } from './related-cases/related-cases.component';
 
 @Component({
-    selector: 'app-case-detail-page',
-    templateUrl: './case-detail-page.component.html',
-    standalone: false
+  selector: 'app-case-detail-page',
+  templateUrl: './case-detail-page.component.html',
+  imports: [
+    DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseAttachmentsComponent, CaseCommentComposerComponent, CaseCustomActionComponent,
+    CaseDataVersionsComponent, CaseDetailInfoComponent, CaseFormComponent,
+    CasePrintPdfComponent, CaseTimelineComponent, RelatedCasesComponent, EmptyStateComponent, TABS,
+    LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
+  ]
 })
-export class CaseDetailPageComponent implements OnInit, OnDestroy {
+export class CaseDetailPageComponent {
+  private readonly _api = inject(CasesApiService);
+  private readonly _caseDetailsService = inject(CaseDetailsService);
+  private readonly _router = inject(Router);
+  private readonly _toaster = inject(TranslatedToasterService);
+  private readonly _dialog = inject(DialogService);
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _auth = inject(AuthService);
+  private readonly _pane = inject(SidePaneService);
+  private _caseId = '';
+  private _modelSub?: Subscription;
+  private _actionsSub?: Subscription;
 
-  public model$: Observable<Case> | undefined;
+  protected readonly model = signal<Case | undefined>(undefined);
+  protected readonly caseActions = signal<CaseActions | undefined>(undefined);
+  protected readonly timelineEntries = signal<TimelineEntry[] | undefined>(undefined);
+  protected readonly loadFailed = signal(false);
 
-  private _caseActions: ReplaySubject<CaseActions> = new ReplaySubject(1);
-  public caseActions$ = this._caseActions.asObservable();
+  /** The side pane changes of the case (`CaseDetailsService.revision`) its last load already includes. */
+  private readonly _loadedRevision = computed(() => {
+    const caseId = this.model()?.id;
+    return untracked(() => this._caseDetailsService.revision(caseId));
+  });
+  /** The case again, once a side pane changed it after it loaded; idle otherwise. */
+  private readonly _changedCase = rxResource({
+    params: () => {
+      const caseId = this.model()?.id;
+      const revision = this._caseDetailsService.revision(caseId);
+      return caseId && revision !== this._loadedRevision() ? { caseId, revision } : undefined;
+    },
+    stream: ({ params }) => this._api.getCaseById(params.caseId)
+  });
+  /**
+   * The fields the side panes change, from the latest of the loaded case and its copy after a pane change. Only these are
+   * refreshed after a pane saves: reloading the whole case would rebuild the form and drop its unsaved edits.
+   */
+  protected readonly adminFields = linkedSignal({
+    source: () => ({ model: this.model(), changed: this._changedCase.hasValue() ? this._changedCase.value() : undefined }),
+    computation: ({ model, changed }, previous): AdminFields => {
+      if (changed) {
+        return adminFieldsOf(changed);
+      }
+      // a newer copy loads (another pane change): keep the current one until it arrives
+      return previous && model === previous.source.model ? previous.value : adminFieldsOf(model);
+    }
+  });
+  /** The case, its relation key and its pane changes; equal while all stay the same, so refreshing the case does not reload its related cases. */
+  private readonly _relation = computed(
+    () => {
+      const caseId = this.model()?.id;
+      return caseId
+        ? { caseId, relationKey: this.adminFields().relationKey, revision: this._caseDetailsService.revision(caseId) }
+        : undefined;
+    },
+    { equal: (a, b) => a?.caseId === b?.caseId && a?.relationKey === b?.relationKey && a?.revision === b?.revision }
+  );
+  private readonly _related = rxResource({
+    params: () => this._relation()?.relationKey ? this._relation() : undefined,
+    stream: ({ params }) => this._api.getRelatedCases(params.caseId)
+  });
+  /** The related cases, kept while they reload so the tab does not flash empty. */
+  protected readonly relatedCases = linkedSignal({
+    source: () => ({ relation: this._relation(), related: this._related.hasValue() ? this._related.value() : undefined }),
+    computation: ({ relation, related }, previous): CasePartial[] => relation?.relationKey ? related ?? previous?.value ?? [] : []
+  });
 
-  public timelineEntries$: Observable<TimelineEntry[]> | undefined;
+  protected readonly formValid = signal(false);
+  protected readonly formUnSavedChanges = signal(false);
+  /** Whether approving shows the "are you sure" warning dialog first. */
+  protected readonly showWarningModal = signal(false);
+  protected readonly assigning = signal(false);
 
-  public relatedCases$: Observable<CasePartial[]> | undefined;
+  protected readonly caseTypeConfig = computed<any>(() => this.model()?.caseType?.config ?? {});
+  protected readonly ready = computed(() => !!this.model() && !!this.caseActions());
 
-  public formValid: boolean = false;
-  public formUnSavedChanges: boolean = false;
+  protected readonly statusClass = computed(() => {
+    switch (this.model()?.checkpointType?.status) {
+      case CaseStatus.Submitted: return 'stamp-submitted';
+      case CaseStatus.InProgress: return 'stamp-inprogress';
+      case CaseStatus.Completed: return 'stamp-completed';
+      case CaseStatus.Deleted: return 'stamp-deleted';
+      default: return 'stamp-neutral';
+    }
+  });
 
-  private componentDestroy$ = new ReplaySubject<void>(1);
+  /** PDF download is allowed on the checkpoints configured by the case type, or else on in-progress / completed cases. */
+  protected readonly printEnabled = computed(() => {
+    const model = this.model();
+    const allowed: string[] | undefined = this.caseTypeConfig()?.checkpointsThatAllowDownload;
+    if (allowed) {
+      return allowed.includes(model?.checkpointType?.code ?? '');
+    }
+    const status = model?.checkpointType?.status;
+    return status === CaseStatus.Completed || status === CaseStatus.InProgress;
+  });
 
-  private caseId = '';
-  public customDataValid = true;
-  public showCustomDataValidation = false;
-  public now: Date = new Date();
-  public typeId?: string;
-  public caseTypeConfig: any;
-  public caseStatus = CaseStatus;
+  /** Custom actions without a description or input fit in the header; the rest get their own card. */
+  protected readonly headerActions = computed(() => (this.caseActions()?.customActions ?? []).filter(a => !a.description && !a.hasInput));
+  protected readonly panelActions = computed(() => (this.caseActions()?.customActions ?? []).filter(a => !!a.description || !!a.hasInput));
 
-  /** shows the warning modal conditionally */
-  public showWarningModal: boolean = false;
-  public warningModalState = { title: 'Έγκριση υπόθεσης', description: 'Δεν έχετε τυπώσει το PDF της υπόθεσης, θέλετε να προχωρήσετε στην έγκρισή της;' };
+  /** Administrators edit the case's relations and group. */
+  protected readonly canAdminister = this._auth.isAdmin() || this._auth.hasRole('CasesAdministrator');
 
-  constructor(
-    private api: CasesApiService,
-    private caseDetailsService: CaseDetailsService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private toaster: ToasterService) { }
+  /** Opens the relations side pane; administrators only. */
+  protected readonly relationsLink = computed(() => this.paneLink('case-relations'));
 
-  ngOnInit(): void {
-    this.route.params.pipe(
-      map(p => p.caseId),
-      tap(caseId => {
-        this.caseId = caseId;
+  protected readonly caseFacts = computed<InfoEntry[]>(() => {
+    const model = this.model();
+    const adminFields = this.adminFields();
+    return [
+      { key: 'caseDetails.caseId', value: model?.id, mono: true },
+      { key: 'caseDetails.referenceNumber', value: model?.referenceNumber?.toString(), mono: true },
+      { key: 'caseDetails.groupId', value: adminFields.groupId, mono: true, alwaysShow: this.canAdminister, editLink: this.paneLink('case-group') },
+      { key: 'caseDetails.relationKey', value: adminFields.relationKey, mono: true },
+      {
+        key: 'caseDetails.related.title', value: this.relatedCases().length.toString(), mono: true, alwaysShow: true,
+        editLink: this.relationsLink()
+      },
+      { key: 'caseDetails.caseType', value: model?.caseType?.title },
+      { key: 'caseDetails.checkpoint', value: model?.checkpointType?.title ?? model?.checkpointType?.code },
+      { key: 'caseDetails.channel', value: model?.channel }
+    ];
+  });
+
+  protected readonly customerInfo = computed<InfoEntry[]>(() => {
+    const model = this.model();
+    return [
+      { key: 'caseDetails.customerName', value: model?.ownerName },
+      { key: 'caseDetails.customerId', value: model?.ownerId, mono: true },
+      { key: 'caseDetails.taxId', value: model?.ownerTin, mono: true }
+    ];
+  });
+
+  protected readonly userInfo = computed<InfoEntry[] | null>(() => {
+    const metadata = this.model()?.metadata;
+    if (!metadata?.['UserRole']) {
+      return null;
+    }
+    return [
+      { key: 'caseDetails.userSurname', value: metadata['UserSurname'] },
+      { key: 'caseDetails.userFirstName', value: metadata['UserFirstName'] },
+      { key: 'caseDetails.userRole', value: metadata['UserRole'] },
+      { key: 'caseDetails.userCustomerId', value: metadata['UserCustomerId'], mono: true }
+    ];
+  });
+
+  constructor() {
+    inject(ActivatedRoute).paramMap
+      .pipe(map(p => p.get('caseId') ?? ''), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(caseId => {
+        this._caseId = caseId;
+        this.model.set(undefined);
+        this.caseActions.set(undefined);
+        this.relatedCases.set([]);
+        this.loadFailed.set(false);
         this.requestModel();
         this.getCaseActions();
         this.getTimeline();
-        this.getRelatedCases();
-      }),
-      takeUntil(this.componentDestroy$)
-    ).subscribe();
+      });
   }
 
-
-  ngOnDestroy(): void {
-    this.componentDestroy$.next();
-    this.componentDestroy$.complete();
-  }
-
-  public updateData(event: { draft: boolean }): void {
+  public updateData(): void {
     this.getCaseActionsAndThenRequestModel();
     this.getTimeline();
-    this.showWarningModal = this.caseTypeConfig?.boOptions?.showWarningModal === false ? false : true;
+    this.showWarningModal.set(this.caseTypeConfig()?.boOptions?.showWarningModal !== false);
   }
 
-  public isValid(event: boolean): void {
-    this.formValid = event;
-  }
-
-  public formDataHasChanged(event: boolean): void {
-    this.formUnSavedChanges = event;
-  }
-
-  public requestModel(): void {
-    this.model$ = this.api
-      .getCaseById(this.caseId)
-      .pipe(
-        switchMap(caseDetails =>
-          iif(
-            () => caseDetails.draft === true,
-            this.initializeData$(caseDetails), // In draft mode we must prefill the form data          
-            of(caseDetails)
-          )
-        ),
-        tap((response: Case) => {
-          this.caseTypeConfig = response.caseType?.config ? response.caseType?.config : {};
-          this.caseDetailsService.setCaseDetails(response);
-        }),
-        shareReplay(1),
-        takeUntil(this.componentDestroy$)
-      );
-  }
-
-  private initializeData$(caseDetails: Case): Observable<Case> {
-    return this.api
-      .initializeCaseData(caseDetails.id!)
-      .pipe(
-        map(contactData => {
-          caseDetails.data = contactData;
-          return caseDetails;
-        }));
-  }
-
-  onActionsChanged() {
+  public onActionsChanged(): void {
     this.getCaseActionsAndThenRequestModel();
     this.getTimeline();
   }
 
-  onCaseDiscarded() {
-    this.toaster.show(ToastType.Info, 'Ακύρωση υπόθεσης', 'Η υπόθεση έχει ακυρωθεί');
-    this.router.navigate(['/cases']);
+  protected assignToMe(): void {
+    this.assigning.set(true);
+    this._api.assignCase(this._caseId).subscribe({
+      next: () => {
+        this.assigning.set(false);
+        this.onActionsChanged();
+      },
+      error: () => this.assigning.set(false)
+    });
   }
 
-  /**
-   * Event for PDF print action,
-   * registers the state of the PDF print action
-   * @param printed
-   * @returns
-   */
-  onPdfButtonClicked(printed: boolean | undefined) {
+  protected discardDraft(): void {
+    this._dialog.confirm({
+      title: 'caseDetails.discardDraft.title',
+      message: 'caseDetails.discardDraft.confirm',
+      confirmLabel: 'caseDetails.discardDraft.title',
+      tone: 'danger'
+    })
+      .pipe(filter(Boolean), switchMap(() => this._api.deleteDraftCase(this._caseId)))
+      .subscribe(() => {
+        this._toaster.show(ToastType.Info, 'caseDetails.discardDraft.title', 'toasts.caseDiscarded.body');
+        this._router.navigate(['/cases']);
+      });
+  }
+
+  /** Registers whether the PDF was printed: approving after printing needs no extra warning. */
+  protected onPdfButtonClicked(printed: boolean | undefined): void {
     if (printed === undefined) {
       return;
     }
-    this.showWarningModal = this.caseTypeConfig?.boOptions?.showWarningModal === false ? false : !printed;
+    this.showWarningModal.set(this.caseTypeConfig()?.boOptions?.showWarningModal === false ? false : !printed);
   }
 
-  /**
-   * Trigger a blocking workflow activity by its Id.
-   * @param event The action Id to trigger the corresponding custom workflow action.
-   */
-  onCustomActionTrigger(event: { redirectToList: boolean | undefined, successMessage: SuccessMessage | undefined, id: string | undefined, value: string | undefined }) {
-    this.api.triggerAction(this.caseId, new ActionRequest({ id: event?.id, value: event?.value }))
-      .pipe(
-        tap(() => {
-          if (event.redirectToList) {
-            if (event.successMessage) {
-              this.toaster.show(ToastType.Info, event.successMessage.title, event.successMessage.body);
-            }
-            this.router.navigate(['/cases']);
-          } else {
-            this.onActionsChanged();
+  /** Triggers a blocking workflow activity by its id. */
+  protected onCustomActionTrigger(event: CustomActionEvent): void {
+    this._api.triggerAction(this._caseId, new ActionRequest({ id: event.id, value: event.value })).subscribe({
+      next: () => {
+        if (event.redirectToList) {
+          if (event.successMessage) {
+            this._toaster.show(ToastType.Info, event.successMessage.title, event.successMessage.body);
           }
-        })
-      )
-      .subscribe();
+          this._router.navigate(['/cases']);
+        } else {
+          this.onActionsChanged();
+        }
+      },
+      // reload the actions so the failed action's button is enabled again
+      error: () => this.onActionsChanged()
+    });
   }
 
-  private getCaseActions() {
-    this.api.getCaseActions(this.caseId)
+  protected trackAction(action: CustomCaseAction): string {
+    return action.id ?? action.label ?? '';
+  }
+
+  private requestModel(): void {
+    this._modelSub?.unsubscribe();
+    this._modelSub = this._api.getCaseById(this._caseId)
       .pipe(
-        tap(response => this._caseActions.next(response)),
-        takeUntil(this.componentDestroy$)
+        // drafts must be prefilled with the contact's data
+        switchMap(caseDetails => caseDetails.draft ? this.initializeData$(caseDetails) : of(caseDetails)),
+        takeUntilDestroyed(this._destroyRef)
       )
-      .subscribe();
+      .subscribe({
+        next: caseDetails => {
+          // set before the form renders: the JSON Forms renderers read the case channel from it
+          this._caseDetailsService.setCaseDetails(caseDetails);
+          this.model.set(caseDetails);
+        },
+        error: () => this.loadFailed.set(true)
+      });
   }
 
-  private getCaseActionsAndThenRequestModel() {
-    this.api.getCaseActions(this.caseId)
-      .pipe(
-        tap(response => {
-          this._caseActions.next(response);
-          this.requestModel();
-        }),
-        takeUntil(this.componentDestroy$)
-      )
-      .subscribe();
-  }
-
-  private getTimeline() {
-    this.timelineEntries$ = this.api.getCaseTimeline(this.caseId!);
-  }
-
-  private getRelatedCases(): void {
-    this.relatedCases$ = this.model$?.pipe(
-      filter(model => !!model.metadata && !!model.metadata['ExternalCorrelationKey']), // Check if ExternalCorrelationKey has value
-      switchMap(() => this.api.getRelatedCases(this.caseId)),
-      takeUntil(this.componentDestroy$)
+  private initializeData$(caseDetails: Case): Observable<Case> {
+    return this._api.initializeCaseData(caseDetails.id!).pipe(
+      map(contactData => {
+        caseDetails.data = contactData;
+        return caseDetails;
+      })
     );
   }
+
+  private getCaseActions(): void {
+    this._actionsSub?.unsubscribe();
+    this._actionsSub = this._api.getCaseActions(this._caseId)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({ next: actions => this.caseActions.set(actions), error: () => this.loadFailed.set(true) });
+  }
+
+  private getCaseActionsAndThenRequestModel(): void {
+    this._actionsSub?.unsubscribe();
+    this._actionsSub = this._api.getCaseActions(this._caseId)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe(actions => {
+        this.caseActions.set(actions);
+        this.requestModel();
+      });
+  }
+
+  protected getTimeline(): void {
+    this._api.getCaseTimeline(this._caseId)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe(entries => this.timelineEntries.set(entries));
+  }
+
+  /** Link commands opening a side pane on this case, for administrators; otherwise undefined. */
+  private paneLink(path: string): any[] | undefined {
+    const caseId = this.model()?.id;
+    return this.canAdminister && caseId ? this._pane.link(path, { caseId }) : undefined;
+  }
 }
+
+/** The fields of a case the side panes change. */
+interface AdminFields {
+  groupId?: string;
+  relationKey?: string;
+}
+
+function adminFieldsOf(model: Case | undefined): AdminFields {
+  return { groupId: model?.groupId, relationKey: model?.relationKey };
+}
+

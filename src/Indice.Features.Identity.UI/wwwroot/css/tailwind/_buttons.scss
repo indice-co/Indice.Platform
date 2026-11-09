@@ -22,7 +22,7 @@
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
 
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("./../img/idps/Microsoft.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Microsoft.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -31,7 +31,7 @@
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
 
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("./../img/idps/Facebook.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Facebook.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -39,7 +39,7 @@
 .idp-google {
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("./../img/idps/Google.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Google.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -47,7 +47,7 @@
 .idp-apple {
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("./../img/idps/Apple.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/Apple.svg")] bg-transparent;
         background-size: 24px;
     }
 }
@@ -57,7 +57,7 @@
     background-color: rgb(0, 51, 117);
     overflow:hidden;
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("./../img/idps/GovGr-Alternate.svg")] bg-transparent;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("../img/idps/GovGr-Alternate.svg")] bg-transparent;
         background-size: 80%;
     }
 }

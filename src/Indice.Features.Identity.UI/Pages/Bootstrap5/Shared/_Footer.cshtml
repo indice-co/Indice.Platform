@@ -19,7 +19,9 @@
     </div>
     <div class="links">
         <span class="software-verson">v@(version ?? "1.0.0")</span>
-        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer.Footer_Discovery</a>
+        <environment exclude="@UIOptions.Value.ProductionEnvironments">
+            <a href="~/.well-known/openid-configuration" target="_blank">@Localizer.Footer_Discovery</a>
+        </environment>
         <a asp-page="/Privacy" target="_blank">@Localizer.Footer_Privacy</a>
         <a asp-page="/Terms" target="_blank">@Localizer.Footer_Terms</a>
         <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer.Footer_Contact_us</a>

@@ -21,6 +21,7 @@ export const environment = {
   isTemplate: false,
   production: true,
   dashboardTags: '',
+  dashboardChannels: 'Managed,External',
   caseListColumns: '',
   caseListFilters: ''
 };

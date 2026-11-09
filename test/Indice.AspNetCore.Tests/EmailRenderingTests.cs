@@ -28,7 +28,7 @@ public class EmailRenderingTests
         if (!File.Exists(outputFilePath)) {
             throw new FileNotFoundException($"Output file '{outputFilePath}' does not exist");
         }
-        var expectedOutput = await File.ReadAllTextAsync(outputFilePath);
+        var expectedOutput = await File.ReadAllTextAsync(outputFilePath, TestContext.Current.CancellationToken);
         Assert.Equal(expectedOutput, output);
     }
 
@@ -46,7 +46,7 @@ public class EmailRenderingTests
         if (!File.Exists(outputFilePath)) {
             throw new FileNotFoundException($"Output file '{outputFilePath}' does not exist");
         }
-        var expectedOutput = await File.ReadAllTextAsync(outputFilePath);
+        var expectedOutput = await File.ReadAllTextAsync(outputFilePath, TestContext.Current.CancellationToken);
         Assert.Equal(expectedOutput, output);
     }
 
@@ -69,7 +69,7 @@ public class EmailRenderingTests
         if (!File.Exists(outputFilePath)) {
             throw new FileNotFoundException($"Output file '{outputFilePath}' does not exist");
         }
-        var expectedBody = await File.ReadAllTextAsync(outputFilePath);
+        var expectedBody = await File.ReadAllTextAsync(outputFilePath, TestContext.Current.CancellationToken);
         emailServiceMock.Verify(p => p.SendAsync(
             It.Is<string[]>(recipients => recipients[0] == "someone@indice.gr"),
             It.Is<string>(subject => subject == "Verification"),

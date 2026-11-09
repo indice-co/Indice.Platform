@@ -28,11 +28,14 @@ internal static class Mapper
             UpdatedAt = campaign.DistributionList.UpdatedAt,
             UpdatedBy = campaign.DistributionList.UpdatedBy,
             Id = campaign.DistributionList.Id,
-            Name = campaign.DistributionList.Name
+            Name = campaign.DistributionList.Name,
+            SystemGenerated = campaign.DistributionList.SystemGenerated,
+            ContactCount = campaign.DistributionList.ContactCount
         } : null,
         Id = campaign.Id,
         IsGlobal = campaign.IsGlobal,
         Published = campaign.Published,
+        RecipientCount = campaign.RecipientCount,
         IgnoreUserPreferences = campaign.IgnoreUserPreferences,
         Title = campaign.Title,
         Type = campaign.Type != null ? new MessageType {
@@ -97,10 +100,13 @@ internal static class Mapper
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,
             Id = campaign.DistributionList.Id,
-            Name = campaign.DistributionList.Name
+            Name = campaign.DistributionList.Name,
+            SystemGenerated = campaign.DistributionList.SystemGenerated,
+            ContactCount = campaign.DistributionList.ContactCount
         } : null,
         Id = campaign.Id,
         Published = campaign.Published,
+        RecipientCount = campaign.RecipientCount,
         IgnoreUserPreferences = campaign.IgnoreUserPreferences,
         IsGlobal = campaign.IsGlobal,
         Title = campaign.Title,

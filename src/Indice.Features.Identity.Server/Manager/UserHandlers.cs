@@ -6,6 +6,7 @@ using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Stores.Serialization;
+using Microsoft.AspNetCore.Mvc;
 #else
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -28,10 +29,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using Indice.Security;
+using Indice.Features.Identity.Core.Guards;
+using Indice.Services;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Routing;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -46,6 +52,27 @@ internal static class UserHandlers
         var query = dbContext.Users.AsNoTracking();
         if (filter != null) {
             query = query.Where(x => filter.ClaimType == null || x.Claims.Any(x => x.ClaimType == filter.ClaimType && x.ClaimValue == filter.ClaimValue));
+            if (filter.Blocked is bool blocked) {
+                query = query.Where(x => x.Blocked == blocked);
+            }
+            if (filter.LockedOut is bool lockedOut) {
+                var now = DateTimeOffset.UtcNow;
+                query = lockedOut
+                    ? query.Where(x => x.LockoutEnabled && x.LockoutEnd != null && x.LockoutEnd >= now)
+                    : query.Where(x => !x.LockoutEnabled || x.LockoutEnd == null || x.LockoutEnd < now);
+            }
+            if (filter.EmailConfirmed is bool emailConfirmed) {
+                query = query.Where(x => x.EmailConfirmed == emailConfirmed);
+            }
+            if (filter.PhoneNumberConfirmed is bool phoneNumberConfirmed) {
+                query = query.Where(x => x.PhoneNumberConfirmed == phoneNumberConfirmed);
+            }
+            if (filter.TwoFactorEnabled is bool twoFactorEnabled) {
+                query = query.Where(x => x.TwoFactorEnabled == twoFactorEnabled);
+            }
+            if (filter.Admin is bool admin) {
+                query = query.Where(x => x.Admin == admin);
+            }
         }
         // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
         var usersQuery =
@@ -259,6 +286,8 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
+        var previousUser = UserEventContext.InitializeFromUser(user);
+
         if (userManager.EmailAsUserName && !request.BypassEmailAsUserNamePolicy && request.UserName != request.Email) {
             var errors = ValidationErrors.AddError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
             return TypedResults.ValidationProblem(errors);
@@ -268,7 +297,7 @@ internal static class UserHandlers
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumber), "The provided phone number is not valid.");
             return TypedResults.ValidationProblem(errors);
         }
-        if(string.IsNullOrWhiteSpace(trimmedPhoneNumber) && request.PhoneNumberConfirmed) {
+        if (string.IsNullOrWhiteSpace(trimmedPhoneNumber) && request.PhoneNumberConfirmed) {
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumberConfirmed), "The phone number cannot be confirmed as it is not a valid phone number.");
             return TypedResults.ValidationProblem(errors);
         }
@@ -296,7 +325,9 @@ internal static class UserHandlers
                 });
             }
         }
-        var identityResult = await userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+
+        var userUpdateOptions = new ExtendedUserManager<User>.UserUpdateOptions(user, request.BypassEmailAsUserNamePolicy, previousUser);
+        var identityResult = await userManager.UpdateAsync(userUpdateOptions);
         if (!identityResult.Succeeded) {
             return TypedResults.ValidationProblem(identityResult.Errors.ToDictionary());
         }
@@ -310,6 +341,7 @@ internal static class UserHandlers
         return TypedResults.Ok(new SingleUserInfo {
             Id = userId,
             CreateDate = user.CreateDate,
+            LastSignInDate = user.LastSignInDate,
             Email = user.Email,
             EmailConfirmed = user.EmailConfirmed,
             LockoutEnabled = user.LockoutEnabled,
@@ -317,8 +349,13 @@ internal static class UserHandlers
             PhoneNumber = user.PhoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             TwoFactorEnabled = user.TwoFactorEnabled,
+            TwoFactorPolicy = user.TwoFactorPolicy,
+            AccessFailedCount = user.AccessFailedCount,
+            PasswordExpirationDate = user.PasswordExpirationDate,
+            PasswordExpirationPolicy = user.PasswordExpirationPolicy,
             UserName = user.UserName,
             Blocked = user.Blocked,
+            IsAdmin = user.Admin,
             Claims = user.Claims.Select(x => new ClaimInfo {
                 Id = x.Id,
                 Type = x.ClaimType,
@@ -345,7 +382,11 @@ internal static class UserHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResendConfirmationEmail(
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
+        HttpContext httpContext,
+        LinkGenerator linkGenerator,
         IPlatformEventService eventService,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        IEmailService emailService,
         string userId
     ) {
         var user = await dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
@@ -357,6 +398,24 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        await emailService.SendAsync(message => {
+            var builder = message
+                .To(user.Email!)
+                .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
+            if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
+                var data = new EmailChangeEmailModel {
+                    DisplayName = user.UserName,
+                    Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
+                    Token = token,
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmail", values: new { userId = user.Id, token, email = user.Email}),
+                    User = user
+                };
+                builder.UsingTemplate(endpointOptions.Value.Email.UpdateEmailTemplate)
+                       .WithData(data);
+            } else {
+                builder.WithBody(userManager.MessageDescriber.UpdateEmailMessageBody(user, token, null));
+            }
+        });
         await eventService.Publish(new UserRequestForEmailConfirmationEvent(UserEventContext.InitializeFromUser(user), token));
         return TypedResults.NoContent();
     }
@@ -621,6 +680,59 @@ internal static class UserHandlers
         return TypedResults.NoContent();
     }
 
+    internal static async Task<Ok<ResultSet<ServerSideSessionInfo>>> GetUserSessions(
+#if NET9_0_OR_GREATER
+        [FromServices]IServerSideSessionStore? sessionStore,
+#endif
+        string userId,
+        CancellationToken cancellationToken) {
+#if !NET9_0_OR_GREATER
+        return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
+#else
+        if (string.IsNullOrWhiteSpace(userId) || sessionStore is null) {
+            return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
+        }
+        var sessions = await sessionStore.GetSessionsAsync(new SessionFilter { SubjectId = userId }, cancellationToken);
+        return TypedResults.Ok(sessions.Select(x => new ServerSideSessionInfo {
+            Key = x.Key,
+            SessionId = x.SessionId,
+            SubjectId = x.SubjectId,
+            Scheme = x.Scheme,
+            DisplayName = x.DisplayName,
+            Created = x.Created,
+            Renewed = x.Renewed,
+            Expires = x.Expires,
+            Ticket = x.Ticket
+        }).ToResultSet());
+#endif
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemoveUserSession(
+#if NET9_0_OR_GREATER
+        [FromServices]ISessionManagementService? sessionManagement,
+        [FromServices]ExtendedUserManager<User> userManager,
+#endif
+        string userId,
+        string sessionId,
+        CancellationToken cancellationToken) {
+#if !NET9_0_OR_GREATER
+        return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
+#else
+        if (sessionManagement is null) {
+            return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
+        }
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        await sessionManagement.RemoveSessionsAsync(new RemoveSessionsContext {
+            SessionId = sessionId,
+            SubjectId = userId
+        }, cancellationToken);
+        return TypedResults.NoContent();
+#endif
+    }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SetUserBlock(
         ExtendedUserManager<User> userManager,
         IPersistedGrantService persistedGrantService,
@@ -670,7 +782,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
+        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), suppressNotification: request.SuppressNotification.GetValueOrDefault(), selfServicePasswordReset: false);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -678,6 +790,72 @@ internal static class UserHandlers
             await userManager.SetPasswordExpiredAsync(user, true);
         }
         return TypedResults.NoContent();
+    }
+
+    /// <summary>Special characters used by generated passwords: easy to read out and type, no quotes, slashes or spaces.</summary>
+    private const string GeneratedPasswordSpecialChars = "!#$%&*+-=?@^_";
+    private const int GeneratedPasswordMinLength = 16;
+    private const int GeneratedPasswordMaxAttempts = 10;
+
+    internal static async Task<Results<Ok<GeneratedPasswordInfo>, NotFound, ValidationProblem>> GeneratePassword(
+        ExtendedUserManager<User> userManager,
+        IConfiguration configuration,
+        GeneratePasswordRequest? request
+    ) {
+        User? user = null;
+        if (!string.IsNullOrWhiteSpace(request?.UserId)) {
+            user = await userManager.FindByIdAsync(request.UserId);
+            if (user == null) {
+                return TypedResults.NotFound();
+            }
+        }
+        user ??= new User { UserName = request?.UserName };
+        var options = userManager.Options.Password;
+        // Same setting the AllowedCharactersPasswordValidator reads; when present only its symbols may be used.
+        var allowedCharacters = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<string>("AllowedCharacters") ??
+                                configuration.GetSection(nameof(PasswordOptions)).GetValue<string>("AllowedCharacters");
+        var specialChars = string.IsNullOrEmpty(allowedCharacters)
+            ? GeneratedPasswordSpecialChars
+            : new string(allowedCharacters.Where(c => c < 128 && !char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c)).Distinct().ToArray());
+        var includeSpecial = options.RequireNonAlphanumeric || specialChars.Length > 0;
+        var length = Math.Min(256, Math.Max(GeneratedPasswordMinLength, Math.Max(options.RequiredLength, options.RequiredUniqueChars)));
+        using var generator = new PasswordGenerator.Password(includeLowercase: true, includeUppercase: true, includeNumeric: true, includeSpecial: false, passwordLength: length);
+        generator.ExcludeAmbiguous();
+        if (includeSpecial && specialChars.Length > 0) {
+            generator.IncludeSpecial(specialChars);
+        }
+        if (options.RequireLowercase) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Lowercase, 1);
+        }
+        if (options.RequireUppercase) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Uppercase, 1);
+        }
+        if (options.RequireDigit) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Numeric, 1);
+        }
+        if (options.RequireNonAlphanumeric && specialChars.Length > 0) {
+            generator.RequireAtLeast(PasswordGenerator.CharacterClass.Special, 1);
+        }
+        // The generator covers the composition rules; the configured validators (history, common passwords, allowed characters etc.) have the final say.
+        IEnumerable<IdentityError> errors = [];
+        for (var attempt = 0; attempt < GeneratedPasswordMaxAttempts; attempt++) {
+            if (!generator.TryNext(out var password) || string.IsNullOrEmpty(password)) {
+                break;
+            }
+            errors = [];
+            foreach (var validator in userManager.PasswordValidators) {
+                var result = await validator.ValidateAsync(userManager, user, password);
+                if (!result.Succeeded) {
+                    errors = errors.Concat(result.Errors);
+                }
+            }
+            if (!errors.Any()) {
+                return TypedResults.Ok(new GeneratedPasswordInfo { Password = password });
+            }
+        }
+        return TypedResults.ValidationProblem(errors.Any()
+            ? errors.ToDictionary()
+            : ValidationErrors.AddError("password", "A password that satisfies the configured password options could not be generated."));
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemovePassword(
@@ -697,6 +875,23 @@ internal static class UserHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
+        return TypedResults.NoContent();
+    }
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResetMfa(
+        ExtendedUserManager<User> userManager,
+        IPlatformEventService platformEvents,
+        ClaimsPrincipal currentUser,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.ResetTwoFactorAsync(user);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        await platformEvents.Publish(new ResetMfaEvent(UserEventContext.InitializeFromUser(user)));
         return TypedResults.NoContent();
     }
 
@@ -739,5 +934,22 @@ internal static class UserHandlers
         }
 
         return TypedResults.Ok(keys);
+    }
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ResetActionCounter(
+        IActionRateLimiter actionRateLimiter, 
+        IPlatformEventService platformEvents,
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        string userId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        if(!await actionRateLimiter.ResetActionCounterAsync(userId)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(userId), "Action counter reset failed."));
+        }
+        await platformEvents.Publish(new ResetActionCounterEvent(UserEventContext.InitializeFromUser(user)));
+        return TypedResults.NoContent();
     }
 }

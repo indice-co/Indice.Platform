@@ -27,7 +27,7 @@ public static class MediaApi
                            .WithHandledException<BusinessException>();
 
         var requiredScopes = options.Scope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         group.MapGet("/media-root/{*path}", MediaHandlers.DownloadFile)
              .WithName(nameof(MediaHandlers.DownloadFile))
@@ -72,6 +72,10 @@ public static class MediaApi
              .WithName(nameof(MediaHandlers.DeleteFile))
              .WithSummary("Deletes an existing file.")
              .ProducesProblem(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/media/discover", MediaHandlers.Discover)
+             .WithName(nameof(MediaHandlers.Discover))
+             .WithSummary("Discovers files in the system that are not tracked in the database and adds them to the media library. Limited to structure and metadata discovery.");
 
         return builder;
     }

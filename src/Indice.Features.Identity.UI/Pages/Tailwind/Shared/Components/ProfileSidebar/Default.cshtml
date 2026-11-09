@@ -3,9 +3,7 @@
 @model ProfileViewModel
 
 @{
-    ViewData["Title"] = Localizer.Profile_PageTitle;
-	var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-	var langSuffix = (lang == "el") ? ".el" : string.Empty;
+	ViewData["Title"] = Localizer.Profile_PageTitle;
 	var alert = TempData.Get<AlertModel>("Alert");
 }
 <div class="tab-panel"

@@ -1,7 +1,7 @@
 ﻿using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Server.Endpoints.Validators;
 
-namespace Indice.Features.Messages.Tests;
+namespace Indice.Features.Cases.Tests;
 
 public class AddAccessRuleRequestValidationTests
 {

@@ -61,7 +61,7 @@ public class MdTagHelper : TagHelper
                 md = $"Problem reading url {HRef}";
                 _logger.LogError(eventId: 0, exception: ex, message: md);
             }
-        } else if (Path == null && HRef == null) {
+        } else {
             var result = await output.GetChildContentAsync();
             // Get markdown from inner text.
             md = result.GetContent();

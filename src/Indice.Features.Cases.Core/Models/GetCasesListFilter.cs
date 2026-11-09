@@ -42,10 +42,14 @@ public class GetCasesListFilter
     public FilterClause[]? GroupIds { get; set; } = [];
 
     /// <summary>Construct filter clauses based on the metadata you are adding to the cases in your installation.</summary>
+    /// <remarks>Clauses on <c>metadata.ExternalCorrelationKey</c> are answered like <see cref="RelationKeys"/>.</remarks>
     public FilterClause[]? Metadata { get; set; } = [];
 
     /// <summary>The reference number of the case to filter.</summary>
     public FilterClause[]? ReferenceNumbers { get; set; } = [];
+
+    /// <summary>The relation key of the case to filter.</summary>
+    public FilterClause[]? RelationKeys { get; set; } = [];
 
     /// <summary>Construct filter clauses based on case data.</summary>
     public FilterClause[]? Data { get; set; } = [];

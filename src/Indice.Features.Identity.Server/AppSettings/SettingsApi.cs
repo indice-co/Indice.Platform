@@ -26,8 +26,7 @@ public static class SettingsApi
             )
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
-        group.WithOpenApi()
-             .AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
+        group.WithOpenApiSecurityRequirement("oauth2", options.ApiScope);
         // GET: /api/app-settings
         group.MapGet(string.Empty, SettingHandlers.GetSettings)
              .WithName(nameof(SettingHandlers.GetSettings))

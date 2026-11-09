@@ -69,5 +69,28 @@ public class HandlebarParsingTests
         var output = handlebars.Compile(template)(templateData);
         Assert.Equal(expected, output);
     }
+
+    private const string ConcatData = "{\"uiBaseUrl\":\"https://portal.example.gr?a=1&b=2\",\"propertyInfo\":{\"code\":\"PRP-001\",\"floor\":3,\"isNew\":true}}";
+
+    [InlineData("{{concat data.uiBaseUrl \"/my-profile/buying/\" data.propertyInfo.code \"/documents\"}}", "https://portal.example.gr?a&#x3D;1&amp;b&#x3D;2/my-profile/buying/PRP-001/documents")]
+    [InlineData("{{> text_link url=(concat data.uiBaseUrl \"/my-profile/buying/\" data.propertyInfo.code \"/documents\") text=\"Docs\"}}", "<a href=\"https://portal.example.gr?a&#x3D;1&amp;b&#x3D;2/my-profile/buying/PRP-001/documents\">Docs</a>")]
+    [InlineData("{{> self_link path=\"/documents\"}}", "<a href=\"https://portal.example.gr?a&#x3D;1&amp;b&#x3D;2/documents\">PRP-001</a>")]
+    [InlineData("[{{concat data.missing \"/x\" data.propertyInfo.missing}}]", "[/x]")]
+    [InlineData("{{concat data.propertyInfo.floor \"-\" data.propertyInfo.isNew \"-\" 2.5}}", "3-true-2.5")]
+    [InlineData("{{#if (concat data.missing)}}TRUE{{else}}FALSE{{/if}}", "FALSE")]
+    [Theory]
+    public void ConcatHelper(string template, string expected) {
+        var handlebars = Handlebars.Create();
+        handlebars.RegisterMessageHelpers();
+        handlebars.Configuration.UseJson();
+        handlebars.Configuration.TextEncoder = HandlebarsTextEncoderFactory.Create("Email");
+        handlebars.RegisterTemplate("text_link", "<a href=\"{{url}}\">{{text}}</a>");
+        handlebars.RegisterTemplate("self_link", "<a href=\"{{concat data.uiBaseUrl path}}\">{{data.propertyInfo.code}}</a>");
+        dynamic templateData = new {
+            data = JsonDocument.Parse(ConcatData)
+        };
+        var output = handlebars.Compile(template)(templateData);
+        Assert.Equal(expected, output);
+    }
 }
 

@@ -378,6 +378,27 @@
   <data name="Email_Body_Organization_Signature" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="EmailFooter_SentTo" xml:space="preserve">
+    <value>Παραλήπτης αυτού του email: &lt;strong&gt;{0}&lt;/strong&gt;.</value>
+  </data>
+  <data name="OrganizationLegalName" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OrganizationAddress" xml:space="preserve">
+    <value />
+  </data>
+  <data name="EmailFooter_RegistryNumber" xml:space="preserve">
+    <value>ΓΕΜΗ: {0}</value>
+  </data>
+  <data name="EmailFooter_NeedHelp" xml:space="preserve">
+    <value>Χρειάζεστε βοήθεια;</value>
+  </data>
+  <data name="EmailFooter_CallSupport" xml:space="preserve">
+    <value>Καλέστε στο {0}</value>
+  </data>
+  <data name="EmailFooter_EmailSupport" xml:space="preserve">
+    <value>Στείλτε email στο {0}</value>
+  </data>
   <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>Επαναφορά κωδικού</value>
   </data>
@@ -697,7 +718,7 @@
     <value>Επόμενο</value>
   </data>
   <data name="MfaOnBoarding_SetupAdditionalAuthenticationMethod" xml:space="preserve">
-    <value>Ρυθμίστε μια πρόσθετη μέθοδο ελέγχου ταυτότητας.</value>
+    <value>Ρυθμίστε ένα πρόσθετο Authenticator App.</value>
   </data>
   <data name="MfaOnBoardingAddPhone_PageTitle" xml:space="preserve">
     <value>Ενεργοποίηση MFA - SMS</value>
@@ -728,6 +749,57 @@
   </data>
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
     <value>Επιβεβαίωση αριθμού τηλεφώνου</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageTitle" xml:space="preserve">
+    <value>Ρύθμιση Authenticator - 2FA</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_PageHeader" xml:space="preserve">
+    <value>Ρύθμιση Authenticator - 2FA</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_ScanQrCode" xml:space="preserve">
+    <value>Σαρώστε τον παρακάτω κωδικό QR με το Authenticator App της επιλογής σας (π.χ. Microsoft Authenticator, Google Authenticator).</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_OrEnterManually" xml:space="preserve">
+    <value>Αν δεν μπορείτε να σαρώσετε τον κωδικό QR, εισαγάγετε αυτό το κλειδί χειροκίνητα:</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_VerificationCode" xml:space="preserve">
+    <value>Κωδικός επιβεβαίωσης</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_Verify" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="MfaOnBoardingSetupAuthenticator_InvalidCode" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης δεν είναι έγκυρος.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageTitle" xml:space="preserve">
+    <value>Κωδικοί ανάκτησης</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_PageHeader" xml:space="preserve">
+    <value>Αποθηκεύστε τους κωδικούς ανάκτησης</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_SaveWarning" xml:space="preserve">
+    <value>Αποθηκεύστε αυτούς τους κωδικούς ανάκτησης σε ασφαλές μέρος. Κάθε κωδικός μπορεί να χρησιμοποιηθεί μία φορά αν χάσετε την πρόσβαση στo Authenticator App.</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Continue" xml:space="preserve">
+    <value>Έχω αποθηκεύσει τους κωδικούς μου</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_Download" xml:space="preserve">
+    <value>Λήψη</value>
+  </data>
+  <data name="MfaOnBoardingRecoveryCodes_FileHeader" xml:space="preserve">
+    <value>Αυτοί είναι οι εφεδρικοί κωδικοί για τον λογαριασμό {0}. Φυλάξτε τους ασφαλείς!</value>
+  </data>
+  <data name="Mfa_EnterCodeFromAuthenticatorApp" xml:space="preserve">
+    <value>Ανοίξτε το Authenticator App και εισαγάγετε τον κωδικό επιβεβαίωσης.</value>
+  </data>
+  <data name="Mfa_RecoveryCode" xml:space="preserve">
+    <value>Κωδικός ανάκτησης</value>
+  </data>
+  <data name="Mfa_EnterRecoveryCode" xml:space="preserve">
+    <value>Ζητήσατε σύνδεση με κωδικό ανάκτησης. Αυτή η σύνδεση δεν θα αποθηκευτεί έως ότου παρέχετε κωδικό εφαρμογής αυθεντικοποίησης κατά την είσοδο ή απενεργοποιήσετε την 2FA και συνδεθείτε ξανά.</value>
+  </data>
+  <data name="Mfa_InvalidRecoveryCode" xml:space="preserve">
+    <value>Εισήχθη μη έγκυρος κωδικός ανάκτησης.</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Αλλαγή κωδικού πρόσβασης</value>
@@ -925,7 +997,7 @@
     <value>Επαναποστολή</value>
   </data>
   <data name="VerifyPhone_Save" xml:space="preserve">
-    <value>Αποθήκευση</value>
+    <value>Επιβεβαίωση</value>
   </data>
   <data name="VerifyPhone_PageTitle" xml:space="preserve">
     <value>Επιβεβαίωση αριθμού</value>
@@ -1106,5 +1178,17 @@
   </data>
   <data name="AcceptTerms_LastUpdated" xml:space="preserve">
     <value>Τελευταία ενημέρωση στις</value>
+  </data>
+  <data name="Register_Optional_Instruction_Notice" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Register_Password_Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση κωδικού πρόσβασης</value>
+  </data>
+  <data name="ChangePassword_NewPasswordConfirmation" xml:space="preserve">
+    <value>Επιβεβαίωση νέου κωδικού πρόσβασης</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_New_Password_Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση νέου κωδικού πρόσβασης</value>
   </data>
 </root>

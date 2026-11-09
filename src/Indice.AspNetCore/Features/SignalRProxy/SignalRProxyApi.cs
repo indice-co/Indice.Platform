@@ -26,8 +26,7 @@ public static class SignalRProxyApi
         if (options.ExcludeFromDescription) {
             group.ExcludeFromDescription();
         }
-        group.AddOpenApiSecurityRequirement("oauth2")
-             .WithOpenApiSecurityRequirement("oauth2");
+        group.WithOpenApiSecurityRequirement("oauth2");
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesProblem(StatusCodes.Status401Unauthorized)

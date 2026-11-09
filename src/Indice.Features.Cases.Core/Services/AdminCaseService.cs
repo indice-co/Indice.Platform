@@ -3,15 +3,18 @@ using System.Linq.Expressions;
 using System.Text.Json.Nodes;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
+using Indice.Services;
 using Indice.Types;
 using Json.Patch;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Core.Services;
@@ -27,7 +30,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         IOptions<CasesOptions> options,
         ICaseAuthorizationProvider memberAuthorizationProvider,
         IAdminCaseMessageService adminCaseMessageService,
-        IPlatformEventService platformEventService) : base(dbContext, options) {
+        IPlatformEventService platformEventService,
+        [FromKeyedServices(CasesCoreConstants.FileServiceKey)] IFileService? fileService = null) : base(dbContext, options, fileService) {
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
@@ -37,7 +41,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
-        Dictionary<string, string> metadata) {
+        Dictionary<string, string> metadata,
+        string? referenceNumber,
+        string? channel = null,
+        string? relationKey = null) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
             _adminCaseMessageService,
@@ -46,8 +53,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             groupId,
             customer,
             metadata,
-            CasesCoreConstants.Channels.Agent,
-            user);
+            string.IsNullOrWhiteSpace(channel) ? CasesCoreConstants.Channels.Managed : channel,
+            user,
+            referenceNumber: referenceNumber,
+            relationKey: relationKey);
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
@@ -65,8 +74,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task PatchCaseData(UserActor user, Guid caseId, JsonNode patch, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
-
+        var @case = await GetCaseById(caseId, patchPublicData, false) ?? throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
+        var caseData = @case.DataAsJsonNode();
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
 
@@ -78,7 +87,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task PatchCaseData(UserActor user, Guid caseId, JsonPatch operations, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
+        var @case = await GetCaseById(caseId, patchPublicData, false) ?? throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
+        var caseData = @case.DataAsJsonNode();
 
         var patchResult = operations.Apply(caseData);
         if (!patchResult.IsSuccess) {
@@ -136,8 +146,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         var queryCases = DbContext.Cases
             .AsNoTracking()
-            .Where(c => !c.Draft) // filter out draft cases
-            .Where(options.Filter.Metadata ?? []); // filter Metadata
+            .Where(c => !c.Draft); // filter out draft cases
+        queryCases = WhereMetadata(queryCases, options.Filter.Metadata);
+        queryCases = WhereRelationKey(queryCases, options.Filter.RelationKeys);
 
         // filter assignedTo
         if (!string.IsNullOrWhiteSpace(options.Filter.AssignedTo)) {
@@ -150,6 +161,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
                     ReferenceNumber = @case.ReferenceNumber,
+                    RelationKey = @case.RelationKey,
                     OwnerId = @case.Owner.Reference,
                     OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                     OwnerTin = @case.Owner.Tin,
@@ -180,8 +192,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         } else {
             var accessMatch = Data.Models.DbCaseAccessRule.AccessMatchPredicate(userId, userRoles, inputGroupId);
             query = (from @case in queryCases
-                     join checkpoint in DbContext.Checkpoints
-                        on @case.CheckpointId equals checkpoint.Id
+                     where @case.CheckpointId != null
+                     // use the navigation instead of an explicit join so EF reuses the same
+                     // Checkpoint join (and projects CheckpointTypeId) when paging pushes the query down.
+                     let checkpoint = @case.Checkpoint
 
                      let caseAccess = DbContext.CaseAccessRules
                                     .Where(accessMatch)
@@ -232,6 +246,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      select new CasePartial {
                          Id = @case.Id,
                          ReferenceNumber = @case.ReferenceNumber,
+                         RelationKey = @case.RelationKey,
                          OwnerId = @case.Owner.Reference,
                          OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                          OwnerTin = @case.Owner.Tin,
@@ -270,24 +285,28 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         } catch (ResourceUnauthorizedException) {
             return new List<CasePartial>().ToResultSet();
         }
-
+        var term = options.Search?.Trim().ToLower();
+        if (!string.IsNullOrWhiteSpace(term) && term.Length > 2) {
+            if (Guid.TryParse(term, out var guidTerm)) {
+                query = query.Where(x => x.Id == guidTerm);
+            } else {
+                query = query.Where(x => (x.OwnerName != null && EF.Functions.Like(x.OwnerName.ToLower(), $"%{term}%")) ||
+                                         (x.OwnerId != null && EF.Functions.Like(x.OwnerId.ToLower(), $"%{term}%")) ||
+                                         (x.OwnerTin != null && EF.Functions.Like(x.OwnerTin.ToLower(), $"%{term}%")) ||
+                                         (x.ReferenceNumber != null && EF.Functions.Like(x.ReferenceNumber.ToLower(), $"%{term}%")));
+            }
+        }
         // filter ReferenceNumbers
         if (options.Filter.ReferenceNumbers?.Length > 0) {
             foreach (var refNumber in options.Filter.ReferenceNumbers) {
-                if (!int.TryParse(refNumber.Value, out var value)) {
-                    continue;
-                }
                 query = refNumber.Operator switch {
-                    FilterOperator.Eq => query.Where(c => (c.ReferenceNumber ?? 0) == value),
-                    FilterOperator.Neq => query.Where(c => (c.ReferenceNumber ?? 0) != value),
-                    FilterOperator.Contains => query.Where(c =>
-                        c.ReferenceNumber.HasValue && c.ReferenceNumber.Value.ToString().Contains(value.ToString())),
+                    FilterOperator.Eq => query.Where(c => c.ReferenceNumber!.Equals(refNumber.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.ReferenceNumber!.Equals(refNumber.Value)),
+                    FilterOperator.Contains => query.Where(c => c.ReferenceNumber!.Contains(refNumber.Value)),
                     _ => query
                 };
             }
         }
-
-
 
         // filter CustomerId
         if (options.Filter.OwnerIds?.Length > 0) {
@@ -331,16 +350,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
 
-        if (options.Filter.From != null) {
-            query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
+        if (options.Filter?.From is DateTimeOffset from) {
+            query = query.Where(c => c.CreatedByWhen >= from.Date);
         }
 
-        if (options.Filter.To != null) {
-            query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
+        if (options.Filter?.To is DateTimeOffset to) {
+            query = query.Where(c => c.CreatedByWhen <= to.Date.AddDays(1));
         }
 
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-        if (options.Filter.CaseTypeCodes?.Length > 0) {
+        if (options.Filter!.CaseTypeCodes?.Length > 0) {
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CaseTypeCodes
                 .Where(x => x.Operator == FilterOperator.Eq)
@@ -417,8 +436,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Filter.Data?.Length > 0) {
             // Execute the query with all the previous filters and 
             // select the case Ids
-            var caseIds = (await query.ToListAsync()).Select(x => x.Id);
-
+            var caseIds = await query.Select(x => x.Id).ToListAsync();
             // For those Ids, execute a second query to filter the cases by caseData json filter
             var caseData = await DbContext.CaseData
                 .AsNoTracking()
@@ -435,7 +453,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Sort is null) {
             options.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
         }
-
         var result = await query.ToResultSetAsync(options);
 
         // translate case types
@@ -446,14 +463,20 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return result;
     }
 
-    public async Task<Case> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
+    public async Task<Case?> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
         var query =
             from c in GetCasesInternal(fetchPublicData, includeAttachmentData ?? false, SchemaKey)
             where c.Id == caseId
             select c;
 
         var @case = await query.FirstOrDefaultAsync();
-        @case!.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        if (@case == null) {
+            return null;
+        }
+        if (includeAttachmentData == true) {
+            await PopulateAttachmentData(@case.Attachments);
+        }
+        @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
@@ -472,8 +495,32 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             throw new BusinessException("Cannot delete a submitted case.");
         }
 
+        var attachmentPaths = new List<string>();
+        if (FileService is not null) {
+            var attachments = await DbContext.Attachments
+                .AsNoTracking()
+                .Where(x => x.CaseId == caseId && x.Data == null)
+                .Select(x => new { x.Guid, x.FileExtension })
+                .ToListAsync();
+            attachmentPaths = attachments.Select(x => DbAttachment.GetPath(x.Guid, x.FileExtension)).ToList();
+        }
         DbContext.Remove(@case);
         await DbContext.SaveChangesAsync();
+        foreach (var batch in attachmentPaths.Chunk(5)) {
+            await Task.WhenAll(batch.Select(TryDeleteAttachmentFile));
+        }
+    }
+
+    private async Task TryDeleteAttachmentFile(string path) {
+        try {
+            await FileService!.DeleteAsync(path);
+        } catch (FileServiceException) {
+            // Best effort, the case has already been deleted.
+            
+            // DEVNOTE: File service wraps inner exceptions "FileServiceException" to its own so that it normalizes 
+            // the abstraction for different implementations (Azure, FileSystem, S3 etc. with different intarnal behavior) 
+            // If the internal wrapper does not know what to do with the exception that means it should be let to bubble up
+        }
     }
 
     public async Task<CaseAttachment?> GetAttachmentById(Guid attachmentId) {
@@ -484,10 +531,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             return null;
         }
 
+        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
+        if (data is null) {
+            return null;
+        }
+
         return new CaseAttachment {
             Id = attachmentId,
             ContentType = attachment.ContentType,
-            Data = attachment.Data,
+            Data = data,
             FileExtension = attachment.FileExtension,
             FileName = attachment.Name
         };
@@ -510,21 +562,30 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
         var attachment = await DbContext.Attachments
             .AsNoTracking()
-            .Where(a => a.CaseId == caseId)
-            .Select(db => new CaseAttachment {
-                Id = db.Id,
-                ContentType = db.ContentType,
-                FileName = db.Name,
-                FileExtension = db.FileExtension,
-                Data = db.Data
-            })
-            .SingleOrDefaultAsync(x => x.Id == attachmentId);
-        return attachment;
+            .SingleOrDefaultAsync(x => x.CaseId == caseId && x.Id == attachmentId);
+        if (attachment is null) {
+            return null;
+        }
+        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
+        if (data is null) {
+            return null;
+        }
+        return new CaseAttachment {
+            Id = attachment.Id,
+            ContentType = attachment.ContentType,
+            FileName = attachment.Name,
+            FileExtension = attachment.FileExtension,
+            Data = data
+        };
     }
 
     public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
-        var json = (await GetCaseById(caseId, false, false)).DataAsJsonNode();
+        var @case = await GetCaseById(caseId, false, false);
+        if (@case is null) return null;
+
+        var json = @case.DataAsJsonNode();
         if (json is null) return null;
+
         var attachmentId = json[fieldName]?.GetValue<Guid?>();
         if (attachmentId.HasValue) {
             var attachment = await GetAttachment(caseId, attachmentId.Value);
@@ -538,11 +599,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (dbCase == null) {
             return false;
         }
-        if (metadata != null && metadata.Count > 0 && dbCase.Metadata == null) {
+        var safeMetadata = metadata ?? new Dictionary<string, string>();
+        if (safeMetadata.Count > 0 && dbCase.Metadata == null) {
             dbCase.Metadata = [];
         }
-        foreach (var keyValuePair in metadata!) {
+        foreach (var keyValuePair in safeMetadata) {
             dbCase.Metadata![keyValuePair.Key] = keyValuePair.Value;
+        }
+        if (safeMetadata.TryGetValue(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey, out var relationKey)) {
+            SetRelationKey(dbCase, relationKey);
         }
         await DbContext.SaveChangesAsync();
         return true;
@@ -574,6 +639,34 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         @case.AssignedTo = null;
         await DbContext.SaveChangesAsync();
+    }
+
+    public async Task<ResultSet<CaseDataVersion>> GetDataVersions(Guid caseId, ListOptions options) {
+        if (!options.GetSortings().Any()) {
+            options.Sort = $"{nameof(CaseDataVersion.CreatedBy)}.{nameof(CaseDataVersion.CreatedBy.When)}-";
+        }
+        var query = DbContext.CaseData
+            .AsNoTracking()
+            .Where(d => d.CaseId == caseId);
+        if (!string.IsNullOrWhiteSpace(options.Search)) {
+            var search = options.Search.Trim();
+            query = query.Where(d => (d.CreatedBy.Name != null && d.CreatedBy.Name.Contains(search)) || (d.CreatedBy.Email != null && d.CreatedBy.Email.Contains(search)));
+        }
+        return await query
+           
+            .Select(d => new CaseDataVersion {
+                Id = d.Id,
+                CreatedBy = new AuditMeta {
+                    Id = d.CreatedBy.Id,
+                    Name = d.CreatedBy.Name,
+                    Email = d.CreatedBy.Email,
+                    When = d.CreatedBy.When
+                },
+                Data = d.Data,
+                IsCurrent = d.Id == d.Case.DataId,
+                IsPublic = d.Id == d.Case.PublicDataId
+            })
+            .ToResultSetAsync(options);
     }
 
     public async Task<List<TimelineEntry>> GetTimeline(Guid caseId) {
@@ -637,14 +730,78 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(caseId, false, false);
+        if (@case?.RelationKey is null) {
+            return [];
+        }
+
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
-                Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
+                RelationKeys = [new FilterClause(nameof(GetCasesListFilter.RelationKeys), @case.RelationKey, FilterOperator.Eq, JsonDataType.String)]
             },
-            Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
+            Sort = $"{nameof(CasePartial.CreatedByWhen)}-",
+            // the whole relation, not the default page: the relations editor removes cases from this list
+            Size = int.MaxValue
         });
 
         return result.Items.Where(x => x.Id != caseId).ToList();
+    }
+
+    public async Task<bool> UpdateRelationKey(Guid caseId, string? relationKey) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        ReplaceRelationKey(@case, relationKey);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> AddRelatedCases(Guid caseId, IEnumerable<Guid> relatedCaseIds) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        if (@case.RelationKey is null) {
+            throw new BusinessException("The case has no relation key.");
+        }
+        var ids = relatedCaseIds.Where(id => id != caseId).Distinct().ToList();
+        var cases = await DbContext.Cases.Where(c => ids.Contains(c.Id)).ToListAsync();
+        foreach (var related in cases) {
+            SetRelationKey(related, @case.RelationKey);
+        }
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveRelatedCase(Guid caseId, Guid relatedCaseId) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case?.RelationKey is null || relatedCaseId == caseId) {
+            return false;
+        }
+        // compare the keys in the database, like GetRelatedCases does, so both follow its collation
+        var related = await DbContext.Cases.FirstOrDefaultAsync(c => c.Id == relatedCaseId && c.RelationKey == @case.RelationKey);
+        if (related is null) {
+            return false;
+        }
+        ReplaceRelationKey(related, null);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateGroup(Guid caseId, string? groupId) {
+        var @case = await DbContext.Cases.FindAsync(caseId);
+        if (@case is null) {
+            return false;
+        }
+        @case.GroupId = string.IsNullOrWhiteSpace(groupId) ? null : groupId.Trim();
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    /// <summary>Sets the relation key and its metadata entry. Unlike <see cref="BaseCaseService.SetRelationKey"/>, an empty value clears both.</summary>
+    private static void ReplaceRelationKey(Data.Models.DbCase @case, string? value) {
+        @case.Metadata?.Remove(CasesCoreConstants.MetadataKeys.ExternalCorrelationKey);
+        SetRelationKey(@case, value?.Trim());
     }
 
     private async Task<FilterClause[]> MapCheckpointTypeCodeToId(FilterClause[] checkpointTypeCodeFilterClauses) {

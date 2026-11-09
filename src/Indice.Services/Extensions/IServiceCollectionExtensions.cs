@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Security.Claims;
-using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
+using System.Threading.Channels;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
+using Indice.Services.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -16,7 +16,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Extensions on the <see cref="IServiceCollection"/>.</summary>
 public static class IndiceServicesServiceCollectionExtensions
 {
-
     /// <summary>Adds Indice common services.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -65,11 +64,10 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <remarks>Automatically discovers the correct provider using the configuration setting <strong>Email:Provider</strong> to automatically load the correct configuration.
     /// <br />Acceptable values:
-    /// <strong>smtp, sparkpost, sendgrid, brevo, none</strong>
+    /// <strong>Smtp, SparkPost, SendGrid, Brevo, None, AzureCommunicationServices</strong>
     /// </remarks>
     public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
-        var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
-        var providerNames = (providerNamesText ?? EmailServiceSmtp.ServiceName).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var providerNames = configuration.GetEmailProviders();
         foreach (var name in providerNames) {
             switch (name) {
                 case EmailServiceSmtp.ServiceName:
@@ -83,6 +81,12 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
                 case EmailServiceBrevo.ServiceName:
                     services.AddEmailServiceBrevo(configuration);
+                    break;
+                case EmailServiceAzureCommunicationServices.ServiceName:
+                    services.AddEmailServiceAzureCommunicationServices(configuration);
+                    break;
+                case EmailServiceWeMail.ServiceName:
+                    services.AddEmailServiceWeMail(configuration);
                     break;
                 case EmailServiceNoop.ServiceName:
                 default:
@@ -157,6 +161,42 @@ public static class IndiceServicesServiceCollectionExtensions
         return new EmailServiceBuilder(services);
     }
 
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses WeMail to send emails.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static EmailServiceBuilder AddEmailServiceWeMail(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<EmailServiceWeMailSettings>(configuration.GetSection(EmailServiceWeMailSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceWeMailSettings>>().Value);
+        services.AddHttpClient<IEmailService, EmailServiceWeMail>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceWeMailSettings>>().Value;
+            return new EmailProvider(EmailServiceWeMail.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
+        services.AddHtmlRenderingEngineNoop();
+        return new EmailServiceBuilder(services);
+    }
+
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses Azure Communication Services to send emails.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static EmailServiceBuilder AddEmailServiceAzureCommunicationServices(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<EmailServiceAzureCommsSettings>(configuration.GetSection(EmailServiceAzureCommsSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value);
+        services.AddTransient<IEmailService, EmailServiceAzureCommunicationServices>();
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value;
+                return new EmailProvider(
+                EmailServiceAzureCommunicationServices.ServiceName,
+                new EmailSender(options.Sender!, null));
+        });
+        services.TryAddTransient((serviceProvider) =>
+            new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList())
+        );
+        services.AddHtmlRenderingEngineNoop();
+        return new EmailServiceBuilder(services);
+    }
+
     /// <summary>Registers a rendering engine to be used by the <see cref="IEmailService"/> implementation.</summary>
     /// <typeparam name="THtmlRenderingEngine">The concrete type of <see cref="IHtmlRenderingEngine"/> to use.</typeparam>
     /// <param name="builder">Builder class for <see cref="IEmailService"/>.</param>
@@ -173,10 +213,8 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
     /// </remarks>
     public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
-        var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
-        ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
-        var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        foreach (var name in providerNames) { 
+        var providerNames = configuration.GetSmsProviders();
+        foreach (var name in providerNames) {
             switch (name) {
                 case "yuboto":
                 case "yuboto_omni":
@@ -205,10 +243,12 @@ public static class IndiceServicesServiceCollectionExtensions
                     break;
                 case "kapatel":
                 case "kapa_tel":
-                    services.AddSmsServiceApifonIM(configuration);
+                    services.AddSmsServiceKapaTEL(configuration);
                     break;
                 case "mstat":
-                    services.AddSmsServiceMstat(configuration);
+                case "omnimessaging":
+                case "omni_messaging":
+                    services.AddSmsServiceOmniMessaging(configuration);
                     break;
                 case "noop":
                 case "none":
@@ -305,7 +345,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
-        services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, SmsServiceYubotoOmni>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
@@ -315,8 +355,8 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYubotoOmniViber(this IServiceCollection services, IConfiguration configuration) {
-        services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
-        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+        services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceYubotoOmniSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, SmsServiceYubotoOmniViber>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
@@ -331,7 +371,7 @@ public static class IndiceServicesServiceCollectionExtensions
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceKapaTELSettings();
         configure?.Invoke(options);
-        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceKapaTEL>()
+        services.AddHttpClient<ISmsService, SmsServiceKapaTEL>()
                                         .ConfigureHttpClient(httpClient => {
                                             httpClient.BaseAddress = new Uri("https://api2.smsmobile.gr/receiver_rest.php");
                                         })
@@ -339,40 +379,43 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Mstat.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using MStat OmniMessaging REST API.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static IServiceCollection AddSmsServiceMstat(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceMstatSettings>? configure = null) {
-        services.Configure<SmsServiceMstatSettings>(configuration.GetSection(SmsServiceSettings.Name));
+    public static IServiceCollection AddSmsServiceOmniMessaging(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceOmniMessagingSettings>? configure = null) {
+        services.Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
-        var options = new SmsServiceMstatSettings();
-        configure?.Invoke(options);
-        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceMstat>()
-                                        .ConfigureHttpClient(httpClient => {
-                                            httpClient.BaseAddress = new Uri("https://backend.tms.m-stat.gr/api/v1/messages");
-                                        })
-                                        .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        if (configure is not null) {
+            services.Configure(configure);
+        }
+        services.AddHttpClient<ISmsService, SmsServiceOmniMessaging>()
+            .ConfigureHttpClient(httpClient => {
+                httpClient.BaseAddress = new Uri(SmsServiceOmniMessaging.BASE_URI);
+            })
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
     }
 
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>?, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
         var options = new EventDispatcherAzureOptions {
-            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+            ConnectionStringName = EventDispatcherAzure.CONNECTION_STRING_NAME,
             Enabled = true,
             EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
         configure?.Invoke(serviceProvider, options);
+
         return new EventDispatcherAzure(
-            options.ConnectionString!,
+            options.ConnectionStringName!,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
             options.QueueMessageEncoding,
             options.ClaimsPrincipalSelector,
             options.TenantIdSelector!,
+            serviceProvider.GetRequiredService<AzureClientFactory>(),
             serviceProvider.GetService<ILogger<EventDispatcherAzure>>() ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<EventDispatcherAzure>.Instance
         );
     };
@@ -381,6 +424,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
+        services.TryAddSingleton<AzureClientFactory>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
     }
@@ -390,6 +434,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="name">The key under which the specified implementation is registered.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
+        services.TryAddSingleton<AzureClientFactory>();
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
     }
@@ -397,15 +442,16 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<object?, IServiceProvider, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>?, EventDispatcherAzureServiceBus> GetEventDispatcherAzureServiceBus = (serviceKey, serviceProvider, configure) => {
         var options = new EventDispatcherAzureServiceBusOptions {
-            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+            ConnectionStringName = EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME,
             Enabled = true,
             EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
             ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
         };
+        var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
         configure?.Invoke(serviceProvider, options);
         return new EventDispatcherAzureServiceBus(
-            new ServiceBusClient(connectionString: options.ConnectionString),
-            options.CreateQueueIfNotExists ? new ServiceBusAdministrationClient(connectionString: options.ConnectionString) : null,
+            factory.CreateServiceBusClient(options.ConnectionStringName),
+            options.CreateQueueIfNotExists ? factory.CreateServiceBusAdministrationClient(options.ConnectionStringName) : null,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
@@ -419,6 +465,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddSingleton<AzureClientFactory>();
         return services.AddSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
     }
 
@@ -428,6 +475,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddSingleton<AzureClientFactory>();
         return services.AddKeyedSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
     }
 
@@ -442,13 +490,15 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions>? configure = null) {
+        services.TryAddSingleton<AzureClientFactory>();
         services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
+            var factory = serviceProvider.GetRequiredService<AzureClientFactory>();
             var options = new LockManagerAzureOptions {
-                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(LockManagerAzure.CONNECTION_STRING_NAME),
+                ConnectionStringName = LockManagerAzure.CONNECTION_STRING_NAME,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
             };
             configure?.Invoke(serviceProvider, options);
-            return new LockManagerAzure(options);
+            return new LockManagerAzure(factory, options);
         });
         return services;
     }
@@ -479,6 +529,102 @@ public static class IndiceServicesServiceCollectionExtensions
         where TEvent : IPlatformEvent
         where TEventHandler : class, IPlatformEventHandler<TEvent> {
         services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+        return services;
+    }
+
+    /// <summary>
+    /// Registers webhook services when webhooks are enabled.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <typeparam name="THttpHandler">The webhook HTTP handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="providerName"></param>
+    /// <returns>The service collection.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The configured channel capacity is less than or equal to zero.</exception>
+    public static IServiceCollection AddWebhookServices<THandler, THttpHandler>(this IServiceCollection services, IConfiguration configuration, string providerName) 
+        where THandler : class, IWebhookHandler
+        where THttpHandler : class, IWebhookHttpHandler {
+        var settings = configuration.GetSection(WebhooksSettings.Name).Get<WebhooksSettings>() ?? new WebhooksSettings();
+        var enableWebhooks = settings.Enabled;
+        if (!enableWebhooks) {
+            return services;
+        }
+        var channelCapacity = settings.ChannelCapacity;
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channelCapacity);
+        services.TryAddSingleton(Channel.CreateBounded<List<WebhookEvent>>(new BoundedChannelOptions(channelCapacity) {
+            FullMode = BoundedChannelFullMode.Wait,
+            SingleReader = true,
+            SingleWriter = false
+        }));
+        services.TryAddScoped<IWebhookHandler, THandler>();
+        services.AddKeyedScoped<IWebhookHttpHandler, THttpHandler>(providerName);
+        services.AddHostedService<WebhookEventSink>();
+        return services;
+    }
+
+    /// <summary>
+    /// Registers SMS webhook services for the configured provider.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddSmsWebhooks<THandler>(this IServiceCollection services, IConfiguration configuration)
+        where THandler : class, IWebhookHandler {
+        var provider = configuration.GetDefaultSmsProvider();
+        switch (provider) {
+            case "apifon":
+            case "ApiFon":
+                services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
+                break;
+            case "vonage":
+            case "Vonage":
+                services.Configure<SmsServiceVonageSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, VonageWebhookHttpHandler>(configuration, provider);
+                break;
+            case "twilio":
+            case "Twilio":
+                services.Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, TwilioWebhookHttpHandler>(configuration, provider);
+                break;
+            case "Yuboto":
+            case "yuboto":
+            case "yuboto_omni":
+            case "yuboto_viber":
+            case "yubotoviber":
+            case "yuboto_omni_viber":
+                services.Configure<SmsServiceYubotoOmniSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, YubotoWebhookHttpHandler>(configuration, provider);
+                break;
+            case "mstat":
+            case "omnimessaging":
+            case "omni_messaging":
+                services.Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, OmnimessagingWebhookHttpHandler>(configuration, provider);
+                break;
+        }
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Email webhook services for the configured provider.
+    /// </summary>
+    /// <typeparam name="THandler">The webhook event handler type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddEmailWebhooks<THandler>(this IServiceCollection services, IConfiguration configuration)
+        where THandler : class, IWebhookHandler {
+        var provider = configuration.GetDefaultEmailProvider();
+        switch (provider) {
+            case EmailServiceSparkPost.ServiceName:
+                services.AddWebhookServices<THandler, SparkPostWebhookHttpHandler>(configuration, provider);
+                break;
+            case EmailServiceBrevo.ServiceName:
+                services.AddWebhookServices<THandler, BrevoWebhookHttpHandler>(configuration, provider);
+                break;
+        }
         return services;
     }
 }

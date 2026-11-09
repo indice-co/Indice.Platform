@@ -7,6 +7,7 @@ using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Stores;
+using Indice.Features.Identity.Core.Events;
 #else
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
@@ -30,10 +31,12 @@ using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -74,8 +77,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             CustomClaims = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims
         });
         services.AddTotpServiceFactory(configuration);
+        services.AddActionRateLimiter(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
-        var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
+        var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext,
+                                                                       options.EnableServerSideSessions, options.EnforceSingleActiveSession);
         services.AddAuthenticationDefaults(configuration);
         options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
         services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
@@ -108,6 +113,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddExtendedUserManager()
                        .AddExtendedSignInManager<User>()
                        .AddDefaultPasswordValidators()
+                       .AddEmailDomainBlacklistValidator(configuration)
+                       .AddPhoneNumberBlacklistValidator(configuration)
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
                        .AddExtendedPhoneNumberTokenProvider(configuration)
@@ -121,7 +128,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         IConfiguration configuration,
         IWebHostEnvironment webHostEnvironment,
         Action<DbContextOptionsBuilder>? configureConfigurationDbContext,
-        Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
+        Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext,
+        bool enableServerSideSessions,
+        bool enforceSingleActiveSession
     ) {
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
 #if !NET9_0_OR_GREATER
@@ -173,10 +182,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         // Add store decorators for caching after calling AddDotnet7CompatibleStores.
         .AddInMemoryCaching()
         .AddClientStoreCache<IndiceStores.ClientStore>()
-        .AddClientStoreCacheInvalidation()
         .AddResourceStoreCache<IndiceStores.ResourceStore>()
         .AddCorsPolicyCache<CorsPolicyService>()
 #endif
+        .AddClientStoreCacheInvalidation()
         ;
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
@@ -191,6 +200,14 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             identityServerBuilder.AddSigningCredential(certificate);
         }
 
+#if NET9_0_OR_GREATER
+        if (enableServerSideSessions) {
+            identityServerBuilder.AddServerSideSessions();
+            if (enforceSingleActiveSession) {
+                services.AddPlatformEventHandler<UserLoginEvent, SingleSessionLoginEventHandler>();
+            }
+        }
+#endif
         return identityServerBuilder;
     }
 
@@ -218,6 +235,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
             options.Cookie.Name = ExtendedIdentityConstants.TwoFactorRememberMeCookieName;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
         });
         services.AddAntiforgery(options => options.Cookie.Name = ExtendedIdentityConstants.AntiforgeryCookieName);
@@ -265,6 +285,22 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         builder.Services.AddOutputCache();
         builder.Services.AddDistributedMemoryCache();
+        // Client side translations of the IAM UI served as a JSON graph from the embedded resx files.
+        var endpointOptions = new ExtendedEndpointOptions();
+        builder.Configuration.GetSection(ExtendedEndpointOptions.Name).Bind(endpointOptions);
+        configureAction?.Invoke(endpointOptions);
+        if (endpointOptions.MapTranslations) {
+            var apiPrefix = endpointOptions.ApiPrefix.Value?.TrimEnd('/') ?? string.Empty;
+            builder.Services.AddTranslationGraph(options => {
+                options.DefaultTranslationsBaseName = IdentityEndpoints.TranslationsBaseName;
+                options.DefaultTranslationsLocation = typeof(ExtendedEndpointOptions).Assembly.GetName().Name!;
+                options.DefaultEndpointRoutePattern = apiPrefix + "/iam-i18n.{lang:culture}.json";
+                options.AvailableLanguagesRoutePattern = apiPrefix + "/languages";
+                if (!endpointOptions.DisableCache) {
+                    options.ConfigureCachePolicy = policy => policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag();
+                }
+            });
+        }
         builder.Services.AddIdentityRateLimiter(builder.Configuration);
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
         builder.Services.AddPushNotificationServiceNoop();
@@ -410,15 +446,19 @@ public static class IdentityServerEndpointServiceCollectionExtensions
 
     private static IServiceCollection AddIdentityRateLimiter(this IServiceCollection services, IConfiguration configuration) {
         services.AddRateLimiting(configuration, options => {
-
             options.AllRateLimiterPolicies = RateLimiterPolicies.All;
             options.CustomPolicyFactory = (policyName) => policyName switch {
                 "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-                "login/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/add-email" => new() { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/add-phone" => new() { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/verify-phone" => new() { PermitLimit = 3, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "login/mfa/onboarding/add-email" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/mfa/onboarding/add-phone" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "login/mfa/onboarding/setup-authenticator" => new() { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "manage/profile" => new() { PermitLimit = 2, Window = TimeSpan.FromSeconds(3), HttpMethod = "POST" },
                 _ => new RateLimiterEndpointRule()
             };
         }, "IdentityServer:RateLimiter");

@@ -159,7 +159,6 @@ public static class TaxCodeValidator
         // Checks the check digits of a Bulgarian VAT number.
         if (vatnumber.Length == 9) {
             // Check the check digit of 9 digit Bulgarian VAT numbers.
-            total = 0;
 
             // First try to calculate the check digit using the first multipliers  
             var temp = 0;

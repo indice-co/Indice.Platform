@@ -25,7 +25,7 @@ internal class AdminReportService : IAdminReportService
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
     }
 
-    public async Task<List<GroupByReportResult>> GenerateReport(UserActor user, ReportTag reportTag) {
+    public async Task<List<GroupByReportResult>> GenerateReport(UserActor user, ReportTag reportTag, string? channel = null) {
         var query = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
@@ -47,7 +47,7 @@ internal class AdminReportService : IAdminReportService
             });
 
         // TODO: not crazy about this one
-        // if a CaseAuthorizationService down the line wants to 
+        // if a CaseAuthorizationService down the line wants to
         // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
         // which we catch and return an empty resultset.
         try {
@@ -59,6 +59,13 @@ internal class AdminReportService : IAdminReportService
         var caseTypes = await _caseTypeService.Get(user, false);
         var allowedCaseTypeIds = caseTypes.Items.Select(x => x.Id).ToList();
         query = query.Where(x => allowedCaseTypeIds.Contains(x.CaseType.Id));
+        // the legacy Agent/Customer tags already filter by their own channel
+        var isLegacyTag = reportTag is ReportTag.AgentGroupedByCasetype or ReportTag.AgentGroupedByStatus or ReportTag.CustomerGroupedByCasetype or ReportTag.CustomerGroupedByStatus;
+        if (!string.IsNullOrWhiteSpace(channel) && !isLegacyTag) {
+            // cases created before the channel rename still have the legacy name stored
+            var storedChannels = CasesCoreConstants.Channels.StoredValues(channel);
+            query = query.Where(x => storedChannels.Contains(x.Channel!));
+        }
         switch (reportTag) {
             case ReportTag.GroupedByCasetype:
                 groupByReportResult = await GetCasesGroupedByCaseType(query);
@@ -66,21 +73,21 @@ internal class AdminReportService : IAdminReportService
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
             case ReportTag.AgentGroupedByCasetype:
-                groupByReportResult = await GetAgentCasesGroupedByCaseType(query);
+                groupByReportResult = await GetManagedCasesGroupedByCaseType(query);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
             case ReportTag.CustomerGroupedByCasetype:
-                groupByReportResult = await GetCustomerCasesGroupedByCaseType(query);
+                groupByReportResult = await GetExternalCasesGroupedByCaseType(query);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
             case ReportTag.GroupedByStatus:
                 return await GetCasesGroupedByStatus(query);
             case ReportTag.AgentGroupedByStatus:
-                return await GetAgentCasesGroupedByStatus(query);
+                return await GetManagedCasesGroupedByStatus(query);
             case ReportTag.CustomerGroupedByStatus:
-                return await GetCustomerCasesGroupedByStatus(query);
+                return await GetExternalCasesGroupedByStatus(query);
             case ReportTag.GroupedByGroupId:
                 return await GetCasesGroupedByGroupId(query);
             default:
@@ -96,17 +103,17 @@ internal class AdminReportService : IAdminReportService
             .ToListAsync();
     }
 
-    private async Task<List<GroupByReportResult>> GetAgentCasesGroupedByCaseType(IQueryable<CasePartial> cases) {
+    private async Task<List<GroupByReportResult>> GetManagedCasesGroupedByCaseType(IQueryable<CasePartial> cases) {
         return await cases
-            .Where(x => x.Channel == CasesCoreConstants.Channels.Agent)
+            .Where(x => x.Channel == CasesCoreConstants.Channels.Managed || x.Channel == CasesCoreConstants.Channels.Agent)
             .GroupBy(x => x.CaseType.Code)
             .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
             .ToListAsync();
     }
 
-    private async Task<List<GroupByReportResult>> GetCustomerCasesGroupedByCaseType(IQueryable<CasePartial> cases) {
+    private async Task<List<GroupByReportResult>> GetExternalCasesGroupedByCaseType(IQueryable<CasePartial> cases) {
         return await cases
-            .Where(x => x.Channel == CasesCoreConstants.Channels.Customer)
+            .Where(x => x.Channel == CasesCoreConstants.Channels.External || x.Channel == CasesCoreConstants.Channels.Customer)
             .GroupBy(x => x.CaseType.Code)
             .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
             .ToListAsync();
@@ -118,17 +125,17 @@ internal class AdminReportService : IAdminReportService
             .Select(group => new GroupByReportResult { Label = group.Key.ToString()!, Count = group.Count() })
             .ToListAsync();
     }
-    private async Task<List<GroupByReportResult>> GetAgentCasesGroupedByStatus(IQueryable<CasePartial> cases) {
+    private async Task<List<GroupByReportResult>> GetManagedCasesGroupedByStatus(IQueryable<CasePartial> cases) {
         return await cases
-            .Where(x => x.Channel == CasesCoreConstants.Channels.Agent)
+            .Where(x => x.Channel == CasesCoreConstants.Channels.Managed || x.Channel == CasesCoreConstants.Channels.Agent)
             .GroupBy(x => x.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString()!, Count = group.Count() })
             .ToListAsync();
     }
 
-    private async Task<List<GroupByReportResult>> GetCustomerCasesGroupedByStatus(IQueryable<CasePartial> cases) {
+    private async Task<List<GroupByReportResult>> GetExternalCasesGroupedByStatus(IQueryable<CasePartial> cases) {
         return await cases
-            .Where(x => x.Channel == CasesCoreConstants.Channels.Customer)
+            .Where(x => x.Channel == CasesCoreConstants.Channels.External || x.Channel == CasesCoreConstants.Channels.Customer)
             .GroupBy(x => x.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString()!, Count = group.Count() })
             .ToListAsync();

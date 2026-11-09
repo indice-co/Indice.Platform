@@ -35,31 +35,171 @@ services.AddFilesLocal(options => {
 });
 ```
 
+#### 🔧 Configuration (Azure Storage)
+
+`AzureClientFactory` resolves the connection by `ConnectionStringName` (`StorageConnection` by default):
+
+- First from `ConnectionStrings:{ConnectionStringName}` (or a direct value with the same key)
+- Otherwise from managed-identity settings under `{ConnectionStringName}`
+
+Standard connection string:
+```json
+{
+  "ConnectionStrings": {
+    "StorageConnection": "DefaultEndpointsProtocol=https;AccountName=<NAME>;AccountKey=xxx;EndpointSuffix=core.windows.net"
+  }
+}
+```
+
+Managed Identity (system-assigned):
+```json
+{
+  "StorageConnection": {
+    "accountName": "<NAME>",
+    "serviceUri": "<SERVICE_URI>"
+  }
+}
+```
+
+Managed Identity (user-assigned):
+```json
+{
+  "StorageConnection": {
+    "accountName": "<NAME>",
+    "serviceUri": "<SERVICE_URI>",
+    "clientId": "<CLIENT_ID>"
+  }
+}
+```
+
+For Azure Functions host, you need to provide these extra values too:
+```json
+AzureWebJobsStorage__accountName = <NAME>
+AzureWebJobsStorage__serviceUri = <BASE_SERVICE_URL>
+```
+
+For user-assigned Managed Identity, add this too:
+```json
+AzureWebJobsStorage__clientId = <CLIENT_ID>
+```
+
+Proper RBAC roles to be assigned to the Managed Identity:
+
+- Storage Account Contributor
+- Storage Blob Data Owner
+- Storage Queue Data Contributor
+- Storage Queue Data Message Processor
+- Storage Queue Data Message Sender
+- Storage Queue Data Reader
+
 ### 📧 Email Services
 
 Send emails through various providers with template rendering support:
 
-| Provider | Service Name |
-|----------|--------------|
-| SMTP | `EmailServiceSmtp` |
-| SendGrid | `EmailServiceSendGrid` |
-| SparkPost | `EmailServiceSparkpost` |
-| Brevo (Sendinblue) | `EmailServiceBrevo` |
+| Provider key (`Email:Provider`) | Service Name | Add method | Configuration section |
+|---------------------------------|--------------|------------|------------------------|
+| `Smtp` | `EmailServiceSmtp` | `services.AddEmailServiceSmtp(configuration)` | `Email` |
+| `SendGrid` | `EmailServiceSendGrid` | `services.AddEmailServiceSendGrid(configuration)` | `SendGrid` |
+| `SparkPost` | `EmailServiceSparkPost` | `services.AddEmailServiceSparkPost(configuration)` | `SparkPost` |
+| `Brevo` | `EmailServiceBrevo` | `services.AddEmailServiceBrevo(configuration)` | `Brevo` |
+| `WeMail` | `EmailServiceWeMail` | `services.AddEmailServiceWeMail(configuration)` | `WeMail` |
+| `AzureCommunicationServices` | `AzureCommunicationServicesEmailService` | `services.AddEmailServiceAzureCommunicationServices(configuration)` | `AzureCommunicationServices` |
+| `None` | `EmailServiceNoop` | `services.AddEmailServiceNoop()` | - |
 
 ```csharp
 // Auto-discover provider from configuration
 services.AddEmailService(configuration);
 ```
 
-Configuration (`appsettings.json`):
+Configuration examples (`appsettings.json`):
+
+SMTP:
 ```json
 {
   "Email": {
-    "Provider": "smtp",
+    "Provider": "Smtp",
     "Sender": "noreply@example.com",
     "SenderName": "My App",
     "SmtpHost": "smtp.example.com",
-    "SmtpPort": 587
+    "SmtpPort": 587,
+    "Username": "smtp-user",
+    "Password": "smtp-password"
+  }
+}
+```
+
+SendGrid:
+```json
+{
+  "Email": {
+    "Provider": "SendGrid"
+  },
+  "SendGrid": {
+    "Sender": "noreply@example.com",
+    "SenderName": "My App",
+    "ApiKey": "<sendgrid-api-key>",
+    "Api": "https://api.sendgrid.com/v3/"
+  }
+}
+```
+
+SparkPost:
+```json
+{
+  "Email": {
+    "Provider": "SparkPost"
+  },
+  "SparkPost": {
+    "Sender": "noreply@example.com",
+    "SenderName": "My App",
+    "ApiKey": "<sparkpost-api-key>",
+    "Api": "https://api.eu.sparkpost.com/api/v1/"
+  }
+}
+```
+
+Brevo:
+```json
+{
+  "Email": {
+    "Provider": "Brevo"
+  },
+  "Brevo": {
+    "Sender": "noreply@example.com",
+    "SenderName": "My App",
+    "ApiKey": "<brevo-api-key>",
+    "Api": "https://api.brevo.com/v3/"
+  }
+}
+```
+
+WeMail:
+```json
+{
+  "Email": {
+    "Provider": "WeMail"
+  },
+  "WeMail": {
+    "Sender": "noreply@example.com",
+    "SenderName": "MyApp",
+    "ApiKey": "<api-key>"
+  }
+}
+```
+
+Azure Communication Services:
+```json
+{
+  "Email": {
+    "Provider": "AzureCommunicationServices"
+  },
+  "AzureCommunicationServices": {
+    "Sender": "DoNotReply@<your-domain>",
+    "ClientId": "<app-client-id>",
+    "ClientSecret": "<app-client-secret>",
+    "TenantId": "<tenant-id>",
+    "ResourceEndpoint": "https://<resource-name>.<region>.communication.azure.com",
+    "WaitUntilCompleted": false
   }
 }
 ```
@@ -68,21 +208,74 @@ Configuration (`appsettings.json`):
 
 Send SMS messages through multiple gateway providers:
 
-| Provider | Implementation |
-|----------|----------------|
-| Apifon | `SmsServiceApifon` |
-| Apifon IM | `SmsServiceApifonIM` |
-| KapaTEL | `SmsServiceKapaTEL` |
-| Mstat | `SmsServiceMstat` |
-| SmsUP | `SmsServiceSmsUP` |
-| Twilio | `SmsServiceTwilio` |
-| Vonage | `SmsServiceVonage` |
-| Yuboto | `SmsServiceYuboto` |
-| Yuboto Omni | `SmsServiceYubotoOmni` |
-| Yuboto Viber | `SmsServiceYubotoOmniViber` |
+| Provider key (`Sms:Provider`) | Implementation | Add method | Required configuration keys (under `Sms`) |
+|--------------------------------|----------------|------------|--------------------------------------------|
+| `apifon` | `SmsServiceApifon` | `services.AddSmsServiceApifon(configuration)` | `ApiKey`, `Token`, `Sender` (or `SenderName`) |
+| `apifon_im` / `apifonim` | `SmsServiceApifonIM` | `services.AddSmsServiceApifonIM(configuration)` | `ApiKey`, `Token`, `Sender` (or `SenderName`) |
+| `kapatel` / `kapa_tel` | `SmsServiceKapaTEL` | `services.AddSmsServiceKapaTEL(configuration)` | `Username`, `Password`, `From` |
+| `mstat` | `SmsServiceOmniMessaging` | `services.AddSmsServiceOmniMessaging(configuration)` | `ApiKey`, `SenderName`, `AccountId` |
+| `smsup` | `SmsServiceSmsUP` | `services.AddSmsServiceSmsUp(configuration)` | `ApiKey`, `Sender` |
+| `twilio` | `SmsServiceTwilio` | `services.AddSmsServiceTwilio(configuration)` | `AccountSid`, plus (`ApiKey` + `Secret`) or (`AuthToken`), and `SenderPhoneNumber` or `MessagingServiceSid` |
+| `vonage` | `SmsServiceVonage` | `services.AddSmsServiceVonage(configuration)` | `ApiKey`, `SignatureSecret`, `Sender` (or `SenderName`) |
+| `yuboto` / `yuboto_omni` | `SmsServiceYubotoOmni` | `services.AddSmsServiceYubotoOmni(configuration)` | `ApiKey`, `Sender` (or `SenderName`) |
+| `yuboto_viber` / `yubotoviber` / `yuboto_omni_viber` | `SmsServiceYubotoOmniViber` | `services.AddSmsServiceYubotoOmniViber(configuration)` | `ApiKey`, `Sender` (or `SenderName`), optional `ViberFallbackEnabled` |
+| `noop` / `none` | `SmsServiceNoop` | `services.AddSmsServiceNoop()` | - |
 
 ```csharp
-services.AddSmsServiceApifon(configuration);
+// Auto-discover provider(s) from Sms:Provider
+services.AddSmsService(configuration);
+```
+
+```json
+{
+  "Sms": {
+    "Provider": "twilio",
+    "Sender": "MyApp",
+    "AccountSid": "<account-sid>",
+    "AuthToken": "<auth-token>",
+    "SenderPhoneNumber": "+15551234567"
+  }
+}
+```
+
+### 🔗 Webhooks
+
+Webhook services can be registered independently of SMS services, allowing webhook handling for SMS providers or other integrations.
+
+Register webhook services directly:
+
+```csharp
+services.AddWebhookServices<YourWebhookHandler, YourWebhookHttpHandler>(configuration);
+```
+
+For SMS provider-specific webhooks:
+
+```csharp
+services.AddSmsWebhooks<YourWebhookHandler>(configuration);
+```
+
+Configuration:
+
+```json
+{
+  "WebhookSettings": {
+    "Enabled": true,
+    "ChannelCapacity": 100
+  }
+}
+```
+
+- `Enabled`: Enables or disables webhook processing. Defaults to `false`.
+- `ChannelCapacity`: Maximum number of pending webhook batches. Must be greater than zero when enabled.
+
+Events are processed asynchronously by the hosted `WebhookEventSink`. When webhooks are disabled, webhook services are not registered.
+
+**Currently supported SMS providers:** `apifon`.
+
+Don't forget to also register Webhook endpoints for accepting and processing events:
+
+```csharp
+app.MapWebhooks();
 ```
 
 ### 🔔 Push Notifications

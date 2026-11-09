@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI.Models;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Validators;
 

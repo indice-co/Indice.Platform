@@ -2,15 +2,19 @@
 using Duende.IdentityModel;
 #else
 using IdentityModel;
+using IdentityServer4.Extensions;
+
 #endif
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Extensions;
 #else
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 #endif
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Grants;
 using Indice.Security;
 
 namespace Indice.Features.Identity.Core;
@@ -28,8 +32,13 @@ public class ExtendedProfileService<TInner>(
     private readonly ExtendedUserManager<User> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     /// <inheritdoc />
-    public async Task GetProfileDataAsync(ProfileDataRequestContext context) { 
-        await _inner.GetProfileDataAsync(context);
+    public async Task GetProfileDataAsync(ProfileDataRequestContext context) {
+        if (CustomGrantTypes.Guest == context.Subject.GetAuthenticationMethod()) {
+            context.AddRequestedClaims(context.Subject.Claims);
+            return;
+        } else { 
+            await _inner.GetProfileDataAsync(context);
+        }
         // TODO: We could also configure it from outside of the service.
         var claimsToIssue = new List<string>([
             BasicClaimTypes.IPAddress, 
@@ -47,6 +56,10 @@ public class ExtendedProfileService<TInner>(
 
     /// <inheritdoc />
     public async Task IsActiveAsync(IsActiveContext context) {
+        if (CustomGrantTypes.Guest == context.Subject.GetAuthenticationMethod()) {
+            context.IsActive = true;
+            return;
+        }
         await _inner.IsActiveAsync(context);
         if (!context.IsActive) {
             return;

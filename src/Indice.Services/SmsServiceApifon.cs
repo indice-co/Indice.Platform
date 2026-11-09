@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -38,6 +39,11 @@ public class SmsServiceApifon : ISmsService
     internal static readonly string APIFON_BASE_URL = "https://ars.apifon.com";
     /// <summary>The Apifon IM service gateway endpoint.</summary>
     internal static readonly string SERVICE_ENDPOINT = "/services/api/v1/sms/send";
+    /// <summary>Cached JSON serializer options: CamelCase, ignore null values.</summary>
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
     /// <summary>The settings required to configure the service.</summary>
     protected SmsServiceApifonSettings Settings { get; }
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
@@ -50,9 +56,6 @@ public class SmsServiceApifon : ISmsService
         HttpResponseMessage httpResponse;
         ApifonResponse response;
         var recipients = (destination ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries);
-        if (recipients == null) {
-            throw new ArgumentNullException(nameof(destination));
-        }
         if (recipients.Length == 0) {
             throw new ArgumentException("Recipients list cannot be empty.", nameof(destination));
         }
@@ -61,13 +64,16 @@ public class SmsServiceApifon : ISmsService
                 throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipient));
             }
             return phone.ToString("D");
-        })
-        .ToArray();
+        }).ToArray();
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(destination));
         }
         // https://docs.apifon.com/apireference.html#sms-request
         var payload = ApifonRequest.CreateSms(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener);
+        if (!string.IsNullOrWhiteSpace(Settings.CallbackUrl)) {
+            payload.WithCallbackUrl(Settings.CallbackUrl, Settings.WebhookSecret);
+        }
+        
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
@@ -111,10 +117,7 @@ public class SmsServiceApifon : ISmsService
     public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Get default JSON serializer options: CamelCase, ignore null values.</summary>
-    protected static JsonSerializerOptions GetJsonSerializerOptions() => new () {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    protected static JsonSerializerOptions GetJsonSerializerOptions() => JsonSerializerOptions;
 }
 
 /// <summary>Options for configuring <see cref="SmsServiceApifon"/>.</summary>
@@ -131,6 +134,78 @@ public class SmsServiceApifonSettings : SmsServiceSettings
     public string Token { get; set; } = null!;
     /// <summary>If enabled all urls in the message will be replaced with shortened urls</summary>
     public bool EnableUrlShortener { get; set; } = false;
+    /// <summary>The optional secret to be used for producing the signature of the request.</summary>
+    public string WebhookSecret { get; set; } = string.Empty;
+}
+
+/// <inheritdoc/>
+public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
+{
+    private readonly SmsServiceApifonSettings _settings;
+
+    /// <inheritdoc/>
+    public ApifonWebhookHttpHandler(IOptionsSnapshot<SmsServiceApifonSettings> settings) {
+        _settings = settings.Value;
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
+        if (IsSignatureInvalid(requestParameters)) {
+            return WebhookHttpResult.BadRequest();
+        }
+
+        using var reader = new StreamReader(requestBody);
+        var bodyString = await reader.ReadToEndAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(bodyString)) {
+            return WebhookHttpResult.BadRequest();
+        }
+
+        ApifonWebhookResponse? payload;
+        try {
+            payload = JsonSerializer.Deserialize<ApifonWebhookResponse>(bodyString);
+        } catch (JsonException) {
+            return WebhookHttpResult.BadRequest("Invalid Apifon webhook JSON.");
+        }
+        if (payload?.Data is not { Count: > 0 } || payload.Data.Any(item => item is null)) {
+            return WebhookHttpResult.BadRequest("Apifon webhook data must contain at least one non-null item.");
+        }
+        var incomingEvents = payload!.Data.Select(item => new WebhookEvent {
+            Provider = "Apifon",
+            EventType = "SmsDelivery",
+            MessageId = item.MessageId,
+            EventId = payload.RequestId,
+            Recipient = item.To,
+            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.Timestamp)
+        }).ToList();
+
+        return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
+    }
+
+    private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
+            return false;
+        }
+
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+        var hmacToken = parameters.GetValueOrDefault("hmac");
+        var reference = parameters.GetValueOrDefault("ref");
+        var timestamp = parameters.GetValueOrDefault("ts");
+
+        if (string.IsNullOrWhiteSpace(hmacToken) ||
+            string.IsNullOrWhiteSpace(reference) ||
+            string.IsNullOrWhiteSpace(timestamp)) {
+            return true;
+        }
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_settings.WebhookSecret));
+        var expectedHmac = hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"));
+
+        try {
+            return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken!), expectedHmac);
+        } catch {
+            return true;
+        }
+    }
 }
 
 internal class ApifonResponse
@@ -142,7 +217,7 @@ internal class ApifonResponse
     [JsonPropertyName("result_info")]
     public ResultInfo? Status { get; set; }
 
-    public bool HasError => !(Status?.StatusCode >= 200 && Status?.StatusCode < 300);
+    public bool HasError => Status is null || !(Status.StatusCode >= 200 && Status.StatusCode < 300);
 
     internal class ResultDetails
     {
@@ -212,6 +287,8 @@ internal class ApifonRequest
 
     [JsonPropertyName("message")]
     public ApifonMessage Message { get; set; } = new();
+    [JsonPropertyName("reference_id")]
+    public string? ReferenceId { get; set; }
     [JsonPropertyName("subscribers")]
     public List<Subscriber> Subscribers { get; set; } = [];
     /// <summary>SMS validity period. Min 30 - Max 4320 (default).</summary>
@@ -224,7 +301,7 @@ internal class ApifonRequest
     [JsonPropertyName("date")]
     public DateTime? DateToSend { get; set; }
     [JsonIgnore]
-    public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
+    public DateTime RequestDate { get; set; } = DateTime.UtcNow;
 
     internal class ApifonMessage
     {
@@ -284,6 +361,69 @@ internal class ApifonRequest
     }
 }
 
+internal sealed class ApifonWebhookResponse
+{
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = null!;
+
+    [JsonPropertyName("request_id")]
+    public string RequestId { get; set; } = null!;
+
+    [JsonPropertyName("reference_id")]
+    public string ReferenceId { get; set; } = null!;
+
+    [JsonPropertyName("data")]
+    public List<ApifonWebhookItem> Data { get; set; } = [];
+
+    [JsonPropertyName("account_id")]
+    public int AccountId { get; set; }
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = null!;
+}
+
+internal sealed class ApifonWebhookItem
+{
+    [JsonPropertyName("from")]
+    public string From { get; set; } = null!;
+
+    [JsonPropertyName("to")]
+    public string To { get; set; } = null!;
+
+    [JsonPropertyName("message_id")]
+    public string MessageId { get; set; } = null!;
+
+    [JsonPropertyName("custom_id")]
+    public string CustomId { get; set; } = null!;
+
+    [JsonPropertyName("status")]
+    public ApifonWebhookStatus Status { get; set; } = null!;
+
+    [JsonPropertyName("error_code")]
+    public string? ErrorCode { get; set; }
+
+    [JsonPropertyName("timestamp")]
+    public long Timestamp { get; set; }
+
+    [JsonPropertyName("price")]
+    public string? Price { get; set; }
+
+    [JsonPropertyName("vat")]
+    public string? Vat { get; set; }
+
+    [JsonPropertyName("mccmnc")]
+    public string? Mccmnc { get; set; }
+}
+
+internal sealed class ApifonWebhookStatus
+{
+    [JsonPropertyName("code")]
+    public int Code { get; set; }
+
+    [JsonPropertyName("text")]
+    public string? Text { get; set; }
+}
+
 internal static class ApifonSmsServiceExtensions {
     /// <summary>Serialize our concrete class into a JSON String.</summary>
     public static string ToJson<TRequest>(this TRequest request, JsonSerializerOptions? options = null) 
@@ -293,6 +433,7 @@ internal static class ApifonSmsServiceExtensions {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     });
 
+    /// <summary>Signs an Apifon request.</summary>
     public static string Sign<TRequest>(this TRequest request, string secretKey, string method, string uri) where TRequest : ApifonRequest {
         var toSign = method + "\n"
             + uri + "\n"
@@ -301,5 +442,28 @@ internal static class ApifonSmsServiceExtensions {
         var encoding = new UTF8Encoding();
         using var hmacSha256 = new HMACSHA256(encoding.GetBytes(secretKey));
         return Convert.ToBase64String(hmacSha256.ComputeHash(encoding.GetBytes(toSign)));
+    }
+
+    /// <summary>Generates a callback URL with a reference identifier for an Apifon request.</summary>
+    public static TRequest WithCallbackUrl<TRequest>(this TRequest request, string baseUrl, string secretKey) where TRequest : ApifonRequest {
+        var callbackUri = new UriBuilder(baseUrl);
+        if (string.IsNullOrWhiteSpace(secretKey)) {
+            request.CallbackUrl = callbackUri.Uri.AbsoluteUri;
+            return request;
+        }
+        var timestamp = DateTimeOffset.UtcNow;
+        var referenceId = Guid.NewGuid().ToString("N");
+        var payload = $"{referenceId}:{timestamp:O}";
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
+        var hex = Convert.ToHexString(hash);
+        request.ReferenceId = referenceId;
+        var existingQuery = callbackUri.Query.TrimStart('?');
+        var callbackQuery = $"hmac={hex}&ref={referenceId}&ts={Uri.EscapeDataString(timestamp.ToString("O"))}";
+        callbackUri.Query = string.IsNullOrWhiteSpace(existingQuery)
+            ? callbackQuery
+            : $"{existingQuery}&{callbackQuery}";
+        request.CallbackUrl = callbackUri.Uri.AbsoluteUri;
+        return request;
     }
 }

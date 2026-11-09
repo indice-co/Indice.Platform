@@ -61,7 +61,7 @@ public class SpaUIMiddleware<TOptions> where TOptions : SpaUIOptions, new()
         var contentTypeProvider = new FileExtensionContentTypeProvider();
         var staticFileMiddleware = staticFileMiddlewareFactory.Create(baseRequestPath, _next!, _assembly, _embeddedUIRoot, _options, contentTypeProvider);
         var requestPath = httpContext.Request.Path.Value;
-        if (!contentTypeProvider.TryGetContentType(requestPath!, out var _)) {
+        if (!contentTypeProvider.TryGetContentType(requestPath!, out var _) && httpContext.GetEndpoint() is null) {
             httpContext.Request.Path = new PathString($"{baseRequestPath.TrimEnd('/')}/index.html");
             if (_options.GenerateAntiforgeryTokens) {
                 GenerateAntiforgeryCookie(httpContext);
@@ -73,6 +73,6 @@ public class SpaUIMiddleware<TOptions> where TOptions : SpaUIOptions, new()
     private void GenerateAntiforgeryCookie(HttpContext httpContext) {
         var antiforgery = httpContext.RequestServices.GetRequiredService<IAntiforgery>();
         var tokenSet = antiforgery.GetAndStoreTokens(httpContext);
-        httpContext.Response.Cookies.Append("XSRF-TOKEN", tokenSet.RequestToken!, new CookieOptions { HttpOnly = false });
+        httpContext.Response.Cookies.Append("XSRF-TOKEN", tokenSet.RequestToken!, new CookieOptions { HttpOnly = false, Secure = httpContext.Request.IsHttps });
     }
 }

@@ -122,6 +122,7 @@ public static class WebApplicationBuilderExtensions
     private static Action<JwtBearerOptions> ConfigureJwtBearer(IHostApplicationBuilder builder) {
         return options => {
             options.Authority = builder.Configuration.GetAuthority();
+            options.TokenValidationParameters.ValidIssuers = builder.Configuration.GetAuthorities().ToArray();
             options.MetadataAddress = builder.Configuration.GetAuthorityMetadata(tryInternal: true);
             options.Audience = builder.Configuration.GetApiResourceName() ?? "api1";
             options.TokenValidationParameters.RoleClaimType = JwtClaimTypes.Role;
@@ -158,7 +159,7 @@ public static class WebApplicationBuilderExtensions
             };
         })
         // Reference tokens.
-        .AddOAuth2Introspection(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme + ".Introspection", options => { 
+        .AddOAuth2Introspection(SignalRProxyAuthentication.SignalRNegotiationAuthenticationScheme + ".Introspection", options => {
             ConfigureIntrospection(builder)(options);
             options.TokenRetriever = SignalRProxyAuthentication.SignalRNegotiateTokenRetriever(
                    defaultTokenRetriever: TokenRetrieval.FromAuthorizationHeader()

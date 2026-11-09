@@ -10,12 +10,12 @@ namespace Indice.Hosting.Services;
 /// <typeparam name="TState">The type of state object.</typeparam>
 public class ScheduledTaskStoreEF<TState> : IScheduledTaskStore<TState> where TState : class
 {
-    private readonly TaskDbContext _dbContext;
+    private readonly ITaskDbContext _dbContext;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     /// <summary>Creates a new instance of <see cref="ScheduledTaskStoreEF{TState}"/>.</summary>
     /// <param name="dbContext"></param>
     /// <param name="workerJsonOptions"></param>
-    public ScheduledTaskStoreEF(TaskDbContext dbContext, WorkerJsonOptions workerJsonOptions) {
+    public ScheduledTaskStoreEF(ITaskDbContext dbContext, WorkerJsonOptions workerJsonOptions) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
     }
@@ -29,7 +29,6 @@ public class ScheduledTaskStoreEF<TState> : IScheduledTaskStore<TState> where TS
         var dbTask = await _dbContext.Tasks.Where(x => x.Id == scheduledTask.Id).SingleOrDefaultAsync();
         if (dbTask != null) {
             dbTask.From(scheduledTask, _jsonSerializerOptions);
-            _dbContext.Tasks.Update(dbTask);
         } else {
             _dbContext.Tasks.Add(new DbScheduledTask().From(scheduledTask, _jsonSerializerOptions));
         }

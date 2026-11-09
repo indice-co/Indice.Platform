@@ -19,6 +19,11 @@ public class Rfc6238AuthenticationService
     private readonly int _codeLength = MIN_LENGTH;
     private readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
+    /// <summary>Gets the configured value for the size of the generated code.</summary>
+    public int CodeLength => _codeLength;
+    /// <summary>Gets the configured value for the duration of the generated code.</summary>
+    public TimeSpan Duration => _timestep * 2.0;
+
     /// <summary>Creates a new instance of <see cref="Rfc6238AuthenticationService"/>.</summary>
     public Rfc6238AuthenticationService(double timestep, int codeLength) {
         if (timestep < MIN_TIMESTEP) {

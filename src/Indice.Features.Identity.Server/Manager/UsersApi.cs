@@ -28,7 +28,7 @@ public static class UsersApi
              .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -54,7 +54,8 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.UpdateUser))
              .WithSummary("Updates an existing user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<UpdateUserRequest>();
+             .WithParameterValidation<UpdateUserRequest>()
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapDelete("{userId}", UserHandlers.DeleteUser)
              .WithName(nameof(UserHandlers.DeleteUser))
@@ -133,26 +134,55 @@ public static class UsersApi
              .WithSummary("Permanently deletes a specified login provider association from a user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
+        group.MapGet("{userId}/sessions", UserHandlers.GetUserSessions)
+             .WithName(nameof(UserHandlers.GetUserSessions))
+             .WithSummary("Gets a list of server side sessions for the specified user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapDelete("{userId}/sessions/{sessionId}", UserHandlers.RemoveUserSession)
+             .WithName(nameof(UserHandlers.RemoveUserSession))
+             .WithSummary("Permanently removes an active session.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapPut("{userId}/block", UserHandlers.SetUserBlock)
              .WithName(nameof(UserHandlers.SetUserBlock))
              .WithSummary("Toggles user block state.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<SetUserBlockRequest>();
+             .WithParameterValidation<SetUserBlockRequest>()
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapPut("{userId}/unlock", UserHandlers.UnlockUser)
              .WithName(nameof(UserHandlers.UnlockUser))
              .WithSummary("Unlocks a user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapPut("{userId}/set-password", UserHandlers.SetPassword)
              .WithName(nameof(UserHandlers.SetPassword))
              .WithSummary("Sets the password for a given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<SetPasswordRequest>();
+             .WithParameterValidation<SetPasswordRequest>()
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
+
+        group.MapPost("generate-password", UserHandlers.GeneratePassword)
+             .WithName(nameof(UserHandlers.GeneratePassword))
+             .WithSummary("Generates a random password that satisfies the configured password options and validators.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapDelete("{userId}/password", UserHandlers.RemovePassword)
              .WithName(nameof(UserHandlers.RemovePassword))
              .WithSummary("Removes the last password for the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
+        group.MapDelete("{userId}/mfa", UserHandlers.ResetMfa)
+             .WithName(nameof(UserHandlers.ResetMfa))
+             .WithSummary("Resets the multi-factor authentication for the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
+
+        group.MapDelete("{userId}/action-counter", UserHandlers.ResetActionCounter)
+             .WithName(nameof(UserHandlers.ResetActionCounter))
+             .WithSummary("Resets the action counter for the given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
@@ -200,7 +230,6 @@ public static class UsersApi
 
         userDeviceSecretGroup.RequireAuthorization(IdentityEndpoints.Policies.BeUserDeviceSecretReader);
         userDeviceSecretGroup
-            .AddOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret])
             .WithOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret]);
 
         userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secrets", UserHandlers.GetUserDeviceSecrets)

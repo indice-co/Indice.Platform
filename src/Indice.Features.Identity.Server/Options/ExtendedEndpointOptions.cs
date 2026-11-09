@@ -13,6 +13,13 @@ public class ExtendedEndpointOptions
 
     /// <summary>Disables the cache for all the endpoints in the IdentityServer API. Defaults to false.</summary>
     public bool DisableCache { get; set; } = false;
+    /// <summary>
+    /// Maps the translations of the IAM UI (admin SPA) as a JSON graph under <strong>{ApiPrefix}/iam-i18n.{lang}.json</strong> together with 
+    /// the available languages under <strong>{ApiPrefix}/languages</strong>. Defaults to true. 
+    /// Disable it when the host already uses <c>AddTranslationGraph</c> for another feature and register the resource 
+    /// <strong>AdminUI.Ui.TranslationApi</strong> of the <strong>Indice.Features.Identity.Server</strong> assembly there instead.
+    /// </summary>
+    public bool MapTranslations { get; set; } = true;
     /// <summary>The claim type used to identify the user. Defaults to <strong>sub</strong>.</summary>
     public string UserClaimType { get; set; } = BasicClaimTypes.Subject;
     /// <summary>API default resource scope. Defaults to <strong>identity</strong>.</summary>

@@ -1,10 +1,12 @@
 ﻿using System.Data.Common;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,9 +21,7 @@ public class ContactService : IContactService
     public ContactService(CampaignsDbContext dbContext) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
-
     private CampaignsDbContext DbContext { get; }
-
     /// <inheritdoc />
     public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
         var list = await DbContext.DistributionLists.FindAsync(id);
@@ -53,6 +53,7 @@ public class ContactService : IContactService
         });
         DbContext.Contacts.Add(contact);
         await DbContext.SaveChangesAsync();
+        await DbContext.RefreshContactCountsAsync([list.Id]);
     }
 
     /// <inheritdoc />
@@ -108,6 +109,7 @@ public class ContactService : IContactService
         }
 
         await DbContext.SaveChangesAsync();
+        await DbContext.RefreshContactCountsAsync([list.Id]);
         return result;
     }
 
@@ -159,7 +161,6 @@ public class ContactService : IContactService
             result.Preference = await GetContactPreference(contact.RecipientId);
 
         }
-
         return result;
     }
 
@@ -215,6 +216,7 @@ public class ContactService : IContactService
         }
         DbContext.ContactDistributionLists.Remove(association);
         await DbContext.SaveChangesAsync();
+        await DbContext.RefreshContactCountsAsync([id]);
     }
 
     /// <inheritdoc />
@@ -249,6 +251,7 @@ public class ContactService : IContactService
         });
         contact.MapFromCreateDistributionListContactRequest(request);
         await DbContext.SaveChangesAsync();
+        await DbContext.RefreshContactCountsAsync([list.Id]);
     }
 
     private async Task AddContactToDistributionListIfNotExists(DbContact contact, DbDistributionList list) {
@@ -400,8 +403,7 @@ public class ContactService : IContactService
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
                 return;
-            } 
-            catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
+            } catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
                 DbContext.ChangeTracker.Clear();
                 recipientPreferences = await DbContext.ContactPreferences
                                            .Include(x => x.CommunicationOptions)
@@ -449,8 +451,7 @@ public class ContactService : IContactService
                 await DbContext.ContactPreferences.AddAsync(recipientPreferences);
                 await DbContext.SaveChangesAsync();
                 return;
-            } 
-            catch (DbUpdateException ex) when(IsDuplicateKeyViolation(ex)) {
+            } catch (DbUpdateException ex) when (IsDuplicateKeyViolation(ex)) {
                 DbContext.ChangeTracker.Clear();
                 recipientPreferences = await DbContext.ContactPreferences
                                              .Include(x => x.CommunicationOptions)
@@ -498,6 +499,10 @@ public class ContactService : IContactService
             .Where(x => !x.ContactDistributionLists.Any(c => c.ContactId == mainContact.Id) &&
                          x.ContactDistributionLists.Any(c => duplicateContactIds.Contains(c.ContactId)))
             .Select(x => x.Id).Distinct().ToListAsync();
+        // Every list a duplicate belongs to changes size; collect them before the delete removes the rows.
+        var touchedDistributionListIds = await DbContext.ContactDistributionLists
+            .Where(x => duplicateContactIds.Contains(x.ContactId))
+            .Select(x => x.DistributionListId).Distinct().ToListAsync();
 
         await DbContext.ContactDistributionLists.Where(x => duplicateContactIds.Contains(x.ContactId)).ExecuteDeleteAsync();
         DbContext.ContactDistributionLists.AddRange(affectedDistributionListIds.Select(id => new DbDistributionListContact {
@@ -505,6 +510,7 @@ public class ContactService : IContactService
             ContactId = mainContact.Id!.Value,
         }));
         await DbContext.SaveChangesAsync();
+        await DbContext.RefreshContactCountsAsync(touchedDistributionListIds);
     }
 
     private async Task UpdateContactInMessages(Contact mainContact, List<Guid> duplicateContactIds) {

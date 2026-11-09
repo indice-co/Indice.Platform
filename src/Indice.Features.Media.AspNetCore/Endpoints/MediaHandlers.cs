@@ -41,7 +41,7 @@ internal static class MediaHandlers
         if (contentType.StartsWith("image", StringComparison.OrdinalIgnoreCase) &&
             !contentType.Equals(MediaTypeNames.Image.Svg, StringComparison.OrdinalIgnoreCase)
             && size > 0) {
-            using var image = Image.Load(data, out var imageFormat);
+            using var image = Image.Load(data);
             // manipulate image resize to max side size.
             var maxSide = Math.Max(image.Width, image.Height);
             var factor = (double)size / maxSide;
@@ -95,6 +95,11 @@ internal static class MediaHandlers
 
     internal static async Task<NoContent> DeleteFile(Guid fileId, MediaManager mediaManager) {
         await mediaManager.DeleteFile(fileId);
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<NoContent> Discover(MediaManager mediaManager) {
+        await mediaManager.DiscoverStructure();
         return TypedResults.NoContent();
     }
 }

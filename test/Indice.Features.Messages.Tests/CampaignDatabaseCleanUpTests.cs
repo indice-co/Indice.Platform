@@ -17,6 +17,10 @@ namespace Indice.Features.Messages.Tests;
 
 public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 {
+    // Retention days from MessagingDatabaseCleanUpOptions defaults
+    private const int RetentionDaysForInbox = 180;
+    private const int RetentionDaysForOther = 120;
+
     public ServiceProvider ServiceProvider { get; }
 
     public CampaignDatabaseCleanUpTests() {
@@ -42,8 +46,8 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
             .AddTransient<UserNameAccessorAggregate>()
             .AddSingleton<IFileServiceFactory, DefaultFileServiceFactory>()
             .AddKeyedSingleton<IFileService, FileServiceInMemory>("Messages:FileServiceKey")
-            .Configure<MessagingDatabaseCleanUpOptions>(options => {
-                options.Enabled = true;
+            .Configure<MessageWorkerOptions>(options => {
+                options.DatabaseCleanUpOptions.Enabled = true;
             })
             .AddTransient<IMessagingDatabaseCleanUpService, MessagingDatabaseCleanUpService>()
             .AddOptions()
@@ -51,12 +55,12 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         ServiceProvider = services.BuildServiceProvider();
     }
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureCreatedAsync();
     }
 
-    public async Task DisposeAsync() {
+    public async ValueTask DisposeAsync() {
         var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
@@ -75,17 +79,18 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
                 Id = Guid.NewGuid(),
                 Name = $"Test List {i}",
                 CreatedBy = "system",
+                SystemGenerated = true,
                 ContactDistributionLists = new List<DbDistributionListContact>()
             });
         }
         db.DistributionLists.AddRange(distributionLists);
 
-        var oldCampaign1 = CreateCampaign(MessageChannelKind.Inbox, 185, true, distributionLists[0].Id);
-        var oldCampaign2 = CreateCampaign(MessageChannelKind.Inbox, 190, true, distributionLists[1].Id);
-        var oldCampaign3 = CreateCampaign(MessageChannelKind.Inbox | MessageChannelKind.Email, 200, true, distributionLists[2].Id);
+        var oldCampaign1 = CreateCampaign(MessageChannelKind.Inbox, RetentionDaysForInbox + 5, true, distributionLists[0].Id);
+        var oldCampaign2 = CreateCampaign(MessageChannelKind.Inbox, RetentionDaysForInbox + 10, true, distributionLists[1].Id);
+        var oldCampaign3 = CreateCampaign(MessageChannelKind.Inbox | MessageChannelKind.Email, RetentionDaysForInbox + 20, true, distributionLists[2].Id);
 
-        var recentCampaign = CreateCampaign(MessageChannelKind.Inbox, 10, true, distributionLists[3].Id);
-        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Inbox, 200, false, distributionLists[4].Id);
+        var recentCampaign = CreateCampaign(MessageChannelKind.Inbox, RetentionDaysForInbox - 170, true, distributionLists[3].Id);
+        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Inbox, RetentionDaysForInbox + 20, false, distributionLists[4].Id);
 
         db.Campaigns.AddRange(oldCampaign1, oldCampaign2, oldCampaign3, recentCampaign, unpublishedCampaign);
 
@@ -100,15 +105,15 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 
         db.SaveChanges();
         await cleanupService.CleanUpCampaignsWithInboxAsync();
-        var remainingCampaigns = await db.Campaigns.ToListAsync();
+        var remainingCampaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingCampaigns.Count); // Only recent and unpublished should remain
         Assert.Contains(remainingCampaigns, c => c.Id == recentCampaign.Id);
         Assert.Contains(remainingCampaigns, c => c.Id == unpublishedCampaign.Id);
 
-        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync();
+        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(remainingEvents);
 
-        var remainingLists = await db.DistributionLists.ToListAsync();
+        var remainingLists = await db.DistributionLists.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingLists.Count);
     }
 
@@ -125,17 +130,18 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
                 Id = Guid.NewGuid(),
                 Name = $"Test List {i}",
                 CreatedBy = "system",
+                SystemGenerated = true,
                 ContactDistributionLists = new List<DbDistributionListContact>()
             });
         }
         db.DistributionLists.AddRange(distributionLists);
 
-        var oldCampaign1 = CreateCampaign(MessageChannelKind.Email, 124, true, distributionLists[0].Id);
-        var oldCampaign2 = CreateCampaign(MessageChannelKind.Email, 170, true, distributionLists[1].Id);
-        var oldCampaign3 = CreateCampaign(MessageChannelKind.Email, 129, true, distributionLists[2].Id);
+        var oldCampaign1 = CreateCampaign(MessageChannelKind.Email, RetentionDaysForOther + 4, true, distributionLists[0].Id);
+        var oldCampaign2 = CreateCampaign(MessageChannelKind.Email, RetentionDaysForOther + 50, true, distributionLists[1].Id);
+        var oldCampaign3 = CreateCampaign(MessageChannelKind.Email, RetentionDaysForOther + 9, true, distributionLists[2].Id);
 
-        var recentCampaign = CreateCampaign(MessageChannelKind.Email, 10, true, distributionLists[3].Id);
-        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Email, 135, false, distributionLists[4].Id);
+        var recentCampaign = CreateCampaign(MessageChannelKind.Email, RetentionDaysForOther - 110, true, distributionLists[3].Id);
+        var unpublishedCampaign = CreateCampaign(MessageChannelKind.Email, RetentionDaysForOther + 15, false, distributionLists[4].Id);
 
         db.Campaigns.AddRange(oldCampaign1, oldCampaign2, oldCampaign3, recentCampaign, unpublishedCampaign);
 
@@ -150,13 +156,13 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
 
         db.SaveChanges();
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
-        var remainingCampaigns = await db.Campaigns.ToListAsync();
+        var remainingCampaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingCampaigns.Count); // Only recent and unpublished should remain
         Assert.Contains(remainingCampaigns, c => c.Id == recentCampaign.Id);
         Assert.Contains(remainingCampaigns, c => c.Id == unpublishedCampaign.Id);
-        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync();
+        var remainingEvents = await db.MessageEvents.Where(e => e.CampaignId == oldCampaign1.Id).ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(remainingEvents);
-        var remainingLists = await db.DistributionLists.ToListAsync();
+        var remainingLists = await db.DistributionLists.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, remainingLists.Count);
     }
 
@@ -168,7 +174,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         await cleanupService.CleanUpCampaignsWithInboxAsync();
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
 
-        var campaigns = await db.Campaigns.ToListAsync();
+        var campaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(campaigns);
     }
 
@@ -180,11 +186,12 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         var distributionList = new DbDistributionList {
             Id = Guid.NewGuid(),
             Name = "Test List",
-            CreatedBy = "system"
+            CreatedBy = "system",
+            SystemGenerated = true
         };
         db.DistributionLists.Add(distributionList);
 
-        var campaignWithActivePeriod = CreateCampaign(MessageChannelKind.Email, 135, true, distributionList.Id);
+        var campaignWithActivePeriod = CreateCampaign(MessageChannelKind.Email, RetentionDaysForOther + 15, true, distributionList.Id);
         campaignWithActivePeriod.ActivePeriod = new Types.Period {
             From = DateTimeOffset.UtcNow.AddDays(-10), // Active period started 10 days ago
             To = DateTimeOffset.UtcNow.AddDays(10)
@@ -194,7 +201,7 @@ public class CampaignDatabaseCleanUpTests : IAsyncLifetime
         db.SaveChanges();
 
         await cleanupService.CleanUpCampaignsWithoutInboxAsync();
-        var remainingCampaigns = await db.Campaigns.ToListAsync();
+        var remainingCampaigns = await db.Campaigns.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(remainingCampaigns);
         Assert.Equal(campaignWithActivePeriod.Id, remainingCampaigns[0].Id);
     }

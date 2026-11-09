@@ -14,17 +14,22 @@ using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Events;
 #else
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core.TokenCreation;
+using IdentityServer4.Events;
 #endif
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Grants;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.ResponseHandling;
 using Indice.Features.Identity.Tests.Models;
@@ -40,9 +45,8 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Xunit;
-using Xunit.Abstractions;
 using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
@@ -214,14 +218,17 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         """;
     // Private fields
     private readonly HttpClient _httpClient;
+    private readonly IHost _host;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
     private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
     private string _signInLogDatabaseName = $"SignInLogDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
+    private readonly List<Event> _raisedEvents = [];
 
     public CustomGrantsIntegrationTests(ITestOutputHelper output) {
         _output = output;
-        var builder = new WebHostBuilder();
+        _host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices"] = "20",
@@ -257,7 +264,10 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             .AddAspNetIdentity<User>()
             .AddInMemoryPersistedGrants()
             .AddExtendedResourceOwnerPasswordValidator()
-            .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+.AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+.AddDelegationGrantValidator()
+.AddExtensionGrantValidator<TotpGrantValidator>()
+.AddOtpAuthenticateGrantValidator()
             .AddDeveloperSigningCredential(persistKey: false)
             .AddSignInLogs(options => {
                 options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
@@ -265,7 +275,15 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 options.ImpossibleTravel.Guard = true;
                 options.ImpossibleTravel.AcceptableSpeed = 90d;
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
+                options.DequeueBatchSize = 1; // this will force immediate processing of event from the channel
             });
+            // Replace the default event sink with a composite one that captures events for testing purposes.
+            var sinkDescriptor = services.Last(d => d.ServiceType == typeof(IEventSink));
+            services.Remove(sinkDescriptor);
+            services.Add(new ServiceDescriptor(typeof(IEventSink), sp => {
+                var inner = (IEventSink)ActivatorUtilities.CreateInstance(sp, sinkDescriptor.ImplementationType!);
+                return new CompositeEventSink(inner, _raisedEvents);
+            }, sinkDescriptor.Lifetime));
             services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
 #if !NET9_0_OR_GREATER
             services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
@@ -278,7 +296,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             app.UseIdentityServer();
             app.IdentityStoreSetup();
         });
-        var server = new TestServer(builder);
+        }).Start();
+        var server = _host.GetTestServer();
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;
         _httpClient = new HttpClient(handler) {
@@ -288,18 +307,25 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
 
     public User TestUser { get; set; } = null!;
 
-    public async Task InitializeAsync() {
+    public async ValueTask InitializeAsync() {
         TestUser = await InitTestUserAsync();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async ValueTask DisposeAsync() {
+        _httpClient.Dispose();
+        try {
+            await _host.StopAsync();
+        } finally {
+            _host.Dispose();
+        }
+    }
 
     #region Device Authentication Tests
     [Fact]
     public async Task Can_Register_New_Device_Using_Biometric() {
         var deviceId = Guid.NewGuid().ToString();
         var response = await RegisterDeviceUsingBiometric(deviceId);
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         if (!response.IsSuccessStatusCode) {
             _output.WriteLine(responseJson);
         }
@@ -317,12 +343,212 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     [Fact]
     public Task Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin_Test() => RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
 
+    #region Session Id Tests
+
+    [Fact]
+    public async Task Password_Grant_Issues_New_SessionId() {
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        var sessionId = GetSessionId(tokenResponse);
+        Assert.False(string.IsNullOrWhiteSpace(sessionId));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == sessionId);
+    }
+
+    [Fact]
+    public async Task Password_Grant_Issues_Different_SessionId_Per_Login() {
+        var firstLogin = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        var secondLogin = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        Assert.NotEqual(GetSessionId(firstLogin), GetSessionId(secondLogin));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == GetSessionId(firstLogin));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == GetSessionId(secondLogin));
+    }
+
+    [Fact]
+    public async Task DeviceAuthentication_Pin_Issues_New_SessionId() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var tokenResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
+        var sessionId = GetSessionId(tokenResponse);
+        Assert.False(string.IsNullOrWhiteSpace(sessionId));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == sessionId);
+    }
+
+    [Fact]
+    public async Task DeviceAuthentication_Fingerprint_Issues_New_SessionId() {
+        var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
+        var codeVerifier = GenerateCodeVerifier();
+        var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
+        var signature = SignMessage(challenge, GetX509SigningCredentials());
+        using var tokenRequest = new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "code", challenge },
+                { "code_signature", signature },
+                { "code_verifier", codeVerifier },
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "public_key", CERTIFICATE_PUBLIC_KEY },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            }
+        };
+        var tokenResponse = await _httpClient.RequestTokenAsync(tokenRequest, cancellationToken: TestContext.Current.CancellationToken);
+        var sessionId = GetSessionId(tokenResponse);
+        Assert.False(string.IsNullOrWhiteSpace(sessionId));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == sessionId);
+    }
+
+    [Fact]
+    public async Task Refresh_Token_Preserves_SessionId() {
+        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx", requestOfflineAccess: true);
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var firstRefreshRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = loginResponse.RefreshToken!
+        };
+        var firstRefresh = await _httpClient.RequestRefreshTokenAsync(firstRefreshRequest, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal(loginSessionId, GetSessionId(firstRefresh));
+        
+        // refresh again
+        using var secondRefreshRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = firstRefresh.RefreshToken ?? loginResponse.RefreshToken!
+        };
+        var secondRefresh = await _httpClient.RequestRefreshTokenAsync(secondRefreshRequest, cancellationToken: TestContext.Current.CancellationToken);
+        
+        Assert.Equal(loginSessionId, GetSessionId(secondRefresh));
+        Assert.Contains(_raisedEvents.OfType<ExtendedUserLoginSuccessEvent>(), loginEvent => loginEvent.SessionId == loginSessionId);
+    }
+    
+    [Fact(Skip = "Known discrepancy between IS4 and Duende on handling of UpdateAccessTokenClaimsOnRefresh with SessionId.")]
+    public async Task Refresh_Token_Preserves_SessionId_When_Client_Updates_Claims_On_Refresh() {
+        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx", requestOfflineAccess: true, clientId: "ppk-client-update-claims");
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var refreshTokenRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = "ppk-client-update-claims",
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = loginResponse.RefreshToken!
+        };
+        var refreshResponse = await _httpClient.RequestRefreshTokenAsync(refreshTokenRequest, cancellationToken: TestContext.Current.CancellationToken);
+        
+        Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
+    }
+
+    [Fact]
+    public async Task Delegation_Grant_Preserves_SessionId_From_Password_Login() {
+        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+        var loginSessionId = GetSessionId(loginResponse);
+        
+        var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!);
+        
+        AssertSidClaimExists(delegationResponse);
+        Assert.StartsWith($"{SessionIdPrefixes.Password}.", loginSessionId);
+        Assert.Equal(loginSessionId, GetSessionId(delegationResponse));
+    }
+
+    [Fact]
+    public async Task Delegation_Grant_Preserves_SessionId_And_DeviceId_From_Device_Login() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var loginResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
+        var loginSessionId = GetSessionId(loginResponse);
+        var loginDeviceId = GetDeviceId(loginResponse);
+        Assert.False(string.IsNullOrWhiteSpace(loginDeviceId));
+
+        var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!);
+        
+        AssertSidClaimExists(delegationResponse);
+        Assert.StartsWith($"{SessionIdPrefixes.DeviceAuthentication}.", loginSessionId);
+        Assert.Equal(loginSessionId, GetSessionId(delegationResponse));
+        Assert.Equal(loginDeviceId, GetDeviceId(delegationResponse));
+    }
+
+    [Fact]
+    public async Task Delegation_Grant_Refresh_Preserves_SessionId_And_DeviceId() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var loginResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
+        var loginSessionId = GetSessionId(loginResponse);
+        var loginDeviceId = GetDeviceId(loginResponse);
+        Assert.False(string.IsNullOrWhiteSpace(loginDeviceId));
+
+        var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!, requestOfflineAccess: true);
+        Assert.False(string.IsNullOrWhiteSpace(delegationResponse.RefreshToken));
+
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using var refreshRequest = new RefreshTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            RefreshToken = delegationResponse.RefreshToken!
+        };
+        var refreshResponse = await _httpClient.RequestRefreshTokenAsync(refreshRequest, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
+        Assert.Equal(loginDeviceId, GetDeviceId(refreshResponse));
+    }
+
+    #endregion
+
+    private async Task<TokenResponse> RequestDelegationToken(string token, bool requestOfflineAccess = false) {
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1";
+        if (requestOfflineAccess) {
+            scope = $"{scope} {IdentityServerConstants.StandardScopes.OfflineAccess}";
+        }
+        using var tokenRequest = new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.Delegation,
+            Parameters = {
+                { "token", token },
+                { "scope", scope }
+            }
+        };
+        return await _httpClient.RequestTokenAsync(tokenRequest);
+    }
+
+    private static string? GetSessionId(TokenResponse tokenResponse) {
+        Assert.False(tokenResponse.IsError, tokenResponse.ErrorDescription ?? tokenResponse.Error);
+        var accessToken = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(tokenResponse.AccessToken);
+        return accessToken.TryGetClaim(BasicClaimTypes.SessionId, out var sessionId) ? sessionId.Value : null;
+    }
+
+    private static string? GetDeviceId(TokenResponse tokenResponse) {
+        Assert.False(tokenResponse.IsError, tokenResponse.ErrorDescription ?? tokenResponse.Error);
+        var accessToken = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(tokenResponse.AccessToken);
+        return accessToken.TryGetClaim(BasicClaimTypes.DeviceId, out var deviceId) ? deviceId.Value : null;
+    }
+
+    private async Task<TokenResponse> LoginWithDevicePin(Guid registrationId) {
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        using var tokenRequest = new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            }
+        };
+        return await _httpClient.RequestTokenAsync(tokenRequest);
+    }
+
     [Fact]
     public async Task Can_Authenticate_Existing_Device_Using_Fingerprint() {
         var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
         var codeVerifier = GenerateCodeVerifier();
         var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var x509SigningCredentials = GetX509SigningCredentials();
         var signature = SignMessage(challenge, x509SigningCredentials);
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
@@ -338,14 +564,27 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "public_key", CERTIFICATE_PUBLIC_KEY },
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
             }
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
+
+private static void AssertSidClaimExists(TokenResponse tokenResponse) {
+    Assert.False(string.IsNullOrWhiteSpace(tokenResponse.AccessToken));
+    Assert.False(string.IsNullOrWhiteSpace(tokenResponse.IdentityToken));
+
+    var handler = new JwtSecurityTokenHandler();
+    var accessJwt = handler.ReadJwtToken(tokenResponse.AccessToken);
+    var idJwt = handler.ReadJwtToken(tokenResponse.IdentityToken);
+
+    Assert.Contains(accessJwt.Claims, c => c.Type == BasicClaimTypes.SessionId);
+    Assert.Contains(idJwt.Claims, c => c.Type == BasicClaimTypes.SessionId);
+}
 
     [Fact]
     public async Task Can_Authenticate_Existing_Device_Using_Pin() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
@@ -356,19 +595,20 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "pin", DEVICE_PIN },
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
             }
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact(Skip = "Needs configuration change")]
     public async Task Register_More_Devices_Than_Allowed_Fails() {
         var hasAnyError = false;
-        foreach (var item in Enumerable.Range(0, 5)) {
+        for (var i = 0; i < 5; i++) {
             var deviceId = Guid.NewGuid().ToString();
             var response = await RegisterDeviceUsingBiometric(deviceId);
             if (!response.IsSuccessStatusCode) {
                 hasAnyError = true;
-                var responseJson = await response.Content.ReadAsStringAsync();
+                var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
                 _output.WriteLine(responseJson);
                 var validation = JsonSerializer.Deserialize<ValidationProblemDetails>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
                 Assert.Collection(validation.Errors.Keys, errorCode => errorCode.Contains("MaxNumberOfDevices"));
@@ -390,20 +630,20 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             Assert.Fail("Device could not be created.");
         }
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
-        await dbContext.Entry(TestUser).ReloadAsync();
+        await dbContext.Entry(TestUser).ReloadAsync(TestContext.Current.CancellationToken);
         // 3. Change username. 
         var result = await userManager.SetUserNameAsync(TestUser, "someone_new@indice.gr");
         if (!result.Succeeded) {
             var error = result.Errors.FirstOrDefault();
             Assert.Fail($"Failed to set new username. ErrorCode: {error?.Code}, ErrorDescription: {error?.Description}");
         }
-        var device = await userManager.GetDeviceByIdAsync(TestUser, deviceId);
+        var device = await userManager.GetDeviceByIdAsync(TestUser, deviceId, TestContext.Current.CancellationToken);
         if (device is null) {
             Assert.Fail("User device could not be found.");
         }
         // 4. At that point all devices should require username and password in the next login.
         Assert.True(device.RequiresPassword);
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
         Assert.IsType<Guid>(responseDto?.RegistrationId);
 
@@ -438,6 +678,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         // 7. Login again with fingerprint. This is expected to succeed.
         tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
     #endregion
 
@@ -446,7 +687,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     [Fact]
     public async Task CreateAuthorizationDetails_JsonArray_Using4Pin() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
@@ -458,14 +699,15 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
                 { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
             }
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact]
     public async Task CreateAuthorizationDetails_JsonObject_Using4Pin() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
@@ -477,14 +719,15 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
                 { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD_OBJECT }
             }
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(tokenResponse.IsError);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact]
     public async Task CreateAuthorizationDetails_InvalidPayload_Using4Pin() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
@@ -496,7 +739,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
                 { "authorization_details", """{ "something": 123 }""" }
             }
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(tokenResponse.IsError);
         Assert.Equal("invalid_authorization_details", tokenResponse.Error);
     }
@@ -504,7 +747,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     [Fact]
     public async Task CreateAuthorizationDetails_InvalidArrayPayload_Using4Pin() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
@@ -516,7 +759,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
                 { "authorization_details", """[{"type": "payment_initiation"},{ "something": 123 }]""" }
             }
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(tokenResponse.IsError);
         Assert.Equal("invalid_authorization_details", tokenResponse.Error);
     }
@@ -526,7 +769,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
         var codeVerifier = GenerateCodeVerifier();
         var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
-        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: TestContext.Current.CancellationToken);
         var x509SigningCredentials = GetX509SigningCredentials();
         var signature = SignMessage(challenge, x509SigningCredentials);
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
@@ -543,12 +786,13 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
                 { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
             }
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(tokenResponse.IsError);
         var access_token_base64 = tokenResponse.AccessToken;
         var access_token = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(access_token_base64);
         var iat = access_token.IssuedAt;
         Assert.NotEqual(default(DateTime), iat);
+        AssertSidClaimExists(tokenResponse);
     }
 
     [Fact]
@@ -633,6 +877,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     #endregion
 
     #region Resource Owner Password Grant Tests
+
     [Fact]
     public async Task Impossible_Travel_Detected_For_Existing_Device() {
         // Create new device.
@@ -640,14 +885,12 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         await RegisterDeviceUsingBiometric(deviceId);
         // Login with password grant from a specified IP address.
         _ = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "22.40.56.11");
-        foreach (var _ in Enumerable.Range(1, 5)) {
-            // Cause a delay so sign in log store can be up to date.
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            // Each login from an impossible location should result in a bad request.
-            var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "67.168.97.200");
-            Assert.Equal(HttpStatusCode.BadRequest, tokenResponse.HttpStatusCode);
-            Assert.True(tokenResponse.AccessToken is null);
-        }
+        await Task.Delay(500, TestContext.Current.CancellationToken);
+        var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "67.168.97.200");
+        // We rely on options.DequeueBatchSize = 1 so this will force immediate processing of event from the channel and into the database (inmemory dbcontext)
+        // thus failing the second login attempt because the impossible travel guard will detect the impossible travel and block the login attempt.
+        Assert.Equal(HttpStatusCode.BadRequest, tokenResponse.HttpStatusCode);
+        Assert.True(tokenResponse.AccessToken is null);
     }
     #endregion
 
@@ -774,13 +1017,17 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         return result.Challenge;
     }
 
-    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string? deviceId = null, string? ipAddress = null) {
+    private async Task<TokenResponse> LoginWithPasswordGrant(string userName, string password, string? deviceId = null, string? ipAddress = null, bool requestOfflineAccess = false, string clientId = CLIENT_ID) {
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1";
+        if (requestOfflineAccess) {
+            scope = $"{scope} {IdentityServerConstants.StandardScopes.OfflineAccess}";
+        }
         var request = new PasswordTokenRequest {
             Address = discoveryDocument.TokenEndpoint,
-            ClientId = CLIENT_ID,
+            ClientId = clientId,
             ClientSecret = CLIENT_SECRET,
-            Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1",
+            Scope = scope,
             UserName = userName,
             Password = password
         };
@@ -929,7 +1176,10 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             AllowedGrantTypes = {
                 CustomGrantTypes.DeviceAuthentication,
                 GrantType.ClientCredentials,
-                GrantType.ResourceOwnerPassword
+                GrantType.ResourceOwnerPassword,
+                CustomGrantTypes.Mfa,
+                CustomGrantTypes.Delegation,
+                TotpConstants.GrantType.Totp
             },
             ClientSecrets = {
                 new Secret(CLIENT_SECRET.ToSha256())
@@ -948,6 +1198,33 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
                 new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
             }
+        },
+        new Client {
+            ClientId = "ppk-client-update-claims",
+            ClientName = "Public/Private key client (updates access token claims on refresh)",
+            AccessTokenType = AccessTokenType.Jwt,
+            AllowAccessTokensViaBrowser = false,
+            AllowedGrantTypes = {
+                GrantType.ResourceOwnerPassword
+            },
+            ClientSecrets = {
+                new Secret(CLIENT_SECRET.ToSha256())
+            },
+            AllowedScopes = {
+                IdentityServerConstants.StandardScopes.OpenId,
+                IdentityServerConstants.StandardScopes.Phone,
+                "scope1"
+            },
+            RequireConsent = false,
+            RequirePkce = false,
+            RequireClientSecret = true,
+            AllowOfflineAccess = true,
+            AlwaysSendClientClaims = true,
+            Claims = {
+                new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
+                new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
+            },
+            UpdateAccessTokenClaimsOnRefresh = true
         }
     };
 
@@ -989,6 +1266,14 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         public string DeviceId { get; set; } = null!;
         [JsonPropertyName("registrationId")]
         public Guid RegistrationId { get; set; }
+    }
+    
+    private sealed class CompositeEventSink(IEventSink inner, List<Event> captured) : IEventSink
+    {
+        public async Task PersistAsync(Event @event) {
+            captured.Add(@event);
+            await inner.PersistAsync(@event);
+        }
     }
     #endregion
 }

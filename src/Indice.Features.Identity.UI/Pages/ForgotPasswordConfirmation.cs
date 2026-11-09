@@ -55,6 +55,7 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
                 View.UserName = user.UserName;
             }
         }
+        View.GenerateDeviceId = true;
         return Page();
     }
 

@@ -13,6 +13,11 @@ public class CreateDraftCaseRequestValidator : AbstractValidator<CreateDraftCase
     /// <inheritdoc/>
     public CreateDraftCaseRequestValidator() {
         RuleFor(x => x.CaseTypeCode).NotEmpty();
+        RuleFor(x=> x.ReferenceNumber).MaximumLength(128);
+        RuleFor(x => x.Channel).MaximumLength(128);
+        RuleFor(x => x.RelationKey).MaximumLength(CaseMetadataValidator.RelationKeyMaxLength);
+        RuleFor(x => x.Metadata).SetValidator(x => new CaseMetadataValidator())
+            .When(x => string.IsNullOrWhiteSpace(x.RelationKey));
     }
 }
 

@@ -6,9 +6,9 @@
 @inject ExtendedUserManager<User> userManager
 @inject IdentityUILocalizer Localizer
 
-
 @{
     ViewData["Title"] = Localizer.Login_PageTitle;
+    
 }
 
 <div class="content-wrapper">
@@ -17,20 +17,21 @@
         <partial name="_ValidationSummary" />
         @if (Model.View.EnableLocalLogin)
         {
-            <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form">
+            <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form" id="loginForm">
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <input type="hidden" asp-for="Input.DeviceId" />
                 <div class="row">
                     <div class="input-group-w-full group">
-                        <input type="text" class="peer" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
-                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
+                        <input type="text" class="peer" placeholder="@(userManager.EmailAsUserName ? Localizer.Email : Localizer.Login_Username)" asp-for="Input.UserName" />
+                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName ? Localizer.Email : Localizer.Login_Username)</label>
                         <span asp-validation-for="Input.UserName" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-group-w-full">
-                        <input type="password" class="peer" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                    <div class="input-group-w-full group password-control">
+                        <input class="peer password" type="password" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
                         <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Login_Password</label>
+                        <i role="button" class="reveal-icon" aria-label="Show password" title="Show password" aria-pressed="false"></i>
                         <span asp-validation-for="Input.Password" class="text-danger"></span>
                     </div>
                 </div>
@@ -49,8 +50,11 @@
                         <a asp-page="/ForgotPassword" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">@Localizer.Login_Forgot_Password</a>
                     }
                 </div>
+                <div class="row">
+                    <vc:captcha form-id="loginForm" button-id="loginButton" action="login" is-login-form="true" />
+                </div>
                 <div class="flex justify-center items-center mt-8">
-                    <button class="btn btn-primary" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
+                    <button class="btn btn-primary" id="loginButton" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
                 </div>
             </form>
         }
@@ -77,9 +81,9 @@
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
                                 <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme"
-                                   asp-route-returnUrl="@Model.View.ReturnUrl"
-                                   asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
-                                   title="@Localizer.GetGeneric(provider.DisplayName!)">
+                                       asp-route-returnUrl="@Model.View.ReturnUrl"
+                                       asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
+                                       title="@Localizer.GetGeneric(provider.DisplayName!)">
                                     <span class="hidden">
                                         @Localizer.GetGeneric(provider.DisplayName!)
                                     </span>
@@ -113,26 +117,27 @@
     <partial name="_ValidationScripts" />
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
-            el.onclick = function (link) {
-                if (!link.target.classList.contains('disabled')) {
-                    link.target.classList.add('disabled');
-                }
-            };
+        el.onclick = function (link) {
+        if (!link.target.classList.contains('disabled')) {
+        link.target.classList.add('disabled');
+        }
+        };
         });
     </script>
+    <script type="text/javascript" src="~/js/reveal-password.js" csp-nonce="true"></script>
     @if (Model.View.GenerateDeviceId)
     {
         <script type="text/javascript" src="/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
         <script type="text/javascript" src="/js/mfa.js" csp-nonce></script>
         <script type="text/javascript" csp-nonce>
             $(document).ready(function () {
-                var viewModelParameters = {
-                    $deviceIdInput: $('#Input_DeviceId'),
-                    browserFamily: '@Request.GetBrowserName()'
-                };
-                var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
-                viewModel.init();
-                viewModel.calculateDeviceId();
+            var viewModelParameters = {
+            $deviceIdInput: $('#Input_DeviceId'),
+            browserFamily: '@Request.GetBrowserName()'
+            };
+            var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
+            viewModel.init();
+            viewModel.calculateDeviceId();
             });
         </script>
     }

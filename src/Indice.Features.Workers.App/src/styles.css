@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+@plugin 'daisyui';
+
+/* Scan our component templates (inline + .html) for utility classes. */
+@source './app/**/*.{html,ts}';
+@source './index.html';
+
+@plugin 'daisyui/theme' {
+  themes: light --default;
+}
+
+/* ── Indice theme (default) — Indice red on white: white surfaces, ink text, Indice red primary ── */
+@plugin 'daisyui/theme' {
+  name: 'indice';
+  color-scheme: light;
+
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97.2% 0.002 270);
+  --color-base-300: oklch(92% 0.004 270);
+  --color-base-content: oklch(24% 0.012 270);
+
+  --color-primary: oklch(58.5% 0.214 27);
+  --color-primary-content: oklch(99% 0 0);
+  --color-secondary: oklch(30% 0.012 270);
+  --color-secondary-content: oklch(98% 0 0);
+  --color-accent: oklch(52% 0.2 26);
+  --color-accent-content: oklch(98% 0 0);
+  --color-neutral: oklch(26% 0.012 270);
+  --color-neutral-content: oklch(97% 0 0);
+
+  /* Semantic colours double as foreground (text-error, text-warning, and the tinted callout surfaces), so each one is
+     dark enough to hold ~5:1 on white rather than being a bright fill. Chroma is pulled in to sit with the cool
+     (hue 270) neutrals, and error is kept clearly darker than --color-primary so an alert never reads as brand red. */
+  --color-info: oklch(52% 0.12 248);
+  --color-info-content: oklch(98% 0.01 248);
+  --color-success: oklch(49% 0.1 158);
+  --color-success-content: oklch(98% 0.01 158);
+  --color-warning: oklch(53% 0.1 70);
+  --color-warning-content: oklch(98% 0.01 70);
+  --color-error: oklch(49% 0.17 22);
+  --color-error-content: oklch(98% 0.01 22);
+
+  --radius-selector: 1.2rem;
+  --radius-field: 0.6rem;
+  --radius-box: 1rem;
+  --border: 1px;
+}
+
+/* Register fonts as Tailwind theme tokens (font-sans / font-mono). */
+@theme {
+  --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Thin, refined scrollbar that keeps long lists and payloads quiet. */
+.app-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--color-base-content) 22%, transparent) transparent;
+}
+.app-scroll::-webkit-scrollbar {
+  width: 9px;
+}
+.app-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklch, var(--color-base-content) 20%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}

@@ -47,6 +47,8 @@ public class CustomGrantTypes
     public const string DeviceAuthentication = "device_authentication";
     /// <summary>OTP authenticate.</summary>
     public const string Mfa = "mfa";
+    /// <summary>Anonymous guest access.</summary>
+    public const string Guest = "urn:indice:guest";
 }
 
 /// <summary>Contains constants for client property keys.</summary>
@@ -102,6 +104,10 @@ public class IdentityServerFeatures
     public const string SignInLogs = nameof(SignInLogs);
     /// <summary>Impossible travel.</summary>
     public const string ImpossibleTravel = nameof(ImpossibleTravel);
+    /// <summary>Activity logs.</summary>
+    public const string ActivityLogs = nameof(ActivityLogs);
+    /// <summary>Disable security notifications.</summary>
+    public const string DisableSecurityNotifications = nameof(DisableSecurityNotifications);
 }
 
 
@@ -152,6 +158,19 @@ public static partial class RateLimiterPolicies
     public static readonly string LoginAddEmailPage = "login/add-email";
     /// <summary>Rate limiting policy for MFA onboarding add email page.</summary>
     public static readonly string MfaAddEmailPage = "login/mfa/onboarding/add-email";
+    /// <summary>Rate limiting policy for recaptcha endpoint.</summary>
+    public static readonly string RecaptchaEndpoint = "recaptchavalidate";
+    /// <summary>Rate limiting policy for add phone page.</summary>
+    public static readonly string AddPhonePage = "login/add-phone";
+    /// <summary>Rate limiting policy for MFA onboarding add phone page.</summary>
+    public static readonly string MfaAddPhonePage = "login/mfa/onboarding/add-phone";
+    /// <summary>Rate limiting policy for MFA onboarding authenticator app setup page.</summary>
+    public static readonly string MfaSetupAuthenticatorPage = "login/mfa/onboarding/setup-authenticator";
+    /// <summary>Rate limiting policy for profile page.</summary>
+    public static readonly string ProfilePage = "manage/profile";
+    /// <summary>Rate limiting policy for verify phone page.</summary>
+    public static readonly string VerifyPhonePage = "login/verify-phone";
+    
 
     /// <summary>All rate limiting policies.</summary>
     public static IReadOnlyList<string> All { get; } = new List<string> {
@@ -176,6 +195,30 @@ public static partial class RateLimiterPolicies
             ForgotPasswordPage,
             LoginPage,
             LoginAddEmailPage,
-            MfaAddEmailPage
+            MfaAddEmailPage,
+            RecaptchaEndpoint,
+            AddPhonePage,
+            MfaAddPhonePage,
+            MfaSetupAuthenticatorPage,
+            ProfilePage,
+            VerifyPhonePage
         };
+}
+
+/// <summary>Contains constants for keys used in <see cref="Microsoft.AspNetCore.Http.HttpContext.Items"/>.</summary>
+public static class HttpContextItemKeys
+{
+    /// <summary>
+    /// Key for the sign-in session id used to correlate login-related events and flowed into the issued token's <c>SessionId</c>.
+    /// </summary>
+    public const string SessionId = "__session_id__";
+}
+
+/// <summary>Functional prefixes for the sign-in session id, identifying the auth flow that created it.</summary>
+public static class SessionIdPrefixes
+{
+    /// <summary>Resource owner password (ROPC) flow.</summary>
+    public const string Password = "pwd";
+    /// <summary>Device authentication (biometric/pin) flow.</summary>
+    public const string DeviceAuthentication = "dv";
 }

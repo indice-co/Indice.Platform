@@ -126,6 +126,18 @@ internal class QueueTriggers
         await CampaignJobHandlerFactory.CreateFor<MarkMessagesUnreadEvent>().Process(payload!);
     }
 
+    [Function(EventNames.MergeContacts)]
+    public async Task MergeContactsHandler(
+        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MergeContacts, Connection = "StorageConnection" )] byte[] message,
+        FunctionContext functionContext
+    ) {
+        LogExecution(functionContext, EventNames.MergeContacts);
+        var originalMessage = await CompressionUtils.Decompress(message);
+        var envelope = JsonSerializer.Deserialize<Envelope<MergeContactsEvent>>(originalMessage, JsonSerializerOptions)!;
+        var payload = envelope.Payload;
+        await CampaignJobHandlerFactory.CreateFor<MergeContactsEvent>().Process(payload!);
+    }
+
     private static void LogExecution(FunctionContext functionContext, string eventName) {
         var logger = functionContext.GetLogger(eventName);
         logger.LogInformation("Function '{FunctionName}' was triggered.", eventName);

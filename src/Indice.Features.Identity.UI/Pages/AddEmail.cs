@@ -70,6 +70,9 @@ public abstract class BaseAddEmailModel : BasePageModel
             Input.ReturnUrl = returnUrl;
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (user.Email?.Equals(Input.Email) == true && user.EmailConfirmed) { 
+            return RedirectToPage("/AddEmail", routeValues: new { returnUrl });
+        } 
         if (user.Email?.Equals(Input.Email) == false) {
             user.Email = Input.Email;
             var result = await UserManager.SetEmailAsync(user, Input.Email);
@@ -78,7 +81,15 @@ public abstract class BaseAddEmailModel : BasePageModel
                 return Page();
             }
         }
-        await SendConfirmationEmail(user, returnUrl);
+
+        if (!await SendConfirmationEmail(user, returnUrl)) {
+            TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
+                Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached),
+                DisableForm = true,
+                NextStepUrl = Url.PageLink("/AddEmail", values: new { returnUrl })
+            });
+            return Page();
+        }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Success(UserManager.MessageDescriber.AddEmailConfirmationEmailSend),
             DisableForm = true,

@@ -1,0 +1,176 @@
+@import "tailwindcss";
+@import "@fontsource-variable/geist/index.css";
+@import "@fontsource-variable/jetbrains-mono/index.css";
+@import "country-flag-icons/3x2/flags.css";
+
+@plugin "daisyui" {
+  themes: false;
+  logs: false;
+}
+
+/*
+ * Admin UI themes.
+ * daisyUI semantic tokens are the primary theming surface. The `--app-*` variables further down only cover what
+ * daisyUI has no token for: the sidebar chrome and chart series.
+ */
+@plugin "daisyui/theme" {
+  name: "adminui";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f3f5fa;
+  --color-base-300: #e1e5ef;
+  --color-base-content: #131a2e;
+  --color-primary: #3d5afe;
+  --color-primary-content: #ffffff;
+  --color-secondary: #0891b2;
+  --color-secondary-content: #ffffff;
+  --color-accent: #a3e635;
+  --color-accent-content: #1a2e05;
+  --color-neutral: #0b1020;
+  --color-neutral-content: #dfe3f2;
+  --color-info: #2f80ed;
+  --color-info-content: #ffffff;
+  --color-success: #16a34a;
+  --color-success-content: #ffffff;
+  --color-warning: #f59e0b;
+  --color-warning-content: #2d1d00;
+  --color-error: #e5484d;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "adminui-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #121729;
+  --color-base-200: #0c1020;
+  --color-base-300: #252c47;
+  --color-base-content: #e3e6f3;
+  --color-primary: #7088ff;
+  --color-primary-content: #070c2e;
+  --color-secondary: #38c6e3;
+  --color-secondary-content: #032029;
+  --color-accent: #bef264;
+  --color-accent-content: #1a2e05;
+  --color-neutral: #060914;
+  --color-neutral-content: #c9cee3;
+  --color-info: #6aa6ff;
+  --color-info-content: #061a33;
+  --color-success: #4ade80;
+  --color-success-content: #032611;
+  --color-warning: #fbbf24;
+  --color-warning-content: #2d1d00;
+  --color-error: #ff6b70;
+  --color-error-content: #33060a;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@custom-variant dark (&:where([data-theme=adminui-dark], [data-theme=adminui-dark] *));
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* App-level tokens that daisyUI does not model. Override per theme when re-branding. */
+:root,
+[data-theme="adminui"] {
+  --app-sidebar-width: 16.5rem;
+  --app-sidebar-bg: #0b1020;
+  --app-sidebar-border: #1a2140;
+  --app-sidebar-content: #9aa3c4;
+  --app-sidebar-content-strong: #ffffff;
+  --app-sidebar-hover: #151c36;
+  --app-sidebar-active-bg: #1d2752;
+  --app-sidebar-active-content: #ffffff;
+  --app-sidebar-indicator: var(--color-accent);
+  /* Chart series */
+  --app-chart-success: #3d5afe;
+  --app-chart-failure: #e5484d;
+  --app-chart-grid: #eceff6;
+  --ng-progress-color: var(--color-accent);
+}
+
+[data-theme="adminui-dark"] {
+  --app-sidebar-bg: #080b17;
+  --app-sidebar-border: #171d36;
+  --app-sidebar-content: #8d96b8;
+  --app-sidebar-hover: #121831;
+  --app-sidebar-active-bg: #1a2350;
+  --app-chart-success: #7088ff;
+  --app-chart-failure: #ff6b70;
+  --app-chart-grid: #252c47;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-base-200 text-base-content;
+    min-height: 100dvh;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /* Tabular numbers for counters, ids and dates. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* A quiet surface for page sections. */
+  .panel {
+    @apply rounded-box border border-base-300 bg-base-100;
+  }
+
+  /* Identifiers, keys, urls and secrets. */
+  .code-chip {
+    @apply rounded-md bg-base-200 px-1.5 py-0.5 font-mono text-[0.8em] break-all text-base-content/85;
+  }
+
+  /* Sortable table header button. */
+  .th-sort {
+    @apply inline-flex items-center gap-1 font-semibold whitespace-nowrap hover:text-base-content;
+  }
+
+  /* Country flag (country-flag-icons) sized for table cells: `<span class="flag" [class]="'flag:' + code"></span>`. */
+  .flag {
+    @apply inline-block h-3 w-[1.125rem] shrink-0 overflow-hidden rounded-[2px] bg-base-300 bg-cover align-middle;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

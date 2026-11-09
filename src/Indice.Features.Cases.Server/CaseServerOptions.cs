@@ -32,4 +32,9 @@ public class CaseServerOptions : CasesOptions
     /// Configuration for overriding the default <see cref="LimitUploadOptions"/>
     /// </summary>
     public Action<LimitUploadOptions>? ConfigureLimitUpload { get; set; }
+
+    /// <summary>
+    /// Indicates whether the translation endpoints should be registered. Defaults to <strong>false</strong>
+    /// </summary>
+    public bool MapTranslations { get; set; } = true;
 }

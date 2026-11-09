@@ -1,4 +1,5 @@
 export const enum Features {
     SignInLogs = 'SignInLogs',
-    Metrics = 'Metrics'
+    Metrics = 'Metrics',
+    ActivityLogs = 'ActivityLogs'
 }

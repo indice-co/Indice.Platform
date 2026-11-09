@@ -48,13 +48,14 @@ public class MessageTypeService : IMessageTypeService
 
     /// <inheritdoc />
     public async Task<MessageType?> GetById(GuidOrAlias? id) {
-        if (id == null || id.Value == null) {
+        if (id is null || string.IsNullOrWhiteSpace(id.Value.Value)) {
             return default;
         }
 
-        DbMessageType? messageType = id.Value.IsGuid ?
-            await DbContext.MessageTypes.FindAsync(id.Value.Uuid) :
-            await DbContext.MessageTypes.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+        var idValue = id.Value;
+        DbMessageType? messageType = idValue.IsGuid ?
+            await DbContext.MessageTypes.FindAsync(idValue.Uuid) :
+            await DbContext.MessageTypes.FirstOrDefaultAsync(x => x.Alias == idValue.Value);
 
         if (messageType is null) {
             return default;

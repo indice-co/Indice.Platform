@@ -214,10 +214,10 @@
     <value>Bienvenue sur {0}! Veuillez confirmer votre e-mail pour commencer.</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>Votre mot de passe a ete modifie</value>
+    <value>Votre mot de passe a été modifié</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
-    <value>Notification de securite {0}</value>
+    <value>Notification de sécurité {0}</value>
   </data>
   <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
     <value>Veuillez saisir votre adresse e-mail afin que nous puissions la verifier avant de continuer.</value>
@@ -269,6 +269,9 @@
   </data>
   <data name="MfaValidationError" xml:space="preserve">
     <value>Le code OTP n'est pas valide.</value>
+  </data>
+  <data name="MfaInvalidRecoveryCode" xml:space="preserve">
+    <value>Code de récupération invalide saisi.</value>
   </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Votre compte est temporairement verrouille. Veuillez contacter un administrateur systeme.</value>
@@ -415,7 +418,13 @@
     <value>Votre compte a ete temporairement verrouille en raison de plusieurs tentatives de connexion infructueuses. Ce verrouillage est une mesure de securite pour proteger vos informations. Veuillez reessayer plus tard.</value>
   </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>Votre mot de passe a ete modifie avec succes.</value>
+    <value>Votre mot de passe a été modifié avec succès.</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventSubject" xml:space="preserve">
+    <value>Méthode d'authentification à deux facteurs modifiée</value>
+  </data>
+  <data name="TwoFactorPreferenceChangedEventDescription" xml:space="preserve">
+    <value>Votre méthode d'authentification à deux facteurs a été mise à jour : {0}.</value>
   </data>
   <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
     <value>Veuillez choisir votre nouveau mot de passe pour continuer.</value>
@@ -440,5 +449,80 @@
   </data>
   <data name="MfaEmailSubject" xml:space="preserve">
     <value>Connexion OTP</value>
+  </data>
+  <data name="AuthMethod_Sms_DisplayName" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="AuthMethod_Sms_Description" xml:space="preserve">
+    <value>Les utilisateurs recevront un message texte contenant un code de vérification.</value>
+  </data>
+  <data name="AuthMethod_Email_DisplayName" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="AuthMethod_Email_Description" xml:space="preserve">
+    <value>Les utilisateurs recevront un TOTP à leur adresse e-mail vérifiée.</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_DisplayName" xml:space="preserve">
+    <value>Application d'authentification (recommandé)</value>
+  </data>
+  <data name="AuthMethod_AuthenticatorApp_Description" xml:space="preserve">
+    <value>Utilisez une application d'authentification pour générer des codes de vérification.</value>
+  </data>
+  <data name="AuthMethod_Fido2_DisplayName" xml:space="preserve">
+    <value>FIDO2</value>
+  </data>
+  <data name="AuthMethod_Fido2_Description" xml:space="preserve">
+    <value>Utilisez une clé de sécurité matérielle pour l'authentification.</value>
+  </data>
+  <data name="AuthMethod_Viber_DisplayName" xml:space="preserve">
+    <value>Viber</value>
+  </data>
+  <data name="AuthMethod_Viber_Description" xml:space="preserve">
+    <value>Les utilisateurs recevront un message Viber contenant un code de vérification.</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_DisplayName" xml:space="preserve">
+    <value>Notification push</value>
+  </data>
+  <data name="AuthMethod_TrustedDevice_Description" xml:space="preserve">
+    <value>Recevoir une notification push via un appareil de confiance.</value>
+  </data>
+  <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
+    <value>Le champ 'Fuseau horaire' a un format invalide.</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
+    <value>Vérification par code de récupération</value>
+  </data>
+  <data name="AuthMethod_RecoveryCode_Description" xml:space="preserve">
+    <value>Vous avez demandé à vous connecter avec un code de récupération. Cette connexion ne sera pas mémorisée tant que vous ne fournirez pas une méthode MFA.</value>
+  </data>
+  <data name="MfaTokenNotExpired" xml:space="preserve">
+    <value>Votre code actuel n'a pas encore expiré. Veuillez patienter avant d'en demander un nouveau.</value>
+  </data>
+  <data name="PasswordSetEventSubject" xml:space="preserve">
+    <value>Votre mot de passe a été modifié</value>
+  </data>
+  <data name="PasswordSetEventDescription" xml:space="preserve">
+    <value>Votre mot de passe a été modifié avec succès.</value>
+  </data>
+  <data name="LimitAttemptsReached" xml:space="preserve">
+    <value>Vous avez dépassé le nombre maximal de tentatives infructueuses.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Le champ « Confirmer le mot de passe » est obligatoire.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La confirmation du mot de passe ne correspond pas au mot de passe.</value>
   </data>
 </root>

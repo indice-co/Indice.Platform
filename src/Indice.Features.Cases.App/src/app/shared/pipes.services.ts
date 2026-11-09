@@ -1,42 +1,25 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({
-    name: 'beautifyBoolean',
-    standalone: false
-})
-export class BeautifyBooleanPipe implements PipeTransform {
-  transform(value: boolean | undefined): string {
-    return value ? '<span class="ms-Icon ms-Icon--StatusCircleCheckmark text-green-500 text-3xl"></span>' : '<span class="ms-Icon ms-Icon--StatusCircleBlock2 text-red-500 text-3xl"></span>';
-  }
-}
-
-@Pipe({
-    name: 'valueFromPath',
-    pure: true,
-    standalone: false
-})
+/**
+ * Resolves a list column value from an item. When the column has an `itemProperty` (a dotted path) it is followed,
+ * otherwise the camel cased column title is used as the property name. Dates are formatted, missing values become '-'.
+ */
+@Pipe({ name: 'valueFromPath' })
 export class ValueFromPathPipe implements PipeTransform {
-  constructor() { }
-
-  transform(item: any, column: any): any {
-    //if column has an "itemProperty" then get its value, else the value is the title in camel case
-    const value = column.itemProperty ? this.getValueFromPropertyPath(item, column.itemProperty) : item[`${column.title[0].toLowerCase()}${column.title.slice(1)}`];
-    let formattedValue = value;
+  transform(item: any, column: { title: string; itemProperty?: string }): any {
+    const value = column.itemProperty
+      ? this.getValueFromPropertyPath(item, column.itemProperty)
+      : item?.[`${column.title[0].toLowerCase()}${column.title.slice(1)}`];
     if (value instanceof Date) {
       const stringifiedDate = value.toLocaleString('en-GB');
-      formattedValue = stringifiedDate.substring(0, stringifiedDate.length - 3);
+      return stringifiedDate.substring(0, stringifiedDate.length - 3);
     }
-    if (value === undefined || value === null) {
-      formattedValue = '-';
-    }
-    return formattedValue;
+    return value === undefined || value === null ? '-' : value;
   }
 
-  //this method navigates through the "dots" of the property path and finds the corresponding value of the object
-  private getValueFromPropertyPath(givenObject: any, propertyPath: any) {
-    const props = propertyPath.split('.');
-    for (const prop of props) {
-      givenObject = givenObject[prop];
+  private getValueFromPropertyPath(givenObject: any, propertyPath: string): any {
+    for (const prop of propertyPath.split('.')) {
+      givenObject = givenObject?.[prop];
       if (givenObject === undefined) {
         return givenObject;
       }
@@ -44,15 +27,3 @@ export class ValueFromPathPipe implements PipeTransform {
     return givenObject;
   }
 }
-
-@Pipe({
-    name: 'toReadableDate',
-    pure: true,
-    standalone: false
-})
-export class ToReadableDatePipe implements PipeTransform {
-  transform(value: any): string {
-    return new Date(value).toLocaleString('en-GB');
-  }
-}
-

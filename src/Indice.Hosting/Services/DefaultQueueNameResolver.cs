@@ -16,7 +16,7 @@ public class DefaultQueueNameResolver<TWorkItem> : IQueueNameResolver<TWorkItem>
     public string Resolve(bool isPoison = false) {
         var queueName = _queueName ?? typeof(TWorkItem).Name;
         if (isPoison) {
-            queueName += "-poison";
+            queueName += HostingConventions.PoisonSuffix;
         }
         return queueName;
     }

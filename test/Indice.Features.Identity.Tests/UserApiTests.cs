@@ -16,21 +16,24 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Xunit;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.Features.Identity.Tests;
+
 public class UserApiTests : IAsyncLifetime
 {
     // Private fields
     private readonly HttpClient _httpClient;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private readonly IServiceProvider _serviceProvider;
 
     public UserApiTests() {
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(configurationBuilder => {
             configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?> {
-                 ["test"] = "test"
-             });
+                ["test"] = "test"
+            });
         });
         builder.ConfigureServices((context, services) => {
             // configure dependencies
@@ -52,7 +55,8 @@ public class UserApiTests : IAsyncLifetime
                     .AddInMemoryApiResources([])
                     .AddInMemoryClients([])
                     .AddAspNetIdentity<User>()
-                    .AddInMemoryPersistedGrants();
+                    .AddInMemoryPersistedGrants()
+                    ;
             // indice stuff
             services.AddDefaultPlatformEventService();
             services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssertionHanbdler>();
@@ -60,8 +64,9 @@ public class UserApiTests : IAsyncLifetime
             services.AddOutputCache();
             services.AddLogging();
             services.AddLocalization()
+                    .AddActionRateLimiter(context.Configuration)
                     .AddRouting()
-                    .AddAuthorization(authOptions => 
+                    .AddAuthorization(authOptions =>
                         authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersWriter, policy => {
                             policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                                   .RequireAuthenticatedUser()
@@ -83,12 +88,14 @@ public class UserApiTests : IAsyncLifetime
                 idbuilder.MapManageUsers();
             });
         });
-        var server = new TestServer(builder);
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri("https://server")
         };
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
     }
 
     [Fact]
@@ -106,19 +113,20 @@ public class UserApiTests : IAsyncLifetime
                 new() { Type = "locale", Value = "el" }
             ],
             Roles = ["Developer"]
-        }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
-        var responseJson = await response.Content.ReadAsStringAsync();
+        }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web), cancellationToken: TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode, responseJson);
     }
 
-    public async Task DisposeAsync() {
-        await _serviceProvider.DisposeAsync();
+    public async ValueTask DisposeAsync() {
+        await _host.StopAsync();
+        _host.Dispose();
     }
 
-    public Task InitializeAsync() {
+    public ValueTask InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         dbContext.SeedInitialData();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     public class UserCreatedAssertionHanbdler : IPlatformEventHandler<UserCreatedEvent>

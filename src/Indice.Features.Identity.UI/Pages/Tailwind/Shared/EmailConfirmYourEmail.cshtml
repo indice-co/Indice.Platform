@@ -10,7 +10,6 @@
 @{
     var settings = GeneralSettings.Value;
     var subject = ViewData["Subject"];
-    var body = ViewData["Body"];
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
 }
@@ -33,5 +32,8 @@
     @Localizer.Email_Body_Thanks.
     <br />
     <br />
-    @Localizer.Email_Body_Sincerely, @Localizer.Email_Body_Organization_Signature(settings.Organization!).
+    @Localizer.Email_Body_Sincerely,
+    <br />
+    <br />
+    @Localizer.Email_Body_Organization_Signature(settings.Organization!)
 </p>

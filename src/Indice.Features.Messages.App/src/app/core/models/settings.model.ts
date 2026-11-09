@@ -7,6 +7,8 @@ export interface IAppSettings {
     version: string;
     tenantId: string | undefined;
     enableMediaLibrary: boolean;
+    maxFileSize: number;
+    acceptableFileExtensions: string;
 }
 
 export interface IAuthSettings {

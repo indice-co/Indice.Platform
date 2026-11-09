@@ -9,6 +9,12 @@ public class CheckpointType
     /// <summary>The Id of the <b>checkpoint type</b>.</summary>
     public Guid Id { get; set; }
 
+    /// <summary>The Id of the case type the <b>checkpoint type</b> belongs to.</summary>
+    public Guid? CaseTypeId { get; set; }
+
+    /// <summary>The code of the case type the <b>checkpoint type</b> belongs to.</summary>
+    public string? CaseTypeCode { get; set; }
+
     /// <summary>The code of the <b>checkpoint type</b>.</summary>
     public string Code { get; set; } = null!;
 

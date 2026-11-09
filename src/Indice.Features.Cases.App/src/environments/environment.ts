@@ -29,6 +29,7 @@ export const environment = {
   isTemplate: false,
   production: false,
   dashboardTags: '',
+  dashboardChannels: 'Managed,External',
   caseListColumns: '',
   caseListFilters: ''
 };

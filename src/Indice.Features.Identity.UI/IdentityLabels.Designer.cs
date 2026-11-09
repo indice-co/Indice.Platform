@@ -329,7 +329,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("ChangePassword_Newpassword_FieldLabel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm new password.
+        /// </summary>
+        public static string ChangePassword_NewPasswordConfirmation {
+            get {
+                return ResourceManager.GetString("ChangePassword_NewPasswordConfirmation", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Old password.
         /// </summary>
@@ -934,6 +943,51 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Call {0}.
+        /// </summary>
+        public static string EmailFooter_CallSupport {
+            get {
+                return ResourceManager.GetString("EmailFooter_CallSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email {0}.
+        /// </summary>
+        public static string EmailFooter_EmailSupport {
+            get {
+                return ResourceManager.GetString("EmailFooter_EmailSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Need help?.
+        /// </summary>
+        public static string EmailFooter_NeedHelp {
+            get {
+                return ResourceManager.GetString("EmailFooter_NeedHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GEMH: {0}.
+        /// </summary>
+        public static string EmailFooter_RegistryNumber {
+            get {
+                return ResourceManager.GetString("EmailFooter_RegistryNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This email was sent to &lt;strong&gt;{0}&lt;/strong&gt;..
+        /// </summary>
+        public static string EmailFooter_SentTo {
+            get {
+                return ResourceManager.GetString("EmailFooter_SentTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to To complete your registration, please confirm your email address by clicking.
         /// </summary>
         public static string EmailRegister_Body_ConfirmEmail {
@@ -1283,7 +1337,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("ForgotPasswordConfirmation_Newpassword_FieldLabel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm New Password.
+        /// </summary>
+        public static string ForgotPasswordConfirmation_New_Password_Confirmation {
+            get {
+                return ResourceManager.GetString("ForgotPasswordConfirmation_New_Password_Confirmation", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Forgot Password Confirmation.
         /// </summary>
@@ -1753,11 +1816,38 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open your authenticator app and enter the verification code..
+        /// </summary>
+        public static string Mfa_EnterCodeFromAuthenticatorApp {
+            get {
+                return ResourceManager.GetString("Mfa_EnterCodeFromAuthenticatorApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at log in or disable 2FA and log in again..
+        /// </summary>
+        public static string Mfa_EnterRecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_EnterRecoveryCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to We sent an identity verification request to your mobile device, but you denied it..
         /// </summary>
         public static string Mfa_IdentityVerificationWasDenied {
             get {
                 return ResourceManager.GetString("Mfa_IdentityVerificationWasDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code entered..
+        /// </summary>
+        public static string Mfa_InvalidRecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_InvalidRecoveryCode", resourceCulture);
             }
         }
         
@@ -1812,6 +1902,15 @@ namespace Indice.Features.Identity.UI {
         public static string Mfa_PageTitle {
             get {
                 return ResourceManager.GetString("Mfa_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery Code.
+        /// </summary>
+        public static string Mfa_RecoveryCode {
+            get {
+                return ResourceManager.GetString("Mfa_RecoveryCode", resourceCulture);
             }
         }
         
@@ -2032,6 +2131,123 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to I have saved my codes.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_Continue {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_Download {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to These are your backup codes for account {0}. Keep them safe!.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_FileHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_FileHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save your recovery codes.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery codes.
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save these recovery codes in a safe place. Each code can be used once if you lose access to your authenticator app..
+        /// </summary>
+        public static string MfaOnBoardingRecoveryCodes_SaveWarning {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingRecoveryCodes_SaveWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification code is invalid..
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_InvalidCode {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_InvalidCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you cannot scan the QR code, enter this key manually:.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_OrEnterManually {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_OrEnterManually", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set up authenticator app.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set up authenticator app.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scan the QR code below with your authenticator app (e.g. Microsoft Authenticator, Google Authenticator)..
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_ScanQrCode {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_ScanQrCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification code.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_VerificationCode {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_VerificationCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify.
+        /// </summary>
+        public static string MfaOnBoardingSetupAuthenticator_Verify {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingSetupAuthenticator_Verify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Code.
         /// </summary>
         public static string MfaOnBoardingVerifyEmail_Code {
@@ -2118,6 +2334,24 @@ namespace Indice.Features.Identity.UI {
         public static string MfaOnBoardingVerifyPhone_Save {
             get {
                 return ResourceManager.GetString("MfaOnBoardingVerifyPhone_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string OrganizationAddress {
+            get {
+                return ResourceManager.GetString("OrganizationAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string OrganizationLegalName {
+            get {
+                return ResourceManager.GetString("OrganizationLegalName", resourceCulture);
             }
         }
         
@@ -2851,6 +3085,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string Register_Optional_Instruction_Notice {
+            get {
+                return ResourceManager.GetString("Register_Optional_Instruction_Notice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OR.
         /// </summary>
         public static string Register_OR {
@@ -2885,7 +3128,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Register_Password_FieldLabel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Password.
+        /// </summary>
+        public static string Register_Password_Confirmation {
+            get {
+                return ResourceManager.GetString("Register_Password_Confirmation", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Phone number.
         /// </summary>
@@ -3022,7 +3274,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save.
+        ///   Looks up a localized string similar to Confirm.
         /// </summary>
         public static string VerifyPhone_Save {
             get {

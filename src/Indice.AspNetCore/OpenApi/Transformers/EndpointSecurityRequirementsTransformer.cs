@@ -1,7 +1,7 @@
-#if NET9_0_OR_GREATER
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.OpenApi;
+#if NET10_0_OR_GREATER
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -22,14 +22,23 @@ public static class EndpointSecurityRequirementsTransformer
     /// security requirements applied in the OpenAPI documentation.</remarks>
     /// <param name="options">The <see cref="OpenApiOptions"/> to which the transformer will be added.</param>
     /// <returns>The modified <see cref="OpenApiOptions"/> instance.</returns>
-    public static OpenApiOptions AddEndpointSecurityRequirementsTransformer(this OpenApiOptions options)
-    {
+    public static OpenApiOptions AddEndpointSecurityRequirementsTransformer(this OpenApiOptions options) {
 
         options.AddOperationTransformer((operation, context, cancellationToken) => {
-            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>().Any() &&
-                !context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
-                var securityRequirements = context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>();
-                operation.Security = [.. securityRequirements];
+            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>().Any()) {
+                var securityRequirements = context.Description.ActionDescriptor
+                                                              .EndpointMetadata
+                                                              .OfType<OpenApiSecurityRequirement>();
+                operation.Security = [];
+                foreach (var item in securityRequirements) {
+                    var requirement = item.First();
+                    operation.Security.Add(new OpenApiSecurityRequirement() {
+                        [new(requirement.Key.Reference!.Id!, context.Document)] = requirement.Value ?? []
+                    });
+                }
+                if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
+                    operation.Security.Add(new());
+                }
             }
             return Task.CompletedTask;
         });

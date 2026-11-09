@@ -43,6 +43,9 @@ public class CaseTypeRequest
     /// <summary>The order of the case type.</summary>
     public int? Order { get; set; }
 
+    /// <summary>The Id of the category the case type belongs to.</summary>
+    public Guid? CategoryId { get; set; }
+
     /// <summary>The flag for checking if the case type is a menu item or not.</summary>
     public bool IsMenuItem { get; set; }
 

@@ -58,7 +58,7 @@ public static class CasesDbInitalizerExtesnions
             CreatedBy = createdBy,
             Draft = false,
             Channel = "seed",
-            ReferenceNumber = 1,
+            ReferenceNumber = "1",
             Owner = new ContactMeta {
                 FirstName = "John",
                 LastName = "Doe",

@@ -85,6 +85,12 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>Whether the user should confirm their phone number after signing in.</summary>
     public bool RequirePostSignInConfirmedPhoneNumber { get; }
 
+    /// <summary>Options for updating a user.</summary>
+    /// <param name="user">The user to update.</param>
+    /// <param name="bypassEmailAsUserNamePolicy">Bypasses the EmailAsUserName policy, if enabled.</param>
+    /// <param name="previousUser">The previous snapshot of user entity.</param>
+    public sealed record UserUpdateOptions(TUser user, bool bypassEmailAsUserNamePolicy, UserEventContext? previousUser);
+
     #region Method Overrides
     /// <inheritdoc />
     public async override Task<IdentityResult> CreateAsync(TUser user) {
@@ -92,23 +98,42 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             user.UserName = user.Email;
         }
         var result = await base.CreateAsync(user);
+
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
+        }
+
         if (result.Succeeded) {
             await _eventService.Publish(new UserCreatedEvent(UserEventContext.InitializeFromUser(user)));
         }
+
         return result;
     }
 
     /// <inheritdoc />
-    public override Task<IdentityResult> UpdateAsync(TUser user) => UpdateAsync(user, bypassEmailAsUserNamePolicy: false);
+    public override Task<IdentityResult> UpdateAsync(TUser user) => UpdateAsync(new UserUpdateOptions(user: user, bypassEmailAsUserNamePolicy: false, previousUser: null));
 
     /// <summary>Updates the specified user in the backing store.</summary>
-    /// <param name="user">The user to update.</param>
-    /// <param name="bypassEmailAsUserNamePolicy">Bypasses the EmailAsUserName policy, if enabled.</param>
-    public Task<IdentityResult> UpdateAsync(TUser user, bool bypassEmailAsUserNamePolicy) {
-        if (EmailAsUserName && !bypassEmailAsUserNamePolicy) {
+    /// <param name="options">The options for this update operation.</param>
+    public async Task<IdentityResult> UpdateAsync(UserUpdateOptions options) {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options.user);
+        var user = options.user;
+        if (EmailAsUserName && !options.bypassEmailAsUserNamePolicy) {
             user.UserName = user.Email;
         }
-        return base.UpdateAsync(user);
+
+        var result = await base.UpdateAsync(user);
+
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
+        }
+
+        if (result.Succeeded && options.previousUser != null) {
+            await _eventService.Publish(new UserUpdatedEvent(options.previousUser, UserEventContext.InitializeFromUser(user)));
+        }
+
+        return result;
     }
 
     /// <inheritdoc />
@@ -174,11 +199,14 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             }
         }
         var previousValue = user.Email;
-        var emailresult = await base.SetEmailAsync(user, email);
-        if (emailresult.Succeeded) {
+        var emailResult = await base.SetEmailAsync(user, email);
+        if (emailResult.Succeeded) {
             await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
         }
-        return emailresult;
+        if (!emailResult.Succeeded) {
+            await PublishBlacklistEvents(user, emailResult);
+        }
+        return emailResult;
     }
 
     /// <inheritdoc />
@@ -186,7 +214,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(UserEventContext.InitializeFromUser(user)));
-
+        }
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
         }
         return result;
     }
@@ -206,7 +236,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return result;
     }
 
-
     /// <inheritdoc/>
     public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token) {
         ArgumentNullException.ThrowIfNull(user);
@@ -223,6 +252,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
                     return result;
                 }
             }
+        }
+        if (!result.Succeeded) {
+            await PublishBlacklistEvents(user, result);
         }
         return result;
     }
@@ -293,9 +325,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="user">The user.</param>
     /// <param name="newPassword">The new password.</param>
     /// <param name="validatePassword">Whether to validate the password.</param>
-    /// <returns>Whether the password has was successfully updated.</returns>
+    /// <param name="suppressNotification">Whether to suppress the security notification triggered after an administrator password reset.</param>
+    /// <param name="selfServicePasswordReset"> Whether the reset was executed by the user themselves</param>
+    /// <returns>Whether the password was successfully updated.</returns>
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
-    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true) {
+    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true, bool suppressNotification = false, bool selfServicePasswordReset = true) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
@@ -309,7 +343,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
         }
-        await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
+        if (selfServicePasswordReset) {
+            await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
+        } else {
+            await _eventService.Publish(new PasswordSetEvent(UserEventContext.InitializeFromUser(user), suppressNotification));
+        }
         return result;
     }
 
@@ -363,7 +401,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
-        var changed = user.Blocked != blocked;
         user.Blocked = blocked;
         var result = await UpdateAsync(user);
         if (result.Succeeded && blocked) {
@@ -410,7 +447,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (!string.IsNullOrEmpty(device.PublicKey) && string.IsNullOrEmpty(device.PublicKeyId)) {
             device.PublicKeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex);
         }
-        
+
         var result = await deviceStore!.CreateDeviceAsync(user, device, cancellationToken);
         if (result.Succeeded) {
             await _eventService.Publish(new DeviceCreatedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
@@ -683,6 +720,72 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return await pictureStore!.FindUserPictureByKeyAsync(pictureKey, contentType, size);
     }
 
+    /// <summary>
+    /// Resets the two-factor authentication for the specified user by disabling it, clearing any two-factor preferences, and resetting the authenticator key.
+    /// </summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> ResetTwoFactorAsync(TUser user, CancellationToken cancellationToken = default) {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = await SetTwoFactorEnabledAsync(user, false);
+        if (!result.Succeeded) {
+            return result;
+        }
+        var extendedStore = GetUserStore();
+        cancellationToken.ThrowIfCancellationRequested();
+        await extendedStore!.SetTwoFactorPreferenceAsync(user, null).ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        result = await RemoveAuthenticatorKeyAsync(user);
+        if (!result.Succeeded) {
+            return result;
+        }
+        return result;
+    }
+
+
+
+    /// <summary>
+    /// Resets the authenticator key for the user.
+    /// </summary>
+    /// <param name="user">The user.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>Whether the user was successfully updated.</returns>
+    public virtual async Task<IdentityResult> RemoveAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken = default) {
+        ArgumentNullException.ThrowIfNull(user);
+        var extendedStore = GetUserStore();
+        await extendedStore!.RemoveAuthenticatorKeyAsync(user, cancellationToken).ConfigureAwait(false);
+        return await this.UpdateSecurityStampAsync(user).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Resets the two-factor authentication for the specified user by disabling it, clearing any two-factor preferences, and resetting the authenticator key.
+    /// </summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="authenticationMethodCode">The authentication method code</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> SetTwoFactorAsync(TUser user, string authenticationMethodCode, CancellationToken cancellationToken = default) {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authenticationMethodCode);
+        var result = await SetTwoFactorEnabledAsync(user, true);
+        if (!result.Succeeded) {
+            return result;
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        var extendedStore = GetUserStore();
+        cancellationToken.ThrowIfCancellationRequested();
+        await extendedStore!.SetTwoFactorPreferenceAsync(user, authenticationMethodCode).ConfigureAwait(false);
+        await _eventService.Publish(new TwoFactorPreferenceChangedEvent(UserEventContext.InitializeFromUser(user), authenticationMethodCode));
+        return result;
+    }
+
 
     /// <summary>
     /// The <see cref="IdentityErrorDescriber"/> used to generate error messages.
@@ -690,6 +793,23 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public new ExtendedIdentityErrorDescriber ErrorDescriber {
         get => (ExtendedIdentityErrorDescriber)base.ErrorDescriber;
         set => base.ErrorDescriber = value;
+    }
+
+    /// <summary>
+    /// Publishes events for email and phone number blacklist validation failures.
+    /// </summary>
+    /// <param name="user">The user whose operation was blocked.</param>
+    /// <param name="result">The identity validation result containing the validation errors.</param>
+    private async Task PublishBlacklistEvents(TUser user, IdentityResult result) {
+        if (result.Errors.Any(x => x.Code == nameof(ExtendedIdentityErrorDescriber.EmailBlacklisted))) {
+            await _eventService.Publish(
+                new EmailBlacklistedBlockedEvent(UserEventContext.InitializeFromUser(user)));
+        }
+
+        if (result.Errors.Any(x => x.Code == nameof(ExtendedIdentityErrorDescriber.PhoneNumberBlacklisted))) {
+            await _eventService.Publish(
+                new PhoneBlacklistedBlockedEvent(UserEventContext.InitializeFromUser(user)));
+        }
     }
 
     #region Helper Methods

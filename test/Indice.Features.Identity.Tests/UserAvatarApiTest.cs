@@ -14,12 +14,14 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using Xunit;
 using Indice.Security;
 using Duende.IdentityModel.Client;
 using System.Security.Claims;
 using System.Net.Http.Headers;
+using Indice.Features.Identity.Core.Guards;
+
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
@@ -39,7 +41,8 @@ public class UserAvatarApiTest : IAsyncLifetime
 {
     // Private fields
     private readonly HttpClient _httpClient;
-    private ServiceProvider _serviceProvider;
+    private readonly IHost _host;
+    private readonly IServiceProvider _serviceProvider;
     private const string BASE_URL = "https://server";
     private const string CLIENT_ID = "api-user-client";
     private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
@@ -47,7 +50,8 @@ public class UserAvatarApiTest : IAsyncLifetime
     private string _signInLogDatabaseName = $"SignInLogDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
 
     public UserAvatarApiTest() {
-        var builder = new WebHostBuilder();
+        var host = new HostBuilder().ConfigureWebHost(builder => {
+        builder.UseTestServer();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["test:key"] = "20"
@@ -78,6 +82,7 @@ public class UserAvatarApiTest : IAsyncLifetime
                 options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
                 options.Enable = true;
             });
+            services.AddActionRateLimiterNoOp();
             services.AddEmailServiceNoop();
             services.AddSmsServiceNoop();
             services.AddSingleton<CallingCodesProvider>();
@@ -119,9 +124,11 @@ public class UserAvatarApiTest : IAsyncLifetime
                 idbuilder.MapProfilePictures();
             });   
         });
-        var server = new TestServer(builder);
+        }).Start();
+        var server = host.GetTestServer();
         var handler = server.CreateHandler();
-        _serviceProvider = (ServiceProvider)server.Services;
+        _host = host;
+        _serviceProvider = host.Services;
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
@@ -155,7 +162,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + tokenResponse.AccessToken);
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/form-data"));
 
-        var response = await _httpClient.PutAsync("/api/my/account/picture", multipartContent);
+        var response = await _httpClient.PutAsync("/api/my/account/picture", multipartContent, TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode);
     }
 
@@ -249,13 +256,14 @@ public class UserAvatarApiTest : IAsyncLifetime
     };
     #endregion
 
-    public async Task DisposeAsync() {
-        await _serviceProvider.DisposeAsync();
+    public async ValueTask DisposeAsync() {
+        await _host.StopAsync();
+        _host.Dispose();
     }
 
-    public Task InitializeAsync() {
+    public ValueTask InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
         dbContext.SeedInitialData();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

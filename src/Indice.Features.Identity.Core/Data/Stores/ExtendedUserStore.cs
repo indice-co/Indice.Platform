@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using Indice.Extensions;
@@ -48,7 +47,7 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
     public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber? describer = null) : base(context, describer) {
         PasswordHistoryLimit = configuration.GetIdentityOption<int?>(nameof(IdentityOptions.Password), nameof(PasswordHistoryLimit));
         PasswordExpirationPolicy = configuration.GetIdentityOption<PasswordExpirationPolicy?>(nameof(IdentityOptions.Password), nameof(PasswordExpirationPolicy));
-        StorePictureAsClaim = configuration.GetIdentityOption<bool?> (nameof(IdentityOptions.User), nameof(StorePictureAsClaim)) ?? false;
+        StorePictureAsClaim = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.User), nameof(StorePictureAsClaim)) ?? false;
         TwoFactorPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy");
     }
 
@@ -351,8 +350,8 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
             }
         } else {
             var picture = await UserPictureSet.Where(x => x.UserId == user.Id).FirstOrDefaultAsync(cancellationToken);
-            if (picture is null) {  
-                return (null, string.Empty); 
+            if (picture is null) {
+                return (null, string.Empty);
             }
             return await GetUserPictureInternalAsync(picture.ContentType, new MemoryStream(picture.Data), contentType, size, cancellationToken);
         }
@@ -397,7 +396,7 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
 
 
     private static async Task<(MemoryStream? OutputStream, string ContentType, List<IdentityError> Errors)> SetUserPictureInternalAsync(Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256, CancellationToken cancellationToken = default) {
-        using var image = Image.Load(inputStream, out var format);
+        using var image = Image.Load(inputStream);
         // manipulate image resize to max side size.
         var maxSide = Math.Max(image.Width, image.Height);
         var errors = new List<IdentityError>();
@@ -449,7 +448,8 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         if (!size.HasValue && string.IsNullOrEmpty(contentType)) {
             return (Stream: originalStream, ContentType: originalContentType);
         }
-        using var image = Image.Load(originalStream, out var format);
+        using var image = Image.Load(originalStream);
+        var format = image.Metadata.DecodedImageFormat!;
         var resizeOptions = new ResizeOptions() {
             Size = new Size(size ?? image.Width, size ?? image.Height),
             Mode = ResizeMode.Pad
@@ -471,4 +471,25 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         outputStream.Seek(0, SeekOrigin.Begin);
         return (Stream: outputStream, ContentType: contentType);
     }
+
+
+    /// <inheritdoc/>
+    public async Task SetTwoFactorPreferenceAsync(TUser user, string? authenticationMethodCode, CancellationToken cancellationToken = default) {
+        await base.SetTokenAsync(user, InternalLoginProvider, TwoFactorPreferenceTokenName, authenticationMethodCode, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> GetTwoFactorPreferenceAsync(TUser user, CancellationToken cancellationToken = default) {
+        return await base.GetTokenAsync(user, InternalLoginProvider, TwoFactorPreferenceTokenName, cancellationToken);
+    }
+
+
+    /// <inheritdoc/>
+    public async Task RemoveAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken = default) {
+        await base.SetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, null, cancellationToken);
+    }
+    private const string InternalLoginProvider = "[AspNetUserStore]";
+    private const string TwoFactorPreferenceTokenName = "TwoFactorPreference";
+    private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
+
 }

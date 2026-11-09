@@ -5,6 +5,7 @@ using Indice.Features.Messages.Core.Handlers;
 using Indice.Features.Messages.Core.Hosting;
 using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Rendering;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -45,13 +46,12 @@ public static class WorkerHostBuilderExtensions
         });
         workerHostBuilder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
+            messageWorkerOptions.DatabaseCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
+            messageWorkerOptions.DatabaseCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
+            messageWorkerOptions.DatabaseCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
         });
-        workerHostBuilder.Services.Configure<MessagingDatabaseCleanUpOptions>(dbCleanUpOptions => {
-            dbCleanUpOptions.RetentionDaysForOther = options.DatabaseCleanUpOptions.RetentionDaysForOther;
-            dbCleanUpOptions.RetentionDaysForInbox = options.DatabaseCleanUpOptions.RetentionDaysForInbox;
-            dbCleanUpOptions.DeletionBatchSize = options.DatabaseCleanUpOptions.DeletionBatchSize;
-            dbCleanUpOptions.Enabled = options.DatabaseCleanUpOptions.Enabled;
-        });
+
         workerHostBuilder.Services.AddHostedService<StartupSeedHostedService>();
         return workerHostBuilder;
     }
@@ -88,12 +88,29 @@ public static class WorkerHostBuilderExtensions
             options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
             options.InstanceCount = 1;
         })
+        .AddJob<MarkAllAsReadHandler>().WithQueueTrigger<MarkMessagesReadEvent>(options => {
+            options.QueueName = EventNames.MarkAllAsRead;
+            options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+            options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
+            options.InstanceCount = 1;
+        })
+        .AddJob<MarkAllAsUnreadHandler>().WithQueueTrigger<MarkMessagesUnreadEvent>(options => {
+            options.QueueName = EventNames.MarkAllAsUnread;
+            options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+            options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
+            options.InstanceCount = 1;
+        })
+        .AddJob<MergeContactsHandler>().WithQueueTrigger<MergeContactsEvent>(options => {
+            options.QueueName = EventNames.MergeContacts;
+            options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+            options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
+            options.InstanceCount = 1;
+        })
         .AddJob<MessagingDatabaseCleanUpJobHandler>().WithScheduleTrigger(messageOptions.DatabaseCleanUpCronExpression, options => {
             options.Singleton = true;
             options.Name = nameof(MessagingDatabaseCleanUpJobHandler);
             options.Group = nameof(MessagingDatabaseCleanUpJobHandler);
         });
-
     }
 
     private static void AddJobHandlerServices(this IServiceCollection services) {
@@ -134,6 +151,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
+        services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
 
         services.Configure<AnalyticsOptions>(opt => {
             opt.Enabled = options.Analytics.Enabled;
@@ -182,7 +200,7 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSendGrid(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkPost(configuration);
+        options.Services.AddEmailServiceSendGrid(configuration);
         return options;
     }
 
@@ -190,7 +208,24 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceBrevo(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkPost(configuration);
+        options.Services.AddEmailServiceBrevo(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses WeMail to send emails.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseEmailServiceWeMail(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceWeMail(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> according to <seealso cref="IConfiguration"/> and the <strong>Email:Provider</strong> setting.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <remarks>Auto discovers the correct service to register according to configuration</remarks>    
+    public static MessageJobsOptions UseEmailService(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailService(configuration);
         return options;
     }
 

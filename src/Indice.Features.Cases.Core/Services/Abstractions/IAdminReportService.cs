@@ -9,6 +9,7 @@ public interface IAdminReportService
     /// <summary>Generates a case report</summary>
     /// <param name="user"></param>
     /// <param name="reportTag"></param>
+    /// <param name="channel">Limits the report to the cases of this channel (optional).</param>
     /// <returns></returns>
-    Task<List<GroupByReportResult>> GenerateReport(UserActor user, ReportTag reportTag);
+    Task<List<GroupByReportResult>> GenerateReport(UserActor user, ReportTag reportTag, string? channel = null);
 }

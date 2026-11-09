@@ -148,13 +148,16 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound>> DeleteIdentityResource(
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteIdentityResource(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId
     ) {
         var resource = await configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
+        }
+        if (resource.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(resourceId).ToLower(), "Cannot delete a reserved identity resource."));
         }
         configurationDbContext.IdentityResources.Remove(resource);
         await configurationDbContext.SaveChangesAsync();
@@ -198,6 +201,11 @@ internal static class ResourceHandlers
             Description = apiScope.Description,
             DisplayName = apiScope.DisplayName,
             Emphasize = apiScope.Emphasize,
+#if NET9_0_OR_GREATER
+            NonEditable = apiScope.NonEditable,
+#else
+            NonEditable = false,
+#endif
             UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
             ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
             Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
@@ -207,6 +215,156 @@ internal static class ResourceHandlers
         })
         .ToResultSetAsync(options);
         return TypedResults.Ok(scopes);
+    }
+
+    internal static async Task<Results<Ok<ApiScopeInfo>, ValidationProblem>> CreateApiScope(
+        ExtendedConfigurationDbContext configurationDbContext,
+        CreateApiScopeRequest request
+    ) {
+        if (string.IsNullOrWhiteSpace(request.Name)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Name).ToLower(), "Name is required"));
+        }
+        var scope = request.Name.Trim();
+        var apiScope = await configurationDbContext.ApiScopes.AsNoTracking().SingleOrDefaultAsync(apiScope => apiScope.Name == scope);
+        if (apiScope != null) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Name).ToLower(), $"There is already an API scope with name: {apiScope.Name}."));
+        }
+        var apiScopeToAdd = new ApiScope {
+            Name = request.Name.Trim(),
+            DisplayName = request.DisplayName,
+            Description = request.Description,
+            Enabled = true,
+            Emphasize = request.Emphasize,
+            ShowInDiscoveryDocument = request.ShowInDiscoveryDocument,
+            Required = request.Required,
+            UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList(),
+            Properties = new List<ApiScopeProperty>()
+        };
+        if (request.Translations.Any()) {
+            AddTranslationsToApiScope(apiScopeToAdd, request.Translations.ToJson());
+        }
+        configurationDbContext.ApiScopes.Add(apiScopeToAdd);
+        await configurationDbContext.SaveChangesAsync();
+        return TypedResults.Ok(new ApiScopeInfo {
+            Id = apiScopeToAdd.Id,
+            Name = apiScopeToAdd.Name,
+            DisplayName = apiScopeToAdd.DisplayName,
+            Description = apiScopeToAdd.Description,
+            UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
+            Emphasize = apiScopeToAdd.Emphasize,
+            ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
+            Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScopeToAdd.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
+                ? apiScopeToAdd.Properties.Single(x => x.Key == ClientPropertyKeys.Translation).Value
+                : string.Empty
+            )
+        });
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteApiScope(
+        ExtendedConfigurationDbContext configurationDbContext,
+        string scopeName
+    ) {
+        if (string.IsNullOrWhiteSpace(scopeName)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Name is required"));
+        }
+        scopeName = scopeName.Trim();
+        var apiScope = await configurationDbContext.ApiScopes.AsNoTracking().SingleOrDefaultAsync(apiScope => apiScope.Name == scopeName);
+        if (apiScope == null) {
+            return TypedResults.NotFound();
+        }
+#if NET9_0_OR_GREATER
+        if (apiScope.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Cannot delete a reserved API scope."));
+        }
+#endif
+        var isInUse = await configurationDbContext.ApiResources.AnyAsync(x => x.Scopes.Any(s => s.Scope == scopeName));
+        if (isInUse) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Cannot delete API scope as it is in use."));
+        }
+
+        configurationDbContext.ApiScopes.Remove(apiScope);
+        await configurationDbContext.SaveChangesAsync();
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, ValidationProblem, NotFound>> UpdateApiScope(
+        ExtendedConfigurationDbContext configurationDbContext,
+        string scopeName,
+        UpdateApiScopeRequest request
+    ) {
+        if (string.IsNullOrWhiteSpace(scopeName)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "ScopeName is required"));
+        }
+        scopeName = scopeName.Trim();
+        var apiScope = await configurationDbContext.ApiScopes.Include(x => x.Properties).Where(x => x.Name == scopeName).SingleOrDefaultAsync();
+        if (apiScope is null) {
+            return TypedResults.NotFound();
+        }
+        apiScope.DisplayName = request.DisplayName;
+        apiScope.Description = request.Description;
+        apiScope.Required = request.Required;
+        apiScope.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
+        apiScope.Emphasize = request.Emphasize;
+        var apiScopeTranslations = apiScope.Properties?.SingleOrDefault(x => x.Key == ClientPropertyKeys.Translation);
+        if (apiScopeTranslations == null) {
+            AddTranslationsToApiScope(apiScope, request.Translations.ToJson());
+        } else {
+            apiScopeTranslations.Value = request.Translations.ToJson() ?? string.Empty;
+        }
+        await configurationDbContext.SaveChangesAsync();
+        return TypedResults.NoContent();
+    }
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddApiScopeClaims(
+        ExtendedConfigurationDbContext configurationDbContext,
+        string scopeName,
+        string[] claims
+    ) {
+        if (string.IsNullOrWhiteSpace(scopeName)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "ScopeName is required"));
+        }
+        scopeName = scopeName.Trim();
+        var apiScope = await configurationDbContext.ApiScopes.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Name == scopeName);
+        if (apiScope == null) {
+            return TypedResults.NotFound();
+        }
+        if (claims is not [_, ..]) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("claims", "A claims list is required"));
+        }
+        apiScope.UserClaims =
+        [
+            .. claims.Select(x => new ApiScopeClaim {
+                ScopeId = apiScope.Id,
+                Type = x
+            }),
+        ];
+        await configurationDbContext.SaveChangesAsync();
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteApiScopeClaim(
+        ExtendedConfigurationDbContext configurationDbContext,
+        string scopeName,
+        string claim
+    ) {
+        if (string.IsNullOrWhiteSpace(scopeName)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "ScopeName is required"));
+        }
+        if (string.IsNullOrWhiteSpace(claim)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(claim).ToLower(), "Claim is required"));
+        }
+        scopeName = scopeName.Trim();
+        claim = claim.Trim();
+        var apiScope = await configurationDbContext.ApiScopes.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Name == scopeName);
+        if (apiScope == null) {
+            return TypedResults.NotFound();
+        }
+        apiScope.UserClaims ??= [];
+        if (!apiScope.UserClaims.Any(x => x.Type == claim)) {
+            return TypedResults.NotFound();
+        }
+        apiScope.UserClaims.RemoveAll(x => x.Type == claim);
+        await configurationDbContext.SaveChangesAsync();
+        return TypedResults.NoContent();
     }
 
     internal static async Task<Results<Ok<ApiResourceInfo>, NotFound>> GetApiResource(
@@ -240,6 +398,11 @@ internal static class ResourceHandlers
                     Description = result.ApiScope.Description,
                     DisplayName = result.ApiScope.DisplayName,
                     Emphasize = result.ApiScope.Emphasize,
+#if NET9_0_OR_GREATER
+                    NonEditable = result.ApiScope.NonEditable,
+#else
+                    NonEditable = false,
+#endif
                     UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                     ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
                     Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(result.ApiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
@@ -377,7 +540,7 @@ internal static class ResourceHandlers
         if (resource == null) {
             return TypedResults.NotFound();
         }
-        if (!(claims?.Length > 0)) {
+        if (claims is not [_, ..]) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("claims", "A claims list is required"));
         }
         resource.UserClaims =
@@ -419,41 +582,54 @@ internal static class ResourceHandlers
         if (resource == null) {
             return TypedResults.NotFound();
         }
-        var apiScope = await configurationDbContext.ApiScopes.AsNoTracking().SingleOrDefaultAsync(apiScope => apiScope.Name == request.Name);
-        if (apiScope != null) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Name).ToLower(), $"There is already an API scope with name: {apiScope.Name}."));
+        if (string.IsNullOrWhiteSpace(request.Name)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Name).ToLower(), "Name is required"));
+        }
+        var scope = request.Name.Trim();
+        var apiResourceScopeExists = resource.Scopes.Any(x => x.Scope == scope);
+        if (apiResourceScopeExists) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Name).ToLower(), $"There is already an API scope with name: {scope} associated with this resource."));
+        }
+        var apiScope = await configurationDbContext.ApiScopes
+                                                   .Include(x => x.UserClaims)
+                                                   .Include(x => x.Properties)
+                                                   .AsNoTracking()
+                                                   .SingleOrDefaultAsync(apiScope => apiScope.Name == scope);
+
+        if (apiScope == null) {
+            apiScope = new ApiScope {
+                Name = scope,
+                DisplayName = request.DisplayName,
+                Description = request.Description,
+                Enabled = true,
+                Emphasize = request.Emphasize,
+                ShowInDiscoveryDocument = request.ShowInDiscoveryDocument,
+                Required = request.Required,
+                UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList(),
+                Properties = new List<ApiScopeProperty>()
+            };
+            if (request.Translations.Any()) {
+                AddTranslationsToApiScope(apiScope, request.Translations.ToJson());
+            }
+            configurationDbContext.ApiScopes.Add(apiScope);
         }
         var apiResourceScope = new ApiResourceScope {
-            Scope = request.Name,
+            Scope = scope,
             ApiResourceId = resource.Id
         };
         resource.Scopes.Add(apiResourceScope);
-        var apiScopeToAdd = new ApiScope {
-            Name = request.Name.Trim(),
-            DisplayName = request.DisplayName,
-            Description = request.Description,
-            Enabled = true,
-            Emphasize = request.Emphasize,
-            ShowInDiscoveryDocument = request.ShowInDiscoveryDocument,
-            Required = request.Required,
-            UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList(),
-            Properties = new List<ApiScopeProperty>()
-        };
-        if (request.Translations.Any()) {
-            AddTranslationsToApiScope(apiScopeToAdd, request.Translations.ToJson());
-        }
-        configurationDbContext.ApiScopes.Add(apiScopeToAdd);
+        
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new ApiScopeInfo {
             Id = apiResourceScope.Id,
-            Name = apiScopeToAdd.Name,
-            DisplayName = apiScopeToAdd.DisplayName,
-            Description = apiScopeToAdd.Description,
-            UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
-            Emphasize = apiScopeToAdd.Emphasize,
-            ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
-            Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScopeToAdd.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
-                ? apiScopeToAdd.Properties.Single(x => x.Key == ClientPropertyKeys.Translation).Value
+            Name = apiScope.Name,
+            DisplayName = apiScope.DisplayName,
+            Description = apiScope.Description,
+            UserClaims = apiScope.UserClaims.Select(x => x.Type),
+            Emphasize = apiScope.Emphasize,
+            ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
+            Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
+                ? apiScope.Properties.Single(x => x.Key == ClientPropertyKeys.Translation).Value
                 : string.Empty
             )
         });
@@ -488,7 +664,7 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound>> DeleteApiResourceScope(
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteApiResourceScope(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId, int scopeId) {
         var apiResource = await configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
@@ -499,11 +675,16 @@ internal static class ResourceHandlers
         if (apiResourceScope == null) {
             return TypedResults.NotFound();
         }
-        apiResource.Scopes!.Remove(apiResourceScope);
         var apiScope = await configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
+#if NET9_0_OR_GREATER
+        if (apiScope.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeId).ToLower(), "Cannot delete a reserved API scope."));
+        }
+#endif
+        apiResource.Scopes!.Remove(apiResourceScope);
         configurationDbContext.ApiScopes.Remove(apiScope);
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
@@ -563,12 +744,15 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound>> DeleteApiResource(
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteApiResource(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId) {
         var apiResource = await configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
         if (apiResource == null) {
             return TypedResults.NotFound();
+        }
+        if (apiResource.NonEditable) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(resourceId).ToLower(), "Cannot delete a reserved API resource."));
         }
         configurationDbContext.ApiResources.Remove(apiResource);
         var apiScopes = await configurationDbContext.ApiScopes.Where(apiScope => apiResource.Scopes.Select(apiResourceScope => apiResourceScope.Scope).Contains(apiScope.Name)).ToListAsync();

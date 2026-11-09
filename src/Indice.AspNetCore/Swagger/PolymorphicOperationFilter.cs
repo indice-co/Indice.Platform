@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿#if NET8_0
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger;
@@ -35,3 +36,4 @@ public class PolymorphicOperationFilter : IOperationFilter
         }
     }
 }
+#endif

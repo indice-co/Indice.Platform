@@ -1,6 +1,6 @@
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -9,46 +9,58 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public class CanonicalDocumentTransformer : IOpenApiDocumentTransformer
 {
-    private class OperationTypeComparer : IComparer<OperationType>
+    private class HttpMethodComparer : IComparer<HttpMethod>
     {
-        private static readonly List<OperationType> Order =
+        private static readonly List<HttpMethod> Order =
         [
-            OperationType.Get,
-            OperationType.Post,
-            OperationType.Put,
-            OperationType.Patch,
-            OperationType.Delete,
-            OperationType.Head,
-            OperationType.Options
+            HttpMethod.Get,
+            HttpMethod.Post,
+            HttpMethod.Put,
+            HttpMethod.Patch,
+            HttpMethod.Delete,
+            HttpMethod.Head,
+            HttpMethod.Options
         ];
 
-        public int Compare(OperationType x, OperationType y) {
+        public int Compare(HttpMethod? x, HttpMethod? y)
+        {
+            if (x is null && y is null) return 0;
+            if (x is null) return -1;
+            if (y is null) return 1;
             return Order.IndexOf(x).CompareTo(Order.IndexOf(y));
         }
     }
 
     /// <inheritdoc/>
-    public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken) {
+    public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
+    {
         // Sort the paths by key
         var sortedPaths = document.Paths.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value);
         document.Paths.Clear();
-        foreach (var path in sortedPaths) {
+        foreach (var path in sortedPaths)
+        {
             document.Paths.Add(path.Key, path.Value);
         }
 
         // Sort the operations of each path by type in this order: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
-        var comparer = new OperationTypeComparer();
-        foreach (var path in document.Paths) {
-            var sortedOperations = path.Value.Operations.OrderBy(o => o.Key, comparer).ToDictionary(o => o.Key, o => o.Value);
-            path.Value.Operations.Clear();
-            foreach (var operation in sortedOperations) {
-                path.Value.AddOperation(operation.Key, operation.Value);
+        var comparer = new HttpMethodComparer();
+        foreach (var path in document.Paths)
+        {
+            if (path.Value is OpenApiPathItem pathItem)
+            {
+                var sortedOperations = pathItem.Operations!.OrderBy(o => o.Key, comparer).ToDictionary(o => o.Key, o => o.Value);
+                pathItem.Operations!.Clear();
+                foreach (var operation in sortedOperations)
+                {
+                    pathItem.AddOperation(operation.Key, operation.Value);
+                }
             }
         }
 
         // Sort the elements of the tags field by name
-        if (document.Tags != null) {
-            document.Tags = document.Tags.OrderBy(t => t.Name).ToList();
+        if (document.Tags != null)
+        {
+            document.Tags = new SortedSet<OpenApiTag>(document.Tags, Comparer<OpenApiTag>.Create((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal)));
         }
 
         return Task.CompletedTask;

@@ -5,6 +5,140 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.62.0]
+### Added
+- The case relation key: in the case details "Basic info" panel, and as a cases list filter
+  (`CaseListFilter.RelationKey`, shown by default). The related cases tab follows the key instead of the `ExternalCorrelationKey` metadata entry.
+  Translation keys: `cases.relationKey`, `caseDetails.relationKey`.
+- The case details page shows its content in tabs: the case data form, the case attachments as a flat list (open / download),
+  the data versions (paged and searchable by author, each version rendered read-only with the case type layout) and the related cases (when there are any).
+- Case data form renderers for what the JSON Forms angular-material set supports and the Cases form did not:
+  nested objects (`Control` on an object property, so schemas without a UI schema render at any depth), `Label` elements,
+  `options.multi` (textarea), `options.toggle`, `options.slider`, `format: date-time` / `time`, arrays of enum values (checkboxes),
+  `oneOf` / `anyOf` / `allOf`, the `ListWithDetail` element, and `options.table: true` (with optional `options.columns`) for arrays.
+  Elements no renderer accepts show their value as JSON instead of "No applicable renderer found".
+- `imageUri` widget (`options.widget: "imageUri"`) for string fields: the image is picked from a file (`image/*`, stored as a
+  `data:` uri, up to `options.maxSize` bytes, 1 MB by default) or given as an external `https://` url, with a preview;
+  read-only views show the image. Translation keys: `jsonforms.imageUri.*`.
+- Read-only cases
+- When the user cannot open cases, the cases list shows an info button where the "New case" button would be, explaining why.
+- `CasesUIOptions.DashboardChannels`: the dashboard shows a "by case type" and a "by status" report for each listed case
+  channel, a row per channel. Defaults to `Managed` and `External`; an empty list shows none. These reports follow
+  `DashboardTags` through `GroupedByCasetype` / `GroupedByStatus`. A channel is labelled by its `channels.<name>`
+  translation when there is one, otherwise by its name.
+- A case type is created in a four-step wizard: general → schema, layout & translations → configuration → checkpoint types.
+  "Save and continue" on the configuration step creates the case type, and the last step lists its checkpoint types to add.
+  The schema and layout are edited side by side, with the translations below them. Editing a case type shows the same
+  parts as tabs (checkpoint types included), with a red dot on tabs that have errors.
+- Case type translations are edited in forms instead of JSON (saved in the same `translations` / `layoutTranslations` format):
+  - title and description per app language; a language with a description but no title cannot be saved, since the server
+    would show it an empty title;
+  - form texts: every `title`, `placeholder`, `enumNames` and `helpvalue` text of the schema and layout (the properties the
+    server translates) with its translation, with progress, search, "untranslated" / "unused" filters and removal of
+    translations whose text is gone. A warning lists the `label`s of a JSON Forms UI schema layout, which the server does not translate.
+- The checkpoint type create / edit pages take a `returnUrl` query parameter; opened from a case type (wizard or edit page),
+  they return to its checkpoint types.
+- The case details "Basic info" panel always shows the number of related cases (0 included). Administrators
+  (`Administrator` or `CasesAdministrator`) get a pen on it and on the group (shown to them even when empty): "Related cases" opens a side pane to change the relation key
+  (after a confirmation when the case has related cases: changing or clearing it takes the case out of its relation, the others stay related),
+  remove related cases and search for cases to add (a case already related under another key is moved after a confirmation);
+  the related cases tab is always shown (0 included), with an "Add cases" button for administrators. Cases without a case number show their id;
+  "Group" opens a side pane to change the group, with a warning that the group takes part in the access rules.
+  Translation keys: `caseRelations.*`, `caseGroup.*`, `breadcrumb.caseRelations`, `breadcrumb.caseGroup`.
+### Changed
+- On a case type's list, "New case" is shown only when that case type can be created, and opens with it already chosen.
+- The channel reports replace the fixed Agent/Customer (branch/eBanking) dashboard reports, so the `Agent*` / `Customer*`
+  entries of `DashboardTags` no longer select a report; to hide the channel reports set `DashboardChannels` to an empty list.
+  Translation keys: `dashboard.agentGroupedByCasetype`, `dashboard.customerGroupedByCasetype`, `dashboard.agentGroupedByStatus`
+  and `dashboard.customerGroupedByStatus` are replaced by `dashboard.channelGroupedByCasetype` / `dashboard.channelGroupedByStatus`
+  (with a `{{channel}}` parameter) and `channels.Managed` / `channels.External`.
+- The `case-channel` UI schema option treats the legacy `Agent` / `Customer` channel names as `Managed` / `External`.
+- The JSON fields of the case type form (schema, layout, translations, configs) use a code editor (CodeMirror) instead of
+  plain textareas: syntax highlighting, line numbers, bracket matching, folding and inline JSON parse errors.
+- Empty case type translations are no longer saved (the server would replace the text with an empty string).
+  Translation keys: `caseTypes.form.translations`, `caseTypes.form.layoutTranslations`, `caseTypes.form.sectionData` and
+  `caseTypes.form.fixJson` are removed; `caseTypes.steps.*`, `caseTypes.translations.*`,
+  `caseTypes.form.schemaHint`, `caseTypes.form.layoutHint`, `caseTypes.edit.fixTabs`,
+  `common.steps`, `common.stepState.*`, `common.stepOf`, `common.hasErrors`, `common.next` and `common.done` are added.
+- The case group is labelled "Group" / "Φάκελος" (was "Branch" / "Κατάστημα") on the dashboard, the cases list and the case details,
+  where it moved from the customer info to the basic info panel. Translation keys: `cases.groupId`, `caseDetails.groupId`, `dashboard.groupedByGroupId`.
+### Fixed
+- Editable checkboxes in the case data form could not be ticked.
+- Side panes (new case, saved queries) did not scroll, so the new-case pane cut off the case type list when there were many.
+  The pane body now scrolls under a fixed header and footer, with a thin scrollbar.
+- Opening an attachment (attachments tab, timeline comments, form file fields) no longer runs uploaded script: only PDF and
+  PNG / JPEG / GIF / WebP / BMP images open in a new tab, every other type (SVG, HTML, ...) is downloaded. Opened files, and
+  the case PDF, no longer stay in memory until the page reloads, and a blocked popup now downloads the file instead of doing nothing.
+
+## [8.50.0] - 2026-06-16
+
+### Overriding / extending translations
+
+Default implementation covers all the previous el.json keys and more (previously hardcoded UI html,ts etc), but if you want to override any of them or add your own,
+you can layer a second resource onto the same `cases-i18n` endpoint with `AddTranslationsResource`.
+
+The keys for the new resources are the same as the previous keys in `el.json` but with dots instead of camelCase,
+and prefixed with the page name. For example, the key `groupedByCasetype` in `el.json` becomes `dashboard.groupedByCasetype` in the new resource file.
+
+**Note**: You can find the rest of the keys in [Indice.Features.Cases.Server project, inside the Resources folder.](https://github.com/indice-co/Indice.Platform/tree/develop/src/Indice.Features.Cases.Server/Resources)
+
+Previous keys in `el.json` example:
+```json
+{
+  "dashboard": {
+    "groupedByCasetype": "Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης"
+    }
+}
+```
+New resource en/neutral example:
+```xml
+  <data name="dashboard.groupedByCasetype" xml:space="preserve">
+    <value>Total Cases by Case Type</value>
+  </data>
+```
+New resource el example:
+```xml
+  <data name="dashboard.groupedByCasetype" xml:space="preserve">
+    <value>Συνολικές Υποθέσεις ανά Τύπο Υπόθεσης</value>
+  </data>
+```
+
+### Example override:
+```csharp
+// resourceName: "MyApp.Cases.Translations" -> look for MyApp.Cases.Translations.{culture}.resx embedded resources * inside a Resources folder * (by default)
+// endpointRoutePattern: null -> reuse the default cases-i18n endpoint
+// resourceLocation: "MyApp.Host" -> look for embedded resources in the MyApp.Host assembly
+builder.Services.AddTranslationsResource( resourceName: "MyApp.Cases.Translations",
+    endpointRoutePattern: null, resourceLocation: "MyApp.Host");
+```
+
+**Make the added resource actually resolve.** All resources sharing the
+endpoint are resolved in one pass; if any one can't find its embedded manifest, the entire request
+throws `MissingManifestResourceException`. For your resource to resolve:
+
+- Provide a **neutral** `.resx` (e.g. `MyApp.Cases.Translations.resx`), not only culture-specific ones.
+- Mark the `.resx` files as **`EmbeddedResource`**.
+- With `ResourcesPath = "Resources"` (the platform default), place them under a **`Resources`** folder so
+  the manifest name is `{Assembly}.Resources.{baseName}`. Pass the base name *without* the `Resources.`
+  prefix — the `ResourcesPath` adds it.
+- Pass the correct **assembly name** as `resourceLocation`, and ensure that assembly's `RootNamespace`
+  matches its assembly name.
+
+**Note**: You can remove the previous translation file `el.json` as it is no longer needed.
+
+### Disabling the new endpoints.
+By default, the system will automatically map the built-in translation endpoints.<br>
+However, if you have integrated your own custom translation service and wish to bypass the provided endpoints entirely, 
+you can easily opt out of this default behavior. Simply update your startup configuration by setting `CaseServerOptions.MapTranslations` to false
+```csharp
+builder.AddCaseServer(options => { options.PathPrefix = "/api"; // rest of configs...
+                                   options.MapTranslations = false; });
+```
+
+## [8.42.2] - 2026-06-04
+### Fixed
+- A bug when the configuration had `ReferenceNumber` filter enabledm, the filter was not shown.
+
 ## [7.31.2] - 2024-10-11
 ### Added
 - `UnauthorizedComponent` from `Indice.Angular` library to handle Forbidden requests.

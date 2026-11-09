@@ -1,7 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using FubarDev.FtpServer;
 using FubarDev.FtpServer.FileSystem;
-using FubarDev.FtpServer.FileSystem.DotNet;
+using Indice.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -12,29 +12,30 @@ namespace Indice.Features.FtpServer.Azure;
 /// </summary>
 public class AzureBlobFileSystemProvider : IFileSystemClassFactory
 {
-
     private readonly IAccountDirectoryQuery _accountDirectoryQuery;
     private readonly ILogger<AzureBlobFileSystemProvider>? _logger;
 
     /// <summary>
     /// Creates a new instance of <see cref="AzureBlobFileSystemProvider"/>.
     /// </summary>
-    /// <param name="blobServiceClient">The azure service client</param>
-    /// <param name="options">The file system oblions</param>
+    /// <param name="azureClientFactory">The Azure client factory service</param>
+    /// <param name="options">The file system options</param>
     /// <param name="accountDirectoryQuery">Account directory with permissions and users</param>
     /// <param name="logger">The logger</param>
-    public AzureBlobFileSystemProvider(BlobServiceClient blobServiceClient,
+    public AzureBlobFileSystemProvider(
+        AzureClientFactory azureClientFactory,
         IOptions<AzureBlobFileSystemOptions> options,
         IAccountDirectoryQuery accountDirectoryQuery,
         ILogger<AzureBlobFileSystemProvider>? logger = null) {
-        ArgumentNullException.ThrowIfNull(blobServiceClient);
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(azureClientFactory);
         _accountDirectoryQuery = accountDirectoryQuery ?? throw new ArgumentNullException(nameof(accountDirectoryQuery));
         _logger = logger;
         RootPath = string.IsNullOrEmpty(options.Value.RootPath)
             ? "/"
             : Path.GetFileName(options.Value.RootPath.TrimEnd('/', '\\'));
-        Container = blobServiceClient.GetBlobContainerClient(options.Value.ContainerName);
+        
+        Container = azureClientFactory.GetOrCreateBlobContainerClient(options.Value.ConnectionStringName!, options.Value.ContainerName);
     }
 
     /// <summary>Gets the Azure Blob Storage container client used by this file system provider.</summary>

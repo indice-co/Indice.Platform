@@ -1,76 +1,54 @@
-import { Injectable } from '@angular/core';
-
-import { AsyncSubject, Observable, map, merge, identity, scan, ReplaySubject, Subject, switchMap } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, Subscription, tap } from 'rxjs';
 import { Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * State of the contact shown by the contact detail page. Provided by `ContactComponent`, so the page and its tabs
+ * share one instance.
+ */
+@Injectable()
 export class ContactStore {
-  private _contact: AsyncSubject<Contact> | undefined;
-  private _idChanged = false;
-  private _currentId = '';
+  private readonly _api = inject(MessagesApiClient);
+  private _request?: Subscription;
 
+  public readonly contactId = signal('');
+  public readonly contact = signal<Contact | undefined>(undefined);
+  public readonly loading = signal(false);
+  public readonly failed = signal(false);
 
-  constructor(
-    private readonly _api: MessagesApiClient
-  ) { }
-
-  public getContact(contactId: string): Observable<Contact> {
-
-    this._idChanged = this._currentId !== contactId;
-    this._currentId = contactId;
-    if (!this._contact || this._idChanged) {
-      this._contact = new AsyncSubject<Contact>();
-      this._api
-        .getContactById(contactId)
-        .subscribe((Contact: Contact) => {
-          this._contact?.next(Contact);
-          this._contact?.complete();
-        });
+  public load(contactId: string): void {
+    if (contactId !== this.contactId()) {
+      this.contact.set(undefined);
     }
-    return this._contact;
+    this.contactId.set(contactId);
+    this.reload();
   }
 
-  public reload(recipientId: string) {
-    return this._api.resolveContact(recipientId);
+  public reload(): void {
+    const id = this.contactId();
+    if (!id) {
+      return;
+    }
+    this._request?.unsubscribe();
+    this.loading.set(true);
+    this.failed.set(false);
+    this._request = this._api.getContactById(id).subscribe({
+      next: contact => {
+        this.contact.set(contact);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.failed.set(true);
+        this.loading.set(false);
+      }
+    });
   }
 
-
-
-
-
-
-  private reloadSubj = new Subject<void>();
-  private idRplSubj = new ReplaySubject<string>(1);
-
-  public contact$: Observable<Contact> =
-    combineReload(
-      this.idRplSubj,
-      this.reloadSubj
-    )
-    .pipe(
-      switchMap((contactId: string) => {
-        return this._api.getContactById(contactId);
-      })
-    );
-}
-
-function combineReload<T>(
-  value$: Observable<T>,
-  reload$: Observable<void>,
-  selector: Function = identity
-): Observable<T> {
-  return merge(value$, reload$).pipe(
-    reload(selector),
-    map((value: any) => value as T)
-  );
-}
-function reload(selector: Function = identity) {
-  return scan((oldValue, currentValue) => {
-    if (!oldValue && !currentValue)
-      throw new Error(`Reload can't run before initial load`);
-
-    return selector(currentValue || oldValue);
-  });
+  /**
+   * Asks the server to refresh the contact from the external system by its recipient id, then reloads it (the
+   * recipient id is a correlation id of the current contact, so it is most probably the one that was refreshed).
+   */
+  public resolve(recipientId: string): Observable<void> {
+    return this._api.resolveContact(recipientId).pipe(tap(() => this.reload()));
+  }
 }

@@ -47,11 +47,11 @@ public abstract class BaseLoggedOutModel : BasePageModel
     /// <summary>Logged out page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync(string logoutId) {
         // Get context information (client name, post logout redirect URI and iframe for federated sign out).
-        var logout = await Interaction.GetLogoutContextAsync(logoutId);
-        AutomaticRedirectAfterSignOut = IdentityUIOptions.AutomaticRedirectAfterSignOut;
-        ClientId = logout?.ClientId;
-        ClientName = string.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName;
-        PostLogoutRedirectUri = logout?.PostLogoutRedirectUri;
+         var logout = await Interaction.GetLogoutContextAsync(logoutId);
+         AutomaticRedirectAfterSignOut = IdentityUIOptions.AutomaticRedirectAfterSignOut;
+         ClientId = logout?.ClientId;
+         ClientName = logout is null || string.IsNullOrEmpty(logout.ClientName) ? logout?.ClientId : logout.ClientName;
+         PostLogoutRedirectUri = logout?.PostLogoutRedirectUri;
         SignOutIframeUrl = logout?.SignOutIFrameUrl;
         return Page();
     }

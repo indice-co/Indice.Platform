@@ -36,7 +36,7 @@ public static class AdminRiskApi
             );
 
         var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
+        group.WithOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         // GET: api/risk-events
         group

@@ -1,0 +1,62 @@
+﻿@using Indice.Extensions
+@using Indice.Features.Identity.Core.Models
+@inject IdentityUILocalizer Localizer
+@model BaseMfaModel
+
+<form id="mfa-form-push"
+      asp-page="/Mfa"
+      asp-route-returnUrl="@Model.Input.ReturnUrl"
+      method="post"
+      class="space-y-4">
+    <input type="hidden" asp-for="Input.ReturnUrl" />
+    <input type="hidden" asp-for="Input.OtpCode" />
+    <input type="hidden" asp-for="Input.DeviceId" />
+    <div id="panel-main">
+        <p class="text-lg font-semibold">@Model.View.User?.UserName</p>
+        <p class="flex items-center text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5 mr-2 text-tenant-600"
+                 fill="currentColor"
+                 viewBox="0 0 16 16">
+                <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5
+                       8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5
+                       3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2
+                       1 1 0 0 0 0 2z" />
+            </svg>
+            @Localizer.Mfa_Because_Youve_Turned_On_Two_Step_Verification_You_Need_To_Approve_Request_On_Your_Mobile_App
+        </p>
+
+        <div indice-if="!Model.View.IsExistingBrowser" class="py-3 flex justify-center">
+            <input asp-for="Input.RememberClient"
+                   type="checkbox"
+                   class="h-4 w-4 text-tenant-600 border-gray-300 rounded" />
+            <label for="Input_RememberClient" class="ml-2 block text-sm text-gray-900">
+                @Localizer.Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser
+            </label>
+        </div>
+
+        @if (Model.View.AllowDowngradeAuthenticationMethod)
+        {
+            <div class="mt-4 text-center">
+                <button id="show-channels"
+                        type="button"
+                        class="text-tenant-600 hover:underline font-medium">
+                    @Localizer.Mfa_I_Cant_Use_My_App_Right_Now
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="flex gap-4">
+                <button id="otp-resend"
+                        type="button"
+                        class="flex-1 py-2 px-4 bg-tenant-600 hover:bg-tenant-700 text-white font-semibold rounded-md">
+                    @Localizer.Mfa_I_Didnt_Receive_The_Notification_Resend
+                </button>
+            </div>
+        }
+    </div>
+
+    <partial name="_MfaChannelSelector" model="Model" />
+    <input type="hidden" name="Input.ResendOtp" value="" />
+</form>

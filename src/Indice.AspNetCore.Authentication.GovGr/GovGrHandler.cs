@@ -5,7 +5,6 @@ using System.Xml.Linq;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -75,10 +74,11 @@ public class GovGrHandler : OAuthHandler<GovGrOptions>, IAuthenticationSignOutHa
             Context.Response.Redirect(postLogoutRedirectUri);
             return;
         }
-        postLogoutRedirectUri = UriHelper.BuildAbsolute(Context.Request.Scheme, Context.Request.Host, path: postLogoutRedirectUri);
-        var logoutEndpoint = Options.LogoutEndpoint;
+        var request = Context.Request;
+        var absoluteReturnUrl = $"{request.Scheme}://{request.Host}{postLogoutRedirectUri}";
+        var logoutEndpoint = Options.LogoutEndpoint.TrimEnd('/');
         var clientId = Options.ClientId;
-        var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(postLogoutRedirectUri)}";
+        var logoutUrl = $"{logoutEndpoint}/{clientId}/?url={Uri.EscapeDataString(absoluteReturnUrl)}";
         Context.Response.Redirect(logoutUrl);
     }
 

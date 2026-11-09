@@ -27,6 +27,11 @@ public interface ICampaignService
     /// <summary>Publishes an existing campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     Task<Campaign> Publish(Guid campaignId);
+    /// <summary>Stores how many contacts the campaign was sent out to.</summary>
+    /// <param name="campaignId">The id of the campaign.</param>
+    /// <param name="recipientCount">The number of contacts.</param>
+    /// <remarks>Overwrites any previous value, so repeating the call with the same count is safe.</remarks>
+    Task SetRecipientCount(Guid campaignId, int recipientCount);
     /// <summary>Gets some statistics for the campaign.</summary>
     /// <param name="asOfDate">The date and time to use as a reference point for calculating the metrics. If not provided, the current date and time will be used.</param>
     Task<CampaignMetrics> GetMetrics(DateTimeOffset? asOfDate = null);
@@ -37,9 +42,9 @@ public interface ICampaignService
     /// <summary>Records a visit for the specified campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     Task UpdateHit(Guid campaignId);
-    /// <summary>Gets the sent volume of messages per channel kind.</summary>
+    /// <summary>Gets the sent volume of messages and the failed ones per channel kind. Retries of a message count once.</summary>
     /// <param name="campaignId">The id of the campaign. Optional</param>
-    Task<Dictionary<string, int>> GetChannelMetrics(Guid? campaignId = null);
+    Task<List<ChannelMetrics>> GetChannelMetrics(Guid? campaignId = null);
     /// <summary>Gets the  volume of messages per message type.</summary>
     /// <param name="onDate">The day for which to calculate the volume. If null then the volume will be calculated for the entire dataset</param>
     /// <param name="limit">Limit top results. Defaults to <c>5</c></param>

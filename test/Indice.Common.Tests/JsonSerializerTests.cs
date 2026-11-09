@@ -47,7 +47,11 @@ public class JsonSerializerTests
         };
         options.Converters.Add(new JsonStringEnumConverter());
         options.Converters.Add(new TypeConverterJsonAdapterFactory());
-        options.Converters.Add(new JsonObjectToInferredTypeConverter());
+
+#if !NET10_0_OR_GREATER
+        options.Converters.Add(new JsonObjectToInferredTypeConverter()); // this converter is not needed in the new System.Text.Json in .NET 10, will be removed in the future
+#endif
+
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         var model = new TestTypeConverters {
             Point = GeoPoint.Parse("37.9888529,23.7037796"),
@@ -120,7 +124,9 @@ public class JsonSerializerTests
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
         options.Converters.Add(new JsonStringEnumConverter());
+#if !NET10_0_OR_GREATER
         options.Converters.Add(new DictionaryEnumConverter());
+#endif
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         var model = new MusicLibrary {
             Tracks = new Dictionary<MusicGenre, List<MusicTrack>> {
@@ -140,6 +146,8 @@ public class JsonSerializerTests
         var json = JsonSerializer.Serialize(model, options);
         Assert.Equal(jsonExpected, json);
         var output = JsonSerializer.Deserialize<MusicLibrary>(json, options);
+        Assert.NotNull(output);
+        Assert.Equal(json, JsonSerializer.Serialize(output, options));
     }
 
     [Fact]
@@ -153,13 +161,15 @@ public class JsonSerializerTests
         var sourceModel = new PocoValue<bool> { Value = true };
         var json = JsonSerializer.Serialize(sourceModel, options);
         var targetModel = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        Assert.Equal("true", targetModel!.Value);
         var sourceModel1 = new PocoValue<TheMystery> { Value = new TheMystery { FirstName = "Gus", LastName = "Coin" } };
         json = JsonSerializer.Serialize(sourceModel1, options);
         var targetModel1 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+        Assert.Equal("{\"firstName\":\"Gus\",\"lastName\":\"Coin\"}", targetModel1!.Value);
         var sourceModel2 = new PocoValue<double> { Value = 1010.45 };
         json = JsonSerializer.Serialize(sourceModel2, options);
         var targetModel2 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
-
+        Assert.Equal("1010.45", targetModel2!.Value);
     }
 
     [Fact]
@@ -240,19 +250,6 @@ public class JsonSerializerTests
         Assert.Equal(new DateTime(1981, 01, 27, 22, 0, 0, DateTimeKind.Utc), result);
     }
 
-    [Fact(Skip = "Not ready")]
-    public void DateTime_UTC_JsonSupport_Newtonsoft() {
-        var options = new Newtonsoft.Json.JsonSerializerSettings() {
-            DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc,
-        };
-        var source = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Unspecified);
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(source, options);
-        Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
-        var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00Z\"", options);
-        Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
-        result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00\"", options);
-        Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
-    }
     [Fact]
     public void DynamicTypeSerializationGetsPropertyNameConventionApplied() {
         var settings = JsonSerializerOptionDefaults.GetDefaultSettings();

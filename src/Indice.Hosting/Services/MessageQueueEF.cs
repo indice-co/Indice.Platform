@@ -12,7 +12,7 @@ namespace Indice.Hosting.Services;
 [Obsolete("This implementation is fully functional but not very efficient performance wise.")]
 public class MessageQueueEF<T> : IMessageQueue<T> where T : class
 {
-    private readonly TaskDbContext _dbContext;
+    private readonly ITaskDbContext _dbContext;
     private readonly string _queueName;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
 
@@ -20,7 +20,7 @@ public class MessageQueueEF<T> : IMessageQueue<T> where T : class
     /// <param name="dbContext"></param>
     /// <param name="queueNameResolver"></param>
     /// <param name="workerJsonOptions"></param>
-    public MessageQueueEF(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
+    public MessageQueueEF(ITaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _queueName = queueNameResolver?.Resolve() ?? throw new ArgumentNullException(nameof(queueNameResolver));
         _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
@@ -62,19 +62,19 @@ public class MessageQueueEF<T> : IMessageQueue<T> where T : class
                 Payload = JsonSerializer.Serialize(item.Value, _jsonSerializerOptions),
                 QueueName = _queueName
             };
-            _dbContext.Add(message);
+            _dbContext.Queue.Add(message);
         } else {
             message = await _dbContext.Queue.Where(x => x.Id == messageId).SingleAsync();
             message.State = isPoison ? QMessageState.Poison : QMessageState.New;
             message.DequeueCount = item.DequeueCount;
-            _dbContext.Update(message);
+            _dbContext.Queue.Update(message);
         }
         await _dbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc/>
     public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
-        _dbContext.AddRange(items.Select(item => new DbQMessage() {
+        _dbContext.Queue.AddRange(items.Select(item => new DbQMessage() {
             Id = Guid.Parse(item.Id),
             Date = item.Date,
             State = QMessageState.New,
@@ -95,12 +95,12 @@ public class MessageQueueEF<T> : IMessageQueue<T> where T : class
 
     /// <inheritdoc/>
     public async Task Cleanup(int? batchSize = null) {
-        var itemsToDelete = _dbContext.Queue
+        var itemsToDelete = await _dbContext.Queue
             .Where(x => x.QueueName == _queueName && x.State == QMessageState.Dequeued)
             .OrderBy(x => x.Date)
             .Take(batchSize ?? 1000)
             .ToListAsync();
-        _dbContext.RemoveRange(itemsToDelete);
+        _dbContext.Queue.RemoveRange(itemsToDelete);
         await _dbContext.SaveChangesAsync();
     }
 

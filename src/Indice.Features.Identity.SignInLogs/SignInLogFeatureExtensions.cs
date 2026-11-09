@@ -1,13 +1,11 @@
 ﻿using System.Reflection;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
-using Indice.Features.Identity.SignInLogs.EventHandlers;
 using Indice.Features.Identity.SignInLogs.Hosting;
 using Indice.Features.Identity.SignInLogs.ImpossibleTravel;
 using Microsoft.AspNetCore.Builder;
@@ -91,8 +89,6 @@ public static class SignInLogFeatureExtensions
             }
             builder.Services.TryAddScoped<ISignInGuard<TUser>, SignInGuard<TUser>>();
         }
-        services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
-        services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
         return builder;
     }
 

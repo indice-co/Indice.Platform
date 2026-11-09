@@ -3,6 +3,8 @@ export interface IAppSettings {
     api_docs: string;
     auth_settings: IAuthSettings;
     culture: string;
+    lang: string;
+    i18n_assets: string;
     isTemplate: boolean,
     production: boolean;
     version: string;

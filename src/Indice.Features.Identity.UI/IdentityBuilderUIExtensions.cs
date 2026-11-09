@@ -2,21 +2,19 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.Features.Identity.Core;
-using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.UI;
-using Indice.Features.Identity.UI.EventHandlers;
 using Indice.Features.Identity.UI.Localization;
 using Indice.Features.Identity.UI.Telemetry;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+
 
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Configuration;
@@ -55,15 +53,19 @@ public static class IdentityBuilderUIExtensions
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
             options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
+            options.PrivacyUrlResolver = configuredOptions.PrivacyUrlResolver;
+            options.TermsUrlResolver = configuredOptions.TermsUrlResolver;
             options.PrivacyUrl = configuredOptions.PrivacyUrl;
+            options.TermsUrl = configuredOptions.TermsUrl;
             options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
             options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
-            options.TermsUrl = configuredOptions.TermsUrl;
+            options.EnablePasswordConfirmation = configuredOptions.EnablePasswordConfirmation;
             options.Events = configuredOptions.Events;
             options.EnablePhoneNumberCallingCodes = configuredOptions.EnablePhoneNumberCallingCodes;
             foreach (var url in configuredOptions.ValidReturnUrls) {
                 options.ValidReturnUrls.Add(url);
             }
+            options.ProductionEnvironmentsSet.UnionWith(configuredOptions.ProductionEnvironmentsSet);
         });
 #if NET9_0_OR_GREATER
         services.AddSingleton<IConfigureOptions<IdentityServerOptions>, IdentityServerOptionsConfigure>();
@@ -109,9 +111,9 @@ public static class IdentityBuilderUIExtensions
         services.AddMarkdown();
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
-        services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
         services.TryAddScoped<IdentityUILocalizer>();
-
+        // Add reCAPTCHA service with options pattern
+        services.AddRecaptcha(configuration);
         return services;
     }
 
@@ -119,7 +121,8 @@ public static class IdentityBuilderUIExtensions
     /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddIdentityUILabelDescriber<TDescriber>(this IServiceCollection services) where TDescriber : IdentityUILocalizer {
-        services.AddScoped<IdentityUILocalizer, TDescriber>();
+        services.AddScoped<TDescriber>();
+        services.AddScoped<IdentityUILocalizer>(sp => sp.GetRequiredService<TDescriber>());
         return services;
     }
     private static Assembly? GetApplicationAssembly(IServiceCollection services) {

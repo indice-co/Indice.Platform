@@ -9,6 +9,7 @@ using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Server.Endpoints.Validators;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -27,7 +28,10 @@ internal static class IntegrationHandlers
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService,
         bool includeAttachments = false
-    ) => TypedResults.Ok(await adminCaseService.GetCaseById(caseId, fetchPublicData, includeAttachments));
+    ) {
+        var @case = await adminCaseService.GetCaseById(caseId, fetchPublicData, includeAttachments);
+        return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
+    }
 
     /// <summary>Gets the Last Approval</summary>
     public static async Task<Results<Ok<CaseApproval>, NotFound>> GetLastApproval(Guid caseId, ICaseApprovalService caseApprovalService) {
@@ -151,11 +155,14 @@ internal static class IntegrationHandlers
     }
 
     /// <summary>Patch Case Metadata</summary>
-    public static async Task<NoContent> PatchMetadata(
+    public static async Task<Results<NoContent, ValidationProblem>> PatchMetadata(
         Guid caseId,
         Dictionary<string, string> metadata,
         IAdminCaseService adminCaseService
     ) {
+        if (new CaseMetadataValidator().Validate(metadata) is { IsValid: false } errors) {
+            return TypedResults.ValidationProblem(errors.ToDictionary());
+        }
         await adminCaseService.PatchCaseMetadata(caseId, metadata);
         return TypedResults.NoContent();
     }
@@ -182,11 +189,15 @@ internal static class IntegrationHandlers
             Comment = request.Comment
         });
 
-        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = attachmentId.ToString() }, false);
+        if (attachmentId is not Guid value) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.File), "Could not create attachment."));
+        }
+
+        await adminCaseService.PatchCaseData(request.Actor, caseId, new JsonObject { [request.DataRootKey] = value.ToString() }, false);
 
         return TypedResults.Ok(new CasesAttachmentLink {
-            Id = attachmentId.Value,
-            FileGuid = attachmentId.Value,
+            Id = value,
+            FileGuid = value,
             ContentType = file.ContentType,
             Label = file.FileName,
             Size = file.Length
@@ -421,6 +432,7 @@ _casesApiClient.JsonPatchAdminCaseDataAsync(caseId, null, new PatchJsonPathReque
 Patches the Metadata of the Case from a Dictionary<string, string>
 Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
 This should return a boolean response indicating if the Metadata was actually updated.
+An ExternalCorrelationKey entry also sets the case's relationKey (up to 256 characters).
 ";
 
     #endregion

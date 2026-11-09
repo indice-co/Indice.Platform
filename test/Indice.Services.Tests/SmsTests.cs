@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
 
 namespace Indice.Services.Tests;
 
@@ -14,8 +13,8 @@ public class SmsTests
     public async Task TestYubotoOmniSms(string apiKey, string phoneNumber, string sender, string senderName, string subject, string body) {
         var exception = default(Exception);
         try {
-            var optionsSnapshotMock = new Mock<IOptionsSnapshot<SmsServiceSettings>>();
-            optionsSnapshotMock.Setup(x => x.Value).Returns(new SmsServiceSettings {
+            var optionsSnapshotMock = new Mock<IOptionsSnapshot<SmsServiceYubotoOmniSettings>>();
+            optionsSnapshotMock.Setup(x => x.Value).Returns(new SmsServiceYubotoOmniSettings {
                 ApiKey = apiKey,
                 Sender = sender,
                 SenderName = senderName,
@@ -43,7 +42,9 @@ public class SmsTests
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = senderName,
             ["Sms:TestMode"] = true.ToString(),
-            ["Sms:EnableUrlShortener"] = true.ToString()
+            ["Sms:EnableUrlShortener"] = true.ToString(),
+            ["Sms:CallbackUrl"] = string.Empty,
+            ["Sms:WebhookSecret"] = string.Empty
         };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
@@ -56,15 +57,15 @@ public class SmsTests
 
 
         var serviceProvider = collection.BuildServiceProvider();
-        var excepion = default(Exception);
+        var exception = default(Exception);
 
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
         } catch (Exception smsServiceException) {
-            excepion = smsServiceException;
+            exception = smsServiceException;
         }
-        Assert.Null(excepion);
+        Assert.Null(exception);
     }
 
     [Theory(Skip = "Sensitive Data")]
@@ -257,31 +258,34 @@ public class SmsTests
     }
 
     [Theory(Skip = "Sensitive Data")]
-    [InlineData("", "", "", "Test Subject", "Test Body", "Test")]
-    public async Task TestMstatSms(string apiToken, string phoneNumber, string sender, string subject, string body, string senderName) {
-
+    [InlineData("", "", "", "", "Test Subject", "Test Body")]
+    public async Task TestOmniMessaging(string apiKey, string accountId, string sender, string phoneNumber, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string?> {
-            ["Sms:ApiKey"] = apiToken,
-            ["Sms:Sender"] = sender,
-            ["Sms:SenderName"] = senderName
+            ["Sms:ApiKey"] = apiKey,
+            ["Sms:AccountId"] = accountId,
+            ["Sms:Sender"] = sender
         };
+
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
             .Build();
+
         var collection = new ServiceCollection()
             .AddSingleton(configuration)
             .AddOptions()
-            .Configure<SmsServiceMstatSettings>(configuration.GetSection(SmsServiceMstatSettings.Name))
-            .AddSmsServiceMstat(configuration);
+            .Configure<SmsServiceOmniMessagingSettings>(configuration.GetSection(SmsServiceSettings.Name))
+            .AddSmsServiceOmniMessaging(configuration);
 
         var serviceProvider = collection.BuildServiceProvider();
-        var excepion = default(Exception);
+        Exception exception = null!;
+
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
         } catch (Exception smsServiceException) {
-            excepion = smsServiceException;
+            exception = smsServiceException;
         }
-        Assert.Null(excepion);
+
+        Assert.Null(exception);
     }
 }

@@ -22,6 +22,9 @@ public class MessageEndpointOptions : CampaignOptionsBase
     public string ManagementGroupName { get; set; } = "messages";
     /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
     public int FileUploadLimit { get; set; } = 6 * 1024 * 1024;
+
+    /// <summary> Specifies whether the translation endpoints should be mapped. Defaults to true.</summary>
+    public bool MapTranslations { get; set; } = true;
 }
 
 /// <summary>Options used to configure the Messages management API feature.</summary>
@@ -41,6 +44,8 @@ public class MessageManagementOptions : CampaignOptionsBase
     /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
     public int FileUploadLimit { get; set; } = 6 * 1024 * 1024;
 
+    /// <summary> Specifies whether the translation endpoints should be mapped. Defaults to true.</summary>
+    public bool MapTranslations { get; set; } = true;
 }
 
 /// <summary>Options used to configure the Campaigns inbox API feature.</summary>

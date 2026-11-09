@@ -5,6 +5,153 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.64.0]
+### Added Azure Storage / file system support for the case attachments.
+- The binary data of the case attachments can now be stored to a file service instead of the database. Only the attachment metadata
+  are stored in the `Attachment` table and its `Data` column is left empty (`NULL`).
+```csharp
+builder.AddCaseServer(options => {
+    options.UseFileServiceAzure(azure => azure.ConnectionStringName = "StorageConnection"); // container defaults to "{environment}-cases"
+    // or
+    options.UseFileServiceLocal(local => local.Path = "App_Data");
+});
+```
+- Attachments already stored in the database keep being served from the `Data` column, so no data migration is needed.
+- Before deploying this version, make the `Data` column nullable:
+```sql
+-- SQL Server
+ALTER TABLE [case].[Attachment] ALTER COLUMN [Data] VARBINARY(MAX) NULL;
+GO
+-- PostgreSQL
+ALTER TABLE "case"."Attachment" ALTER COLUMN "Data" DROP NOT NULL;
+```
+
+### Added PostgreSQL support for the cases db.
+- The json functions (`JsonFunctions.JsonValue`, `CastToDate`, `CastToDouble`) used to filter and sort on the json columns (case data, metadata etc.) are now translated according to the configured database engine.
+  On PostgreSQL they are translated to `jsonb_extract_path(column::jsonb, ...)` (returning NULL for objects and arrays, like `JSON_VALUE`) and `::timestamptz` / `::double precision` casts, while on SQL Server they keep using `JSON_VALUE` and `CONVERT`.
+  Dates are compared in UTC regardless of the session `TimeZone`; json dates and filter values without an offset are treated as UTC.
+  The engine is detected from the EF Core provider. Use `ModelBuilder.ApplyJsonFunctions(SqlDialect)` from `Indice.EntityFrameworkCore` to choose it explicitly in other contexts.
+- The case `ReferenceNumber` sequence and the duplicate checkpoint type code check now work on PostgreSQL as well.
+- To use PostgreSQL configure the db contexts through the existing delegates:
+```csharp
+builder.Services.AddCasesManagement(options => {
+    options.ConfigureDbContext = (sp, db) => db.UseNpgsql(builder.Configuration.GetConnectionString("CasesDb"));
+});
+builder.AddCasesWorkflow(options => {
+    options.ConfigureDbContext = (sp, db) => db.UseNpgsql(builder.Configuration.GetConnectionString("WorkflowDb"));
+});
+```
+- Note that on PostgreSQL the `contains` filter operator is case sensitive, unless a case insensitive collation is used.
+
+## [8.62.0]
+### Added the `RelationKey` column to the `Case` table in cases db.
+1. Before deploying this version, add the column and its index:
+```sql
+IF COL_LENGTH('case.Case', 'RelationKey') IS NULL
+    ALTER TABLE [case].[Case]
+    ADD [RelationKey] NVARCHAR(256) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [name] = 'IX_Case_RelationKey' AND [object_id] = OBJECT_ID('[case].[Case]'))
+    CREATE NONCLUSTERED INDEX [IX_Case_RelationKey]
+        ON [case].[Case]([RelationKey] ASC);
+GO
+```
+2. Once this version is live, fill the column from the `ExternalCorrelationKey` metadata entry of the existing cases. The metadata
+   entry stays as is. The script only fills empty columns, so it can be run again, e.g. for the cases an older instance created meanwhile.
+```sql
+UPDATE c
+SET c.[RelationKey] = m.[Value]
+FROM [case].[Case] AS c
+CROSS APPLY (SELECT CASE WHEN ISJSON(c.[Metadata]) = 1 THEN JSON_VALUE(c.[Metadata], '$.ExternalCorrelationKey') END AS [Value]) AS m
+WHERE c.[RelationKey] IS NULL
+  AND LTRIM(RTRIM(m.[Value])) <> ''
+  AND LEN(m.[Value]) <= 256;
+GO
+```
+3. Cases whose metadata entry is longer than 256 characters are left out; list them with:
+```sql
+SELECT c.[Id], m.[Value]
+FROM [case].[Case] AS c
+CROSS APPLY (SELECT CASE WHEN ISJSON(c.[Metadata]) = 1 THEN JSON_VALUE(c.[Metadata], '$.ExternalCorrelationKey') END AS [Value]) AS m
+WHERE LEN(m.[Value]) > 256;
+```
+
+### Added
+- Cases have a `relationKey` (up to 256 characters) that relates them: `GET /manage/cases/{caseId}/related-cases` returns the
+  cases with the same key. It used to live only in the case metadata as `ExternalCorrelationKey`, and both ways keep working:
+  - `POST /manage/cases` and `POST /my/cases` take it as `relationKey` or as the `ExternalCorrelationKey` metadata entry.
+    The two are kept equal: the value lands in both, and `relationKey` wins when a request sends different values.
+  - `PATCH /manage/cases/{caseId}/metadata` and `PATCH /manage/workflow-integration/{caseId}/metadata` with an `ExternalCorrelationKey`
+    entry set it too (an empty value clears it). A key longer than 256 characters is rejected with a validation problem.
+  - `GET /manage/cases` filters it with `relationKeys` (`eq`, `neq`, `contains`). The
+    `metadata.ExternalCorrelationKey` filter clauses of `GET /manage/cases` and `GET /my/cases` are answered from the column too.
+  - `CasePartial`, `Case` and `MyCasePartial` return it as `relationKey`, next to the unchanged `metadata`.
+  - `IAdminCaseService.CreateDraft` and `IMyCaseService.CreateDraft` take an optional `relationKey`.
+- `GET /manage/cases/{caseId}/data/versions` returns the stored versions of the case data as a paged `ResultSet`, newest first, with who saved it
+  and when, and whether it is the current (`isCurrent`) and the customer-visible (`isPublic`) data. It takes the plain `ListOptions`
+  (`page`, `size`, and `search`, which matches the name or email of the user who saved a version). An unknown case returns an empty set.
+  Needs read access to the case. `IAdminCaseService.GetDataVersions(caseId, options)` backs it.
+- `GET /manage/reports` takes an optional `channel`
+  The `Agent*` / `Customer*` report tags remain, as the `Managed` / `External` channel reports.
+- Administrators (`CasesAdministrator`, admins and system clients) edit case relations and groups:
+  - `PUT /manage/cases/{caseId}/relation-key` (`relationKey`) changes the key of the case only: it joins the cases with the new key
+    and leaves the cases of its old key, which stay related to each other. An empty key takes it out of any relation; unlike the
+    metadata `PATCH`, it also clears the `ExternalCorrelationKey` entry.
+  - `POST /manage/cases/{caseId}/related-cases` (`caseIds`) gives those cases the key of the case; a case that shared another key
+    leaves that relation. The case must have a key (business error otherwise).
+  - `DELETE /manage/cases/{caseId}/related-cases/{relatedCaseId}` clears the key of a related case.
+  - `PUT /manage/cases/{caseId}/group` (`groupId`, up to 128 characters, empty clears it) changes the group of the case.
+    The group takes part in the access rules, so this changes who can access the case.
+  - `IAdminCaseService.UpdateRelationKey`, `AddRelatedCases`, `RemoveRelatedCase` and `UpdateGroup` back them.
+### Changed
+- The default case channels are renamed: `Agent` is now `Managed` (cases created through the manage API) and `Customer`
+  is now `External` (cases created through the my API). No migration: the old names stay on the cases already stored
+  and count as the new ones everywhere a channel is compared (reports, which cases a customer can open, the
+  `case-channel` UI schema option). The workflow `Get Channel` activity returns `Managed` / `External` for them too,
+  so workflow definitions that compare its output with `Agent` / `Customer` must compare with `Managed` / `External`.
+- `POST /manage/cases` creates the case with the request's `channel` (any name, up to 128 characters) instead of always
+  `Agent`; it defaults to `Managed`. The request is now validated like the one of `POST /my/cases`.
+
+## [8.59.0] - 2026-10-20
+### The following unique index was added to the `case` schema in cases db.
+```sql
+CREATE UNIQUE NONCLUSTERED INDEX [IX_CheckpointType_CaseTypeId_Code]
+    ON [case].[CheckpointType]([CaseTypeId] ASC, [Code] ASC);
+GO
+```
+
+### Change type of ReferenceNumber column in Case table
+```sql
+BEGIN
+    ALTER TABLE [case].[Case]
+    ALTER COLUMN ReferenceNumber NVARCHAR(128);
+END;
+GO
+```
+
+### For performance reasons, the following index were added to the `case` schema in cases db.
+```sql
+CREATE NONCLUSTERED INDEX [IX_Case_GroupId]
+    ON [case].[Case]([GroupId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX
+    [IX_Case_ReferenceNumber_CaseTypeId]
+ON [case].[Case]
+(
+    [ReferenceNumber],
+    [CaseTypeId]
+)
+GO
+```
+
+### Added
+- `GET {prefix}/manage/dashboard/metrics` (`IAdminDashboardService`): back-office dashboard figures in one call, computed over the cases the
+  user can see with the same visibility rules as the case list. Returns case counts per status, open cases assigned to the current user,
+  unassigned and stale open cases, cases created this week vs. the previous week and daily intake. Optional query parameters:
+  `intakeDays` (1-90, default 14) and `staleAfterDays` (1-365, default 7). Days are server calendar days.
+
 
 ## [8.1.0] - 2025-06-15
 ### For performance reasons, the following indexes were added to the `case` schema in cases db.

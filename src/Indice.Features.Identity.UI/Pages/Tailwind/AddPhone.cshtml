@@ -1,5 +1,5 @@
 ﻿@page "/login/add-phone"
-
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("login/add-phone")]
 @model BaseAddPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment

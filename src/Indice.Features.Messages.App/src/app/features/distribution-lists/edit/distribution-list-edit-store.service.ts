@@ -1,45 +1,41 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
-import { AsyncSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { DistributionList, MessagesApiClient, UpdateDistributionListRequest } from 'src/app/core/services/messages-api.service';
-
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * State of the distribution list shown by the distribution list page. Provided by `DistributionListEditComponent`,
+ * so the page and its tabs share one instance.
+ */
+@Injectable()
 export class DistributionListEditStore {
-  private _distributionList: AsyncSubject<DistributionList> | undefined;
-  private _idChanged = false;
-  private _currentId = '';
+  private readonly _api = inject(MessagesApiClient);
+  private _request?: Subscription;
 
-  constructor(
-    private readonly _api: MessagesApiClient
-  ) { }
+  public readonly distributionListId = signal('');
+  public readonly distributionList = signal<DistributionList | undefined>(undefined);
+  public readonly loading = signal(false);
 
-  public getDistributionList(distributionListId: string): Observable<DistributionList> {
-    this._idChanged = this._currentId !== distributionListId;
-    this._currentId = distributionListId;
-    if (!this._distributionList || this._idChanged) {
-      this._distributionList = new AsyncSubject<DistributionList>();
-      this._api
-        .getDistributionListById(distributionListId)
-        .subscribe((distributionList: DistributionList) => {
-          this._distributionList?.next(distributionList);
-          this._distributionList?.complete();
-        });
+  public load(distributionListId: string): void {
+    if (distributionListId !== this.distributionListId()) {
+      this.distributionList.set(undefined);
     }
-    return this._distributionList;
+    this.distributionListId.set(distributionListId);
+    this.reload();
   }
 
-  public updateDistributionList(distributionListId: string, distributionList: DistributionList): Observable<void> {
-    const body = new UpdateDistributionListRequest({
-      name: distributionList.name,
-      alias: distributionList.alias
+  public reload(): void {
+    const id = this.distributionListId();
+    if (!id) {
+      return;
+    }
+    this._request?.unsubscribe();
+    this.loading.set(true);
+    this._request = this._api.getDistributionListById(id).subscribe({
+      next: list => {
+        this.distributionList.set(list);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
     });
-    return this._api
-      .updateDistributionList(distributionListId, body)
-      .pipe(
-        map(_ => this._distributionList = undefined)
-      );
   }
 }
