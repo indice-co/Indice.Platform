@@ -74,7 +74,7 @@ public class SmsServiceKapaTEL : ISmsService
             ["foreign_id"] = messageId
         };
         if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl)) {
-            param["dlr_url"] = BuildDlrUrl(Settings.WebhookUrl);
+            param["dlr_url"] = BuildDlrUrl(Settings.WebhookUrl, Settings.WebhookUsername, Settings.WebhookPassword);
         }
         var requestUri = new Uri(QueryHelpers.AddQueryString(HttpClient.BaseAddress!.ToString(), param));
         try {
@@ -117,7 +117,7 @@ public class SmsServiceKapaTEL : ISmsService
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    private static string BuildDlrUrl(string webhookUrl) {
+    private static string BuildDlrUrl(string webhookUrl, string? webhookUsername, string? webhookPassword) {
         const string MessageIdQuery = "message_id={foreign_id}";
         const string RemoteTransactionIdQuery = "remote_transaction_id={id}";
         const string StatusQuery = "status={notification_status}";
@@ -126,6 +126,16 @@ public class SmsServiceKapaTEL : ISmsService
         if (!Uri.TryCreate(webhookUrl, UriKind.Absolute, out var uri)) {
             return webhookUrl;
         }
+
+        if (!string.IsNullOrWhiteSpace(webhookUsername) && !string.IsNullOrWhiteSpace(webhookPassword)) {
+            var webhookUriBuilder = new UriBuilder(uri) {
+                UserName = webhookUsername,
+                Password = webhookPassword
+            };
+            uri = webhookUriBuilder.Uri;
+        }
+
+        var effectiveWebhookUrl = uri.ToString();
 
         var existingParameters = QueryHelpers.ParseQuery(uri.Query);
         var missingParameters = new List<string>();
@@ -143,15 +153,15 @@ public class SmsServiceKapaTEL : ISmsService
         }
 
         if (missingParameters.Count == 0) {
-            return webhookUrl;
+            return effectiveWebhookUrl;
         }
 
-        var urlWithoutFragment = webhookUrl;
+        var urlWithoutFragment = effectiveWebhookUrl;
         var fragment = string.Empty;
-        var fragmentIndex = webhookUrl.IndexOf('#');
+        var fragmentIndex = effectiveWebhookUrl.IndexOf('#');
         if (fragmentIndex >= 0) {
-            urlWithoutFragment = webhookUrl[..fragmentIndex];
-            fragment = webhookUrl[fragmentIndex..];
+            urlWithoutFragment = effectiveWebhookUrl[..fragmentIndex];
+            fragment = effectiveWebhookUrl[fragmentIndex..];
         }
 
         var separator = urlWithoutFragment.Contains('?') ? '&' : '?';
