@@ -1,10 +1,10 @@
 ﻿using System.Net.Http.Headers;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Globalization;
 using Indice.Globalization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -62,14 +62,18 @@ public class SmsServiceKapaTEL : ISmsService
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
-        var param = Settings.GetType()
-                            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                            .ToDictionary(prop => prop.Name.ToLower(), prop => (string?)prop.GetValue(Settings, null));
-        param.Add("text", body);
-        param.Add("to", string.Join(',', recipients));
-        param.Add("format", "json");
+        var param = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase) {
+            ["username"] = Settings.Username,
+            ["password"] = Settings.Password,
+            ["encoding"] = Settings.Encoding,
+            ["from"] = Settings.From,
+            ["text"] = body,
+            ["to"] = string.Join(',', recipients),
+            ["format"] = "json",
+            ["foreign_id"] = messageId
+        };
         if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl)) {
-            param.Add("dlr_url", Settings.WebhookUrl);
+            param["dlr_url"] = BuildDlrUrl(Settings.WebhookUrl);
         }
         var requestUri = new Uri(QueryHelpers.AddQueryString(HttpClient.BaseAddress!.ToString(), param));
         try {
@@ -85,12 +89,18 @@ public class SmsServiceKapaTEL : ISmsService
             throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
         response = JsonSerializer.Deserialize<KapaTELResponse>(responseString, GetJsonSerializerOptions())!;
-        if (response.Status.Equals("error")) {
+        if (response.Status.Equals("error", StringComparison.OrdinalIgnoreCase)) {
             Logger.LogError("SMS Delivery failed. {responseError}", response.ErrorMessage);
             throw new SmsServiceException($"SMS Delivery failed. {response.ErrorMessage}");
         }
-        Logger.LogInformation("SMS message successfully sent: {messages}", string.Join(",", response.Messages.Select(x => $"{x.Msisdn}-{x.ErrorMessage}")));
-        if (response.Messages?.Count > 0) {
+        if (!response.Status.Equals("accepted", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(response.ErrorMessage)) {
+            Logger.LogError("SMS Delivery failed. {responseError}", response.ErrorMessage);
+            throw new SmsServiceException($"SMS Delivery failed. {response.ErrorMessage}");
+        }
+        Logger.LogInformation("SMS message successfully sent. Status: {status}, MessageId: {messageId}", response.Status, response.MessageId);
+        if (!string.IsNullOrWhiteSpace(response.MessageId)) {
+            messageId = response.MessageId;
+        } else if (response.Messages?.Count > 0) {
             messageId = string.Join(",", response.Messages.Select(x => x.Id));
         }
         return new SendReceipt(messageId, DateTimeOffset.UtcNow);
@@ -105,6 +115,47 @@ public class SmsServiceKapaTEL : ISmsService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+
+    private static string BuildDlrUrl(string webhookUrl) {
+        const string MessageIdQuery = "message_id={foreign_id}";
+        const string RemoteTransactionIdQuery = "remote_transaction_id={id}";
+        const string StatusQuery = "status={notification_status}";
+        const string NotificationDateTimeQuery = "notification_datetime={notification_datetime_stamp}";
+
+        if (!Uri.TryCreate(webhookUrl, UriKind.Absolute, out var uri)) {
+            return webhookUrl;
+        }
+
+        var existingParameters = QueryHelpers.ParseQuery(uri.Query);
+        var missingParameters = new List<string>();
+        if (!existingParameters.ContainsKey("message_id")) {
+            missingParameters.Add(MessageIdQuery);
+        }
+        if (!existingParameters.ContainsKey("remote_transaction_id")) {
+            missingParameters.Add(RemoteTransactionIdQuery);
+        }
+        if (!existingParameters.ContainsKey("status")) {
+            missingParameters.Add(StatusQuery);
+        }
+        if (!existingParameters.ContainsKey("notification_datetime")) {
+            missingParameters.Add(NotificationDateTimeQuery);
+        }
+
+        if (missingParameters.Count == 0) {
+            return webhookUrl;
+        }
+
+        var urlWithoutFragment = webhookUrl;
+        var fragment = string.Empty;
+        var fragmentIndex = webhookUrl.IndexOf('#');
+        if (fragmentIndex >= 0) {
+            urlWithoutFragment = webhookUrl[..fragmentIndex];
+            fragment = webhookUrl[fragmentIndex..];
+        }
+
+        var separator = urlWithoutFragment.Contains('?') ? '&' : '?';
+        return $"{urlWithoutFragment}{separator}{string.Join("&", missingParameters)}{fragment}";
+    }
 }
 
 /// <summary>Extra settings class for configuring KapaTEL SMS service client.</summary>
@@ -130,6 +181,9 @@ internal class KapaTELResponse
 {
     [JsonPropertyName("status")]
     public string Status { get; set; } = null!;
+
+    [JsonPropertyName("message_id")]
+    public string? MessageId { get; set; }
 
     [JsonPropertyName("messages")]
     public List<Message> Messages { get; set; } = [];
@@ -176,38 +230,17 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
         }
 
         var parameters = requestParameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Value, StringComparer.OrdinalIgnoreCase);
-        var messageId =
-            parameters.GetValueOrDefault("id").ToString() ??
-            parameters.GetValueOrDefault("remote_transaction_id").ToString() ??
-            parameters.GetValueOrDefault("message_id").ToString();
+        var messageId = GetFirstNonEmptyParameter(parameters, "remote_transaction_id", "id");
         if (string.IsNullOrWhiteSpace(messageId)) {
             return WebhookHttpResult.BadRequest("KapaTEL webhook requires one of 'id', 'remote_transaction_id' or 'message_id' query parameters.");
         }
 
-        var foreignId = parameters.GetValueOrDefault("foreign_id").ToString();
-        var recipient =
-            parameters.GetValueOrDefault("msisdn").ToString() ??
-            parameters.GetValueOrDefault("receiver").ToString() ??
-            parameters.GetValueOrDefault("to").ToString() ??
-            parameters.GetValueOrDefault("phone").ToString();
-        if (string.IsNullOrWhiteSpace(recipient)) {
-            recipient = foreignId;
-        }
+        var notificationStatus = GetFirstNonEmptyParameter(parameters, "notification_status", "status");
 
-        var sender =
-            parameters.GetValueOrDefault("from").ToString() ??
-            parameters.GetValueOrDefault("sender").ToString();
-
-        var notificationStatus =
-            parameters.GetValueOrDefault("notification_status").ToString() ??
-            parameters.GetValueOrDefault("status").ToString();
-
-        var notificationTimestamp =
-            parameters.GetValueOrDefault("notification_datetime_stamp").ToString() ??
-            parameters.GetValueOrDefault("dlrDate").ToString();
+        var notificationTimestamp = GetFirstNonEmptyParameter(parameters, "notification_datetime", "notification_datetime_stamp", "dlrDate");
 
         var timestamp = DateTimeOffset.UtcNow;
-        if (!string.IsNullOrWhiteSpace(notificationTimestamp) && !DateTimeOffset.TryParse(notificationTimestamp, out timestamp)) {
+        if (!string.IsNullOrWhiteSpace(notificationTimestamp) && !TryParseNotificationTimestamp(notificationTimestamp, out timestamp)) {
             return WebhookHttpResult.BadRequest("Invalid notification timestamp in KapaTEL webhook payload.");
         }
 
@@ -224,8 +257,6 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
                 EventType = eventType,
                 EventId = eventId,
                 MessageId = messageId,
-                Recipient = recipient ?? string.Empty,
-                Subject = sender,
                 Timestamp = timestamp,
                 Payload = payload
             }
@@ -235,84 +266,44 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
     }
 
-    private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
-        if (!TryGetExpectedCredentials(out var expectedUsername, out var expectedPassword)) {
-            return true;
-        }
-
-        if (!TryGetHeaderValue(requestHeaders, "Authorization", out var authorizationHeader) ||
-            !AuthenticationHeaderValue.TryParse(authorizationHeader, out var authorization) ||
-            !"Basic".Equals(authorization.Scheme, StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(authorization.Parameter)) {
-            return true;
-        }
-
-        string decodedCredentials;
-        try {
-            decodedCredentials = Encoding.UTF8.GetString(Convert.FromBase64String(authorization.Parameter));
-        } catch (FormatException) {
-            return true;
-        } catch (ArgumentException) {
-            return true;
-        }
-
-        var separatorIndex = decodedCredentials.IndexOf(':');
-        if (separatorIndex <= 0 || separatorIndex == decodedCredentials.Length - 1) {
-            return true;
-        }
-
-        var username = decodedCredentials[..separatorIndex];
-        var password = decodedCredentials[(separatorIndex + 1)..];
-
-        return !AreEqualConstantTime(username, expectedUsername) ||
-               !AreEqualConstantTime(password, expectedPassword);
+    private static bool TryParseNotificationTimestamp(string value, out DateTimeOffset timestamp) {
+        return DateTimeOffset.TryParseExact(
+                   value,
+                   ["yyMMddHHmmss", "yyyyMMddHHmmss"],
+                   CultureInfo.InvariantCulture,
+                   DateTimeStyles.AssumeLocal,
+                   out timestamp) ||
+               DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out timestamp) ||
+               DateTimeOffset.TryParse(value, out timestamp);
     }
 
-    private bool TryGetExpectedCredentials(out string username, out string password) {
-        username = _settings.WebhookUsername ?? string.Empty;
-        password = _settings.WebhookPassword ?? string.Empty;
-        if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password)) {
-            return true;
-        }
-
-        if (string.IsNullOrWhiteSpace(_settings.WebhookUrl) || !Uri.TryCreate(_settings.WebhookUrl, UriKind.Absolute, out var webhookUri)) {
-            return false;
-        }
-
-        var userInfo = webhookUri.UserInfo;
-        if (string.IsNullOrWhiteSpace(userInfo)) {
-            return false;
-        }
-
-        var separatorIndex = userInfo.IndexOf(':');
-        if (separatorIndex <= 0 || separatorIndex == userInfo.Length - 1) {
-            return false;
-        }
-
-        username = Uri.UnescapeDataString(userInfo[..separatorIndex]);
-        password = Uri.UnescapeDataString(userInfo[(separatorIndex + 1)..]);
-        return !string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password);
-    }
-
-    private static bool TryGetHeaderValue(IDictionary<string, StringValues> headers, string key, out string value) {
-        value = string.Empty;
-        foreach (var header in headers) {
-            if (string.Equals(header.Key, key, StringComparison.OrdinalIgnoreCase)) {
-                value = header.Value.ToString();
-                return !string.IsNullOrWhiteSpace(value);
+    private static string GetFirstNonEmptyParameter(IDictionary<string, StringValues> parameters, params string[] keys) {
+        foreach (var key in keys) {
+            if (parameters.TryGetValue(key, out var value)) {
+                var candidate = value.ToString();
+                if (!string.IsNullOrWhiteSpace(candidate)) {
+                    return candidate;
+                }
             }
         }
-        return false;
+        return string.Empty;
     }
 
-    private static bool AreEqualConstantTime(string left, string? right) {
-        if (right is null) {
+    private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookUsername) && string.IsNullOrWhiteSpace(_settings.WebhookPassword)) {
             return false;
         }
 
-        var leftBytes = Encoding.UTF8.GetBytes(left);
-        var rightBytes = Encoding.UTF8.GetBytes(right);
-        return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+        if (!requestHeaders.TryGetValue("Authorization", out var authorizationValues)) {
+            return true;
+        }
+
+        var authorization = authorizationValues.ToString();
+        if (string.IsNullOrWhiteSpace(authorization) || !authorization.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)) {
+            return true;
+        }
+
+        return !WebhookAuthentication.IsValidBasicAuthentication(authorization, _settings.WebhookUsername!, _settings.WebhookPassword!);
     }
 
     private static string GetEventType(string? notificationStatus) {
