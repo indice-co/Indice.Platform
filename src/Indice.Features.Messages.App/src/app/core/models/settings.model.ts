@@ -9,6 +9,10 @@ export interface IAppSettings {
     enableMediaLibrary: boolean;
     maxFileSize: number;
     acceptableFileExtensions: string;
+    /** Enables the personal inbox (bell & "my messages" page). */
+    enableInbox: boolean;
+    /** The absolute url of the SignalR hub used for real time inbox notifications. When empty the inbox falls back to polling. */
+    inboxHubUrl: string | undefined;
 }
 
 export interface IAuthSettings {

@@ -7,22 +7,38 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
 internal static class AnalyticsHandlers
 {
-    public static async Task<Ok<OverviewMetrics>> GetOverview(ICampaignService campaignService, IContactService contactService, DateTimeOffset? asOfDate) {
-        var metrics = new OverviewMetrics {
-            Campaign = (await campaignService.GetMetrics(asOfDate)),
-            Contact = new ContactMetrics {
+    public static async Task<Ok<OverviewMetrics>> GetOverview(IServiceScopeFactory scopeFactory, DateTimeOffset? asOfDate) {
+        // Each metric aggregates a large table independently of the others, so they run concurrently, each on its own scope (and DbContext).
+        async Task<T> Run<T>(Func<IServiceProvider, Task<T>> query) {
+            await using var scope = scopeFactory.CreateAsyncScope();
+            return await query(scope.ServiceProvider);
+        }
+        var campaign = Run(sp => sp.GetRequiredService<ICampaignService>().GetMetrics(asOfDate));
+        var contact = Run(async sp => {
+            var contactService = sp.GetRequiredService<IContactService>();
+            return new ContactMetrics {
                 Total = (await contactService.GetList(new() { Page = 1, Size = 0 })).Count,
                 Known = (await contactService.GetList(new() { Page = 1, Size = 0, Filter = new() { Anonymous = false } })).Count
-            },
-            Recipient = (await campaignService.GetRecipientMetrics())!,
-            PerChannel = await campaignService.GetChannelMetrics(),
-            PerType = (await campaignService.GetMessageTypeMetrics(limit: 5)),
-            PerTypeToday = (await campaignService.GetMessageTypeMetrics(asOfDate ?? DateTimeOffset.UtcNow, limit: 5)),
+            };
+        });
+        var recipient = Run(sp => sp.GetRequiredService<ICampaignService>().GetRecipientMetrics());
+        var perChannel = Run(sp => sp.GetRequiredService<ICampaignService>().GetChannelMetrics());
+        var perType = Run(sp => sp.GetRequiredService<ICampaignService>().GetMessageTypeMetrics(limit: 5));
+        var perTypeToday = Run(sp => sp.GetRequiredService<ICampaignService>().GetMessageTypeMetrics(asOfDate ?? DateTimeOffset.UtcNow, limit: 5));
+        await Task.WhenAll(campaign, contact, recipient, perChannel, perType, perTypeToday);
+        var metrics = new OverviewMetrics {
+            Campaign = campaign.Result,
+            Contact = contact.Result,
+            Recipient = recipient.Result!,
+            PerChannel = perChannel.Result,
+            PerType = perType.Result,
+            PerTypeToday = perTypeToday.Result,
             LastUpdateDate = DateTimeOffset.UtcNow
         };
         return TypedResults.Ok(metrics);

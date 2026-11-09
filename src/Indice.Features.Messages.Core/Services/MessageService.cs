@@ -225,11 +225,19 @@ public class MessageService : IMessageService
     }
 
     private IQueryable<Message> GetUserMessagesQuery(string recipientId, MessagesFilter? filter = null, string? searchTerm = null) {
+        // Narrow the campaigns down to the ones the recipient has a message for plus the global ones, so the database seeks
+        // through the recipient's messages instead of scanning every campaign.
+        var candidateCampaignIds = DbContext.Messages
+            .Where(x => x.RecipientId == recipientId)
+            .Select(x => x.CampaignId)
+            .Union(DbContext.Campaigns.Where(x => x.Published && x.IsGlobal).Select(x => x.Id));
         var query = DbContext
             .Campaigns
             .AsNoTracking()
+            .TagWith(QueryHintsInterceptor.Tag)
             .Include(x => x.Attachment)
             .Include(x => x.Type)
+            .Where(x => candidateCampaignIds.Contains(x.Id))
             .SelectMany(
                 collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
                 resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }

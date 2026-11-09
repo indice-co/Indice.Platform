@@ -26,7 +26,9 @@ export const environment = {
   production: false,
   enableMediaLibrary: true,
   maxFileSize: 10 * 1024 * 1024,
-  acceptableFileExtensions: ".png, .jpg, .gif, .webp"
+  acceptableFileExtensions: ".png, .jpg, .gif, .webp",
+  enableInbox: true,
+  inboxHubUrl: ''
 };
 
 /*
