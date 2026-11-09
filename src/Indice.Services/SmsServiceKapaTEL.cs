@@ -232,7 +232,7 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
         };
 
         await Task.CompletedTask;
-        return WebhookHttpResult.Ok(incomingEvents);
+        return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
     }
 
     private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
