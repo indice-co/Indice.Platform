@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.64.0]
+### Added Azure Storage / file system support for the case attachments.
+- The binary data of the case attachments can now be stored to a file service instead of the database. Only the attachment metadata
+  are stored in the `Attachment` table and its `Data` column is left empty (`NULL`).
+```csharp
+builder.AddCaseServer(options => {
+    options.UseFileServiceAzure(azure => azure.ConnectionStringName = "StorageConnection"); // container defaults to "{environment}-cases"
+    // or
+    options.UseFileServiceLocal(local => local.Path = "App_Data");
+});
+```
+- Attachments already stored in the database keep being served from the `Data` column, so no data migration is needed.
+- Before deploying this version, make the `Data` column nullable:
+```sql
+-- SQL Server
+ALTER TABLE [case].[Attachment] ALTER COLUMN [Data] VARBINARY(MAX) NULL;
+GO
+-- PostgreSQL
+ALTER TABLE "case"."Attachment" ALTER COLUMN "Data" DROP NOT NULL;
+```
+
+### Added PostgreSQL support for the cases db.
+- The json functions (`JsonFunctions.JsonValue`, `CastToDate`, `CastToDouble`) used to filter and sort on the json columns (case data, metadata etc.) are now translated according to the configured database engine.
+  On PostgreSQL they are translated to `jsonb_extract_path(column::jsonb, ...)` (returning NULL for objects and arrays, like `JSON_VALUE`) and `::timestamptz` / `::double precision` casts, while on SQL Server they keep using `JSON_VALUE` and `CONVERT`.
+  Dates are compared in UTC regardless of the session `TimeZone`; json dates and filter values without an offset are treated as UTC.
+  The engine is detected from the EF Core provider. Use `ModelBuilder.ApplyJsonFunctions(SqlDialect)` from `Indice.EntityFrameworkCore` to choose it explicitly in other contexts.
+- The case `ReferenceNumber` sequence and the duplicate checkpoint type code check now work on PostgreSQL as well.
+- To use PostgreSQL configure the db contexts through the existing delegates:
+```csharp
+builder.Services.AddCasesManagement(options => {
+    options.ConfigureDbContext = (sp, db) => db.UseNpgsql(builder.Configuration.GetConnectionString("CasesDb"));
+});
+builder.AddCasesWorkflow(options => {
+    options.ConfigureDbContext = (sp, db) => db.UseNpgsql(builder.Configuration.GetConnectionString("WorkflowDb"));
+});
+```
+- Note that on PostgreSQL the `contains` filter operator is case sensitive, unless a case insensitive collation is used.
+
 ## [8.62.0]
 ### Added the `RelationKey` column to the `Case` table in cases db.
 1. Before deploying this version, add the column and its index:

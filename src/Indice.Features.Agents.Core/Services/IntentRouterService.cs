@@ -217,7 +217,7 @@ public class IntentRouterService
         }
         var decision = await PinAsync(id, AgentFunctionCallId.Parse(pendingRequest.CallId).CheckpointId, cancellationToken);
         if (decision is not null && PortResponseCoercer.TryCoerce(pendingRequest, message.Text, out var result)) {
-            message.Contents.Insert(0, result);
+            message.Contents.Insert(0, result!);
         }
         return decision;
     }

@@ -129,7 +129,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
 
         var events = ParseEvents(payload).ToList();
 
-        return WebhookHttpResult.Ok(events);
+        return WebhookHttpResult.Ok(events, statusCode: 204);
     }
 
     private static IEnumerable<WebhookEvent> ParseEvents(JsonNode? root) {
@@ -214,9 +214,8 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
     private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders) {
         var hasUsername = !string.IsNullOrWhiteSpace(_options.WebhookUsername);
         var hasPassword = !string.IsNullOrWhiteSpace(_options.WebhookPassword);
-        bool incompleteCredentials = hasUsername != hasPassword;
-        bool noAuth = !hasUsername && !hasPassword;
-
+        var incompleteCredentials = hasUsername != hasPassword;
+        var noAuth = !hasUsername && !hasPassword;
         if (incompleteCredentials) {
             return false;
         }
@@ -229,38 +228,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
             .FirstOrDefault(header =>
                 string.Equals(header.Key, "Authorization", StringComparison.OrdinalIgnoreCase)).Value.ToString();
 
-        if (!AuthenticationHeaderValue.TryParse(
-                authorization,
-                out var headerValue) ||
-            !string.Equals(
-                headerValue.Scheme,
-                "Basic",
-                StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
-            return false;
-        }
-
-        byte[] credentials;
-
-        try {
-            credentials = Convert.FromBase64String(headerValue.Parameter);
-        } catch (Exception) {
-            return false;
-        }
-
-        var separator = Array.IndexOf(credentials, (byte)':');
-
-        if (separator < 0) {
-            return false;
-        }
-
-        var username = Encoding.UTF8.GetBytes(_options.WebhookUsername!);
-        var password = Encoding.UTF8.GetBytes(_options.WebhookPassword!);
-
-        var usernameMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(0, separator), username);
-        var passwordMatches = CryptographicOperations.FixedTimeEquals(credentials.AsSpan(separator + 1), password);
-
-        return usernameMatches & passwordMatches;
+        return WebhookAuthentication.IsValidBasicAuthentication(authorization, _options.WebhookUsername!, _options.WebhookPassword!);
     }
 }
 

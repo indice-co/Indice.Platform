@@ -223,6 +223,66 @@ public class RecipientCountTests : IAsyncLifetime
 
     #endregion
 
+    #region Recipient metrics
+
+    [Fact]
+    public async Task RecipientMetrics_Campaign_ReportsTheSentAudience() {
+        var listId = await SeedList("metrics-sent", members: 2);
+        var campaignId = await SeedCampaign(listId, published: true);
+        await ProcessCampaignCreated(campaignId);
+        await ServiceProvider.GetRequiredService<IContactService>().AddToDistributionList(listId, new CreateDistributionListContactRequest { Email = "late@example.com" });
+
+        var metrics = await ServiceProvider.GetRequiredService<ICampaignService>().GetRecipientMetrics(campaignId);
+
+        Assert.Equal(2, metrics!.Total);
+    }
+
+    [Fact]
+    public async Task RecipientMetrics_DraftCampaign_TotalIsZero() {
+        var listId = await SeedList("metrics-draft", members: 2);
+        var campaignId = await SeedCampaign(listId, published: false);
+
+        var metrics = await ServiceProvider.GetRequiredService<ICampaignService>().GetRecipientMetrics(campaignId);
+
+        Assert.Equal(0, metrics!.Total);
+        Assert.Equal(0, metrics.Coverage);
+    }
+
+    [Fact]
+    public async Task RecipientMetrics_GlobalCampaign_TotalIsZero() {
+        var campaignId = await SeedCampaign(await SeedList("metrics-global", members: 2), published: true, isGlobal: true);
+        await ProcessCampaignCreated(campaignId);
+        var campaignService = ServiceProvider.GetRequiredService<ICampaignService>();
+
+        Assert.Equal(0, (await campaignService.GetRecipientMetrics(campaignId))!.Total);
+        Assert.Equal(0, (await campaignService.GetRecipientMetrics())!.Total);
+    }
+
+    [Fact]
+    public async Task RecipientMetrics_Overview_SumsOnlySentCampaigns() {
+        var sentListId = await SeedList("overview-sent", members: 2);
+        var sentCampaignId = await SeedCampaign(sentListId, published: true);
+        await ProcessCampaignCreated(sentCampaignId);
+        await SeedCampaign(await SeedList("overview-draft", members: 3), published: false);
+
+        var metrics = await ServiceProvider.GetRequiredService<ICampaignService>().GetRecipientMetrics();
+
+        Assert.Equal(2, metrics!.TotalCampaigns);
+        Assert.Equal(2, metrics.Total);
+    }
+
+    [Fact]
+    public async Task RecipientMetrics_Overview_NoSentCampaign_TotalIsZero() {
+        await SeedCampaign(await SeedList("overview-only-draft", members: 3), published: false);
+
+        var metrics = await ServiceProvider.GetRequiredService<ICampaignService>().GetRecipientMetrics();
+
+        Assert.Equal(0, metrics!.Total);
+        Assert.Equal(0, metrics.AvgTotal);
+    }
+
+    #endregion
+
     #region Helpers
 
     private async Task ProcessCampaignCreated(Guid campaignId) {

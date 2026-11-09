@@ -33,4 +33,8 @@
     <ProjectReference Include="..\Indice.Features.ActivityLogs\Indice.Features.ActivityLogs.csproj" />
 
   </ItemGroup>
+  <ItemGroup>
+    <None Include="../../docs/Identity-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/identity-admin-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
 </Project>

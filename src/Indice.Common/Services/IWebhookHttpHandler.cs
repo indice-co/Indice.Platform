@@ -1,4 +1,8 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Buffers;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
@@ -12,6 +16,53 @@ public interface IWebhookHttpHandler
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
         Stream requestBody,
         CancellationToken cancellationToken);
+}
+
+/// <summary>Helper methods for authenticating incoming webhook requests.</summary>
+public static class WebhookAuthentication
+{
+    /// <summary>Validates a Basic authorization header value against the expected username and secret.</summary>
+    /// <param name="authorizationHeader">The value of the Authorization header as extracted from the request.</param>
+    /// <param name="username">The expected username.</param>
+    /// <param name="secret">The expected secret (password).</param>
+    /// <returns><see langword="true"/> if the header is a valid Basic authorization header and the credentials match; otherwise <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="username"/> or <paramref name="secret"/> is null, empty or whitespace.</exception>
+    public static bool IsValidBasicAuthentication(string? authorizationHeader, string username, string secret) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(username);
+        ArgumentException.ThrowIfNullOrWhiteSpace(secret);
+
+        if (!AuthenticationHeaderValue.TryParse(authorizationHeader, out var headerValue) ||
+            !string.Equals(headerValue.Scheme, "Basic", StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(headerValue.Parameter)) {
+            return false;
+        }
+
+        var buffer = ArrayPool<byte>.Shared.Rent((headerValue.Parameter.Length * 3 / 4) + 3);
+        try {
+            if (!Convert.TryFromBase64String(headerValue.Parameter, buffer, out var bytesWritten)) {
+                return false;
+            }
+
+            var credentials = buffer.AsSpan(0, bytesWritten);
+            var separator = credentials.IndexOf((byte)':');
+            if (separator < 0) {
+                return false;
+            }
+
+            var expectedUsernameHash = SHA256.HashData(Encoding.UTF8.GetBytes(username));
+            var expectedSecretHash = SHA256.HashData(Encoding.UTF8.GetBytes(secret));
+            var usernameHash = SHA256.HashData(credentials[..separator]);
+            var secretHash = SHA256.HashData(credentials[(separator + 1)..]);
+
+            var usernameMatches = CryptographicOperations.FixedTimeEquals(usernameHash, expectedUsernameHash);
+            var secretMatches = CryptographicOperations.FixedTimeEquals(secretHash, expectedSecretHash);
+
+            return usernameMatches & secretMatches;
+        } finally {
+            CryptographicOperations.ZeroMemory(buffer);
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
 }
 
 /// <summary>Represents a webhook event.</summary>
@@ -49,7 +100,9 @@ public sealed class WebhookHttpResult
     /// <summary>Indicates whether the parsing was successful (no errors occurred).</summary>
     public bool Success => !Errors.Any();
     /// <summary>Gets or sets the HTTP status code to return to the webhook sender.</summary>
-    public int Status { get; set; } = 200;
+    public int Status { get; set; } = 204;
+    /// <summary>Gets or sets an optional success response payload.</summary>
+    public JsonNode? Result { get; set; }
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing an error with the specified status code and error messages.</summary>
     public static WebhookHttpResult FromError(int statusCode, params string[] errors) {
         var result = new WebhookHttpResult(new List<WebhookEvent>());
@@ -64,5 +117,11 @@ public sealed class WebhookHttpResult
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a bad request with the specified error messages.</summary>
     public static WebhookHttpResult BadRequest(params string[] errors) => FromError(400, errors);
     /// <summary>Creates a new <see cref="WebhookHttpResult"/> instance representing a successful request with the specified events.</summary>
-    public static WebhookHttpResult Ok(List<WebhookEvent> events) => new(events);
+    public static WebhookHttpResult Ok(List<WebhookEvent> events, int statusCode, JsonNode? successPayload = null) {
+        var result = new WebhookHttpResult(events) {
+            Status = statusCode,
+            Result = successPayload
+        };
+        return result;
+    }
 }

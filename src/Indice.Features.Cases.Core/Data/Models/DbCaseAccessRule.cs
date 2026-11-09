@@ -18,7 +18,7 @@ public class DbCaseAccessRule
     public string? MemberUserId { get; set; }
 
     public int AccessLevel { get; set; }
-    public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now;
+    public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.UtcNow;
 
     public virtual DbCaseType? CaseType { get; set; }
     public virtual DbCheckpointType? CheckpointType { get; set; }

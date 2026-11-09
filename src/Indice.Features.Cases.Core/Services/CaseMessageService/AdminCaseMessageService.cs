@@ -1,4 +1,6 @@
 ﻿using Indice.Events;
+using Indice.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
@@ -13,8 +15,9 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
     public AdminCaseMessageService(
         CasesDbContext dbContext,
         IPlatformEventService platformEventService,
-        ISchemaValidator schemaValidator)
-        : base(dbContext, platformEventService, schemaValidator) {
+        ISchemaValidator schemaValidator,
+        [FromKeyedServices(CasesCoreConstants.FileServiceKey)] IFileService? fileService = null)
+        : base(dbContext, platformEventService, schemaValidator, fileService) {
     }
 
     // todo: remove actor

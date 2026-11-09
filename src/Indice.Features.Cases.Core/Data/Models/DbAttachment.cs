@@ -11,16 +11,21 @@ public class DbAttachment
         CaseId = caseId;
     }
     public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTimeOffset LastModified { get; set; } = DateTimeOffset.Now;
+    public DateTimeOffset LastModified { get; set; } = DateTimeOffset.UtcNow;
     public Guid CaseId { get; set; }
     public Guid Guid { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = null!;
     public string FileExtension { get; set; } = null!;
     public string ContentType { get; set; } = null!;
     public long ContentLength { get; set; }
-    public byte[] Data { get; set; } = null!;
+    /// <summary>The binary data of the attachment. Left empty (null) when the binary is persisted to a file service.</summary>
+    public byte[]? Data { get; set; }
     public virtual DbCase Case { get; set; } = null!;
     public string Uri => $"{Guid.ToString("N")[..2]}/{Guid:N}{FileExtension}";
+    /// <summary>The path of the attachment binary when stored in a file service.</summary>
+    public string GetPath() => GetPath(Guid, FileExtension);
+    /// <summary>The path of the attachment binary when stored in a file service.</summary>
+    public static string GetPath(Guid guid, string? fileExtension) => $"attachments/{guid.ToString("N")[..2]}/{guid:N}{fileExtension}";
 
     public void PopulateFrom(string fileName, Func<Stream> fileStreamAccessor, bool saveData = false) =>
         PopulateFrom(fileName, fileStreamAccessor(), saveData);
