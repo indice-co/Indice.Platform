@@ -10,7 +10,7 @@ import { InboxRealtimeService } from './inbox-realtime.service';
 /** Number of unread messages shown in the bell preview. */
 export const INBOX_PREVIEW_SIZE = 5;
 /**
- * Rare fallback polling of the unread count, used only while real time notifications are not connected (not configured or unavailable).
+ * Rare reconciliation polling of the unread count, including while real time notifications are connected.
  * The count is also refreshed whenever the page becomes visible again and after every change made through this store.
  */
 const POLLING_INTERVAL = 5 * 60_000;
@@ -20,11 +20,11 @@ const MARK_ALL_REFRESH_DELAY = 3_000;
 export type InboxChange =
   | { kind: 'created'; notification?: InboxMessageNotification }
   | { kind: 'read' | 'unread' | 'deleted'; messageId: string }
-  | { kind: 'all-read' };
+  | { kind: 'all-read' | 'reconcile' };
 
 /**
  * Application wide state of the current user's inbox: the unread count and, on demand, a preview of the latest unread messages.
- * The count is kept up to date through {@link InboxRealtimeService} (SignalR) and falls back to rare polling when that is not available.
+ * The count is kept up to date through {@link InboxRealtimeService} (SignalR) and rare reconciliation polling.
  * All background requests are silent (they do not reveal the global progress bar).
  */
 @Injectable({ providedIn: 'root' })
@@ -37,6 +37,7 @@ export class InboxStore {
   private readonly _realtimeStatus$ = toObservable(this._realtime.status);
   private _subscription?: Subscription;
   private _previewSubscription?: Subscription;
+  private _bulkRefreshSubscription?: Subscription;
 
   public readonly unreadCount = signal(0);
   public readonly latestUnread = signal<InboxMessage[]>([]);
@@ -54,11 +55,11 @@ export class InboxStore {
     if (this._subscription) {
       return;
     }
-    // poll only while real time notifications are not connected; (re)connecting fetches the count once to catch up.
+    // (Re)connecting fetches the count once to catch up, then polling reconciles missed notifications and changes from other clients.
     const polling$ = this._realtimeStatus$.pipe(
       map(status => status === 'connected'),
       distinctUntilChanged(),
-      switchMap(connected => connected ? of(0) : timer(0, POLLING_INTERVAL))
+      switchMap(() => timer(0, POLLING_INTERVAL))
     );
     const visible$ = fromEvent(document, 'visibilitychange').pipe(filter(() => document.visibilityState === 'visible'));
     this._subscription = merge(
@@ -70,12 +71,18 @@ export class InboxStore {
       .subscribe(count => {
         if (count !== null) {
           this.unreadCount.set(count);
+          this._changes$.next({ kind: 'reconcile' });
         }
       });
     this._subscription.add(this._realtime.messageCreated$.subscribe(notification => {
       this._toasts.show(ToastType.Info, 'Inbox.NewMessage', notification.title ?? undefined);
-      this.unreadCount.update(count => count + 1);
+      this.refresh();
+      const previewLoading = this.previewLoading();
+      this._previewSubscription?.unsubscribe();
       this.previewLoaded.set(false);
+      if (previewLoading) {
+        this.loadPreview();
+      }
       this._changes$.next({ kind: 'created', notification });
     }));
     void this._realtime.start();
@@ -85,6 +92,7 @@ export class InboxStore {
     this._subscription?.unsubscribe();
     this._subscription = undefined;
     this._previewSubscription?.unsubscribe();
+    this._bulkRefreshSubscription?.unsubscribe();
     void this._realtime.stop();
   }
 
@@ -96,7 +104,6 @@ export class InboxStore {
       .pipe(catchError(() => of(null)), finalize(() => this.previewLoading.set(false)))
       .subscribe(result => {
         if (result) {
-          this.unreadCount.set(result.count);
           this.latestUnread.set(result.items);
           this.previewLoaded.set(true);
         }
@@ -137,9 +144,13 @@ export class InboxStore {
   public markAllAsRead(): Observable<void> {
     return this._api.markAllAsRead().pipe(tap(() => {
       this.unreadCount.set(0);
+      this._previewSubscription?.unsubscribe();
       this.latestUnread.set([]);
       this._changes$.next({ kind: 'all-read' });
-      timer(MARK_ALL_REFRESH_DELAY).subscribe(() => this.refresh());
+      this._bulkRefreshSubscription?.unsubscribe();
+      this._bulkRefreshSubscription = timer(MARK_ALL_REFRESH_DELAY).subscribe(() => {
+        this.refresh();
+      });
     }));
   }
 

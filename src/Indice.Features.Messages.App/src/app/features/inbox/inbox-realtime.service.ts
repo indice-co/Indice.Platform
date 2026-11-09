@@ -22,6 +22,9 @@ export class InboxRealtimeService {
   private readonly _messageCreated$ = new Subject<InboxMessageNotification>();
   private _connection?: HubConnection;
   private _starting?: Promise<void>;
+  private _generation = 0;
+  private _retryTimer?: ReturnType<typeof setTimeout>;
+  private _retryDelay = 1_000;
 
   public readonly enabled = !!settings.inboxHubUrl;
   public readonly status = signal<InboxRealtimeStatus>(this.enabled ? 'disconnected' : 'disabled');
@@ -37,44 +40,104 @@ export class InboxRealtimeService {
     if (!this.enabled) {
       return Promise.resolve();
     }
-    this._starting ??= this.connect().finally(() => this._starting = undefined);
+    if (this._starting) {
+      return this._starting;
+    }
+    if (this._connection || this._retryTimer) {
+      return Promise.resolve();
+    }
+    if (!this._starting) {
+      const starting = this.connect(this._generation).finally(() => {
+        if (this._starting === starting) {
+          this._starting = undefined;
+        }
+      });
+      this._starting = starting;
+    }
     return this._starting;
   }
 
   public async stop(): Promise<void> {
+    ++this._generation;
+    clearTimeout(this._retryTimer);
+    this._retryTimer = undefined;
+    this._retryDelay = 1_000;
+    const starting = this._starting;
+    this._starting = undefined;
     const connection = this._connection;
     this._connection = undefined;
-    await connection?.stop().catch(() => undefined);
     if (this.enabled) {
       this.status.set('disconnected');
     }
+    await connection?.stop().catch(() => undefined);
+    await starting;
   }
 
-  private async connect(): Promise<void> {
-    if (this._connection) {
-      return;
-    }
+  private async connect(generation: number): Promise<void> {
+    let connection: HubConnection | undefined;
     this.status.set('connecting');
     try {
       const signalR = await import('@microsoft/signalr');
-      const connection = new signalR.HubConnectionBuilder()
+      if (generation !== this._generation) {
+        return;
+      }
+      connection = new signalR.HubConnectionBuilder()
         .withUrl(settings.inboxHubUrl!, {
           accessTokenFactory: () => this._auth.getCurrentUser()?.access_token ?? ''
         })
         .withAutomaticReconnect()
         .configureLogging(settings.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
         .build();
-      connection.on(INBOX_MESSAGE_CREATED_METHOD, (notification: InboxMessageNotification) => this._messageCreated$.next(notification));
-      connection.onreconnecting(() => this.status.set('connecting'));
-      connection.onreconnected(() => this.status.set('connected'));
-      connection.onclose(() => this.status.set('disconnected'));
+      const isCurrent = () => generation === this._generation && this._connection === connection;
+      connection.on(INBOX_MESSAGE_CREATED_METHOD, (notification: InboxMessageNotification) => {
+        if (isCurrent()) {
+          this._messageCreated$.next(notification);
+        }
+      });
+      connection.onreconnecting(() => {
+        if (isCurrent()) {
+          this.status.set('connecting');
+        }
+      });
+      connection.onreconnected(() => {
+        if (isCurrent()) {
+          this.status.set('connected');
+        }
+      });
+      connection.onclose(() => {
+        if (isCurrent()) {
+          this._connection = undefined;
+          this.status.set('disconnected');
+          this.scheduleRetry(generation);
+        }
+      });
       this._connection = connection;
       await connection.start();
+      if (!isCurrent()) {
+        await connection.stop().catch(() => undefined);
+        return;
+      }
+      this._retryDelay = 1_000;
       this.status.set('connected');
     } catch (error) {
-      console.warn('Inbox real time notifications are not available.', error);
-      this._connection = undefined;
-      this.status.set('disconnected');
+      if (generation === this._generation) {
+        console.warn('Inbox real time notifications are not available.', error);
+        this._connection = undefined;
+        this.status.set('disconnected');
+      }
+      await connection?.stop().catch(() => undefined);
+      this.scheduleRetry(generation);
     }
+  }
+
+  private scheduleRetry(generation: number): void {
+    if (generation !== this._generation || this._retryTimer) {
+      return;
+    }
+    this._retryTimer = setTimeout(() => {
+      this._retryTimer = undefined;
+      void this.start();
+    }, this._retryDelay);
+    this._retryDelay = Math.min(this._retryDelay * 2, 60_000);
   }
 }

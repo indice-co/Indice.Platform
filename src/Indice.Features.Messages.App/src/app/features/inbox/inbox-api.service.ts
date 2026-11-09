@@ -47,7 +47,7 @@ export class InboxApiService {
   }
 
   public getMessage(messageId: string): Observable<InboxMessage> {
-    return this._http.get<InboxMessage>(`${this._baseUrl}/my/messages/${encodeURIComponent(messageId)}`);
+    return this._http.get<InboxMessage>(`${this._baseUrl}/my/messages/${encodeURIComponent(messageId)}`, { params: { channel: 'Inbox' } });
   }
 
   public markAsRead(messageId: string): Observable<void> {
@@ -60,7 +60,7 @@ export class InboxApiService {
 
   /** Marks all messages as read. The operation is processed asynchronously by the server. */
   public markAllAsRead(): Observable<void> {
-    return this._http.put<void>(`${this._baseUrl}/my/messages/all/read`, {});
+    return this._http.put<void>(`${this._baseUrl}/my/messages/all/read`, { showExpired: true });
   }
 
   public deleteMessage(messageId: string): Observable<void> {

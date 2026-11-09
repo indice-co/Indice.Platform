@@ -95,18 +95,26 @@ public class InboxNotificationTests
         notifier.Verify(x => x.NotifyUserAsync(It.IsAny<string>(), It.IsAny<InboxMessageNotification>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
-    public async Task ResolveMessage_NotifierFailure_DoesNotFailProcessing() {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ResolveMessage_NotifierFailure_DoesNotFailProcessing(bool canceled) {
         var notifier = new Mock<IInboxNotifier>();
         notifier.Setup(x => x.NotifyUserAsync(It.IsAny<string>(), It.IsAny<InboxMessageNotification>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InvalidOperationException("SignalR is down"));
+                .ThrowsAsync(canceled ? new TaskCanceledException("SignalR timed out") : new InvalidOperationException("SignalR is down"));
         var messageService = new Mock<IMessageService>();
         messageService.Setup(x => x.Create(It.IsAny<CreateMessageRequest>())).ReturnsAsync(Guid.NewGuid());
-        var handler = CreateResolveMessageHandler(notifier.Object, messageService);
+        var dispatcherFactory = new Mock<IEventDispatcherFactory> { DefaultValue = DefaultValue.Mock };
+        var handler = CreateResolveMessageHandler(notifier.Object, messageService, dispatcherFactory);
+        var @event = CreateResolveMessageEvent(activePeriod: null);
+        @event.Campaign!.MessageChannelKind |= MessageChannelKind.Email;
+        @event.Campaign.Content[nameof(MessageChannelKind.Email)] = new MessageContent("Hello", "Body");
 
-        await handler.Process(CreateResolveMessageEvent(activePeriod: null));
+        await handler.Process(@event);
 
         messageService.Verify(x => x.Create(It.IsAny<CreateMessageRequest>()), Times.Once);
+        var dispatcher = Mock.Get(dispatcherFactory.Object.Create(KeyedServiceNames.EventDispatcherServiceKey));
+        Assert.Single(dispatcher.Invocations, x => x.Arguments[0] is SendEmailEvent);
     }
 
     [Fact]
@@ -135,14 +143,34 @@ public class InboxNotificationTests
         notifier.Verify(x => x.NotifyAllAsync(It.IsAny<InboxMessageNotification>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    private static ResolveMessageHandler CreateResolveMessageHandler(IInboxNotifier notifier, Mock<IMessageService>? messageService = null) {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CampaignCreated_NotifierFailure_DoesNotFailProcessing(bool canceled) {
+        var notifier = new Mock<IInboxNotifier>();
+        notifier.Setup(x => x.NotifyAllAsync(It.IsAny<InboxMessageNotification>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(canceled ? new TaskCanceledException("SignalR timed out") : new InvalidOperationException("SignalR is down"));
+        var dispatcherFactory = new Mock<IEventDispatcherFactory> { DefaultValue = DefaultValue.Mock };
+        var handler = new CampaignCreatedHandler(dispatcherFactory.Object, Mock.Of<IContactService>(), Mock.Of<ICampaignService>(), notifier.Object);
+        var campaign = CreateCampaign(isGlobal: true, activePeriod: null);
+        campaign.MessageChannelKind |= MessageChannelKind.PushNotification;
+        campaign.Content[nameof(MessageChannelKind.PushNotification)] = new MessageContent("Hello", "Body");
+
+        await handler.Process(campaign);
+
+        notifier.Verify(x => x.NotifyAllAsync(It.IsAny<InboxMessageNotification>(), It.IsAny<CancellationToken>()), Times.Once);
+        var dispatcher = Mock.Get(dispatcherFactory.Object.Create(KeyedServiceNames.EventDispatcherServiceKey));
+        Assert.Single(dispatcher.Invocations, x => x.Arguments[0] is SendPushNotificationEvent);
+    }
+
+    private static ResolveMessageHandler CreateResolveMessageHandler(IInboxNotifier notifier, Mock<IMessageService>? messageService = null, Mock<IEventDispatcherFactory>? eventDispatcherFactory = null) {
         var contactService = new Mock<IContactService>();
         contactService.Setup(x => x.GetByRecipientId(RecipientId)).ReturnsAsync(CreateContact());
         if (messageService is null) {
             messageService = new Mock<IMessageService>();
             messageService.Setup(x => x.Create(It.IsAny<CreateMessageRequest>())).ReturnsAsync(Guid.NewGuid());
         }
-        var eventDispatcherFactory = new Mock<IEventDispatcherFactory> { DefaultValue = DefaultValue.Mock };
+        eventDispatcherFactory ??= new Mock<IEventDispatcherFactory> { DefaultValue = DefaultValue.Mock };
         var partialTemplateResolverFactory = new Mock<IPartialTemplateResolverFactory> { DefaultValue = DefaultValue.Mock };
         return new ResolveMessageHandler(
             eventDispatcherFactory.Object,

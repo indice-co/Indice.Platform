@@ -239,12 +239,23 @@ export class InboxComponent implements OnInit {
           item.isRead = change.kind === 'read';
           this.list.items.update(items => items ? [...items] : items);
         }
+        if (this.status()) {
+          this.list.refresh();
+        }
         return;
       }
       if (change.kind === 'all-read') {
         // processed asynchronously by the server, so a reload could still return unread messages
-        this.list.items.update(items => items?.map(m => ({ ...m, isRead: true })) ?? items);
+        if (this.status() === 'unread') {
+          this.list.items.set([]);
+          this.list.count.set(0);
+        } else {
+          this.list.items.update(items => items?.map(m => ({ ...m, isRead: true })) ?? items);
+        }
         this.selected.update(m => m ? { ...m, isRead: true } : m);
+        return;
+      }
+      if (change.kind === 'reconcile' && !this.status()) {
         return;
       }
       this.list.refresh();
@@ -277,11 +288,11 @@ export class InboxComponent implements OnInit {
   }
 
   protected markAsRead(message: InboxMessage): void {
-    this.store.markAsRead(message).subscribe({ next: () => this.selected.update(m => m ? { ...m, isRead: true } : m), error: () => undefined });
+    this.store.markAsRead(message).subscribe({ next: () => this.selected.update(m => m?.id === message.id ? { ...m, isRead: true } : m), error: () => undefined });
   }
 
   protected markAsUnread(message: InboxMessage): void {
-    this.store.markAsUnread(message).subscribe(() => this.selected.update(m => m ? { ...m, isRead: false } : m));
+    this.store.markAsUnread(message).subscribe(() => this.selected.update(m => m?.id === message.id ? { ...m, isRead: false } : m));
   }
 
   protected markAllAsRead(): void {

@@ -372,8 +372,8 @@ builder.AddMessageFunctions(options => {
   `connection.on('inboxMessageCreated', notification => …)`; the payload carries `id`, `title`, `type`,
   `activePeriod`, `isGlobal` and `createdAt`.
 - **Admin UI** — set `CampaignUIOptions.InboxHubUrl = "/hubs/messaging"` (relative urls resolve against the API
-  origin; use an absolute url when the hub lives elsewhere) for the bell to update live; without it the UI refreshes the unread count rarely (every 5 minutes and
-  whenever the browser tab becomes visible again).
+  origin; use an absolute url when the hub lives elsewhere) for the bell to update live. The UI also reconciles the unread count every 5 minutes and
+  whenever the browser tab becomes visible again, even while connected. Failed connections retry with backoff until the inbox is stopped.
 
 ### 🖼️ Media library
 

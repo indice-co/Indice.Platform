@@ -186,7 +186,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
         try {
             await InboxNotifier.NotifyUserAsync(contact.RecipientId, InboxMessageNotification.FromCampaign(campaign));
-        } catch (Exception exception) when (exception is not OperationCanceledException) {
+        } catch (Exception exception) {
             // A failed real time notification should never fail (and retry) the message creation.
             Logger.LogWarning(exception, "Failed to send the real time inbox notification for campaign {CampaignId}.", campaign.Id);
         }
