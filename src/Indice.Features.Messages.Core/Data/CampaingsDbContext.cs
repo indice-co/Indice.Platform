@@ -43,6 +43,12 @@ public class CampaignsDbContext : DbContext
     public DbSet<DbContactCommunicationOption> ContactCommunicationOptions { get; set; }
 
     /// <inheritdoc />
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+        optionsBuilder.AddInterceptors(QueryHintsInterceptor.Instance);
+        base.OnConfiguring(optionsBuilder);
+    }
+
+    /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
         modelBuilder.ApplyConfiguration(new DbAttachmentMap(schemaName));

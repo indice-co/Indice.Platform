@@ -195,6 +195,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
         services.TryAddTransient<IMessageEventService, MessageEventService>();
+        services.TryAddTransient<IInboxNotifier, InboxNotifierNoop>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();
@@ -302,6 +303,22 @@ public static class MessageFeatureExtensions
                 options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
                 options.UseCompression = false;
             });
+    }
+
+    /// <summary>
+    /// Pushes a personalized real time notification through SignalR to the recipient (using the <i>SignalR proxy</i> infrastructure) every time a new inbox message is created.
+    /// Use this when the message jobs are hosted in the same process as the api (i.e. <c>UseEventDispatcherHosting()</c>).
+    /// </summary>
+    /// <remarks>
+    /// The SignalR connection string is read from <c>ConnectionStrings:SignalR</c>. 
+    /// Clients connect through the endpoints registered by <c>AddSignalRProxy()</c> / <c>MapSignalRProxy()</c>, 
+    /// so the <see cref="MessageInboxNotificationOptions.HubName"/> must be part of the <c>SignalRProxy:AllowedHubs</c>.
+    /// </remarks>
+    /// <param name="options">Options used to configure the Campaigns API feature.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static TOptions UseInboxSignalRNotifications<TOptions>(this TOptions options, Action<MessageInboxNotificationOptions>? configure = null) where TOptions : CampaignOptionsBase {
+        options.Services!.AddMessageInboxSignalRNotifications(configure);
+        return options;
     }
 
     /// <summary>Adds the Media Library feature.</summary>

@@ -10,6 +10,8 @@ using Duende.IdentityServer.Validation;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 #endif
+using System.Security.Claims;
+using Indice.Security;
 
 namespace Indice.Features.Identity.Core.Grants;
 
@@ -41,7 +43,12 @@ public class DelegationGrantValidator : IExtensionGrantValidator
         }
         var subject = result.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
         context.Request.SessionId = result.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId)?.Value;
+        var claims = new List<Claim>();
+        var deviceId = result.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value;
+        if (!string.IsNullOrWhiteSpace(deviceId)) {
+            claims.Add(new Claim(BasicClaimTypes.DeviceId, deviceId));
+        }
 
-        context.Result = new GrantValidationResult(subject, GrantType);
+        context.Result = new GrantValidationResult(subject, GrantType, claims);
     }
 }

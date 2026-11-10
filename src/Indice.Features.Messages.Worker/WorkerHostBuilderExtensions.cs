@@ -152,6 +152,7 @@ public static class WorkerHostBuilderExtensions
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IPartialTemplateResolverFactory, DbBackedPartialTemplateResolverFactory>();
+        services.TryAddTransient<IInboxNotifier, InboxNotifierNoop>();
 
         services.Configure<AnalyticsOptions>(opt => {
             opt.Enabled = options.Analytics.Enabled;
@@ -275,6 +276,17 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseSmsServiceSmsUp(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddSmsServiceSmsUp(configuration);
+        return options;
+    }
+
+    /// <summary>
+    /// Pushes a personalized real time notification through SignalR to the recipient (using the <i>SignalR proxy</i> infrastructure) every time a new inbox message is created.
+    /// </summary>
+    /// <remarks>The SignalR connection string is read from <c>ConnectionStrings:SignalR</c>.</remarks>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageJobsOptions UseInboxSignalRNotifications(this MessageJobsOptions options, Action<MessageInboxNotificationOptions>? configure = null) {
+        options.Services.AddMessageInboxSignalRNotifications(configure);
         return options;
     }
 

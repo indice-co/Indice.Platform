@@ -612,6 +612,11 @@ public static class IndiceServicesServiceCollectionExtensions
                 services.Configure<SmsServiceOmniMessagingSettings>(smsSection);
                 builder.AddHttpHandler<OmnimessagingWebhookHttpHandler>(provider);
                 break;
+            case "kapatel":
+            case "kapa_tel":
+                services.Configure<SmsServiceKapaTELSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, KapaTELWebhookHttpHandler>(configuration, provider);
+                break;
         }
         return builder;
     }

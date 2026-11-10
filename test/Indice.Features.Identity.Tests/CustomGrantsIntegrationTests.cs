@@ -456,23 +456,29 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Delegation_Grant_Preserves_SessionId_From_Device_Login() {
+    public async Task Delegation_Grant_Preserves_SessionId_And_DeviceId_From_Device_Login() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
         var loginResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
         var loginSessionId = GetSessionId(loginResponse);
-        
+        var loginDeviceId = GetDeviceId(loginResponse);
+        Assert.False(string.IsNullOrWhiteSpace(loginDeviceId));
+
         var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!);
         
         AssertSidClaimExists(delegationResponse);
         Assert.StartsWith($"{SessionIdPrefixes.DeviceAuthentication}.", loginSessionId);
         Assert.Equal(loginSessionId, GetSessionId(delegationResponse));
+        Assert.Equal(loginDeviceId, GetDeviceId(delegationResponse));
     }
 
     [Fact]
-    public async Task Delegation_Grant_Refresh_Preserves_SessionId() {
-        var loginResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
+    public async Task Delegation_Grant_Refresh_Preserves_SessionId_And_DeviceId() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var loginResponse = await LoginWithDevicePin(registrationResult.RegistrationId);
         var loginSessionId = GetSessionId(loginResponse);
-        
+        var loginDeviceId = GetDeviceId(loginResponse);
+        Assert.False(string.IsNullOrWhiteSpace(loginDeviceId));
+
         var delegationResponse = await RequestDelegationToken(loginResponse.AccessToken!, requestOfflineAccess: true);
         Assert.False(string.IsNullOrWhiteSpace(delegationResponse.RefreshToken));
 
@@ -485,6 +491,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         };
         var refreshResponse = await _httpClient.RequestRefreshTokenAsync(refreshRequest, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(loginSessionId, GetSessionId(refreshResponse));
+        Assert.Equal(loginDeviceId, GetDeviceId(refreshResponse));
     }
 
     #endregion
@@ -512,6 +519,12 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         Assert.False(tokenResponse.IsError, tokenResponse.ErrorDescription ?? tokenResponse.Error);
         var accessToken = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(tokenResponse.AccessToken);
         return accessToken.TryGetClaim(BasicClaimTypes.SessionId, out var sessionId) ? sessionId.Value : null;
+    }
+
+    private static string? GetDeviceId(TokenResponse tokenResponse) {
+        Assert.False(tokenResponse.IsError, tokenResponse.ErrorDescription ?? tokenResponse.Error);
+        var accessToken = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(tokenResponse.AccessToken);
+        return accessToken.TryGetClaim(BasicClaimTypes.DeviceId, out var deviceId) ? deviceId.Value : null;
     }
 
     private async Task<TokenResponse> LoginWithDevicePin(Guid registrationId) {
