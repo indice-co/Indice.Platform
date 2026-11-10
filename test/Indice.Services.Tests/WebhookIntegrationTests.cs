@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Channels;
 using Indice.AspNetCore.Features.Webhooks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,6 +78,7 @@ public sealed class WebhookIntegrationTests
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
+    
     [Fact]
     public async Task TwilioWebhook_WithWebhooksEnabled() {
         const string webhookAuthToken = "twilio-webhook-token";
@@ -125,25 +125,7 @@ public sealed class WebhookIntegrationTests
                 ["Sms:WebhookUrl"] = $"https://{webhookUsername}:{webhookPassword}@example.com/webhooks/kapatel"
             })
             .Build();
-
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
-
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
-
+        using var host = await StartHostAsync(configuration);
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
             "/webhooks/kapatel?id=3f8df07f349ea6c2dbeb5d90cc4de275&foreign_id=KAPATEL3&notification_status=1&notification_datetime_stamp=2024-11-21%2010:13:21&msisdn=306900000000");
@@ -262,24 +244,8 @@ public sealed class WebhookIntegrationTests
             })
             .Build();
 
-        using var host = await new HostBuilder()
-            .ConfigureWebHost(webHost => {
-                webHost.UseTestServer();
-                webHost.ConfigureServices(services => {
-                    services.AddRouting();
-                    services.AddSmsService(configuration);
-                    services.AddSmsWebhooks<NoOpWebhookHandler>(configuration);
-                });
-                webHost.Configure(app => {
-                    app.UseRouting();
 
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapWebhooks();
-                    });
-                });
-            })
-            .StartAsync(cancellationToken: TestContext.Current.CancellationToken);
-
+        using var host = await StartHostAsync(configuration);
         var services = host.Services;
 
         Assert.NotNull(
