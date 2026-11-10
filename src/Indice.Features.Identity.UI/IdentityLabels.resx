@@ -1232,7 +1232,7 @@
     <value>Access your world with confidence.</value>
   </data>
   <data name="Footer_MadeBy" xml:space="preserve">
-    <value>With &lt;span aria-hidden="true"&gt;&#10084;&lt;/span&gt; by &lt;strong&gt;INDICE&lt;/strong&gt;</value>
+    <value>With &lt;span aria-hidden="true"&gt;❤&lt;/span&gt; by &lt;strong&gt;INDICE&lt;/strong&gt;</value>
   </data>
   <data name="Footer_LinksLabel" xml:space="preserve">
     <value>Legal and support</value>
@@ -1315,4 +1315,15 @@
   <data name="Profile_LastLogin" xml:space="preserve">
     <value>Last login {0}</value>
   </data>
+<data name="ChangeEmail_PageTitle" xml:space="preserve"><value>Change email</value></data>
+<data name="ChangeEmail_ConsentRequired" xml:space="preserve"><value>You must accept the processing of your personal data to continue.</value></data>
+<data name="ChangeEmail_Succeeded" xml:space="preserve"><value>Your email has been changed successfully.</value></data>
+<data name="ChangeEmail_VerifyTitle" xml:space="preserve"><value>Identity verification</value></data>
+<data name="ChangeEmail_VerifyLinkPrompt" xml:space="preserve"><value>For security reasons, confirm the change by clicking the link in the confirmation email we sent to &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
+<data name="ChangeEmail_VerifyOtpPrompt" xml:space="preserve"><value>For security reasons, confirm the change by entering the one-time code (OTP) we sent to &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
+<data name="ChangeEmail_OtpCode" xml:space="preserve"><value>OTP code</value></data>
+<data name="ChangeEmail_Verify" xml:space="preserve"><value>Verify</value></data>
+<data name="ChangeEmail_Close" xml:space="preserve"><value>Close</value></data>
+<data name="ChangePhone_PageTitle" xml:space="preserve"><value>Change phone number</value></data>
+<data name="ChangePhone_VerifyOtpPrompt" xml:space="preserve"><value>For security reasons, confirm the change by entering the one-time code (OTP) we sent to &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
 </root>

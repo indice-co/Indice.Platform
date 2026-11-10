@@ -9,6 +9,7 @@
 @use 'sidebar';
 @use 'article';
 @use 'reveal';
+@use 'verify-dialog';
 /* You can add global styles to this file, and also import other style files */
 @tailwind base;
 @tailwind components;

@@ -1,0 +1,77 @@
+@page "/manage/email"
+
+@model BaseChangeEmailModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_IdentityProfileLayout";
+    ViewData["Title"] = Localizer.ChangeEmail_PageTitle;
+    var pendingEmail = Model.PendingEmail;
+}
+
+<div class="tab-panel" role="tabpanel">
+    <a class="inline-flex items-center gap-1 mb-4 text-black no-underline" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
+    <h3 class="text-black mb-4">@Localizer.ChangeEmail_PageTitle</h3>
+    <partial name="_ValidationSummary" />
+    <form method="post" class="px-0" novalidate>
+        <div class="input-group">
+            <input class="peer" type="email" placeholder="@Localizer.Email" asp-for="Input.Email" value="@(Model.Input.Email ?? Model.CurrentEmail)" autocomplete="email" autofocus />
+            <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Email">@Localizer.Email</label>
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+        <div class="flex items-start gap-2 mt-4 text-sm">
+            <input asp-for="PrivacyConsent" type="checkbox" class="mt-1" />
+            <label asp-for="PrivacyConsent">
+                @Localizer.Profile_PrivacyPolicyConsent
+                <a target="_blank" href="/privacy">@Localizer.Profile_Here.</a>
+            </label>
+        </div>
+        <span asp-validation-for="PrivacyConsent" class="text-danger"></span>
+        <div class="flex justify-end gap-2 mt-4">
+            <button class="btn btn-primary" type="submit">@Localizer.Profile_Save</button>
+        </div>
+    </form>
+</div>
+
+@if (pendingEmail is not null)
+{
+    <div class="verify-dialog" role="dialog" aria-modal="true" aria-labelledby="verify-dialog-title">
+        <div class="verify-dialog__box">
+            <a class="verify-dialog__close" asp-page="/Profile" aria-label="@Localizer.ChangeEmail_Close">&times;</a>
+            <h2 class="verify-dialog__title" id="verify-dialog-title">@Localizer.ChangeEmail_VerifyTitle</h2>
+            @if (!Model.UseOtp)
+            {
+                <p class="verify-dialog__text">@Localizer.ChangeEmail_VerifyLinkPrompt(pendingEmail)</p>
+            }
+            else
+            {
+                <p class="verify-dialog__text">@Localizer.ChangeEmail_VerifyOtpPrompt(pendingEmail)</p>
+                <form method="post" asp-page-handler="Verify" class="px-0" novalidate>
+                    <input type="hidden" name="Input.Email" value="@pendingEmail" />
+                    <label for="Code" class="block mb-2 text-sm">@Localizer.ChangeEmail_OtpCode</label>
+                    <input class="otp-field__input" data-otp-length="6" type="text" inputmode="numeric" autocomplete="one-time-code" id="Code" name="Code" value="" autofocus />
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                    <p class="otp-field__resend">
+                        <button type="submit" id="otp-resend" name="otpResend" value="true" formnovalidate class="otp-field__resend-btn">
+                            <span class="otp-field__resend-text">@Localizer.VerifyPhone_Resend</span>
+                            <span class="otp-field__wait">@Localizer.Mfa_ResendAvailableIn <span class="countdown"></span></span>
+                        </button>
+                    </p>
+                    <div class="verify-dialog__actions">
+                        <button class="btn btn-primary" type="submit">@Localizer.ChangeEmail_Verify</button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+}
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    @if (pendingEmail is not null && Model.UseOtp)
+    {
+        <script type="text/javascript" src="~/js/otp.js" csp-nonce="true"></script>
+        <script type="text/javascript" src="~/js/otp-field.js" csp-nonce="true"></script>
+    }
+}

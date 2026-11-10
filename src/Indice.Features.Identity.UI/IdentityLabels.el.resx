@@ -1198,7 +1198,7 @@
     <value>Απόκτησε πρόσβαση στον κόσμο σου με σιγουριά.</value>
   </data>
   <data name="Footer_MadeBy" xml:space="preserve">
-    <value>Με &lt;span aria-hidden="true"&gt;&#10084;&lt;/span&gt; από την &lt;strong&gt;INDICE&lt;/strong&gt;</value>
+    <value>Με &lt;span aria-hidden="true"&gt;❤&lt;/span&gt; από την &lt;strong&gt;INDICE&lt;/strong&gt;</value>
   </data>
   <data name="Footer_LinksLabel" xml:space="preserve">
     <value>Νομικά και υποστήριξη</value>
@@ -1314,4 +1314,15 @@
   <data name="Profile_LastLogin" xml:space="preserve">
     <value>Τελευταία σύνδεση {0}</value>
   </data>
+<data name="ChangeEmail_PageTitle" xml:space="preserve"><value>Αλλαγή Email</value></data>
+<data name="ChangeEmail_ConsentRequired" xml:space="preserve"><value>Πρέπει να αποδεχτείτε την επεξεργασία των προσωπικών σας δεδομένων για να συνεχίσετε.</value></data>
+<data name="ChangeEmail_Succeeded" xml:space="preserve"><value>Το email σας άλλαξε επιτυχώς.</value></data>
+<data name="ChangeEmail_VerifyTitle" xml:space="preserve"><value>Επαλήθευση ταυτότητας</value></data>
+<data name="ChangeEmail_VerifyLinkPrompt" xml:space="preserve"><value>Για λόγους ασφαλείας, επιβεβαιώστε την αλλαγή πατώντας το link στο email επιβεβαίωσης που σας αποστείλαμε στο &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
+<data name="ChangeEmail_VerifyOtpPrompt" xml:space="preserve"><value>Για λόγους ασφαλείας, επιβεβαιώστε την αλλαγή εισάγοντας τον κωδικό μιας χρήσης (OTP) που σας αποστείλαμε στο &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
+<data name="ChangeEmail_OtpCode" xml:space="preserve"><value>Κωδικός OTP</value></data>
+<data name="ChangeEmail_Verify" xml:space="preserve"><value>Επαλήθευση</value></data>
+<data name="ChangeEmail_Close" xml:space="preserve"><value>Κλείσιμο</value></data>
+<data name="ChangePhone_PageTitle" xml:space="preserve"><value>Αλλαγή αριθμού τηλεφώνου</value></data>
+<data name="ChangePhone_VerifyOtpPrompt" xml:space="preserve"><value>Για λόγους ασφαλείας, επιβεβαιώστε την αλλαγή εισάγοντας τον κωδικό μιας χρήσης (OTP) που σας αποστείλαμε στο &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
 </root>

@@ -1,10 +1,11 @@
-﻿@inject ExtendedUserManager<User> UserManager
+@inject ExtendedUserManager<User> UserManager
 @inject IdentityUILocalizer Localizer
 
 @{
     var user = await UserManager.GetUserAsync(User);
     var hasPassword = user is not null && await UserManager.HasPasswordAsync(user);
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty;
+    if (currentPage is "/ChangeEmail" or "/ChangePhone") { currentPage = "/Profile"; }
     string Current(string page) => string.Equals(currentPage, page, StringComparison.OrdinalIgnoreCase) ? "page" : null!;
 }
 

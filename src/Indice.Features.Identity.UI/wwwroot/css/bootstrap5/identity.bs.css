@@ -1461,6 +1461,83 @@ body {
   color: var(--idui-color-ink);
 }
 
+.verify-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 60, 70, 0.3);
+  backdrop-filter: blur(6px);
+}
+.verify-dialog__box {
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  padding: 2rem;
+  border-radius: var(--idui-radius);
+  background: var(--idui-color-surface);
+  color: var(--idui-color-text);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+}
+.verify-dialog__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--idui-color-surface-muted);
+  color: var(--idui-color-ink);
+  text-decoration: none;
+}
+.verify-dialog__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+.verify-dialog__text {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+}
+.verify-dialog__text:last-child {
+  margin-bottom: 0;
+}
+.verify-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.verify-dialog .otp-field {
+  justify-content: space-between;
+}
+.verify-dialog .otp-field__cell {
+  flex: 1 1 0;
+  max-width: none;
+  height: 3.5rem;
+  font-size: 1.25rem;
+}
+.verify-dialog .otp-field__resend {
+  margin: 0.5rem 0 0;
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+.data-card__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  color: var(--idui-color-ink);
+  text-decoration: none;
+}
+
 .data-card {
   background: var(--idui-color-surface);
   border-radius: var(--idui-radius-lg);

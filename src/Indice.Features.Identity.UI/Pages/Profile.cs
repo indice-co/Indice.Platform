@@ -141,48 +141,6 @@ public abstract class BaseProfileModel : BasePageModel
         return Page();
     }
 
-    /// <summary>Profile page update email POST handler. Starts the email change verification flow.</summary>
-    public virtual async Task<IActionResult> OnPostUpdateEmailAsync() {
-        if (IdentityUIOptions.DisableEmailEdit) {
-            return BadRequest();
-        }
-        KeepModelStateFor(AccountFieldEmail);
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (!ModelState.IsValid) {
-            return await AccountFieldPageAsync(AccountFieldEmail);
-        }
-        if (user.NormalizedEmail != Input.Email?.Trim().ToUpper() && !string.IsNullOrWhiteSpace(Input.Email)) {
-            if (!await SendChangeEmailConfirmationEmail(user, Input.Email)) {
-                ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
-                return await AccountFieldPageAsync(AccountFieldEmail);
-            }
-            EmailChangeRequested = true;
-        }
-        return await AccountFieldSuccessPageAsync();
-    }
-
-    /// <summary>Profile page update phone number POST handler.</summary>
-    public virtual async Task<IActionResult> OnPostUpdatePhoneAsync() {
-        if (IdentityUIOptions.DisablePhoneEdit) {
-            return BadRequest();
-        }
-        KeepModelStateFor(AccountFieldPhone);
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (!ModelState.IsValid) {
-            return await AccountFieldPageAsync(AccountFieldPhone);
-        }
-        // TODO: Replace direct update with the phone number verification flow.
-        _ = PhoneNumber.TryParse(Input.PhoneNumberWithCallingCode!, out var phoneNumber);
-        user.PhoneNumber = phoneNumber;
-        var result = await UserManager.UpdateAsync(user);
-        AddModelErrors(result);
-        if (!result.Succeeded) {
-            return await AccountFieldPageAsync(AccountFieldPhone);
-        }
-        await SignInManager.RefreshSignInAsync(user);
-        return await AccountFieldSuccessPageAsync();
-    }
-
     /// <summary>Profile page update user name POST handler.</summary>
     public virtual async Task<IActionResult> OnPostUpdateUserNameAsync() {
         if (IdentityUIOptions.DisableEmailEdit || UserManager.EmailAsUserName) {

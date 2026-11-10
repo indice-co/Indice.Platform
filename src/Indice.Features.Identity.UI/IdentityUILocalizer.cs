@@ -967,6 +967,25 @@ public class IdentityUILocalizer
     /// </summary>
     public virtual HtmlString Profile_A_Confirmation_Email_Has_Been_Sent_To(string email) => new HtmlString(string.Format(IdentityLabels.Profile_ConfirmationEmailSentTo, email));
 
+    /// <summary>Gets the localized string for "Change email".</summary>
+    public virtual HtmlString ChangeEmail_PageTitle => new HtmlString(IdentityLabels.ChangeEmail_PageTitle);
+    /// <summary>Gets the localized string for "Identity verification".</summary>
+    public virtual HtmlString ChangeEmail_VerifyTitle => new HtmlString(IdentityLabels.ChangeEmail_VerifyTitle);
+    /// <summary>Gets the localized prompt for email change confirmation via link.</summary>
+    public virtual HtmlString ChangeEmail_VerifyLinkPrompt(string email) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangeEmail_VerifyLinkPrompt, System.Net.WebUtility.HtmlEncode(email)));
+    /// <summary>Gets the localized prompt for email change confirmation via OTP.</summary>
+    public virtual HtmlString ChangeEmail_VerifyOtpPrompt(string email) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangeEmail_VerifyOtpPrompt, System.Net.WebUtility.HtmlEncode(email)));
+    /// <summary>Gets the localized string for "OTP code".</summary>
+    public virtual HtmlString ChangeEmail_OtpCode => new HtmlString(IdentityLabels.ChangeEmail_OtpCode);
+    /// <summary>Gets the localized string for "Verify".</summary>
+    public virtual HtmlString ChangeEmail_Verify => new HtmlString(IdentityLabels.ChangeEmail_Verify);
+    /// <summary>Gets the localized string for "Close".</summary>
+    public virtual HtmlString ChangeEmail_Close => new HtmlString(IdentityLabels.ChangeEmail_Close);
+    /// <summary>Gets the localized string for "Change phone number".</summary>
+    public virtual HtmlString ChangePhone_PageTitle => new HtmlString(IdentityLabels.ChangePhone_PageTitle);
+    /// <summary>Gets the localized prompt for phone number change confirmation via OTP.</summary>
+    public virtual HtmlString ChangePhone_VerifyOtpPrompt(string phoneNumber) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePhone_VerifyOtpPrompt, System.Net.WebUtility.HtmlEncode(phoneNumber)));
+
     /// <summary>
     /// Label for Manage Profile action.
     /// </summary>

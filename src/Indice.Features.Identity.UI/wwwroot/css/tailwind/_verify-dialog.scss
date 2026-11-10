@@ -1,0 +1,117 @@
+// Identity verification dialog shown over a page (e.g. change email confirmation).
+.verify-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(15, 60, 70, .3);
+    backdrop-filter: blur(6px);
+
+    &__box {
+        position: relative;
+        width: 100%;
+        max-width: 28rem;
+        padding: 2rem;
+        border-radius: .75rem;
+        background: #fff;
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, .15);
+    }
+
+    &__close {
+        position: absolute;
+        top: .75rem;
+        right: .75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 50%;
+        background: #f3f4f6;
+        color: #111;
+        text-decoration: none;
+    }
+
+    &__title {
+        margin: 0 0 .5rem;
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: #000;
+    }
+
+    &__text {
+        margin: 0 0 1rem;
+        font-size: .875rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .otp-field {
+        display: flex;
+        justify-content: space-between;
+        gap: .5rem;
+    }
+
+    .otp-field__input--enhanced {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+    }
+
+    .otp-field__cell {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 3.5rem;
+        font-size: 1.25rem;
+        padding: 0;
+        border: 1px solid #d1d5db;
+        border-radius: .375rem;
+        text-align: center;
+    }
+
+    .otp-field__resend {
+        margin: .5rem 0 0;
+        font-size: .75rem;
+        color: #6b7280;
+    }
+
+    .otp-field__resend-btn {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: #111;
+        text-decoration: underline;
+        cursor: pointer;
+
+        .otp-field__wait {
+            display: none;
+        }
+
+        &:disabled {
+            color: #6b7280;
+            text-decoration: none;
+            cursor: default;
+
+            .otp-field__resend-text {
+                display: none;
+            }
+
+            .otp-field__wait {
+                display: inline;
+            }
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+}

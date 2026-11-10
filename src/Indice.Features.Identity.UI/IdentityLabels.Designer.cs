@@ -3650,5 +3650,104 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Email_ConfirmYourEmail_OtpCode", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Looks up a localized string similar to Change email.
+        /// </summary>
+        public static string ChangeEmail_PageTitle {
+            get {
+                return ResourceManager.GetString("ChangeEmail_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must accept the processing of your personal data to continue..
+        /// </summary>
+        public static string ChangeEmail_ConsentRequired {
+            get {
+                return ResourceManager.GetString("ChangeEmail_ConsentRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email has been changed successfully..
+        /// </summary>
+        public static string ChangeEmail_Succeeded {
+            get {
+                return ResourceManager.GetString("ChangeEmail_Succeeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Identity verification.
+        /// </summary>
+        public static string ChangeEmail_VerifyTitle {
+            get {
+                return ResourceManager.GetString("ChangeEmail_VerifyTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to For security reasons, confirm the change by clicking the link in the confirmation email we sent to &lt;strong&gt;{0}&lt;/strong&gt;..
+        /// </summary>
+        public static string ChangeEmail_VerifyLinkPrompt {
+            get {
+                return ResourceManager.GetString("ChangeEmail_VerifyLinkPrompt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to For security reasons, confirm the change by entering the one-time code (OTP) we sent to &lt;strong&gt;{0}&lt;/strong&gt;..
+        /// </summary>
+        public static string ChangeEmail_VerifyOtpPrompt {
+            get {
+                return ResourceManager.GetString("ChangeEmail_VerifyOtpPrompt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP code.
+        /// </summary>
+        public static string ChangeEmail_OtpCode {
+            get {
+                return ResourceManager.GetString("ChangeEmail_OtpCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify.
+        /// </summary>
+        public static string ChangeEmail_Verify {
+            get {
+                return ResourceManager.GetString("ChangeEmail_Verify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string ChangeEmail_Close {
+            get {
+                return ResourceManager.GetString("ChangeEmail_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change phone number.
+        /// </summary>
+        public static string ChangePhone_PageTitle {
+            get {
+                return ResourceManager.GetString("ChangePhone_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to For security reasons, confirm the change by entering the one-time code (OTP) we sent to &lt;strong&gt;{0}&lt;/strong&gt;..
+        /// </summary>
+        public static string ChangePhone_VerifyOtpPrompt {
+            get {
+                return ResourceManager.GetString("ChangePhone_VerifyOtpPrompt", resourceCulture);
+            }
+        }
+        
     }
 }
