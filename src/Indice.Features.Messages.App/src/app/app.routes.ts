@@ -31,6 +31,10 @@ export const routes: Routes = [
         path: 'dashboard', data: { breadcrumb: { title: 'Breadcrumb.Home' } },
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
+      {
+        path: 'inbox', data: { breadcrumb: { title: 'Breadcrumb.Inbox' } },
+        loadComponent: () => import('./features/inbox/inbox.component').then(m => m.InboxComponent)
+      },
       { path: 'campaigns', data: { breadcrumb: { title: 'Breadcrumb.Campaigns' } }, children: CAMPAIGN_ROUTES },
       { path: 'message-types', data: { breadcrumb: { title: 'Breadcrumb.MessageTypes' } }, children: MESSAGE_TYPE_ROUTES },
       { path: 'distribution-lists', data: { breadcrumb: { title: 'Breadcrumb.DistributionLists' } }, children: DISTRIBUTION_LIST_ROUTES },

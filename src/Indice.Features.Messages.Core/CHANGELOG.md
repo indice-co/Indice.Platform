@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.64.0]
+### Added real time inbox notifications
+`IInboxNotifier` is invoked whenever an inbox message is created: per recipient when a campaign is resolved, once for everybody for global campaigns.
+The default implementation does nothing. Call `UseInboxSignalRNotifications()` on the worker (`AddMessageFunctions` / `AddMessageJobs`) or api (`AddMessaging`) options
+to push an `InboxMessageNotification` (method `inboxMessageCreated`) to the recipient through the SignalR proxy (`ConnectionStrings:SignalR`).
+Inbox clients connect through the `MapSignalRProxy()` endpoints of the api; the hub (default `messaging`) must be listed in `SignalRProxy:AllowedHubs`.
+
+```csharp
+builder.AddMessageFunctions(options => options.UseInboxSignalRNotifications(o => o.HubName = "messaging"));
+```
+
 ### Added recipient counts to campaigns and distribution lists
 `Campaign.RecipientCount` stores how many contacts a published campaign was sent out to (null for drafts and global campaigns).
 `DistributionList.ContactCount` stores how many contacts a list currently has (unsubscribed ones included) and is recounted after every membership change.
@@ -60,6 +70,85 @@ WHERE c.[Published] = 1
   AND c.[IsGlobal] = 0
   AND c.[RecipientCount] IS NULL;
 GO
+```
+
+### Faster analytics overview and user inbox
+The user inbox (`my/messages`) no longer scans every campaign: it starts from the recipient's own messages (plus the global campaigns), so recipients
+with few or no messages get their inbox and unread count in milliseconds instead of seconds. On SQL Server the inbox query is tagged and gets
+`OPTION (RECOMPILE, USE HINT('DISABLE_OPTIMIZER_ROWGOAL'))` (`QueryHintsInterceptor`, registered by `CampaignsDbContext`), so a plan built for one recipient
+is not reused for a very different one. Other providers (PostgreSQL) run the query unchanged.
+The analytics overview computes its metrics concurrently, and the active campaigns, recipient and message type metrics use fewer, cheaper queries.
+
+New indexes (`IX_Message_RecipientId_CampaignId` replaces `IX_Message_RecipientId`):
+- `IX_Campaign_Published_IsGlobal` on `Campaign (Published, IsGlobal) INCLUDE (TypeId, RecipientCount)`
+- `IX_Campaign_From_To` on `Campaign (From, To) INCLUDE (Published)`
+- `IX_Message_RecipientId_CampaignId` on `Message (RecipientId, CampaignId) INCLUDE (IsDeleted, IsRead)`
+
+Run the following migration script. Both scripts can safely run more than once.<br/>
+**Caution!** Update table schema if not [cmp]
+
+SQL Server
+```tsql
+-- Creating the indexes blocks writes to the table while they build. On Enterprise edition, Azure SQL Database and Managed Instance
+-- add WITH (ONLINE = ON) to each CREATE INDEX to keep the tables writable.
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Campaign]')
+      AND name = N'IX_Campaign_Published_IsGlobal'
+)
+BEGIN
+    CREATE INDEX [IX_Campaign_Published_IsGlobal] ON [cmp].[Campaign] ([Published], [IsGlobal]) INCLUDE ([TypeId], [RecipientCount]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Campaign]')
+      AND name = N'IX_Campaign_From_To'
+)
+BEGIN
+    CREATE INDEX [IX_Campaign_From_To] ON [cmp].[Campaign] ([From], [To]) INCLUDE ([Published]);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Message]')
+      AND name = N'IX_Message_RecipientId_CampaignId'
+)
+BEGIN
+    CREATE INDEX [IX_Message_RecipientId_CampaignId] ON [cmp].[Message] ([RecipientId], [CampaignId]) INCLUDE ([IsDeleted], [IsRead]);
+END;
+GO
+
+-- Superseded by IX_Message_RecipientId_CampaignId, dropped only after the new index exists.
+IF EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[Message]')
+      AND name = N'IX_Message_RecipientId'
+)
+BEGIN
+    DROP INDEX [IX_Message_RecipientId] ON [cmp].[Message];
+END;
+GO
+```
+
+PostgreSQL (11 or later)
+```sql
+-- Creating the indexes blocks writes to the table while they build. To keep the tables writable use CREATE INDEX CONCURRENTLY IF NOT EXISTS
+-- (outside of a transaction). If a concurrent build fails it leaves an invalid index behind: drop it before running the script again.
+CREATE INDEX IF NOT EXISTS "IX_Campaign_Published_IsGlobal" ON cmp."Campaign" ("Published", "IsGlobal") INCLUDE ("TypeId", "RecipientCount");
+
+CREATE INDEX IF NOT EXISTS "IX_Campaign_From_To" ON cmp."Campaign" ("From", "To") INCLUDE ("Published");
+
+CREATE INDEX IF NOT EXISTS "IX_Message_RecipientId_CampaignId" ON cmp."Message" ("RecipientId", "CampaignId") INCLUDE ("IsDeleted", "IsRead");
+
+-- Superseded by IX_Message_RecipientId_CampaignId, dropped only after the new index exists.
+DROP INDEX IF EXISTS cmp."IX_Message_RecipientId";
 ```
 
 ## [8.62.0]

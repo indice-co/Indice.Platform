@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LucideContactRound, LucideUserPlus } from '@lucide/angular';
+import { LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideContactRound, LucideUserPlus } from '@lucide/angular';
 import { Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ContactAvatarComponent, contactDisplayName } from 'src/app/shared/components/list-contact-create/contact-avatar.component';
 import { BoolIconComponent, ChannelIconComponent } from 'src/app/ui/badges/badges';
@@ -15,14 +15,13 @@ import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { contactChannels } from './contact-channels';
-import { ListSortComponent, SortOption } from './list-sort.component';
 import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
 @Component({
   selector: 'app-contacts',
   imports: [
-    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent,
-    ContactAvatarComponent, ChannelIconComponent, BoolIconComponent, LucideContactRound, LucideUserPlus
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    ContactAvatarComponent, ChannelIconComponent, BoolIconComponent, LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideContactRound, LucideUserPlus
   ],
   template: `
     <app-page-header [title]="'Contacts.ListTitle' | translate" [subtitle]="'Contacts.Subtitle' | translate">
@@ -34,9 +33,8 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
       </div>
     </app-page-header>
 
-    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
-      <app-list-sort [list]="list" [options]="sortOptions" />
     </div>
 
     <div class="panel">
@@ -44,12 +42,22 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'Contacts.Name' | translate }}</th>
-              <th>{{ 'Contacts.Email' | translate }}</th>
-              <th>{{ 'Contacts.Phone' | translate }}</th>
-              <th>{{ 'Contacts.Channels' | translate }}</th>
-              <th>{{ 'Contacts.ContactCode' | translate }}</th>
-              <th class="text-right">{{ 'Contacts.UpdatedAt' | translate }}</th>
+              @for (column of columns; track column.label) {
+                <th [class]="column.class ?? ''">
+                  @if (column.sort) {
+                    <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+                      {{ column.label | translate }}
+                      @if (list.sort() === column.sort) {
+                        @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                      } @else {
+                        <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                      }
+                    </button>
+                  } @else {
+                    {{ column.label | translate }}
+                  }
+                </th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -123,14 +131,13 @@ export class ContactsListComponent implements OnInit {
   protected readonly displayName = contactDisplayName;
   protected readonly channels = contactChannels;
 
-  protected readonly sortOptions: SortOption[] = [
-    { value: 'updatedAt', label: 'Contacts.SortUpdatedAtOption' },
-    { value: 'fullName', label: 'Contacts.SortFullNameOption' },
-    { value: 'email', label: 'Contacts.SortEmailOption' },
-    { value: 'phone', label: 'Contacts.SortPhoneOption' },
-    { value: 'recipientId', label: 'Contacts.SortContactCodeOption' },
-    { value: 'resolved', label: 'Contacts.SortResolvedOption' },
-    { value: 'lastResolutionDate', label: 'Contacts.SortLastResolutionDateOption' }
+  protected readonly columns: { label: string; sort?: string; class?: string }[] = [
+    { label: 'Contacts.Name', sort: 'fullName' },
+    { label: 'Contacts.Email', sort: 'email' },
+    { label: 'Contacts.Phone', sort: 'phoneNumber' },
+    { label: 'Contacts.Channels' },
+    { label: 'Contacts.ContactCode', sort: 'recipientId' },
+    { label: 'Contacts.UpdatedAt', sort: 'updatedAt', class: 'text-right' }
   ];
 
   protected readonly list = new ListState<Contact>({

@@ -33,6 +33,9 @@ public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
         
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
+        // The migration scripts (see CHANGELOG) also INCLUDE Published so the active campaigns count is served by this index alone.
+        // EF cannot express it, since an index declared on the owned type may only include the owned type's own properties.
+        builder.OwnsOne(x => x.ActivePeriod).HasIndex(x => new { x.From, x.To });
         builder.Property(x => x.IsGlobal).IsRequired();
         builder.Property(x => x.Data).HasJsonConversion();
         builder.Property(x => x.MediaBaseHref).HasMaxLength(TextSizePresets.L1024);
@@ -51,5 +54,9 @@ public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
 
         // indexes 
         builder.HasIndex(x => x.CreatedAt);
+        // Serves the global inbox campaigns lookup and lets the dashboard aggregates avoid scanning the (wide) clustered index.
+        var publishedIndex = builder.HasIndex(x => new { x.Published, x.IsGlobal });
+        SqlServerIndexBuilderExtensions.IncludeProperties(publishedIndex, x => new { x.TypeId, x.RecipientCount });
+        NpgsqlIndexBuilderExtensions.IncludeProperties(publishedIndex, x => new { x.TypeId, x.RecipientCount });
     }
 }
