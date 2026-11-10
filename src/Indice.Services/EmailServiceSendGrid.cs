@@ -1,10 +1,17 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Globalization;
+using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Indice.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
+using Org.BouncyCastle.Security;
 
 namespace Indice.Services;
 
@@ -93,6 +100,231 @@ public class EmailServiceSendGrid : IEmailService
     }
 }
 
+/// <inheritdoc/>
+public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSettings> options) : IWebhookHttpHandler
+{
+    private readonly EmailServiceSendGridSettings _options = options.Value;
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
+        var payloadBytes = await ReadPayloadBytesAsync(requestBody, cancellationToken);
+        if (!IsAuthorized(requestHeaders, payloadBytes)) {
+            return WebhookHttpResult.ForbiddenRequest("Invalid SendGrid webhook signature.");
+        }
+
+        JsonNode? payload;
+        try {
+            payload = JsonNode.Parse(payloadBytes);
+        } catch (JsonException) {
+            return WebhookHttpResult.BadRequest("Invalid JSON payload");
+        }
+
+        if (payload is not JsonArray eventsPayload) {
+            return WebhookHttpResult.BadRequest("Expected a JSON array of webhook events");
+        }
+
+        var events = ParseEvents(eventsPayload).ToList();
+        return WebhookHttpResult.Ok(events, statusCode: 204);
+    }
+
+    private IEnumerable<WebhookEvent> ParseEvents(JsonArray payload) {
+        foreach (var item in payload.OfType<JsonObject>()) {
+            var messageId = GetString(item, "sg_message_id") ?? GetString(item, "smtp-id");
+            if (string.IsNullOrWhiteSpace(messageId)) {
+                continue;
+            }
+
+            var eventType = GetString(item, "event") ?? "unknown";
+            var timestamp = GetTimestamp(item);
+            var eventId = GetString(item, "sg_event_id") ?? $"{messageId}:{eventType}:{timestamp:O}";
+
+            yield return new WebhookEvent {
+                Provider = EmailServiceSendGrid.ServiceName,
+                EventType = eventType,
+                EventId = eventId,
+                MessageId = messageId,
+                Timestamp = timestamp,
+                Recipient = GetString(item, "email") ?? string.Empty,
+                Subject = GetString(item, "subject"),
+                Payload = item
+            };
+        }
+    }
+
+    private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders, byte[] payloadBytes) {
+        if (string.IsNullOrWhiteSpace(_options.WebhookVerificationKey)) {
+            return true;
+        }
+
+        if (!requestHeaders.TryGetValue("x-twilio-email-event-webhook-signature", out var signatureHeaderValues)) {
+            return false;
+        }
+        if (!requestHeaders.TryGetValue("x-twilio-email-event-webhook-timestamp", out var timestampHeaderValues)) {
+            return false;
+        }
+
+        var signatureHeader = signatureHeaderValues.ToString();
+        var timestamp = timestampHeaderValues.ToString();
+        if (string.IsNullOrWhiteSpace(signatureHeader) || string.IsNullOrWhiteSpace(timestamp)) {
+            return false;
+        }
+        
+        return VerifySignature(_options.WebhookVerificationKey!, signatureHeader, timestamp, payloadBytes);
+    }
+
+    private static async Task<byte[]> ReadPayloadBytesAsync(Stream requestBody, CancellationToken cancellationToken) {
+        if (requestBody is null || requestBody == Stream.Null) {
+            return [];
+        }
+        if (requestBody.CanSeek) {
+            requestBody.Position = 0;
+        }
+
+        using var buffer = new MemoryStream();
+        await requestBody.CopyToAsync(buffer, cancellationToken);
+
+        if (requestBody.CanSeek) {
+            requestBody.Position = 0;
+        }
+
+        return buffer.ToArray();
+    }
+
+    private static DateTimeOffset GetTimestamp(JsonObject data) {
+        var rawTimestamp = GetString(data, "timestamp");
+        if (long.TryParse(rawTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0) {
+            return DateTimeOffset.FromUnixTimeSeconds(epoch);
+        }
+
+        return DateTimeOffset.UtcNow;
+    }
+
+    private static string? GetString(JsonObject data, string propertyName) {
+        var value = data[propertyName];
+
+        return value is JsonValue jsonValue &&
+               jsonValue.TryGetValue<string>(out var text)
+            ? text
+            : value?.ToString();
+    }
+
+    public static bool VerifySignature(
+        string publicKey,
+        string signature,
+        string timestamp,
+        byte[] rawBody) {
+        try {
+            // Decode Base64 public key
+            byte[] publicKeyBytes =
+                Convert.FromBase64String(publicKey);
+
+            // Import ECDSA public key
+            using ECDsa ecdsa = ECDsa.Create();
+
+            ecdsa.ImportSubjectPublicKeyInfo(
+                publicKeyBytes,
+                out _
+            );
+
+            // Timestamp + original raw JSON body
+            byte[] timestampBytes =
+                Encoding.UTF8.GetBytes(timestamp);
+
+            byte[] payload = new byte[
+                timestampBytes.Length + rawBody.Length
+            ];
+
+            Buffer.BlockCopy(
+                timestampBytes, 0,
+                payload, 0,
+                timestampBytes.Length
+            );
+
+            Buffer.BlockCopy(
+                rawBody, 0,
+                payload, timestampBytes.Length,
+                rawBody.Length
+            );
+
+            // Decode Base64 signature
+            byte[] signatureBytes =
+                Convert.FromBase64String(signature);
+
+            // Verify ECDSA / SHA256
+            return ecdsa.VerifyData(
+                payload,
+                signatureBytes,
+                HashAlgorithmName.SHA256,
+                DSASignatureFormat.Rfc3279DerSequence
+            );
+        } catch (CryptographicException) {
+            return false;
+        } catch (PlatformNotSupportedException) {
+            return false;
+        } catch (ArgumentException) {
+            return false;
+        } catch (FormatException) {
+            return false;
+        }
+    }
+
+    private static bool TryGetVerificationKey(string configuredKey, out byte[] verificationKey) {
+        verificationKey = [];
+        if (string.IsNullOrWhiteSpace(configuredKey)) {
+            return false;
+        }
+
+        var keyValue = configuredKey.Trim();
+
+        if (keyValue.Contains("-----BEGIN", StringComparison.Ordinal)) {
+            keyValue = ExtractBase64FromPem(keyValue);
+        }
+
+        if (!TryDecodeBase64(keyValue, out var keyBytes)) {
+            return false;
+        }
+
+        if (keyBytes.Length == 32) {
+            verificationKey = keyBytes;
+            return true;
+        }
+
+        try {
+            var keyParameter = PublicKeyFactory.CreateKey(keyBytes);
+            if (keyParameter is Ed25519PublicKeyParameters ed25519PublicKey) {
+                verificationKey = ed25519PublicKey.GetEncoded();
+                return true;
+            }
+        } catch (Exception) {
+            return false;
+        }
+
+        return false;
+    }
+
+    private static bool TryDecodeBase64(string input, out byte[] bytes) {
+        bytes = [];
+
+        if (string.IsNullOrWhiteSpace(input)) {
+            return false;
+        }
+
+        try {
+            bytes = Convert.FromBase64String(input);
+            return true;
+        } catch (FormatException) {
+            return false;
+        }
+    }
+
+    private static string ExtractBase64FromPem(string pem) {
+        var lines = pem
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+            .Where(line => !line.StartsWith("-----", StringComparison.Ordinal));
+        return string.Concat(lines);
+    }
+}
+
 /// <summary>Custom settings that are used to send emails via SendGrid.</summary>
 public class EmailServiceSendGridSettings
 {
@@ -108,6 +340,8 @@ public class EmailServiceSendGridSettings
     public string? ApiKey { get; set; }
     /// <summary>The SendGrid API URL (ex. https://api.sendgrid.com/v3/).</summary>
     public string Api { get; set; } = "https://api.sendgrid.com/v3/";
+    /// <summary>The public verification key used to validate signed SendGrid webhook events.</summary>
+    public string? WebhookVerificationKey { get; set; }
 }
 
 #region SendGrid models
