@@ -14,7 +14,7 @@
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
     var formDisabled = tempData?.DisableForm == true;
     var showNext = formDisabled || !string.IsNullOrEmpty(tempData?.NextStepUrl);
-    var pollEmailStatus = formDisabled && tempData?.Alert?.AlertType == AlertType.Success && Model.UiOptions.EmailConfirmationMethod == EmailConfirmationMethod.Link;
+    var pollEmailStatus = formDisabled && tempData.Alert?.AlertType == AlertType.Success && Model.UiOptions.EmailConfirmationMethod == EmailConfirmationMethod.Link;
 }
 
 <section class="auth-card">
