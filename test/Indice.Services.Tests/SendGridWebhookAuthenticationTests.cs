@@ -110,7 +110,7 @@ public sealed class SendGridWebhookAuthenticationTests
         return Convert.ToBase64String(ecdsa.ExportSubjectPublicKeyInfo());
     }
 
-    private static Task<WebhookHttpResult> ParseAsync(
+    private static async Task<WebhookHttpResult> ParseAsync(
         Dictionary<string, StringValues> requestHeaders,
         string? webhookVerificationKey,
         string payload = Payload) {
@@ -120,8 +120,8 @@ public sealed class SendGridWebhookAuthenticationTests
         });
 
         var handler = new SendGridWebhookHttpHandler(options.Object);
-        var body = new MemoryStream(Encoding.UTF8.GetBytes(payload));
+        using var body = new MemoryStream(Encoding.UTF8.GetBytes(payload));
 
-        return handler.ParseAsync(requestHeaders, Enumerable.Empty<KeyValuePair<string, StringValues>>(), body, TestContext.Current.CancellationToken);
+        return await handler.ParseAsync(requestHeaders, Enumerable.Empty<KeyValuePair<string, StringValues>>(), body, TestContext.Current.CancellationToken);
     }
 }

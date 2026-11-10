@@ -189,7 +189,7 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
 
     private static DateTimeOffset GetTimestamp(JsonObject data) {
         var rawTimestamp = GetString(data, "timestamp");
-        if (long.TryParse(rawTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0) {
+        if (long.TryParse(rawTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0 && epoch <= DateTimeOffset.MaxValue.ToUnixTimeSeconds()) {
             return DateTimeOffset.FromUnixTimeSeconds(epoch);
         }
 
