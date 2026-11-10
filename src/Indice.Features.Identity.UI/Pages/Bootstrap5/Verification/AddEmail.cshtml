@@ -14,12 +14,17 @@
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
     var formDisabled = tempData?.DisableForm == true;
     var showNext = formDisabled || !string.IsNullOrEmpty(tempData?.NextStepUrl);
+    var pollEmailStatus = formDisabled && tempData?.Alert?.AlertType == AlertType.Success && Model.UiOptions.EmailConfirmationMethod == EmailConfirmationMethod.Link;
 }
 
 <section class="auth-card">
     <vc:page-heading title="@Localizer.AddEmail_PageHeader" image-src="" subtitle="new HtmlString(UserManager.MessageDescriber.AddEmailValidationEmailEmpty)" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
+    @if (pollEmailStatus)
+    {
+        <div hidden data-email-poll-url="@Url.Page(null, "EmailStatus", new { returnUrl = Model.Input.ReturnUrl })"></div>
+    }
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" class="auth-form">
         <div class="field">
             <label asp-for="Input.Email" class="field__label">@Localizer.Email</label>
@@ -39,4 +44,8 @@
 
 @section scripts {
     <partial name="_ValidationScripts" />
+    @if (pollEmailStatus)
+    {
+        <script type="text/javascript" src="~/js/email-confirmation-poll.js" csp-nonce></script>
+    }
 }

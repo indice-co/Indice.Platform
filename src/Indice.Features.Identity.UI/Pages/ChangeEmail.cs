@@ -98,6 +98,24 @@ public abstract class BaseChangeEmailModel : BasePageModel
         return Page();
     }
 
+    /// <summary>Returns whether the new email has been confirmed through the link sent to it. Used for polling when <see cref="EmailConfirmationMethod.Link"/> is configured.</summary>
+    /// <param name="email">The new email awaiting confirmation.</param>
+    public virtual async Task<IActionResult> OnGetEmailStatusAsync([FromQuery] string? email) {
+        if (IdentityUiOptions.DisableEmailEdit || UseOtp || string.IsNullOrWhiteSpace(email)) {
+            return BadRequest();
+        }
+        Response.Headers.CacheControl = "no-store";
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var confirmed = user.EmailConfirmed && string.Equals(user.NormalizedEmail, UserManager.NormalizeEmail(email.Trim()), StringComparison.Ordinal);
+        if (!confirmed) {
+            return new JsonResult(new { confirmed = false });
+        }
+        var signInManager = HttpContext.RequestServices.GetRequiredService<ExtendedSignInManager<User>>();
+        await signInManager.RefreshSignInAsync(user);
+        TempData.Put("Alert", AlertModel.Success(IdentityLabels.ChangeEmail_Succeeded));
+        return new JsonResult(new { confirmed = true, redirectUrl = Url.Page("/Profile") });
+    }
+
     /// <summary>Verifies the one-time code sent to the new email and applies the change, or resends the code.</summary>
     /// <param name="otpResend">Indicates that a new code should be sent.</param>
     public virtual async Task<IActionResult> OnPostVerifyAsync([FromForm] bool otpResend = false) {

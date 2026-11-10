@@ -107,6 +107,22 @@ public abstract class BaseAddEmailModel : BasePageModel
         });
         return Page();
     }
+
+    /// <summary>Returns whether the user's email has been confirmed through the link sent to it. Used for polling when <see cref="EmailConfirmationMethod.Link"/> is configured.</summary>
+    /// <param name="returnUrl">The return URL.</param>
+    public virtual async Task<IActionResult> OnGetEmailStatusAsync([FromQuery] string? returnUrl) {
+        if (UiOptions.EmailConfirmationMethod != EmailConfirmationMethod.Link) {
+            return BadRequest();
+        }
+        Response.Headers.CacheControl = "no-store";
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (!user.EmailConfirmed) {
+            return new JsonResult(new { confirmed = false });
+        }
+        returnUrl = SanitizeReturnUrl(returnUrl);
+        TempData.Remove(TempDataKey);
+        return new JsonResult(new { confirmed = true, redirectUrl = Url.Page("/AddEmail", new { returnUrl }) });
+    }
 }
 
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]

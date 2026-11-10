@@ -42,7 +42,7 @@
             <h2 class="verify-dialog__title" id="verify-dialog-title">@Localizer.ChangeEmail_VerifyTitle</h2>
             @if (!Model.UseOtp)
             {
-                <p class="verify-dialog__text">@Localizer.ChangeEmail_VerifyLinkPrompt(pendingEmail)</p>
+                <p class="verify-dialog__text" data-email-poll-url="@Url.Page(null, "EmailStatus", new { email = pendingEmail })">@Localizer.ChangeEmail_VerifyLinkPrompt(pendingEmail)</p>
             }
             else
             {
@@ -73,5 +73,9 @@
     {
         <script type="text/javascript" src="~/js/otp.js" csp-nonce="true"></script>
         <script type="text/javascript" src="~/js/otp-field.js" csp-nonce="true"></script>
+    }
+    @if (pendingEmail is not null && !Model.UseOtp)
+    {
+        <script type="text/javascript" src="~/js/email-confirmation-poll.js" csp-nonce="true"></script>
     }
 }
