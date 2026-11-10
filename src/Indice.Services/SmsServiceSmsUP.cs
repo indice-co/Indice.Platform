@@ -207,11 +207,11 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler {
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
         Stream requestBody,
         CancellationToken cancellationToken) {
-        var parameters = await BuildParametersAsync(requestHeaders, requestParameters, requestBody, cancellationToken);
-
         if (IsSignatureInvalid(requestParameters)) {
             return WebhookHttpResult.ForbiddenRequest("Invalid SmsUp webhook signature.");
         }
+
+        var parameters = await BuildParametersAsync(requestHeaders, requestParameters, requestBody, cancellationToken);
 
         var messageId = FirstNonEmpty(parameters, "sms_id", "smsid", "message_id", "id");
         var recipient = FirstNonEmpty(parameters, "to", "recipient", "msisdn", "destination");
@@ -279,7 +279,7 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler {
 
         try {
             return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken!), expectedHmac);
-        } catch {
+        } catch (FormatException) {
             return true;
         }
     }
@@ -354,7 +354,7 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler {
     }
 
     private static DateTimeOffset ParseTimestamp(IDictionary<string, string> parameters) {
-        var unixTimestamp = FirstNonEmpty(parameters, "timestamp", "ts");
+        var unixTimestamp = FirstNonEmpty(parameters, "timestamp");
         if (!string.IsNullOrWhiteSpace(unixTimestamp) &&
             long.TryParse(unixTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch)) {
             if (epoch >= DateTimeOffset.MinValue.ToUnixTimeSeconds() && epoch <= DateTimeOffset.MaxValue.ToUnixTimeSeconds()) {
