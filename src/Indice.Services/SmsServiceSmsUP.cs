@@ -130,10 +130,6 @@ public class SmsServiceSmsUp : ISmsService
             return reportUrl;
         }
 
-        if (reportUrl.Contains("signature=", StringComparison.OrdinalIgnoreCase) || reportUrl.Contains("hmac=", StringComparison.OrdinalIgnoreCase)) {
-            return reportUrl;
-        }
-
         var reference = Guid.NewGuid().ToString("N");
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
