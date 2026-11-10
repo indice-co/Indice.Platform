@@ -574,6 +574,10 @@ public static class IndiceServicesServiceCollectionExtensions
         where THandler : class, IWebhookHandler {
         var provider = configuration.GetDefaultSmsProvider();
         switch (provider) {
+            case "smsup":
+                services.Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, SmsUpWebhookHttpHandler>(configuration, provider);
+                break;
             case "apifon":
             case "ApiFon":
                 services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
