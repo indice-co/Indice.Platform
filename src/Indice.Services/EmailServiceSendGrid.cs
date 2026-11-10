@@ -9,9 +9,6 @@ using System.Text.Json.Serialization;
 using Indice.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Security;
 
 namespace Indice.Services;
 
@@ -208,6 +205,12 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
             : value?.ToString();
     }
 
+    /// <summary>Verifies the signature of a SendGrid webhook request.</summary>
+    /// <param name="publicKey">The Base64-encoded public key.</param>
+    /// <param name="signature">The Base64-encoded signature.</param>
+    /// <param name="timestamp">The timestamp of the request.</param>
+    /// <param name="rawBody">The raw body of the request.</param>
+    /// <returns>True if the signature is valid; otherwise, false.</returns>
     public static bool VerifySignature(
         string publicKey,
         string signature,
@@ -267,62 +270,6 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
             return false;
         }
     }
-
-    private static bool TryGetVerificationKey(string configuredKey, out byte[] verificationKey) {
-        verificationKey = [];
-        if (string.IsNullOrWhiteSpace(configuredKey)) {
-            return false;
-        }
-
-        var keyValue = configuredKey.Trim();
-
-        if (keyValue.Contains("-----BEGIN", StringComparison.Ordinal)) {
-            keyValue = ExtractBase64FromPem(keyValue);
-        }
-
-        if (!TryDecodeBase64(keyValue, out var keyBytes)) {
-            return false;
-        }
-
-        if (keyBytes.Length == 32) {
-            verificationKey = keyBytes;
-            return true;
-        }
-
-        try {
-            var keyParameter = PublicKeyFactory.CreateKey(keyBytes);
-            if (keyParameter is Ed25519PublicKeyParameters ed25519PublicKey) {
-                verificationKey = ed25519PublicKey.GetEncoded();
-                return true;
-            }
-        } catch (Exception) {
-            return false;
-        }
-
-        return false;
-    }
-
-    private static bool TryDecodeBase64(string input, out byte[] bytes) {
-        bytes = [];
-
-        if (string.IsNullOrWhiteSpace(input)) {
-            return false;
-        }
-
-        try {
-            bytes = Convert.FromBase64String(input);
-            return true;
-        } catch (FormatException) {
-            return false;
-        }
-    }
-
-    private static string ExtractBase64FromPem(string pem) {
-        var lines = pem
-            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
-            .Where(line => !line.StartsWith("-----", StringComparison.Ordinal));
-        return string.Concat(lines);
-    }
 }
 
 /// <summary>Custom settings that are used to send emails via SendGrid.</summary>
@@ -340,7 +287,9 @@ public class EmailServiceSendGridSettings
     public string? ApiKey { get; set; }
     /// <summary>The SendGrid API URL (ex. https://api.sendgrid.com/v3/).</summary>
     public string Api { get; set; } = "https://api.sendgrid.com/v3/";
-    /// <summary>The public verification key used to validate signed SendGrid webhook events.</summary>
+    /// <summary>
+    /// This is the Webhook verification key from SendGrid's Event Webhook settings.
+    /// </summary>
     public string? WebhookVerificationKey { get; set; }
 }
 
