@@ -614,8 +614,8 @@ public static class IndiceServicesServiceCollectionExtensions
                 break;
             case "kapatel":
             case "kapa_tel":
-                services.Configure<SmsServiceKapaTELSettings>(configuration.GetSection(SmsServiceSettings.Name));
-                services.AddWebhookServices<THandler, KapaTELWebhookHttpHandler>(configuration, provider);
+                services.Configure<SmsServiceKapaTELSettings>(smsSection);
+                builder .AddHttpHandler<KapaTELWebhookHttpHandler>(provider);
                 break;
         }
         return builder;
