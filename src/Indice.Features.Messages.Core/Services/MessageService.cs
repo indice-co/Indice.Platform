@@ -71,6 +71,7 @@ public class MessageService : IMessageService
     public async Task MarkAsDeleted(Guid id, string recipientId) {
         var message = await DbContext.Messages
             .SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
+        Guid? joinedDistributionListId = null;
         if (message is not null) {
             if (message.IsDeleted) {
                 throw MessageExceptions.MessageAlreadyRead(id);
@@ -78,7 +79,7 @@ public class MessageService : IMessageService
             message.IsDeleted = true;
             message.DeleteDate = DateTime.UtcNow;
         } else {
-            message = await CreateMessageAndMarkAsDeleted(id, recipientId);
+            (message, joinedDistributionListId) = await CreateMessageAndMarkAsDeleted(id, recipientId);
         }
 
         if (message.ContactId.HasValue) {
@@ -98,20 +99,24 @@ public class MessageService : IMessageService
             });
         }
         await DbContext.SaveChangesAsync();
+        if (joinedDistributionListId.HasValue) {
+            await DbContext.RefreshContactCountsAsync([joinedDistributionListId.Value]);
+        }
     }
 
-    private async Task<DbMessage> CreateMessageAndMarkAsDeleted(Guid id, string recipientId) {
-        var dbMessage = await CreateMessage(id, recipientId);
+    private async Task<(DbMessage Message, Guid? JoinedDistributionListId)> CreateMessageAndMarkAsDeleted(Guid id, string recipientId) {
+        var (dbMessage, joinedDistributionListId) = await CreateMessage(id, recipientId);
         dbMessage.DeleteDate = DateTime.UtcNow;
         dbMessage.IsDeleted = true;
         DbContext.Messages.Add(dbMessage);
-        return dbMessage;
+        return (dbMessage, joinedDistributionListId);
     }
 
     /// <inheritdoc />
     public async Task MarkAsRead(Guid id, string recipientId) {
         var message = await DbContext.Messages
             .SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
+        Guid? joinedDistributionListId = null;
         if (message is not null) {
             if (message.IsRead) {
                 throw MessageExceptions.MessageAlreadyRead(id);
@@ -119,7 +124,7 @@ public class MessageService : IMessageService
             message.IsRead = true;
             message.ReadDate = DateTime.UtcNow;
         } else {
-            message = await CreateMessageAndMarkAsRead(id, recipientId);
+            (message, joinedDistributionListId) = await CreateMessageAndMarkAsRead(id, recipientId);
         }
         if (message.ContactId.HasValue) {
             await MessageEventQueue.EnqueueAsync(new MessageEvent() {
@@ -134,17 +139,21 @@ public class MessageService : IMessageService
             });
         }
         await DbContext.SaveChangesAsync();
+        if (joinedDistributionListId.HasValue) {
+            await DbContext.RefreshContactCountsAsync([joinedDistributionListId.Value]);
+        }
     }
 
-    private async Task<DbMessage> CreateMessageAndMarkAsRead(Guid id, string recipientId) {
-        var dbMessage = await CreateMessage(id, recipientId);
+    private async Task<(DbMessage Message, Guid? JoinedDistributionListId)> CreateMessageAndMarkAsRead(Guid id, string recipientId) {
+        var (dbMessage, joinedDistributionListId) = await CreateMessage(id, recipientId);
         dbMessage.IsRead = true;
         dbMessage.ReadDate = DateTime.UtcNow;
         DbContext.Messages.Add(dbMessage);
-        return dbMessage;
+        return (dbMessage, joinedDistributionListId);
     }
 
-    private async Task<DbMessage> CreateMessage(Guid id, string recipientId) {
+    /// <summary>Builds the message for a recipient that has none yet. Returns the distribution list the recipient was added to, if any.</summary>
+    private async Task<(DbMessage Message, Guid? JoinedDistributionListId)> CreateMessage(Guid id, string recipientId) {
         var dbCampaign = await DbContext.Campaigns
                                 .Include(x => x.DistributionList)
                                 .FirstOrDefaultAsync(c => c.Id == id)
@@ -170,7 +179,7 @@ public class MessageService : IMessageService
             Content = GetMessageContent(dbCampaign, contact),
             ContactId = contact?.Id,
         };
-        return dbMessage;
+        return (dbMessage, dbCampaign.DistributionListId);
     }
 
 
@@ -216,11 +225,19 @@ public class MessageService : IMessageService
     }
 
     private IQueryable<Message> GetUserMessagesQuery(string recipientId, MessagesFilter? filter = null, string? searchTerm = null) {
+        // Narrow the campaigns down to the ones the recipient has a message for plus the global ones, so the database seeks
+        // through the recipient's messages instead of scanning every campaign.
+        var candidateCampaignIds = DbContext.Messages
+            .Where(x => x.RecipientId == recipientId)
+            .Select(x => x.CampaignId)
+            .Union(DbContext.Campaigns.Where(x => x.Published && x.IsGlobal).Select(x => x.Id));
         var query = DbContext
             .Campaigns
             .AsNoTracking()
+            .TagWith(QueryHintsInterceptor.Tag)
             .Include(x => x.Attachment)
             .Include(x => x.Type)
+            .Where(x => candidateCampaignIds.Contains(x.Id))
             .SelectMany(
                 collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
                 resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }

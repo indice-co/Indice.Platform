@@ -42,7 +42,7 @@ public class CasesDbContext : DbContext
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        modelBuilder.ApplyJsonFunctions();
+        modelBuilder.ApplyJsonFunctions(Database.ProviderName);
         modelBuilder.HasSequence<int>(CasesCoreConstants.ReferenceNumberSequence, CasesCoreConstants.DatabaseSchema);
 
         base.OnModelCreating(modelBuilder);
@@ -54,6 +54,12 @@ public class CasesDbContext : DbContext
     /// Gets the next value of the `ReferenceNumberSequence` sequence.
     /// </summary>
     public async Task<int> GetNextReferenceNumber() {
+        if (SqlDialectExtensions.GetSqlDialect(Database.ProviderName) == SqlDialect.PostgreSql) {
+            var values = await Database
+                .SqlQueryRaw<int>($"SELECT CAST(nextval('\"{CasesCoreConstants.DatabaseSchema}\".\"{CasesCoreConstants.ReferenceNumberSequence}\"') AS integer) AS \"Value\"")
+                .ToListAsync();
+            return values.Single();
+        }
         var result = new SqlParameter("@result", System.Data.SqlDbType.Int) {
             Direction = System.Data.ParameterDirection.Output
         };

@@ -67,6 +67,8 @@ public class DistributionListService : IDistributionListService
                 });
             }
         }
+        // A brand new list: its members are exactly the associations added above.
+        list.ContactCount = list.ContactDistributionLists.Count;
         DbContext.DistributionLists.Add(list);
         await DbContext.SaveChangesAsync();
         return new DistributionList {
@@ -75,7 +77,8 @@ public class DistributionListService : IDistributionListService
             Id = list.Id,
             Name = list.Name,
             Alias = list.Alias,
-            SystemGenerated = list.SystemGenerated
+            SystemGenerated = list.SystemGenerated,
+            ContactCount = list.ContactCount
         };
     }
 
@@ -116,7 +119,8 @@ public class DistributionListService : IDistributionListService
             Id = list.Id,
             Name = list.Name,
             Alias = list.Alias,
-            SystemGenerated = list.SystemGenerated
+            SystemGenerated = list.SystemGenerated,
+            ContactCount = list.ContactCount
         };
     }
 
@@ -132,7 +136,8 @@ public class DistributionListService : IDistributionListService
             Id = list.Id,
             Name = list.Name,
             Alias = list.Alias,
-            SystemGenerated = list.SystemGenerated
+            SystemGenerated = list.SystemGenerated,
+            ContactCount = list.ContactCount
         };
     }
 
@@ -149,7 +154,8 @@ public class DistributionListService : IDistributionListService
                 Id = list.Id,
                 Name = list.Name,
                 Alias = list.Alias,
-                SystemGenerated = list.SystemGenerated
+                SystemGenerated = list.SystemGenerated,
+                ContactCount = list.ContactCount
             });
         if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
             query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));

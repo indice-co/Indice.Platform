@@ -162,13 +162,13 @@ const NAV: NavItem[] = [
       </nav>
 
       <!-- Account anchor -->
-      <div class="shrink-0 border-t border-base-300 px-2 py-2">
+      <div class="shrink-0 border-t border-base-300 px-3 py-3">
+        <app-sidebar-account [collapsed]="collapsed()" (navigated)="navigated.emit()" />
         @if (!collapsed()) {
-          <div class="pb-1.5">
+          <div class="mt-3">
             <app-powered-by />
           </div>
         }
-        <app-sidebar-account [collapsed]="collapsed()" (navigated)="navigated.emit()" />
       </div>
     </aside>
   `,

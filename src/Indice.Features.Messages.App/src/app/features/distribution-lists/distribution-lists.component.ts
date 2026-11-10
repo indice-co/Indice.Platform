@@ -1,10 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
-import { LucideListPlus, LucideTrash, LucideUsers } from '@lucide/angular';
+import { LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideListPlus, LucideTrash, LucideUsers } from '@lucide/angular';
 import { DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
@@ -20,8 +20,8 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 @Component({
   selector: 'app-distribution-lists',
   imports: [
-    ListCountComponent, DatePipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
-    LucideListPlus, LucideTrash, LucideUsers
+    ListCountComponent, DatePipe, DecimalPipe, RouterLink, TranslatePipe, PageHeaderComponent, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideListPlus, LucideTrash, LucideUsers
   ],
   template: `
     <app-page-header [title]="'DistributionLists.ListsTitle' | translate" [subtitle]="'DistributionLists.Subtitle' | translate">
@@ -42,19 +42,29 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'DistributionLists.Name' | translate }}</th>
-              <th>{{ 'DistributionLists.Alias' | translate }}</th>
-              <th>{{ 'DistributionLists.CreatedBy' | translate }}</th>
-              <th>{{ 'DistributionLists.CreatedAt' | translate }}</th>
-              <th>{{ 'DistributionLists.UpdatedBy' | translate }}</th>
-              <th>{{ 'DistributionLists.UpdatedAt' | translate }}</th>
+              @for (column of columns; track column.label) {
+                <th [class]="column.class ?? ''">
+                  @if (column.sort) {
+                    <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+                      {{ column.label | translate }}
+                      @if (list.sort() === column.sort) {
+                        @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                      } @else {
+                        <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                      }
+                    </button>
+                  } @else {
+                    {{ column.label | translate }}
+                  }
+                </th>
+              }
               <th class="w-16 text-right"><span class="sr-only">{{ 'DistributionLists.Actions' | translate }}</span></th>
             </tr>
           </thead>
           <tbody>
             @if (list.loading() && !list.items()?.length) {
               @for (row of [1, 2, 3, 4]; track row) {
-                <tr><td colspan="7"><div class="skeleton h-4 w-full"></div></td></tr>
+                <tr><td colspan="8"><div class="skeleton h-4 w-full"></div></td></tr>
               }
             } @else {
               @for (item of list.items(); track item.id) {
@@ -69,6 +79,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
                       <span class="text-base-content/40">—</span>
                     }
                   </td>
+                  <td class="text-right tabular">{{ (item.contactCount ?? 0) | number }}</td>
                   <td>{{ item.createdBy || '—' }}</td>
                   <td class="whitespace-nowrap text-base-content/70">{{ item.createdAt | date: 'medium' }}</td>
                   <td>{{ item.updatedBy || '—' }}</td>
@@ -84,7 +95,7 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="7">
+                  <td colspan="8">
                     <app-empty-state [title]="'Shared.ListViewEmptyStateTitle' | translate" [message]="'Shared.ListViewEmptyStateSubTitle' | translate">
                       <svg icon lucideUsers class="size-5"></svg>
                       <a actions class="btn btn-sm" [routerLink]="pane.link('create-distribution-list')">
@@ -110,6 +121,16 @@ export class DistributionListsComponent implements OnInit {
   private readonly _dialog = inject(DialogService);
   private readonly _toaster = inject(AppTranslatedToaster);
   protected readonly pane = inject(SidePaneService);
+
+  protected readonly columns: { label: string; sort?: string; class?: string }[] = [
+    { label: 'DistributionLists.Name', sort: 'name' },
+    { label: 'DistributionLists.Alias', sort: 'alias' },
+    { label: 'DistributionLists.ContactCount', sort: 'contactCount', class: 'text-right' },
+    { label: 'DistributionLists.CreatedBy', sort: 'createdBy' },
+    { label: 'DistributionLists.CreatedAt', sort: 'createdAt' },
+    { label: 'DistributionLists.UpdatedBy', sort: 'updatedBy' },
+    { label: 'DistributionLists.UpdatedAt', sort: 'updatedAt' }
+  ];
 
   protected readonly list = new ListState<DistributionList>({
     pageSize: 20,

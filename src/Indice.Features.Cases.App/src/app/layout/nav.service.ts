@@ -3,7 +3,7 @@ import { Params } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 import { filter, switchMap, take } from 'rxjs';
 import {
-  LucideBell, LucideFolderKanban, LucideFolderOpen, LucideIcon, LucideLayoutDashboard, LucideMilestone, LucideShapes,
+  LucideBell, LucideFolderKanban, LucideFolderOpen, LucideFolderTree, LucideIcon, LucideLayoutDashboard, LucideMilestone, LucideShapes,
   LucideShieldCheck
 } from '@lucide/angular';
 import { CaseTypeService } from '../core/services/case-type.service';
@@ -58,6 +58,7 @@ export class NavService {
       admin.push(
         { label: 'nav.caseTypes', translate: true, link: '/case-types', icon: LucideShapes },
         { label: 'nav.checkpointTypes', translate: true, link: '/checkpoint-types', icon: LucideMilestone },
+        { label: 'nav.categories', translate: true, link: '/categories', icon: LucideFolderTree },
         { label: 'nav.accessRules', translate: true, link: '/access-rules', icon: LucideShieldCheck }
       );
     }
@@ -75,12 +76,15 @@ export class NavService {
       .pipe(
         filter(user => !!user),
         take(1),
-        switchMap(() => this._caseTypes.getCaseTypeMenuItems())
+        switchMap(() => {
+          this._isAdmin.set(this._auth.isAdmin());
+          this._canSeeNotifications.set(this._auth.isAdmin() || this._auth.hasRole('CasesManager') || this._auth.hasRole('CasesAdministrator'));
+          return this._caseTypes.getCaseTypeMenuItems();
+        })
       )
-      .subscribe(items => {
-        this._menuCaseTypes.set(items.filter(i => !!i.title).map(i => ({ title: i.title!, code: i.code! })));
-        this._isAdmin.set(this._auth.isAdmin());
-        this._canSeeNotifications.set(this._auth.isAdmin() || this._auth.hasRole('CasesManager') || this._auth.hasRole('CasesAdministrator'));
+      .subscribe({
+        next: items => this._menuCaseTypes.set(items.filter(i => !!i.title).map(i => ({ title: i.title!, code: i.code! }))),
+        error: () => this._menuCaseTypes.set([])
       });
   }
 }

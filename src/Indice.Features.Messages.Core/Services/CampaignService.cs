@@ -143,6 +143,7 @@ public class CampaignService : ICampaignService
         var campaignMetrics = new CampaignMetrics {
             Total = asOfDate.HasValue ? await DbContext.Campaigns.CountAsync(x => x.CreatedAt <= now) :
                                         await DbContext.Campaigns.CountAsync(),
+            // A single statement keeps the count consistent. IX_Campaign_From_To includes Published (see CHANGELOG), so it covers this query.
             Active = await DbContext.Campaigns.CountAsync(x => x.Published &&
                                                                (x.ActivePeriod!.From <= now) && (x.ActivePeriod!.To == null || x.ActivePeriod.To > now)),
             TotalToday = await DbContext.Campaigns.CountAsync(x => x.CreatedAt >= now.Date && x.CreatedAt <= now.AddDays(1).Date),
@@ -159,10 +160,7 @@ public class CampaignService : ICampaignService
                             where campaign.Id == campaignId.Value
                             select new RecipientMetrics {
                                 TotalCampaigns = 1,
-                                Total = (from contact in DbContext.ContactDistributionLists
-                                         join distributionList in DbContext.DistributionLists on contact.DistributionListId equals distributionList.Id
-                                         where distributionList.Id == campaign.DistributionListId
-                                         select contact.ContactId).Count(),
+                                Total = campaign.RecipientCount ?? 0,
                                 TotalMessages = (from messageEvent in DbContext.MessageEvents
                                                  where messageEvent.CampaignId == campaign.Id &&
                                                        (
@@ -200,25 +198,25 @@ public class CampaignService : ICampaignService
             };
         }
 
-        // Sum of distinct recipients per campaign
-        var totalRecipientsSum = await (from c in DbContext.Campaigns
-                                        join cd in DbContext.ContactDistributionLists on c.DistributionListId equals cd.DistributionListId into contacts
-                                        select contacts.Select(x => x.ContactId).Distinct().Count()
-                                       ).SumAsync();
-        // Sum of distinct message ids per campaign that count as "reached"
-        var messagesSum = await (from e in DbContext.MessageEvents
-                                 where e.Type == nameof(MessageEventType.Sent) ||
-                                       (e.Channel == nameof(MessageChannelKind.Inbox) && e.Type == nameof(MessageEventType.Created))
-                                 group e by e.CampaignId into g
-                                 select g.Select(x => x.MessageId).Count()
-                                ).SumAsync();
-        // Sum of distinct message ids per campaign that count as "reached"
-        var reachedSum = await (from e in DbContext.MessageEvents
-                                where e.Type == nameof(MessageEventType.Sent) ||
-                                      (e.Channel == nameof(MessageChannelKind.Inbox) && e.Type == nameof(MessageEventType.Created))
-                                group e by e.CampaignId into g
-                                select g.Select(x => x.MessageId).Distinct().Count()
-                                ).SumAsync();
+        // Sum of the recipients each campaign was sent out to; drafts and global campaigns count as 0.
+        var totalRecipientsSum = await DbContext.Campaigns.SumAsync(x => x.RecipientCount ?? 0);
+        // Sum of messages and of distinct message ids per campaign that count as "reached", computed in a single pass over the events.
+        var reach = await (from e in DbContext.MessageEvents
+                           where e.Type == nameof(MessageEventType.Sent) ||
+                                 (e.Channel == nameof(MessageChannelKind.Inbox) && e.Type == nameof(MessageEventType.Created))
+                           group e by e.CampaignId into g
+                           select new {
+                               Messages = g.Count(),
+                               Reached = g.Select(x => x.MessageId).Distinct().Count()
+                           })
+                           .GroupBy(x => 1)
+                           .Select(g => new {
+                               Messages = g.Sum(x => x.Messages),
+                               Reached = g.Sum(x => x.Reached)
+                           })
+                           .FirstOrDefaultAsync();
+        var messagesSum = reach?.Messages ?? 0;
+        var reachedSum = reach?.Reached ?? 0;
 
         // Sum of distinct contacts per campaign that count as "engaged"
         var engagedSum = await (from e in DbContext.MessageEvents
@@ -268,23 +266,38 @@ public class CampaignService : ICampaignService
 
     /// <inheritdoc />
     public async Task<List<Volume<MessageType>>> GetMessageTypeMetrics(DateTimeOffset? onDate = null, int limit = 5) {
-        var query = from messageEvent in DbContext.MessageEvents
-                    where (onDate == null || (onDate.Value.Date.AddDays(-1) <= messageEvent.CreatedOn && messageEvent.CreatedOn <= onDate.Value.Date.AddDays(1))) &&
-                          (messageEvent.Type == nameof(MessageEventType.Sent) ||
-                          (messageEvent.Channel == nameof(MessageChannelKind.Inbox) && messageEvent.Type == nameof(MessageEventType.Created)))
-                    join campaign in DbContext.Campaigns on messageEvent.CampaignId equals campaign.Id
-                    join messageType in DbContext.MessageTypes on campaign.TypeId equals messageType.Id into mt
-                    from messageTypeLeft in mt.DefaultIfEmpty()
-                    group messageEvent by new { Id = (Guid?)messageTypeLeft.Id, messageTypeLeft.Name, Classification = (MessageTypeClassification?)messageTypeLeft.Classification } into g
-                    select new {
-                        MessageType = new MessageType {
-                            Id = g.Key.Id ?? Guid.Empty,
-                            Name = g.Key.Name ?? "None",
-                            Classification = g.Key.Classification ?? MessageTypeClassification.System
-                        },
-                        Count = g.Select(x => x.MessageId).Distinct().Count()
-                    };
-        var items = await query.OrderByDescending(x => x.Count).Select(x => new Volume<MessageType> { Info = x.MessageType, Total = x.Count }).ToListAsync();
+        // A message belongs to a single campaign, so the distinct messages are counted per campaign first and then summed per type.
+        // This keeps the join with campaigns and the grouping by type down to one row per campaign instead of one per event.
+        var perCampaign = from messageEvent in DbContext.MessageEvents
+                          where (onDate == null || (onDate.Value.Date.AddDays(-1) <= messageEvent.CreatedOn && messageEvent.CreatedOn <= onDate.Value.Date.AddDays(1))) &&
+                                (messageEvent.Type == nameof(MessageEventType.Sent) ||
+                                (messageEvent.Channel == nameof(MessageChannelKind.Inbox) && messageEvent.Type == nameof(MessageEventType.Created)))
+                          group messageEvent by messageEvent.CampaignId into g
+                          select new { CampaignId = g.Key, Count = g.Select(x => x.MessageId).Distinct().Count() };
+        var perType = await (from campaignCount in perCampaign
+                             join campaign in DbContext.Campaigns on campaignCount.CampaignId equals campaign.Id
+                             group campaignCount by campaign.TypeId into g
+                             select new { TypeId = g.Key, Count = g.Sum(x => x.Count) }
+                            ).ToListAsync();
+        var typeIds = perType.Where(x => x.TypeId.HasValue).Select(x => x.TypeId!.Value).ToList();
+        var messageTypes = await DbContext.MessageTypes.Where(x => typeIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id);
+        var items = perType
+            .Select(x => {
+                var messageType = x.TypeId.HasValue ? messageTypes.GetValueOrDefault(x.TypeId.Value) : null;
+                return new Volume<MessageType> {
+                    Info = new MessageType {
+                        Id = messageType?.Id ?? Guid.Empty,
+                        Name = messageType?.Name ?? "None",
+                        Classification = messageType?.Classification ?? MessageTypeClassification.System
+                    },
+                    Total = x.Count
+                };
+            })
+            // Types that no longer exist are reported as "None", same as campaigns without a type.
+            .GroupBy(x => x.Info.Id)
+            .Select(g => new Volume<MessageType> { Info = g.First().Info, Total = g.Sum(x => x.Total) })
+            .OrderByDescending(x => x.Total)
+            .ToList();
         if (items.Count > limit) {
             items = items.Take(limit).Append(new() {
                 Info = new MessageType {
@@ -331,6 +344,12 @@ public class CampaignService : ICampaignService
         await DbContext.SaveChangesAsync();
         return Mapper.ToCampaign(campaign);
     }
+
+    /// <inheritdoc />
+    public Task SetRecipientCount(Guid campaignId, int recipientCount) =>
+        DbContext.Campaigns
+            .Where(x => x.Id == campaignId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.RecipientCount, recipientCount));
     ///<inheritdoc/>
     public async Task<ResultSet<Recipient>> GetCampaignRecipients(Guid campaignId, ListOptions options) {
         var query = from messageEvent in DbContext.MessageEvents

@@ -13,6 +13,7 @@ public class RecipientMetrics
     [Description("Total number of messages targeted by the message.")]
     public int TotalMessages { get; set; }
     /// <summary>Total number of recipients targeted by the message.</summary>
+    /// <remarks>The number of contacts the campaign was sent out to. 0 when it has not been sent to a distribution list (drafts, global campaigns, not yet dispatched).</remarks>
     [Description("Total number of recipients targeted by the message.")]
     public int Total { get; set; }
     /// <summary>Number of recipients that have received the message.</summary>

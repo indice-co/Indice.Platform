@@ -1,10 +1,16 @@
-﻿using System.Reflection;
+﻿using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Globalization;
+using System.Linq;
 using Indice.Globalization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -57,12 +63,19 @@ public class SmsServiceKapaTEL : ISmsService
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
-        var param = Settings.GetType()
-                            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                            .ToDictionary(prop => prop.Name.ToLower(), prop => (string?)prop.GetValue(Settings, null));
-        param.Add("text", body);
-        param.Add("to", string.Join(',', recipients));
-        param.Add("format", "json");
+        var param = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase) {
+            ["username"] = Settings.Username,
+            ["password"] = Settings.Password,
+            ["encoding"] = Settings.Encoding,
+            ["from"] = Settings.From,
+            ["text"] = body,
+            ["to"] = string.Join(',', recipients),
+            ["format"] = "json",
+            ["foreign_id"] = messageId
+        };
+        if (!string.IsNullOrWhiteSpace(Settings.WebhookUrl)) {
+            param["dlr_url"] = BuildDlrUrl(Settings.WebhookUrl, Settings.WebhookUsername, Settings.WebhookPassword);
+        }
         var requestUri = new Uri(QueryHelpers.AddQueryString(HttpClient.BaseAddress!.ToString(), param));
         try {
             Logger.LogInformation("The request Uri sent to KapaTEL: {requestUri}", requestUri);
@@ -77,12 +90,18 @@ public class SmsServiceKapaTEL : ISmsService
             throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
         response = JsonSerializer.Deserialize<KapaTELResponse>(responseString, GetJsonSerializerOptions())!;
-        if (response.Status.Equals("error")) {
+        if (response.Status.Equals("error", StringComparison.OrdinalIgnoreCase)) {
             Logger.LogError("SMS Delivery failed. {responseError}", response.ErrorMessage);
             throw new SmsServiceException($"SMS Delivery failed. {response.ErrorMessage}");
         }
-        Logger.LogInformation("SMS message successfully sent: {messages}", string.Join(",", response.Messages.Select(x => $"{x.Msisdn}-{x.ErrorMessage}")));
-        if (response.Messages?.Count > 0) {
+        if (!response.Status.Equals("accepted", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(response.ErrorMessage)) {
+            Logger.LogError("SMS Delivery failed. {responseError}", response.ErrorMessage);
+            throw new SmsServiceException($"SMS Delivery failed. {response.ErrorMessage}");
+        }
+        Logger.LogInformation("SMS message successfully sent. Status: {status}, MessageId: {messageId}", response.Status, response.MessageId);
+        if (!string.IsNullOrWhiteSpace(response.MessageId)) {
+            messageId = response.MessageId;
+        } else if (response.Messages?.Count > 0) {
             messageId = string.Join(",", response.Messages.Select(x => x.Id));
         }
         return new SendReceipt(messageId, DateTimeOffset.UtcNow);
@@ -97,6 +116,57 @@ public class SmsServiceKapaTEL : ISmsService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+
+    private static string BuildDlrUrl(string webhookUrl, string? webhookUsername, string? webhookPassword) {
+        const string MessageIdQuery = "message_id={foreign_id}";
+        const string RemoteTransactionIdQuery = "remote_transaction_id={id}";
+        const string StatusQuery = "status={notification_status}";
+        const string NotificationDateTimeQuery = "notification_datetime={notification_datetime_stamp}";
+
+        if (!Uri.TryCreate(webhookUrl, UriKind.Absolute, out var uri)) {
+            return webhookUrl;
+        }
+
+        if (!string.IsNullOrWhiteSpace(webhookUsername) && !string.IsNullOrWhiteSpace(webhookPassword)) {
+            var webhookUriBuilder = new UriBuilder(uri) {
+                UserName = webhookUsername,
+                Password = webhookPassword
+            };
+            uri = webhookUriBuilder.Uri;
+        }
+
+        var effectiveWebhookUrl = uri.ToString();
+
+        var existingParameters = QueryHelpers.ParseQuery(uri.Query);
+        var missingParameters = new List<string>();
+        if (!existingParameters.ContainsKey("message_id")) {
+            missingParameters.Add(MessageIdQuery);
+        }
+        if (!existingParameters.ContainsKey("remote_transaction_id")) {
+            missingParameters.Add(RemoteTransactionIdQuery);
+        }
+        if (!existingParameters.ContainsKey("status")) {
+            missingParameters.Add(StatusQuery);
+        }
+        if (!existingParameters.ContainsKey("notification_datetime")) {
+            missingParameters.Add(NotificationDateTimeQuery);
+        }
+
+        if (missingParameters.Count == 0) {
+            return effectiveWebhookUrl;
+        }
+
+        var urlWithoutFragment = effectiveWebhookUrl;
+        var fragment = string.Empty;
+        var fragmentIndex = effectiveWebhookUrl.IndexOf('#');
+        if (fragmentIndex >= 0) {
+            urlWithoutFragment = effectiveWebhookUrl[..fragmentIndex];
+            fragment = effectiveWebhookUrl[fragmentIndex..];
+        }
+
+        var separator = urlWithoutFragment.Contains('?') ? '&' : '?';
+        return $"{urlWithoutFragment}{separator}{string.Join("&", missingParameters)}{fragment}";
+    }
 }
 
 /// <summary>Extra settings class for configuring KapaTEL SMS service client.</summary>
@@ -110,12 +180,21 @@ public class SmsServiceKapaTELSettings
     public string Encoding { get; set; } = "utf8";
     /// <summary>Alphanumeric Sender ID from where to send the message (max 11 characters.Allowed characters are Latin alphabet and characters “dot”, “space”, “hyphen”).</summary>
     public string? From { get; set; }
+    /// <summary>The URL to receive delivery notifications (DLR).</summary>
+    public string? WebhookUrl { get; set; }
+    /// <summary>Optional webhook basic auth username for validating incoming DLR callbacks.</summary>
+    public string? WebhookUsername { get; set; }
+    /// <summary>Optional webhook basic auth password for validating incoming DLR callbacks.</summary>
+    public string? WebhookPassword { get; set; }
 }
 
 internal class KapaTELResponse
 {
     [JsonPropertyName("status")]
     public string Status { get; set; } = null!;
+
+    [JsonPropertyName("message_id")]
+    public string? MessageId { get; set; }
 
     [JsonPropertyName("messages")]
     public List<Message> Messages { get; set; } = [];
@@ -139,5 +218,108 @@ internal class KapaTELResponse
 
         [JsonPropertyName("error_message")]
         public string? ErrorMessage { get; set; }
+    }
+}
+
+/// <inheritdoc/>
+public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
+    private readonly SmsServiceKapaTELSettings _settings;
+
+    /// <inheritdoc/>
+    public KapaTELWebhookHttpHandler(IOptionsSnapshot<SmsServiceKapaTELSettings> settings) {
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        if (IsBasicAuthenticationInvalid(requestHeaders)) {
+            return WebhookHttpResult.UnauthorizedRequest("Invalid KapaTEL webhook basic authentication.");
+        }
+
+        var parameters = requestParameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Value, StringComparer.OrdinalIgnoreCase);
+        var messageId = GetFirstNonEmptyParameter(parameters, "remote_transaction_id", "id");
+        if (string.IsNullOrWhiteSpace(messageId)) {
+            return WebhookHttpResult.BadRequest("KapaTEL webhook requires one of 'id', 'remote_transaction_id' or 'message_id' query parameters.");
+        }
+
+        var notificationStatus = GetFirstNonEmptyParameter(parameters, "notification_status", "status");
+
+        var notificationTimestamp = GetFirstNonEmptyParameter(parameters, "notification_datetime", "notification_datetime_stamp", "dlrDate");
+
+        var timestamp = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrWhiteSpace(notificationTimestamp) && !TryParseNotificationTimestamp(notificationTimestamp, out timestamp)) {
+            return WebhookHttpResult.BadRequest("Invalid notification timestamp in KapaTEL webhook payload.");
+        }
+
+        var payload = new JsonObject();
+        foreach (var parameter in parameters) {
+            payload[parameter.Key] = parameter.Value.ToString();
+        }
+
+        var eventType = GetEventType(notificationStatus);
+        var eventId = !string.IsNullOrWhiteSpace(notificationStatus) ? $"{messageId}:{notificationStatus}:{timestamp:O}" : $"{messageId}:{timestamp:O}";
+        var incomingEvents = new List<WebhookEvent> {
+            new() {
+                Provider = "KapaTEL",
+                EventType = eventType,
+                EventId = eventId,
+                MessageId = messageId,
+                Timestamp = timestamp,
+                Payload = payload
+            }
+        };
+
+        await Task.CompletedTask;
+        return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
+    }
+
+    private static bool TryParseNotificationTimestamp(string value, out DateTimeOffset timestamp) {
+        return DateTimeOffset.TryParseExact(
+                   value,
+                   ["yyMMddHHmmss", "yyyyMMddHHmmss"],
+                   CultureInfo.InvariantCulture,
+                   DateTimeStyles.AssumeLocal,
+                   out timestamp) ||
+               DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out timestamp) ||
+               DateTimeOffset.TryParse(value, out timestamp);
+    }
+
+    private static string GetFirstNonEmptyParameter(IDictionary<string, StringValues> parameters, params string[] keys) {
+        return keys
+            .Select(key => parameters.TryGetValue(key, out var value) ? value.ToString() : null)
+            .FirstOrDefault(candidate => !string.IsNullOrWhiteSpace(candidate))
+            ?? string.Empty;
+    }
+
+    private bool IsBasicAuthenticationInvalid(IDictionary<string, StringValues> requestHeaders) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookUsername) && string.IsNullOrWhiteSpace(_settings.WebhookPassword)) {
+            return false;
+        }
+
+        if (!requestHeaders.TryGetValue("Authorization", out var authorizationValues)) {
+            return true;
+        }
+
+        var authorization = authorizationValues.ToString();
+        if (string.IsNullOrWhiteSpace(authorization) || !authorization.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)) {
+            return true;
+        }
+
+        return !WebhookAuthentication.IsValidBasicAuthentication(authorization, _settings.WebhookUsername!, _settings.WebhookPassword!);
+    }
+
+    private static string GetEventType(string? notificationStatus) {
+        return notificationStatus switch {
+            "1" => "DeliveredToPhone",
+            "2" => "NonDeliveredToPhone",
+            "8" => "DeliveredToSMSC",
+            "16" => "NonDeliveredToSMSC",
+            _ when !string.IsNullOrWhiteSpace(notificationStatus) => $"Status:{notificationStatus}",
+            _ => "SmsDelivery"
+        };
     }
 }

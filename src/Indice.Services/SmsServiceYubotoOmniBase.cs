@@ -495,7 +495,7 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         };
 
         await Task.CompletedTask;
-        return WebhookHttpResult.Ok(incomingEvents);
+        return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
     }
 
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {

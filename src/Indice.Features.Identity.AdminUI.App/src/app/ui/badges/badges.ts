@@ -24,10 +24,10 @@ export type StatusTone = 'neutral' | 'primary' | 'secondary' | 'success' | 'warn
 /** Small soft pill with a leading dot, e.g. `<app-status-badge tone="error">Blocked</app-status-badge>`. */
 @Component({
   selector: 'app-status-badge',
-  host: { class: 'inline-flex' },
+  host: { class: 'inline-flex min-w-0 max-w-full' },
   template: `
-    <span class="badge badge-sm badge-soft gap-1.5 font-medium whitespace-nowrap" [class]="toneClass()">
-      <span class="size-1.5 rounded-full bg-current"></span><ng-content />
+    <span class="badge badge-sm badge-soft max-w-full gap-1.5 font-medium whitespace-nowrap" [class]="toneClass()">
+      <span class="size-1.5 shrink-0 rounded-full bg-current"></span><ng-content />
     </span>
   `
 })

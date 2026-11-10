@@ -2,14 +2,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LucideMegaphone } from '@lucide/angular';
+import { LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideMegaphone } from '@lucide/angular';
 import { Campaign, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BoolIconComponent, CHANNEL_KINDS, ChannelIconComponent, MessageTypeBadgeComponent } from 'src/app/ui/badges/badges';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
 import { ListState } from 'src/app/ui/list/list-state';
 import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
-import { ListSortComponent, SortOption } from '../../list-sort.component';
 import { ContactStore } from '../contact-store.service';
 import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 
@@ -17,14 +16,13 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
 @Component({
   selector: 'app-contact-campaigns',
   imports: [
-    ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent, ListSortComponent,
-    BoolIconComponent, ChannelIconComponent, MessageTypeBadgeComponent, LucideMegaphone
+    ListCountComponent, DatePipe, RouterLink, TranslatePipe, EmptyStateComponent, PaginationComponent, SearchInputComponent,
+    BoolIconComponent, ChannelIconComponent, MessageTypeBadgeComponent, LucideArrowDown, LucideArrowUp, LucideArrowUpDown, LucideMegaphone
   ],
   template: `
     <app-list-count class="mb-3" [count]="list.items() ? list.count() : null" one="Campaigns.CountOne" other="Campaigns.CountOther" />
-    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
       <app-search-input class="sm:w-72" [value]="list.search()" [placeholder]="'Shared.Search' | translate" (search)="list.setSearch($event)" />
-      <app-list-sort [list]="list" [options]="sortOptions" />
     </div>
 
     <div class="panel">
@@ -32,14 +30,22 @@ import { ListCountComponent } from 'src/app/ui/list/list-count.component';
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'Contacts.CampaignTitle' | translate }}</th>
-              <th>{{ 'Contacts.Channels' | translate }}</th>
-              <th>{{ 'Contacts.Type' | translate }}</th>
-              <th>{{ 'Contacts.From' | translate }}</th>
-              <th>{{ 'Contacts.To' | translate }}</th>
-              <th>{{ 'Contacts.CreatedBy' | translate }}</th>
-              <th>{{ 'Contacts.CreatedAt' | translate }}</th>
-              <th class="text-center">{{ 'Contacts.Published' | translate }}</th>
+              @for (column of columns; track column.label) {
+                <th [class]="column.class ?? ''">
+                  @if (column.sort) {
+                    <button type="button" class="inline-flex items-center gap-1 hover:text-base-content" (click)="list.setSort(column.sort)">
+                      {{ column.label | translate }}
+                      @if (list.sort() === column.sort) {
+                        @if (list.dir() === 'asc') { <svg lucideArrowUp class="size-3.5"></svg> } @else { <svg lucideArrowDown class="size-3.5"></svg> }
+                      } @else {
+                        <svg lucideArrowUpDown class="size-3.5 opacity-40"></svg>
+                      }
+                    </button>
+                  } @else {
+                    {{ column.label | translate }}
+                  }
+                </th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -93,12 +99,15 @@ export class ContactCampaignsComponent implements OnInit {
   private readonly _store = inject(ContactStore);
   protected readonly channelKinds = CHANNEL_KINDS;
 
-  protected readonly sortOptions: SortOption[] = [
-    { value: 'createdAt', label: 'Contacts.SortCreatedOnOption' },
-    { value: 'title', label: 'Contacts.SortTitleOption' },
-    { value: 'activePeriod.from', label: 'Contacts.SortActiveFromOption' },
-    { value: 'type.name', label: 'Contacts.SortTypeOption' },
-    { value: 'published', label: 'Contacts.SortPublishedOption' }
+  protected readonly columns: { label: string; sort?: string; class?: string }[] = [
+    { label: 'Contacts.CampaignTitle', sort: 'title' },
+    { label: 'Contacts.Channels' },
+    { label: 'Contacts.Type', sort: 'type.name' },
+    { label: 'Contacts.From', sort: 'activePeriod.from' },
+    { label: 'Contacts.To', sort: 'activePeriod.to' },
+    { label: 'Contacts.CreatedBy', sort: 'createdBy' },
+    { label: 'Contacts.CreatedAt', sort: 'createdAt' },
+    { label: 'Contacts.Published', sort: 'published', class: 'text-center' }
   ];
 
   protected readonly list = new ListState<Campaign>({

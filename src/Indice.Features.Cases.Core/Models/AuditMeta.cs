@@ -15,7 +15,7 @@ public class AuditMeta : ICloneable
     public string? Email { get; set; }
 
     /// <summary>The timestamp the audit happened.</summary>
-    public DateTimeOffset? When { get; set; } = DateTimeOffset.Now;
+    public DateTimeOffset? When { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>Clear the data of the instance.</summary>
     public void Clear() {

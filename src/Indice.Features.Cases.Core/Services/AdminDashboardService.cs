@@ -61,12 +61,12 @@ internal class AdminDashboardService : IAdminDashboardService
         metrics.AssignedToMe = await CountOpen(await GetVisibleCases(user, c => c.AssignedTo!.Id == userId));
         metrics.Unassigned = await CountOpen(await GetVisibleCases(user, c => c.AssignedTo!.Id == null));
         // stale = created on or before (today - staleAfterDays), i.e. the same range the case list's "to" date filter selects
-        var staleBefore = StartOfDay(today.AddDays(-staleAfterDays + 1), now.Offset);
+        var staleBefore = StartOfDay(today.AddDays(-staleAfterDays + 1), now.Offset).ToUniversalTime();
         metrics.Stale = await CountOpen(visible.Where(x => x.CreatedByWhen < staleBefore));
 
         var window = Math.Max(intakeDays, MinIntakeWindowDays);
         var windowStart = today.AddDays(-window + 1);
-        var windowStartOffset = StartOfDay(windowStart, now.Offset);
+        var windowStartOffset = StartOfDay(windowStart, now.Offset).ToUniversalTime();
         var perDay = await visible
             .Where(x => x.CreatedByWhen >= windowStartOffset)
             .GroupBy(x => x.CreatedByWhen!.Value.Date)

@@ -5,11 +5,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService, ImgUserPictureDirective } from '@indice/ng-auth';
 import { filter, map } from 'rxjs';
 import {
-  LucideChevronsUpDown, LucideDynamicIcon, LucideHeart, LucideLanguages, LucideLogOut, LucideMenu, LucideMonitor, LucideMoon, LucideSun
+  LucideChevronsUpDown, LucideDynamicIcon, LucideHeart, LucideInbox, LucideLanguages, LucideLogOut, LucideMenu, LucideMonitor, LucideMoon, LucideSun
 } from '@lucide/angular';
 import { settings } from '../core/models/settings';
 import { AppLanguagesService } from '../shared/services/app-languages.service';
 import { LogoComponent } from '../ui/logo/logo.component';
+import { InboxBellComponent } from '../features/inbox/inbox-bell.component';
+import { InboxStore } from '../features/inbox/inbox.store';
 import { BreadcrumbsComponent } from './breadcrumbs.component';
 import { NavService } from './nav.service';
 import { ThemeMode, ThemeService } from './theme.service';
@@ -18,8 +20,8 @@ import { ThemeMode, ThemeService } from './theme.service';
 @Component({
   selector: 'app-shell',
   imports: [
-    RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, ImgUserPictureDirective, LogoComponent, BreadcrumbsComponent,
-    LucideDynamicIcon, LucideMenu, LucideSun, LucideMoon, LucideMonitor, LucideLanguages, LucideLogOut, LucideChevronsUpDown, LucideHeart
+    RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, ImgUserPictureDirective, LogoComponent, BreadcrumbsComponent, InboxBellComponent,
+    LucideDynamicIcon, LucideMenu, LucideSun, LucideMoon, LucideMonitor, LucideLanguages, LucideLogOut, LucideChevronsUpDown, LucideHeart, LucideInbox
   ],
   styles: `
     .nav-link {
@@ -47,6 +49,10 @@ import { ThemeMode, ThemeService } from './theme.service';
             <svg lucideMenu class="size-5"></svg>
           </label>
           <app-breadcrumbs class="min-w-0 flex-1" />
+
+          @if (enableInbox) {
+            <app-inbox-bell />
+          }
 
           <div class="dropdown dropdown-end">
             <button type="button" tabindex="0" class="btn btn-ghost btn-sm gap-1.5" [attr.aria-label]="'Nav.Language' | translate">
@@ -136,6 +142,16 @@ import { ThemeMode, ThemeService } from './theme.service';
                 <svg lucideChevronsUpDown class="size-4 shrink-0 opacity-60"></svg>
               </button>
               <ul tabindex="0" class="dropdown-content menu z-50 mb-2 w-full rounded-box border border-base-300 bg-base-100 p-1 text-base-content shadow-lg">
+                @if (enableInbox) {
+                  <li>
+                    <a routerLink="/inbox" (click)="blur()">
+                      <svg lucideInbox class="size-4"></svg>{{ 'Nav.Inbox' | translate }}
+                      @if (inbox.unreadCount() > 0) {
+                        <span class="badge badge-primary badge-sm tabular ml-auto">{{ inbox.unreadCount() > 99 ? '99+' : inbox.unreadCount() }}</span>
+                      }
+                    </a>
+                  </li>
+                }
                 <li>
                   <a routerLink="/logout"><svg lucideLogOut class="size-4"></svg>{{ 'Nav.Logout' | translate }}</a>
                 </li>
@@ -157,7 +173,9 @@ export class ShellComponent {
   protected readonly nav = inject(NavService);
   protected readonly languages = inject(AppLanguagesService);
   protected readonly theme = inject(ThemeService);
+  protected readonly inbox = inject(InboxStore);
   protected readonly version = settings.version;
+  protected readonly enableInbox = settings.enableInbox;
   protected readonly drawerOpen = signal(false);
   protected readonly themeOptions: { mode: ThemeMode; label: string }[] = [
     { mode: 'light', label: 'Theme.Light' },
