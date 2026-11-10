@@ -41,8 +41,11 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
         }
         try {
             await dbContext.SaveChangesAsync(cancellationToken);
-        } catch (Exception ex) {
+        } catch (DbUpdateException ex) {
             logger.LogError(ex, "Error saving message events to the database");
+        } catch (OperationCanceledException ex) {
+            logger.LogWarning(ex, "Saving message events was canceled.");
+            throw;
         }
     }
 }
