@@ -8,7 +8,7 @@
 
     ViewData["Title"] = Localizer.AddEmail_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
-    var pollEmailStatus = tempData?.DisableForm == true && tempData?.Alert?.AlertType == AlertType.Success && Model.UiOptions.EmailConfirmationMethod == EmailConfirmationMethod.Link;
+    var pollEmailStatus = tempData?.DisableForm == true && tempData.Alert?.AlertType == AlertType.Success && Model.UiOptions.EmailConfirmationMethod == EmailConfirmationMethod.Link;
 }
 
 <div class="content-wrapper">
