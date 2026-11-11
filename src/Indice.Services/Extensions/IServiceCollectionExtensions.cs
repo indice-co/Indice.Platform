@@ -186,9 +186,9 @@ public static class IndiceServicesServiceCollectionExtensions
         services.AddTransient<IEmailService, EmailServiceAzureCommunicationServices>();
         services.AddSingleton((serviceProvider) => {
             var options = serviceProvider.GetRequiredService<IOptions<EmailServiceAzureCommsSettings>>().Value;
-                return new EmailProvider(
-                EmailServiceAzureCommunicationServices.ServiceName,
-                new EmailSender(options.Sender!, null));
+            return new EmailProvider(
+            EmailServiceAzureCommunicationServices.ServiceName,
+            new EmailSender(options.Sender!, null));
         });
         services.TryAddTransient((serviceProvider) =>
             new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList())
@@ -584,8 +584,8 @@ public static class IndiceServicesServiceCollectionExtensions
         var provider = builder.Configuration.GetDefaultSmsProvider();
         switch (provider) {
             case "smsup":
-                services.Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSettings.Name));
-                services.AddWebhookServices<THandler, SmsUpWebhookHttpHandler>(configuration, provider);
+                services.Configure<SmsServiceSmsUpSettings>(smsSection);
+                builder.AddHttpHandler<SmsUpWebhookHttpHandler>(provider);
                 break;
             case "apifon":
             case "ApiFon":
@@ -619,7 +619,7 @@ public static class IndiceServicesServiceCollectionExtensions
             case "kapatel":
             case "kapa_tel":
                 services.Configure<SmsServiceKapaTELSettings>(smsSection);
-                builder .AddHttpHandler<KapaTELWebhookHttpHandler>(provider);
+                builder.AddHttpHandler<KapaTELWebhookHttpHandler>(provider);
                 break;
         }
         return builder;
@@ -635,8 +635,8 @@ public static class IndiceServicesServiceCollectionExtensions
                 builder.AddHttpHandler<SparkPostWebhookHttpHandler>(provider);
                 break;
             case EmailServiceSendGrid.ServiceName:
-                services.Configure<EmailServiceSendGridSettings>(configuration.GetSection(EmailServiceSendGridSettings.Name));
-                services.AddWebhookServices<THandler, SendGridWebhookHttpHandler>(configuration, provider);
+                builder.Services.Configure<EmailServiceSendGridSettings>(builder.Configuration.GetSection(EmailServiceSendGridSettings.Name));
+                builder.AddHttpHandler<SendGridWebhookHttpHandler>(provider);
                 break;
             case EmailServiceBrevo.ServiceName:
                 builder.AddHttpHandler<BrevoWebhookHttpHandler>(provider);
