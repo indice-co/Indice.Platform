@@ -14,7 +14,7 @@ export const MESSAGE_STATUSES: readonly QueueMessageStatus[] = [
  * number — so a "3" in the Poison column reads as poison at a glance.
  */
 export const COUNT_BADGE: Record<QueueMessageStatus, string> = {
-  Enqueued: 'badge-info',
+  Enqueued: 'badge-info badge-soft',
   Scheduled: 'badge-secondary badge-soft',
   Retrying: 'badge-warning',
   Poison: 'badge-error',

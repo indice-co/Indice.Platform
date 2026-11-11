@@ -6,12 +6,14 @@ import { EMPTY, catchError, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
 import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/workers-api.service';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
 import { clampProgress, describeCron } from './cron';
+import { RunTaskButtonComponent } from './run-task-button.component';
 import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
 
 /** A task row with the text the template would otherwise recompute on every poll. */
@@ -31,6 +33,7 @@ interface TaskRow {
     EmptyStateComponent,
     PageHeaderComponent,
     RelativeTimePipe,
+    RunTaskButtonComponent,
     StatusBadgeComponent,
     TaskEnabledToggleComponent,
   ],
@@ -95,6 +98,9 @@ interface TaskRow {
                   <th class="text-right">Runs</th>
                   <th>Status</th>
                   <th>Enabled</th>
+                  @if (canManage()) {
+                    <th><span class="sr-only">Actions</span></th>
+                  }
                 </tr>
               </thead>
               <tbody>
@@ -163,7 +169,7 @@ interface TaskRow {
                         <app-status-badge [status]="row.task.status" />
                         @if (row.task.status === 'Running' && row.progress > 0) {
                           <progress
-                            class="progress progress-warning w-16"
+                            class="progress progress-info w-16"
                             max="100"
                             [value]="row.progress"
                             [attr.aria-label]="row.progress + '% done'"
@@ -174,6 +180,11 @@ interface TaskRow {
                     <td (click)="$event.stopPropagation()">
                       <app-task-enabled-toggle [task]="row.task" />
                     </td>
+                    @if (canManage()) {
+                      <td class="text-right" (click)="$event.stopPropagation()">
+                        <app-run-task-button [task]="row.task" size="xs" />
+                      </td>
+                    }
                   </tr>
                 }
               </tbody>
@@ -188,6 +199,7 @@ export class ScheduledTasksPageComponent {
   private readonly api = inject(WorkersApiService);
   private readonly live = inject(LiveRefreshService);
   private readonly router = inject(Router);
+  protected readonly canManage = inject(PermissionsStore).canManage;
 
   /** `null` until the first response, so the template can show skeletons instead of "empty". */
   protected readonly tasks = signal<ScheduledTaskInfo[] | null>(null);

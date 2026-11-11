@@ -4,21 +4,21 @@
 
 # TODO - before release
 - [ ] Correct authentication and authorization for the UI - currently it is a bit of a mess.
-- [ ] Rethink all queries/indices performed on the real time db e.g. Min auto refresh 30 seconds + others - drop low value + spamming
+- [x] Rethink all queries/indices performed on the real time db e.g. Min auto refresh 30 seconds + others - drop low value + spamming
 - [ ] Rethink models e.g. stats model to see what actually makes sense
 - [ ] Add tests
 
 # Improvements
 ## Easy wins
-- [ ] Edit the Payload then requeue.
-- [ ] Add different read/write scopes.
-- [ ] Enqueue a new queue message from the dashboard
-- [ ] Force delete/release lock in UI.
-- [ ] Add health checks reporting poison messages above a threshold. If "stuck" scheduled tasks is implemented this too.
+- [x] Edit the Payload then requeue.
+- [x] Add different read/write scopes. (Single `workers` scope + `WorkersReader` / `WorkersAdmin` roles and policies.)
+- [x] Enqueue a new queue message from the dashboard
+- [x] Force delete/release lock in UI.
+- [x] Add health checks reporting poison messages above a threshold. If "stuck" scheduled tasks is implemented this too.
 
 ## Advanced
 - [ ] Introduce host registration - with a ping - to check heartbeat/liveness. Can also mark stale servers without the additional table provided we write in queues - in scheduled tasks we do - the server name so we can deduce liveness somehow. Or even better with a heartbeat table with e.g. instanceId and LastHeartbeat.
-- [ ] Add ability to `RunNow` on Scheduled jobs
+- [x] Add ability to `RunNow` on Scheduled jobs
 - [ ] Flag "stuck" tasks in the UI - show time running above a value if no alternative with current db - should not have
 - [ ] Known bug where last error is not cleared and shows up in the UI.
 - [ ] GetDate known issue db column does not include timezone - need to to hacks in spa

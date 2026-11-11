@@ -11,20 +11,20 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   EMPTY,
   catchError,
   combineLatest,
   debounceTime,
   finalize,
-  map,
   switchMap,
   tap,
 } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
 import { ToastService } from '../../core/services/toast.service';
 import {
   QueueInfo,
@@ -37,6 +37,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { PagerComponent } from '../../shared/pager.component';
+import { PayloadDialogComponent, PayloadDialogResult } from '../../shared/payload-dialog.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import {
   COUNT_BADGE,
@@ -66,6 +67,7 @@ const PAGE_SIZE = 20;
     EmptyStateComponent,
     PageHeaderComponent,
     PagerComponent,
+    PayloadDialogComponent,
     RelativeTimePipe,
   ],
   template: `
@@ -77,7 +79,11 @@ const PAGE_SIZE = 20;
         </ul>
       </div>
 
-      <app-page-header [title]="name()" [subtitle]="subtitle()" />
+      <app-page-header [title]="name()" [subtitle]="subtitle()">
+        @if (canManage()) {
+          <button type="button" class="btn btn-sm" (click)="payloadDialog.open()">Add message</button>
+        }
+      </app-page-header>
 
       @if (error(); as message) {
         <div role="alert" class="alert alert-error alert-soft">{{ message }}</div>
@@ -123,35 +129,37 @@ const PAGE_SIZE = 20;
           <div class="card-body gap-4 p-4">
             <!-- Toolbar -->
             <div class="flex flex-wrap items-center gap-2">
-              <label class="flex items-center px-2" [title]="'Select all on this page'">
-                <input
-                  type="checkbox"
-                  class="checkbox checkbox-sm"
-                  aria-label="Select all on this page"
-                  [checked]="allSelected()"
-                  [indeterminate]="someSelected()"
-                  [disabled]="!items().length"
-                  (change)="toggleAll()"
-                />
-              </label>
-              <button
-                type="button"
-                class="btn btn-sm"
-                [disabled]="!selected().size || busy()"
-                (click)="requeueSelected()"
-              >
-                {{ requeueLabel() }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-error btn-outline"
-                [disabled]="!selected().size || busy()"
-                (click)="deleteDialog.open()"
-              >
-                Delete selected
-              </button>
-              @if (selected().size) {
-                <span class="text-sm text-base-content/60">{{ selected().size }} selected</span>
+              @if (canManage()) {
+                <label class="flex items-center px-2" [title]="'Select all on this page'">
+                  <input
+                    type="checkbox"
+                    class="checkbox checkbox-sm"
+                    aria-label="Select all on this page"
+                    [checked]="allSelected()"
+                    [indeterminate]="someSelected()"
+                    [disabled]="!items().length"
+                    (change)="toggleAll()"
+                  />
+                </label>
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  [disabled]="!selected().size || busy()"
+                  (click)="requeueSelected()"
+                >
+                  {{ requeueLabel() }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-error btn-outline"
+                  [disabled]="!selected().size || busy()"
+                  (click)="deleteDialog.open()"
+                >
+                  Delete selected
+                </button>
+                @if (selected().size) {
+                  <span class="text-sm text-base-content/60">{{ selected().size }} selected</span>
+                }
               }
               <label class="input input-sm ml-auto w-full sm:w-64">
                 <svg viewBox="0 0 24 24" fill="none" class="size-4 opacity-50" aria-hidden="true">
@@ -178,7 +186,9 @@ const PAGE_SIZE = 20;
                   <table class="table table-sm">
                     <thead>
                       <tr>
-                        <th class="w-8"><span class="sr-only">Select</span></th>
+                        @if (canManage()) {
+                          <th class="w-8"><span class="sr-only">Select</span></th>
+                        }
                         <th>Id</th>
                         <th>Available</th>
                         <th>Attempts</th>
@@ -188,15 +198,17 @@ const PAGE_SIZE = 20;
                     <tbody>
                       @for (message of rs.items; track message.id) {
                         <tr class="hover:bg-base-200">
-                          <td>
-                            <input
-                              type="checkbox"
-                              class="checkbox checkbox-sm"
-                              [attr.aria-label]="'Select message ' + message.id"
-                              [checked]="selected().has(message.id)"
-                              (change)="toggle(message.id)"
-                            />
-                          </td>
+                          @if (canManage()) {
+                            <td>
+                              <input
+                                type="checkbox"
+                                class="checkbox checkbox-sm"
+                                [attr.aria-label]="'Select message ' + message.id"
+                                [checked]="selected().has(message.id)"
+                                (change)="toggle(message.id)"
+                              />
+                            </td>
+                          }
                           <td>
                             <a
                               [routerLink]="['/messages', message.id]"
@@ -267,6 +279,16 @@ const PAGE_SIZE = 20;
       confirmLabel="Delete"
       (confirmed)="delete()"
     />
+    <app-payload-dialog
+      #payloadDialog
+      [title]="'Add a message to ' + name()"
+      description="The worker of the queue processes it like any other message."
+      hint="It must deserialize into the work item of the queue, or it ends up as poison."
+      confirmLabel="Add message"
+      [askVisibleAt]="true"
+      [busy]="busy()"
+      (submitted)="enqueue($event)"
+    />
   `,
 })
 export class QueueDetailPageComponent {
@@ -274,6 +296,9 @@ export class QueueDetailPageComponent {
   private readonly live = inject(LiveRefreshService);
   private readonly toasts = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  protected readonly canManage = inject(PermissionsStore).canManage;
 
   /** Route param `:name` — the logical queue name. */
   readonly name = input.required<string>();
@@ -371,6 +396,7 @@ export class QueueDetailPageComponent {
   );
 
   private readonly requeueDialog = viewChild.required<ConfirmDialogComponent>('requeueDialog');
+  private readonly payloadDialog = viewChild.required<PayloadDialogComponent>('payloadDialog');
 
   constructor() {
     combineLatest([
@@ -408,13 +434,11 @@ export class QueueDetailPageComponent {
         this.live.markUpdated();
       });
 
-    // The status counts and the queue's settings come from the queue list. A queue with no waiting
-    // messages isn't in it at all, which reads as zero everywhere.
+    // The status counts of this queue only — an index seek, not the whole queue table.
     combineLatest([toObservable(this.name), this.live.tick$])
       .pipe(
         switchMap(([name]) =>
-          this.api.getQueues().pipe(
-            map((queues) => queues.find((q) => q.name === name) ?? null),
+          this.api.getQueue(name).pipe(
             catchError((e: unknown) => {
               this.queueError.set(describeError(e));
               return EMPTY;
@@ -468,6 +492,29 @@ export class QueueDetailPageComponent {
 
   protected delete(): void {
     this.run([...this.selected()], (ids) => this.api.deleteMessages(ids), 'deleted');
+  }
+
+  protected enqueue(result: PayloadDialogResult): void {
+    this.busy.set(true);
+    this.api
+      .enqueueMessage(this.name(), { payload: result.payload, visibleAt: result.visibleAt })
+      .pipe(
+        finalize(() => this.busy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (message) => {
+          this.payloadDialog().close();
+          this.toasts.show('success', `Message added to ${this.name()}.`);
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { status: message.status },
+            queryParamsHandling: 'merge',
+          });
+          this.live.refreshNow();
+        },
+        error: (e: unknown) => this.toasts.show('error', describeError(e)),
+      });
   }
 
   private run(
