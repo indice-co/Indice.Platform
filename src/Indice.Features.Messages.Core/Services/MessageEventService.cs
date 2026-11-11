@@ -55,8 +55,8 @@ public class MessageEventService : IMessageEventService
             if (!string.IsNullOrWhiteSpace(options.Filter.Recipient)) {
                 query = query.Where(x => x.Recipient == options.Filter.Recipient);
             }
-            if (options.Filter.Success.HasValue) {
-                query = query.Where(x => x.Success == options.Filter.Success.Value);
+            if (options.Filter.Success is bool success) {
+                query = query.Where(x => x.Success == success);
             }
         }
         var term = options.Search?.Trim().ToLower();
