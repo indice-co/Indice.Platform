@@ -128,7 +128,7 @@ internal class WorkerHostedService : IHostedService
                                   .StoreDurably()
                                   .WithIdentity(name: nameof(RunNowJob), group: JobGroups.InternalJobsGroup)
                                   .SetJobData(new JobDataMap(new Dictionary<string, object> {
-                                      [JobDataKeys.RunNow] = (IReadOnlyDictionary<string, JobKey>)jobKeys
+                                      [JobDataKeys.RunNow] = jobKeys
                                   } as IDictionary<string, object>))
                                   .Build();
         await scheduler.AddJob(runNowJob, replace: true, cancellationToken);
