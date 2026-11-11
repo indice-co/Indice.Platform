@@ -143,9 +143,13 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
                 Timestamp = timestamp,
                 Recipient = GetString(item, "email") ?? string.Empty,
                 Subject = GetString(item, "subject"),
-                Payload = item
+                Payload = item,
+                Succeeded = EventSucceeded(eventType)
             };
         }
+    }
+    private static bool EventSucceeded(string  eventType) {
+        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
     }
 
     private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders, byte[] payloadBytes) {

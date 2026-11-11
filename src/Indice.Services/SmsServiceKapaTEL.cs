@@ -269,12 +269,17 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
                 EventId = eventId,
                 MessageId = messageId,
                 Timestamp = timestamp,
-                Payload = payload
+                Payload = payload,
+                Succeeded = EventSucceeded(eventType)
             }
         };
 
         await Task.CompletedTask;
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
+    }
+
+    private static bool EventSucceeded(string eventType) {
+        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryParseNotificationTimestamp(string value, out DateTimeOffset timestamp) {

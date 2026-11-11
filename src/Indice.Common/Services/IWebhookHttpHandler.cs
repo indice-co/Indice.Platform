@@ -79,11 +79,13 @@ public sealed class WebhookEvent
     /// <summary>Gets or sets the unique identifier of the event.</summary>
     public string EventId { get; set; } = null!;
     /// <summary>Gets or sets the recipient of the webhook event.</summary>
-    public string Recipient { get; set; } = null!;
+    public string? Recipient { get; set; } = null!;
     /// <summary>Gets or sets the subject of the webhook event.</summary>
     public string? Subject { get; set; }
     /// <summary>Gets or sets the payload of the webhook event.</summary>
     public JsonNode? Payload { get; set; }
+    /// <summary>Gets or sets a value indicating whether the webhook event was processed successfully.</summary>
+    public bool Succeeded { get; set; }
 }
 
 /// <summary>Represents the result of parsing a webhook request.</summary>

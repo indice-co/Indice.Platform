@@ -210,11 +210,15 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
                 Recipient = recipient,
                 Subject = sender,
                 Timestamp = timestamp,
-                Payload = payload
+                Payload = payload,
+                Succeeded = EventSucceeded(eventType)
             }
         }, 204);
     }
 
+    private static bool EventSucceeded(string eventType) {
+        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+    }
     private bool IsTwilioSignatureValid(
         IDictionary<string, StringValues> requestHeaders,
         IDictionary<string, string> parameters) {

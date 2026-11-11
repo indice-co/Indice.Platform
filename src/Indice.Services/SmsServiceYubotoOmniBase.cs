@@ -491,7 +491,8 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
                 Recipient = recipient,
                 Subject = sender,
                 Timestamp = timestamp,
-                Payload = payload
+                Payload = payload,
+                Succeeded = EventSucceeded(eventType)
             }
         };
 
@@ -499,6 +500,9 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
     }
 
+    private static bool EventSucceeded(string eventType) {
+        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+    }
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
         if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
             return false;

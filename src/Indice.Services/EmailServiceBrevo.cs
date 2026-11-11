@@ -155,11 +155,14 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
                 Timestamp = GetTimestamp(item),
                 Recipient = recipient,
                 Subject = GetString(item, "subject"),
-                Payload = item
+                Payload = item,
+                Succeeded = EventSucceeded(eventType)
             };
         }
     }
-
+    private static bool EventSucceeded(string eventType) {
+        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+    }
     private static string? GetString(JsonObject data, string propertyName) {
         var value = data[propertyName];
 

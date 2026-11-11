@@ -598,11 +598,13 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             Recipient = recipient,
             Subject = GetJsonValueAsString(root, "campaign_reference"),
             Timestamp = timestamp,
-            Payload = JsonNode.Parse(root.GetRawText())
+            Payload = JsonNode.Parse(root.GetRawText()),
+            Succeeded = EventSucceeded(string.IsNullOrWhiteSpace(status) ? "SmsDelivery" : status)
         };
 
         return true;
     }
+
 
     private static bool TryParseInteraction(JsonElement root, out WebhookEvent webhookEvent, out string error) {
         webhookEvent = null!;
@@ -648,12 +650,16 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             Recipient = recipient,
             Subject = GetJsonValueAsString(webhookData, "campaign_reference"),
             Timestamp = timestamp,
-            Payload = JsonNode.Parse(root.GetRawText())
+            Payload = JsonNode.Parse(root.GetRawText()),
+            Succeeded = EventSucceeded(interaction ?? webhookType ?? "Interaction")
         };
 
         return true;
     }
 
+    private static bool EventSucceeded(string eventType) {
+        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+    }
     private static string? GetJsonValueAsString(JsonElement json, string propertyName) {
         if (!json.TryGetProperty(propertyName, out var property)) {
             return null;

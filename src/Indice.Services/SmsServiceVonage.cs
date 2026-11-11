@@ -189,13 +189,17 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
                 Recipient = recipient,
                 Subject = sender,
                 Timestamp = timestamp,
-                Payload = payload
+                Payload = payload,
+                Succeeded = EventSucceeded(eventType)
             }
         };
 
         return WebhookHttpResult.Ok(incomingEvents, 204);
     }
 
+    private static bool EventSucceeded(string eventType) {
+        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+    }
     private static async Task<Dictionary<string, string>> BuildParametersAsync(
         IDictionary<string, StringValues> requestHeaders,
         IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
