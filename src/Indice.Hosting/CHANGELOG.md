@@ -5,12 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [8.64.0]
 ### Added
 - Run now for scheduled tasks: a worker picks up requests left in the `$run-now:{taskId}` queue (e.g. by the workers dashboard) and runs the task once, even when it is disabled. Relational store only. Configure with `WorkerHostOptions.RunNowPollingInterval` (default 15 seconds, `null` to disable) and `WorkerHostOptions.RunNowExpiration` (default 10 minutes).
 
 ### Changed
-- The queue table index on `QueueName` is replaced by one on `(QueueName, Date)` that includes `State` and `DequeueCount` (SQL Server). It matches the dequeue query and lets monitoring count messages without reading the payloads. **Add a migration** to the context that holds the worker tables.
+- The queue table index on `QueueName` is replaced by one on `(QueueName, Date)` that includes `State` and `DequeueCount` (SQL Server). It matches the dequeue query and lets monitoring count messages without reading the payloads. **Add a migration** to the context that holds the worker tables, or run the script below on existing databases:
+  - `IX_QMessage_QueueName` on `[work].[QMessage]([QueueName])` is dropped.
+  - `IX_QMessage_QueueName_Date` on `[work].[QMessage]([QueueName], [Date])` is added, with `[State]` and `[DequeueCount]` included on SQL Server. PostgreSQL gets the two-column index without them.
+
+SQL Server: run this migration script to update the database.<br/>
+**Caution!** Building the index on a large queue table takes time and blocks writes to it, so run it off-peak (or add `WITH (ONLINE = ON)` where the edition supports it: Enterprise, Developer or Azure SQL).
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[work].[QMessage]')
+      AND name = N'IX_QMessage_QueueName_Date'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_QMessage_QueueName_Date]
+        ON [work].[QMessage]([QueueName] ASC, [Date] ASC)
+        INCLUDE ([State], [DequeueCount]);
+END;
+GO
+
+IF EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[work].[QMessage]')
+      AND name = N'IX_QMessage_QueueName'
+)
+BEGIN
+    DROP INDEX [IX_QMessage_QueueName] ON [work].[QMessage];
+END;
+GO
+```
+
+PostgreSQL: run this migration script to update the database.
+```sql
+-- Run outside of a transaction block (CREATE/DROP INDEX CONCURRENTLY does not block writes).
+CREATE INDEX CONCURRENTLY IF NOT EXISTS "IX_QMessage_QueueName_Date"
+    ON work."QMessage" ("QueueName", "Date");
+
+DROP INDEX CONCURRENTLY IF EXISTS work."IX_QMessage_QueueName";
+
+ANALYZE work."QMessage";
+```
+> If a concurrent build fails it leaves an invalid index behind (`SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid;`). Drop it with `DROP INDEX CONCURRENTLY` and run the script again, because `IF NOT EXISTS` skips invalid indexes too.
 
 ## ## [8.60.0] - 2026-10-07
 ### Fixed
