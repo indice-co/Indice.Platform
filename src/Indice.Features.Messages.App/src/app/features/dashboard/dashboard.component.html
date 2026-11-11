@@ -283,8 +283,11 @@
   @if (trend) {
     <span class="inline-flex items-center gap-1 text-xs text-base-content/60" [class.mt-2]="!compact">
       <span class="inline-flex items-center gap-0.5 font-semibold" [class]="trend.positive ? 'text-success' : 'text-error'">
-        @if (trend.change >= 0) { <svg lucideArrowUpRight class="size-3.5"></svg> } @else { <svg lucideArrowDownRight class="size-3.5"></svg> }
-        <span class="tabular">{{ (trend.change < 0 ? -trend.change : trend.change) | percent: '1.0-1' }}</span>
+        <span class="sr-only">{{ trend.change < 0 ? '-' : '+' }}{{ (trend.change < 0 ? -trend.change : trend.change) | percent: '1.0-1' }}</span>
+        <span aria-hidden="true">
+          @if (trend.change >= 0) { <svg lucideArrowUpRight class="size-3.5"></svg> } @else { <svg lucideArrowDownRight class="size-3.5"></svg> }
+          <span class="tabular">{{ (trend.change < 0 ? -trend.change : trend.change) | percent: '1.0-1' }}</span>
+        </span>
       </span>
       {{ 'DashBoard.VsPrevious' | translate }}
     </span>

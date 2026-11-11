@@ -65,7 +65,7 @@ public interface IWorkerDashboardService
     /// <param name="taskId">The task id.</param>
     /// <param name="requestedBy">Who requested the run, kept for troubleshooting.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The pending request, or <see langword="null"/> when the task has no row (it has never run).</returns>
+    /// <returns>The pending request, or <see langword="null"/> when the task has no row (it has never run). Concurrent requests return the same pending request.</returns>
     Task<RunScheduledTaskResult?> RunScheduledTask(string taskId, string? requestedBy = null, CancellationToken cancellationToken = default);
     
     /// <summary>Gets the locks, ordered by name.</summary>

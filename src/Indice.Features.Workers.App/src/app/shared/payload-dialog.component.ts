@@ -136,9 +136,9 @@ export class PayloadDialogComponent {
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
-  /** Opens with the given payload, pretty-printed when it parses. */
+  /** Opens with the given payload as stored. */
   open(payload?: string | null, queueName = ''): void {
-    this.text.set(prettyPrint(payload));
+    this.text.set(initialPayload(payload));
     this.queueName.set(queueName);
     this.visibleAt.set('');
     this.dialog().nativeElement.showModal();
@@ -163,21 +163,9 @@ export class PayloadDialogComponent {
   }
 }
 
-function prettyPrint(value: string | null | undefined): string {
+function initialPayload(value: string | null | undefined): string {
   if (!value) {
     return '{\n  \n}';
   }
-  try {
-    let lossy = false;
-    const parsed: unknown = JSON.parse(value, (_key, item: unknown) => {
-      if (typeof item === 'number' && Number.isInteger(item) && !Number.isSafeInteger(item)) {
-        lossy = true;
-      }
-      return item;
-    });
-    // Re-formatting would round a 64-bit id, so such a payload is edited as stored.
-    return lossy ? value : JSON.stringify(parsed, null, 2);
-  } catch {
-    return value;
-  }
+  return value;
 }

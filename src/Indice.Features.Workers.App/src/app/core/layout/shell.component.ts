@@ -52,9 +52,16 @@ import { ThemeMode, ThemeService } from './theme.service';
           class="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-base-300 bg-base-100/85 px-3
                  backdrop-blur sm:px-4 lg:px-8"
         >
-          <label for="app-drawer" class="btn btn-ghost btn-sm btn-square lg:hidden" aria-label="Open navigation">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm btn-square lg:hidden"
+            [attr.aria-label]="drawerOpen() ? 'Close navigation' : 'Open navigation'"
+            [attr.aria-expanded]="drawerOpen()"
+            aria-controls="app-drawer"
+            (click)="drawerOpen.set(!drawerOpen())"
+          >
             <svg lucideMenu class="size-5"></svg>
-          </label>
+          </button>
 
           <p class="min-w-0 flex-1 truncate font-mono text-xs text-base-content/55">
             <span class="hidden sm:inline">

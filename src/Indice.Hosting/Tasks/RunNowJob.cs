@@ -1,4 +1,5 @@
 using Indice.Hosting.Data;
+using Indice.Hosting.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -13,13 +14,15 @@ internal sealed record RunNowSettings(TimeSpan PollingInterval, TimeSpan Expirat
 /// A request is a message in the <c>$run-now:{taskId}</c> queue (see <see cref="HostingConventions.GetRunNowQueueName(string)"/>).
 /// </summary>
 /// <remarks>
-/// Each request is claimed with a delete, so with many workers only one of them runs the task.
+/// Each request is claimed with a short database lease, so with many workers only one of them dispatches it.
+/// A failed dispatch releases the request, and a crashed worker's claim expires so the request can be retried.
 /// The task runs through its normal Quartz job, so the singleton lock and the persisted state work as in a scheduled execution.
 /// </remarks>
 [DisallowConcurrentExecution]
 internal class RunNowJob : IJob
 {
     private const int BatchSize = 50;
+    private static readonly TimeSpan ClaimDuration = TimeSpan.FromMinutes(1);
     private readonly ITaskDbContext _dbContext;
     private readonly RunNowSettings _settings;
     private readonly ILogger<RunNowJob> _logger;
@@ -50,26 +53,66 @@ internal class RunNowJob : IJob
             .AsNoTracking()
             .Where(x => queueNames.Contains(x.QueueName) && x.Date <= now)
             .OrderBy(x => x.Date)
-            .Select(x => new { x.Id, x.QueueName, x.Date })
+            .Select(x => new { x.Id, x.QueueName, x.Date, x.Payload })
             .Take(BatchSize)
             .ToListAsync(context.CancellationToken);
         var triggered = new HashSet<string>(StringComparer.Ordinal);
         foreach (var request in requests) {
-            // Claim the request. Another worker that hosts the same task may have claimed it first.
-            var claimed = await _dbContext.Queue.Where(x => x.Id == request.Id).ExecuteDeleteAsync(context.CancellationToken) > 0;
+            now = DateTime.UtcNow;
+            var requestedAt = GetRequestedAt(request.Payload, request.Date);
+            // Claim until a short lease expires. A crashed worker then leaves a request another worker can retry.
+            var leaseUntil = now + ClaimDuration;
+            var claimed = await _dbContext.Queue
+                .Where(x => x.Id == request.Id && x.Date <= now)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.State, QMessageState.Dequeued)
+                    .SetProperty(x => x.Date, leaseUntil), context.CancellationToken) > 0;
             if (!claimed || !jobKeys.TryGetValue(request.QueueName, out var jobKey)) {
                 continue;
             }
-            if (DateTime.SpecifyKind(request.Date, DateTimeKind.Utc) < now - _settings.Expiration) {
+            if (requestedAt < now - _settings.Expiration) {
                 _logger.LogWarning("Run now request {RequestId} of scheduled task '{JobKey}' expired and was discarded.", request.Id, jobKey);
+                await DeleteRequest(request.Id);
                 continue;
             }
             // Requests made while the task was waiting to be picked up are served by a single run.
             if (!triggered.Add(request.QueueName)) {
+                await DeleteRequest(request.Id);
                 continue;
             }
             _logger.LogInformation("Running scheduled task '{JobKey}' now, as requested by {RequestId}.", jobKey, request.Id);
-            await context.Scheduler.TriggerJob(jobKey, new JobDataMap { [JobDataKeys.RunNow] = true }, context.CancellationToken);
+            var dispatched = false;
+            try {
+                await context.Scheduler.TriggerJob(jobKey, new JobDataMap { [JobDataKeys.RunNow] = true }, context.CancellationToken);
+                dispatched = true;
+            } finally {
+                if (dispatched) {
+                    await DeleteRequest(request.Id);
+                } else {
+                    await ReleaseRequest(request.Id, requestedAt);
+                }
+            }
         }
     }
+
+    private static DateTime GetRequestedAt(string payload, DateTime fallback) {
+        try {
+            using var document = System.Text.Json.JsonDocument.Parse(payload);
+            return document.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                document.RootElement.TryGetProperty("requestedAt", out var value) &&
+                value.TryGetDateTime(out var requestedAt)
+                ? DateTime.SpecifyKind(requestedAt, DateTimeKind.Utc)
+                : DateTime.SpecifyKind(fallback, DateTimeKind.Utc);
+        } catch (System.Text.Json.JsonException) {
+            return DateTime.SpecifyKind(fallback, DateTimeKind.Utc);
+        }
+    }
+
+    private Task DeleteRequest(Guid id) =>
+        _dbContext.Queue.Where(x => x.Id == id).ExecuteDeleteAsync(CancellationToken.None);
+
+    private Task<int> ReleaseRequest(Guid id, DateTime requestedAt) =>
+        _dbContext.Queue.Where(x => x.Id == id).ExecuteUpdateAsync(s => s
+            .SetProperty(x => x.State, QMessageState.New)
+            .SetProperty(x => x.Date, requestedAt), CancellationToken.None);
 }

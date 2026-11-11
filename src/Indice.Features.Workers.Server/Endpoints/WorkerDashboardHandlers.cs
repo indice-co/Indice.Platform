@@ -14,6 +14,7 @@ namespace Indice.Features.Workers.Server.Endpoints;
 internal static class WorkerDashboardHandlers
 {
     private const int MaxQueueNameLength = 400;
+    private static readonly SemaphoreSlim StatsCacheLock = new(1, 1);
 
     public static async Task<Ok<WorkerDashboardPermissions>> GetPermissions(ClaimsPrincipal user, IAuthorizationService authorizationService) =>
         TypedResults.Ok(new WorkerDashboardPermissions {
@@ -26,11 +27,21 @@ internal static class WorkerDashboardHandlers
             return TypedResults.Ok(await service.GetStats(cancellationToken));
         }
         // Every open dashboard polls the counters, so they are computed once per period for all of them.
-        var stats = await cache.GetOrCreateAsync(GetStatsCacheKey(options.Value), entry => {
-            entry.AbsoluteExpirationRelativeToNow = duration;
-            return service.GetStats(cancellationToken);
-        });
-        return TypedResults.Ok(stats!);
+        var key = GetStatsCacheKey(options.Value);
+        if (cache.TryGetValue(key, out DashboardStats? cached) && cached is not null) {
+            return TypedResults.Ok(cached);
+        }
+        await StatsCacheLock.WaitAsync(cancellationToken);
+        try {
+            if (cache.TryGetValue(key, out cached) && cached is not null) {
+                return TypedResults.Ok(cached);
+            }
+            var stats = await service.GetStats(cancellationToken);
+            cache.Set(key, stats, duration);
+            return TypedResults.Ok(stats);
+        } finally {
+            StatsCacheLock.Release();
+        }
     }
 
     public static async Task<Ok<List<QueueInfo>>> GetQueues(IWorkerDashboardService service, CancellationToken cancellationToken) =>

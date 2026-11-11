@@ -226,6 +226,14 @@ public class WorkerDashboardService : IWorkerDashboardService
     /// <inheritdoc />
     public async Task<QueueMessageDetails?> UpdateMessage(Guid messageId, string payload, CancellationToken cancellationToken = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(payload);
+        var message = await _taskDb.Queue.AsNoTracking().SingleOrDefaultAsync(x => x.Id == messageId, cancellationToken);
+        if (message is null) {
+            return null;
+        }
+        var now = DateTime.UtcNow;
+        var queueName = message.QueueName.EndsWith(HostingConventions.PoisonSuffix)
+            ? message.QueueName[..^HostingConventions.PoisonSuffix.Length]
+            : message.QueueName;
         // A message that a worker has dequeued is gone (deleted), so this cannot overwrite a message in progress.
         var affected = await _taskDb.Queue
             .Where(x => x.Id == messageId)
@@ -238,8 +246,16 @@ public class WorkerDashboardService : IWorkerDashboardService
                 )
                 .SetProperty(x => x.State, QMessageState.New)
                 .SetProperty(x => x.DequeueCount, 0)
-                .SetProperty(x => x.Date, DateTime.UtcNow), cancellationToken);
-        return affected > 0 ? await GetMessage(messageId, cancellationToken) : null;
+                .SetProperty(x => x.Date, now), cancellationToken);
+        if (affected == 0) {
+            return null;
+        }
+        message.QueueName = queueName;
+        message.Payload = payload;
+        message.Date = now;
+        message.State = QMessageState.New;
+        message.DequeueCount = 0;
+        return ToDetails(message, now);
     }
 
     /// <inheritdoc />
@@ -249,13 +265,22 @@ public class WorkerDashboardService : IWorkerDashboardService
         var runRequests = await _taskDb.Queue
             .AsNoTracking()
             .Where(x => x.QueueName.StartsWith(HostingConventions.RunNowQueuePrefix))
-            .GroupBy(x => x.QueueName)
-            .Select(g => new { QueueName = g.Key, RequestedAt = g.Min(x => x.Date) })
-            .ToDictionaryAsync(x => x.QueueName, x => x.RequestedAt, StringComparer.Ordinal, cancellationToken);
+            .Select(x => new { x.QueueName, x.Date, x.Payload })
+            .ToListAsync(cancellationToken);
+        var requestedAtByQueue = runRequests
+            .GroupBy(x => x.QueueName, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => {
+                    var request = group.MinBy(x => x.Date)!;
+                    return GetRunRequestedAt(request.Payload, request.Date);
+                },
+                StringComparer.Ordinal
+            );
         return [
             .. rows.Select(row => {
                     var info = ToInfo(row, new ScheduledTaskInfo());
-                    info.RunRequestedAt = runRequests.TryGetValue(HostingConventions.GetRunNowQueueName(row.Id), out var requestedAt) ? AsUtc(requestedAt) : null;
+                    info.RunRequestedAt = requestedAtByQueue.TryGetValue(HostingConventions.GetRunNowQueueName(row.Id), out var requestedAt) ? AsUtc(requestedAt) : null;
                     return info;
                 })
                 .OrderBy(x => x.Group, StringComparer.Ordinal)
@@ -313,7 +338,13 @@ public class WorkerDashboardService : IWorkerDashboardService
         details.Errors = task.Errors;
         details.State = task.Payload;
         var runNowQueueName = HostingConventions.GetRunNowQueueName(taskId);
-        details.RunRequestedAt = AsUtc(await _taskDb.Queue.AsNoTracking().Where(x => x.QueueName == runNowQueueName).MinAsync(x => (DateTime?)x.Date, cancellationToken));
+        var runRequest = await _taskDb.Queue
+            .AsNoTracking()
+            .Where(x => x.QueueName == runNowQueueName)
+            .OrderBy(x => x.Date)
+            .Select(x => new { x.Date, x.Payload })
+            .FirstOrDefaultAsync(cancellationToken);
+        details.RunRequestedAt = runRequest is null ? null : AsUtc(GetRunRequestedAt(runRequest.Payload, runRequest.Date));
 
         return details;
     }
@@ -333,32 +364,66 @@ public class WorkerDashboardService : IWorkerDashboardService
     /// <inheritdoc />
     public async Task<RunScheduledTaskResult?> RunScheduledTask(string taskId, string? requestedBy = null, CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(taskId);
-        if (!await _taskDb.Tasks.AnyAsync(x => x.Id == taskId, cancellationToken)) {
-            return null;
-        }
         var queueName = HostingConventions.GetRunNowQueueName(taskId);
-        var pending = await _taskDb.Queue
-            .AsNoTracking()
-            .Where(x => x.QueueName == queueName)
-            .OrderBy(x => x.Date)
-            .Select(x => new { x.Id, x.Date })
-            .FirstOrDefaultAsync(cancellationToken);
-        if (pending is not null) {
-            return new RunScheduledTaskResult { RequestId = pending.Id, RequestedAt = DateTime.SpecifyKind(pending.Date, DateTimeKind.Utc) };
+        try {
+            await using var transaction = await _taskDb.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+            if (!await _taskDb.Tasks.AnyAsync(x => x.Id == taskId, cancellationToken)) {
+                return null;
+            }
+            var pending = await _taskDb.Queue
+                .AsNoTracking()
+                .Where(x => x.QueueName == queueName)
+                .OrderBy(x => x.Date)
+                .Select(x => new { x.Id, x.Date, x.Payload })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (pending is not null) {
+                await transaction.CommitAsync(cancellationToken);
+                return new RunScheduledTaskResult { RequestId = pending.Id, RequestedAt = GetRunRequestedAt(pending.Payload, pending.Date) };
+            }
+            var now = DateTime.UtcNow;
+            var request = new DbQMessage {
+                Id = Guid.NewGuid(),
+                QueueName = queueName,
+                // The worker only needs the queue name; the payload is kept for troubleshooting.
+                Payload = JsonSerializer.Serialize(new { taskId, requestedBy, requestedAt = now }),
+                Date = now,
+                DequeueCount = 0,
+                State = QMessageState.New
+            };
+            _taskDb.Add(request);
+            await _taskDb.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return new RunScheduledTaskResult { RequestId = request.Id, RequestedAt = now };
+        } catch (Exception exception) when (
+            (exception is DbUpdateException or System.Data.Common.DbException) &&
+            !cancellationToken.IsCancellationRequested
+        ) {
+            // Serializable transactions can reject one concurrent insert (notably with PostgreSQL).
+            // If the other request committed, return it instead of surfacing a duplicate-run failure.
+            var pending = await _taskDb.Queue
+                .AsNoTracking()
+                .Where(x => x.QueueName == queueName)
+                .OrderBy(x => x.Date)
+                .Select(x => new { x.Id, x.Date, x.Payload })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (pending is null) {
+                throw;
+            }
+            return new RunScheduledTaskResult { RequestId = pending.Id, RequestedAt = GetRunRequestedAt(pending.Payload, pending.Date) };
         }
-        var now = DateTime.UtcNow;
-        var request = new DbQMessage {
-            Id = Guid.NewGuid(),
-            QueueName = queueName,
-            // The worker only needs the queue name; the payload is kept for troubleshooting.
-            Payload = JsonSerializer.Serialize(new { taskId, requestedBy, requestedAt = now }),
-            Date = now,
-            DequeueCount = 0,
-            State = QMessageState.New
-        };
-        _taskDb.Add(request);
-        await _taskDb.SaveChangesAsync(cancellationToken);
-        return new RunScheduledTaskResult { RequestId = request.Id, RequestedAt = now };
+    }
+
+    private static DateTime GetRunRequestedAt(string payload, DateTime fallback) {
+        try {
+            using var document = JsonDocument.Parse(payload);
+            return document.RootElement.ValueKind == JsonValueKind.Object &&
+                document.RootElement.TryGetProperty("requestedAt", out var value) &&
+                value.TryGetDateTime(out var requestedAt)
+                ? DateTime.SpecifyKind(requestedAt, DateTimeKind.Utc)
+                : DateTime.SpecifyKind(fallback, DateTimeKind.Utc);
+        } catch (JsonException) {
+            return DateTime.SpecifyKind(fallback, DateTimeKind.Utc);
+        }
     }
 
     /// <inheritdoc />
