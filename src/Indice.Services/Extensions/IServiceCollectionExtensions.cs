@@ -583,6 +583,10 @@ public static class IndiceServicesServiceCollectionExtensions
         var smsSection = builder.Configuration.GetSection(SmsServiceSettings.Name);
         var provider = builder.Configuration.GetDefaultSmsProvider();
         switch (provider) {
+            case "smsup":
+                services.Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, SmsUpWebhookHttpHandler>(configuration, provider);
+                break;
             case "apifon":
             case "ApiFon":
                 builder.AddHttpHandler<ApifonWebhookHttpHandler>(provider);
@@ -629,6 +633,10 @@ public static class IndiceServicesServiceCollectionExtensions
         switch (provider) {
             case EmailServiceSparkPost.ServiceName:
                 builder.AddHttpHandler<SparkPostWebhookHttpHandler>(provider);
+                break;
+            case EmailServiceSendGrid.ServiceName:
+                services.Configure<EmailServiceSendGridSettings>(configuration.GetSection(EmailServiceSendGridSettings.Name));
+                services.AddWebhookServices<THandler, SendGridWebhookHttpHandler>(configuration, provider);
                 break;
             case EmailServiceBrevo.ServiceName:
                 builder.AddHttpHandler<BrevoWebhookHttpHandler>(provider);

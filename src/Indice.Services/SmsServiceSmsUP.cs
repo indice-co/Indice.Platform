@@ -1,12 +1,16 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Indice.Globalization;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Services;
 
@@ -72,7 +76,7 @@ public class SmsServiceSmsUp : ISmsService
                                             }).ToList();
         var request = new SmsUpRequest {
             ApiKey = Settings.ApiKey!,
-            ReportUrl = Settings.ReportUrl,
+            ReportUrl = BuildSignedReportUrl(Settings.ReportUrl, Settings.WebhookSecret),
             Concat = Settings.Concat,
             Fake = Settings.Fake,
             Messages = messages
@@ -121,6 +125,20 @@ public class SmsServiceSmsUp : ISmsService
         }
     }
 
+    private static string? BuildSignedReportUrl(string? reportUrl, string? secretKey) {
+        if (string.IsNullOrWhiteSpace(reportUrl) || string.IsNullOrWhiteSpace(secretKey)) {
+            return reportUrl;
+        }
+
+        var reference = Guid.NewGuid().ToString("N");
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var signature = Convert.ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"))).ToLowerInvariant();
+
+        var separator = reportUrl.Contains('?', StringComparison.Ordinal) ? '&' : '?';
+        return $"{reportUrl}{separator}ref={Uri.EscapeDataString(reference)}&ts={Uri.EscapeDataString(timestamp)}&signature={Uri.EscapeDataString(signature)}";
+    }
+
 
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
@@ -147,6 +165,9 @@ public class SmsServiceSmsUpSettings
     /// <summary>The Report URL for delivery reports.</summary>
     public string? ReportUrl { get; set; }
 
+    /// <summary>Optional webhook signature secret used to sign report url callbacks and validate incoming webhooks.</summary>
+    public string? WebhookSecret { get; set; }
+
     /// <summary>Whether to enable message concatenation (1 = true, 0 = false).</summary>
     public int Concat { get; set; } = 1;
 
@@ -165,6 +186,199 @@ public class SmsServiceSmsUpSettings
         // In SmsUp, API key is typically passed in the body, but you can format it like a bearer if needed
         return $"ApiKey {ApiKey}";
     }
+}
+
+/// <inheritdoc/>
+public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler {
+    private readonly SmsServiceSmsUpSettings _settings;
+
+    /// <inheritdoc/>
+    public SmsUpWebhookHttpHandler(IOptionsSnapshot<SmsServiceSmsUpSettings> settings) {
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+    }
+
+    /// <inheritdoc/>
+    public async Task<WebhookHttpResult> ParseAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        if (IsSignatureInvalid(requestParameters)) {
+            return WebhookHttpResult.ForbiddenRequest("Invalid SmsUp webhook signature.");
+        }
+
+        var parameters = await BuildParametersAsync(requestHeaders, requestParameters, requestBody, cancellationToken);
+
+        var messageId = FirstNonEmpty(parameters, "sms_id", "smsid", "message_id", "id");
+        var recipient = FirstNonEmpty(parameters, "to", "recipient", "msisdn", "destination");
+        if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(recipient)) {
+            return WebhookHttpResult.BadRequest("SmsUp webhook requires a message identifier and a recipient.");
+        }
+
+        var sender = FirstNonEmpty(parameters, "from", "sender", "originator");
+        var status = FirstNonEmpty(parameters, "status");
+        var errorId = FirstNonEmpty(parameters, "error_id", "error");
+        var timestamp = ParseTimestamp(parameters);
+
+        var eventType = !string.IsNullOrWhiteSpace(status)
+            ? $"Status:{status}"
+            : !string.IsNullOrWhiteSpace(errorId)
+                ? $"Error:{errorId}"
+                : "SmsWebhook";
+
+        var payload = new JsonObject();
+        foreach (var parameter in parameters) {
+            payload[parameter.Key] = parameter.Value;
+        }
+
+        var eventId = !string.IsNullOrWhiteSpace(status)
+            ? $"{messageId}:{status}:{timestamp:O}"
+            : $"{messageId}:{timestamp:O}";
+
+        var incomingEvents = new List<WebhookEvent> {
+            new() {
+                Provider = "SmsUp",
+                EventType = eventType,
+                EventId = eventId,
+                MessageId = messageId,
+                Recipient = recipient,
+                Subject = sender,
+                Timestamp = timestamp,
+                Payload = payload
+            }
+        };
+
+        return WebhookHttpResult.Ok(incomingEvents, 204);
+    }
+
+    private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
+        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
+            return false;
+        }
+
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+        var hmacToken = parameters.GetValueOrDefault("hmac");
+        if (string.IsNullOrWhiteSpace(hmacToken)) {
+            hmacToken = parameters.GetValueOrDefault("signature");
+        }
+        var reference = parameters.GetValueOrDefault("ref");
+        var timestamp = parameters.GetValueOrDefault("ts");
+
+        if (string.IsNullOrWhiteSpace(hmacToken) ||
+            string.IsNullOrWhiteSpace(reference) ||
+            string.IsNullOrWhiteSpace(timestamp)) {
+            return true;
+        }
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_settings.WebhookSecret));
+        var expectedHmac = hmac.ComputeHash(Encoding.UTF8.GetBytes($"{reference}:{timestamp}"));
+
+        try {
+            return !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hmacToken!), expectedHmac);
+        } catch (FormatException) {
+            return true;
+        }
+    }
+
+    private static async Task<Dictionary<string, string>> BuildParametersAsync(
+        IDictionary<string, StringValues> requestHeaders,
+        IEnumerable<KeyValuePair<string, StringValues>> requestParameters,
+        Stream requestBody,
+        CancellationToken cancellationToken) {
+        var parameters = requestParameters.ToDictionary(p => p.Key, p => p.Value.ToString(), StringComparer.OrdinalIgnoreCase);
+
+        if (requestBody is null || requestBody == Stream.Null) {
+            return parameters;
+        }
+        if (requestBody.CanSeek && requestBody.Length == 0) {
+            return parameters;
+        }
+
+        if (requestBody.CanSeek) {
+            requestBody.Position = 0;
+        }
+
+        using var reader = new StreamReader(requestBody, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+        var body = await reader.ReadToEndAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(body)) {
+            return parameters;
+        }
+
+        var contentType = requestHeaders.TryGetValue("Content-Type", out var contentTypeValues)
+            ? contentTypeValues.ToString()
+            : string.Empty;
+
+        if (IsFormUrlEncoded(contentType)) {
+            foreach (var pair in ParseFormUrlEncoded(body)) {
+                parameters[pair.Key] = pair.Value;
+            }
+            return parameters;
+        }
+
+        try {
+            var json = JsonNode.Parse(body) as JsonObject;
+            if (json is null) {
+                return parameters;
+            }
+
+            foreach (var item in json.Where(item => item.Value is not null)) {
+                parameters[item.Key] = item.Value!.ToString();
+            }
+        } catch (JsonException) {
+            // Ignore malformed/non-JSON body and fallback to query parameters only.
+        }
+
+        return parameters;
+    }
+
+    private static bool IsFormUrlEncoded(string? contentType) {
+        return !string.IsNullOrWhiteSpace(contentType) &&
+               contentType.IndexOf(MediaTypeNames.Application.FormUrlEncoded, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static IEnumerable<KeyValuePair<string, string>> ParseFormUrlEncoded(string body) {
+        foreach (var segment in body.Split('&', StringSplitOptions.RemoveEmptyEntries)) {
+            var separatorIndex = segment.IndexOf('=');
+            var encodedKey = separatorIndex >= 0 ? segment[..separatorIndex] : segment;
+            var encodedValue = separatorIndex >= 0 ? segment[(separatorIndex + 1)..] : string.Empty;
+            var key = Uri.UnescapeDataString(encodedKey.Replace('+', ' '));
+            var value = Uri.UnescapeDataString(encodedValue.Replace('+', ' '));
+            if (!string.IsNullOrWhiteSpace(key)) {
+                yield return new KeyValuePair<string, string>(key, value);
+            }
+        }
+    }
+
+    private static DateTimeOffset ParseTimestamp(IDictionary<string, string> parameters) {
+        var unixTimestamp = FirstNonEmpty(parameters, "timestamp");
+        if (!string.IsNullOrWhiteSpace(unixTimestamp) &&
+            long.TryParse(unixTimestamp, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch)) {
+            if (epoch >= DateTimeOffset.MinValue.ToUnixTimeSeconds() && epoch <= DateTimeOffset.MaxValue.ToUnixTimeSeconds()) {
+                return DateTimeOffset.FromUnixTimeSeconds(epoch);
+            }
+            if (epoch >= DateTimeOffset.MinValue.ToUnixTimeMilliseconds() && epoch <= DateTimeOffset.MaxValue.ToUnixTimeMilliseconds()) {
+                return DateTimeOffset.FromUnixTimeMilliseconds(epoch);
+            }
+        }
+
+        var date = FirstNonEmpty(parameters, "datetime", "date", "done_at", "sent_at", "created_at");
+        if (!string.IsNullOrWhiteSpace(date) &&
+            DateTimeOffset.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate)) {
+            return parsedDate;
+        }
+
+        return DateTimeOffset.UtcNow;
+    }
+
+    private static string FirstNonEmpty(IDictionary<string, string> parameters, params string[] keys) {
+        foreach (var key in keys) {
+            if (parameters.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value)) {
+                return value;
+            }
+        }
+        return string.Empty;
+    }
+
 }
 
 
