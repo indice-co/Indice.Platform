@@ -157,7 +157,7 @@ Inherits the common options of `Indice.AspNetCore.EmbeddedUI` (`SpaUIOptions`).
 | `Authority` | `General:Authority` | The identity server address. |
 | `Host` | `General:Host` | The public address of this host; the redirect URIs are built from it. |
 | `DocumentTitle` | `Workers` | The browser tab title. |
-| `Theme` | `indice` | The daisyUI theme name. A `?uitheme=name` query argument overrides it for the browser session. |
+| `Theme` | `workers` | The daisyUI theme name. The built-in `workers` theme follows the user's light/dark/system choice; any other name (e.g. `workers-dark`, or a custom theme added through `HeadContent`) is applied as-is and hides the theme switcher. A `?uitheme=name` query argument overrides it for the browser session. |
 | `Lang` | the current UI culture | The `lang` attribute of the page. |
 | `HeadContent` | — | Extra markup for the page `<head>` (e.g. a stylesheet with a custom theme). |
 | `Enabled` | `true` | Set to `false` to stop serving the SPA. |

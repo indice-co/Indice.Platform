@@ -141,7 +141,7 @@ import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
                     <span class="flex items-center gap-2">
                       <progress
                         class="progress w-40"
-                        [class.progress-warning]="task.status === 'Running'"
+                        [class.progress-info]="task.status === 'Running'"
                         max="100"
                         [value]="progress()"
                         [attr.aria-label]="progress() + '% done'"

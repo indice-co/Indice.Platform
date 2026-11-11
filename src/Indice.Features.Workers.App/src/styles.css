@@ -1,69 +1,217 @@
 @import 'tailwindcss';
-@plugin 'daisyui';
+@import '@fontsource-variable/hanken-grotesk/index.css';
+@import '@fontsource-variable/jetbrains-mono/index.css';
 
 /* Scan our component templates (inline + .html) for utility classes. */
 @source './app/**/*.{html,ts}';
 @source './index.html';
 
-@plugin 'daisyui/theme' {
-  themes: light --default;
+@plugin 'daisyui' {
+  themes: false;
+  logs: false;
 }
 
-/* ── Indice theme (default) — Indice red on white: white surfaces, ink text, Indice red primary ── */
+/*
+ * Workers UI themes — amber primary (charcoal cog and text on it) with a cyan accent, on cool zinc neutrals: a white
+ * rail in the light theme, a near-black one in the dark theme. Cool greys keep the amber crisp rather than earthy.
+ * Amber sets Workers apart from the rest of the suite (IAM blue, Messaging indigo, Cases/Risk teal).
+ * daisyUI semantic tokens are the primary theming surface. The `--app-*` variables further down only cover what
+ * daisyUI has no token for: the sidebar chrome and the darker "ink" shade of the primary for text links.
+ *
+ * The primary stays clear of the status hues the dashboard paints with (info = Enqueued/Running, secondary = Scheduled,
+ * warning = Retrying, error = Poison/Failed, success = Ok), so a button never reads as a job state. That is
+ * why warning is orange rather than daisyUI's usual amber.
+ * The status hues are one family that sits with the amber and cyan: sky (Enqueued/Running — work in flight), violet (Scheduled), orange
+ * (Retrying), rose (Poison/Failed), emerald (Ok). Orange and rose sit far enough apart to tell a retry from a
+ * poison message at a glance. Each one carries its badge text at ~4.5:1 or better — orange, like the amber primary,
+ * with dark text. The amber primary is too light to be text on white, hence `text-primary-ink` for links.
+ */
 @plugin 'daisyui/theme' {
-  name: 'indice';
+  name: 'workers';
+  default: true;
+  prefersdark: false;
   color-scheme: light;
 
-  --color-base-100: oklch(100% 0 0);
-  --color-base-200: oklch(97.2% 0.002 270);
-  --color-base-300: oklch(92% 0.004 270);
-  --color-base-content: oklch(24% 0.012 270);
+  --color-base-100: #ffffff;
+  --color-base-200: #f4f4f5;
+  --color-base-300: #e4e4e7;
+  --color-base-content: #18181b;
+  --color-primary: #f59e0b;
+  --color-primary-content: #18181b;
+  --color-secondary: #7c3aed;
+  --color-secondary-content: #ffffff;
+  --color-accent: #22d3ee;
+  --color-accent-content: #062a33;
+  --color-neutral: #27272a;
+  --color-neutral-content: #fafafa;
+  --color-info: #0278b8;
+  --color-info-content: #ffffff;
+  --color-success: #047f5a;
+  --color-success-content: #ffffff;
+  --color-warning: #ea580c;
+  --color-warning-content: #18181b;
+  --color-error: #e11d48;
+  --color-error-content: #ffffff;
 
-  --color-primary: oklch(58.5% 0.214 27);
-  --color-primary-content: oklch(99% 0 0);
-  --color-secondary: oklch(30% 0.012 270);
-  --color-secondary-content: oklch(98% 0 0);
-  --color-accent: oklch(52% 0.2 26);
-  --color-accent-content: oklch(98% 0 0);
-  --color-neutral: oklch(26% 0.012 270);
-  --color-neutral-content: oklch(97% 0 0);
-
-  /* Semantic colours double as foreground (text-error, text-warning, and the tinted callout surfaces), so each one is
-     dark enough to hold ~5:1 on white rather than being a bright fill. Chroma is pulled in to sit with the cool
-     (hue 270) neutrals, and error is kept clearly darker than --color-primary so an alert never reads as brand red. */
-  --color-info: oklch(52% 0.12 248);
-  --color-info-content: oklch(98% 0.01 248);
-  --color-success: oklch(49% 0.1 158);
-  --color-success-content: oklch(98% 0.01 158);
-  --color-warning: oklch(53% 0.1 70);
-  --color-warning-content: oklch(98% 0.01 70);
-  --color-error: oklch(49% 0.17 22);
-  --color-error-content: oklch(98% 0.01 22);
-
-  --radius-selector: 1.2rem;
-  --radius-field: 0.6rem;
-  --radius-box: 1rem;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
   --border: 1px;
+  --depth: 0;
+  --noise: 0;
 }
 
-/* Register fonts as Tailwind theme tokens (font-sans / font-mono). */
+@plugin 'daisyui/theme' {
+  name: 'workers-dark';
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #18181b;
+  --color-base-200: #0f0f11;
+  --color-base-300: #2a2a2f;
+  --color-base-content: #e4e4e7;
+  --color-primary: #fbbf24;
+  --color-primary-content: #1c1305;
+  --color-secondary: #a78bfa;
+  --color-secondary-content: #1a0b3d;
+  --color-accent: #67e8f9;
+  --color-accent-content: #062a33;
+  --color-neutral: #09090b;
+  --color-neutral-content: #d4d4d8;
+  --color-info: #38bdf8;
+  --color-info-content: #082f49;
+  --color-success: #34d399;
+  --color-success-content: #022c22;
+  --color-warning: #fb923c;
+  --color-warning-content: #2b1203;
+  --color-error: #fb7185;
+  --color-error-content: #3f0a17;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@custom-variant dark (&:where([data-theme=workers-dark], [data-theme=workers-dark] *));
+
 @theme {
-  --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-sans: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 }
 
-html,
-body {
-  height: 100%;
+/* `text-primary-ink`: the primary as readable text (links); the fill shade is too light on white. */
+@theme inline {
+  --color-primary-ink: var(--app-primary-ink);
 }
 
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+/* App-level tokens that daisyUI does not model. Override per theme when re-branding. */
+:root,
+[data-theme='workers'] {
+  --app-primary-ink: #b45309;
+  --app-sidebar-width: 16rem;
+  --app-sidebar-bg: #ffffff;
+  --app-sidebar-border: #e4e4e7;
+  --app-sidebar-content: #52525b;
+  --app-sidebar-content-strong: #18181b;
+  --app-sidebar-hover: #f4f4f5;
+  --app-sidebar-active-bg: color-mix(in oklab, var(--color-primary) 14%, #ffffff);
+  --app-sidebar-active-content: #18181b;
+  --app-sidebar-indicator: var(--color-primary);
 }
 
+[data-theme='workers-dark'] {
+  --app-primary-ink: #fbbf24;
+  --app-sidebar-bg: #0c0c0e;
+  --app-sidebar-border: #1f1f23;
+  --app-sidebar-content: #a1a1aa;
+  --app-sidebar-content-strong: #fafafa;
+  --app-sidebar-hover: #18181b;
+  /* A neutral lift, not an amber tint: amber mixed into near-black turns brown. */
+  --app-sidebar-active-bg: #232328;
+  --app-sidebar-active-content: #ffffff;
+}
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-base-200 text-base-content;
+    min-height: 100dvh;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /* Page surfaces get a hairline so they hold their edge in the dark theme, where shadows disappear. */
+  .card,
+  .stats {
+    @apply border border-base-300;
+  }
+
+  /* Sidebar navigation entry; also the account button at the foot of the rail. */
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: var(--radius-field);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--app-sidebar-content);
+    transition: background-color 120ms, color 120ms;
+  }
+  .nav-link:hover {
+    background: var(--app-sidebar-hover);
+    color: var(--app-sidebar-content-strong);
+  }
+  .nav-link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+  .nav-link.active {
+    background: var(--app-sidebar-active-bg);
+    color: var(--app-sidebar-active-content);
+    font-weight: 600;
+  }
+  .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: -0.75rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--app-sidebar-indicator);
+  }
+}
+
+/*
+ * daisyUI fills ghost badges and boxed tabs with base-200 — the page background here — so on the page itself
+ * ("samples", "Idle", "Not run") they vanished. A translucent tint of the text colour reads on any surface.
+ * Unlayered on purpose: daisyUI's own layers sit above Tailwind's `components`, so a layered override loses.
+ */
+.badge-ghost {
+  border-color: transparent;
+  background-color: color-mix(in oklab, var(--color-base-content) 9%, transparent);
+  color: color-mix(in oklab, var(--color-base-content) 85%, transparent);
+}
+.tabs-box {
+  background-color: color-mix(in oklab, var(--color-base-content) 7%, transparent);
+}
 /* Thin, refined scrollbar that keeps long lists and payloads quiet. */
 .app-scroll {
   scrollbar-width: thin;
@@ -77,4 +225,13 @@ body {
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

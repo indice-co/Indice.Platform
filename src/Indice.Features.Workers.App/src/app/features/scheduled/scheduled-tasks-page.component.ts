@@ -163,7 +163,7 @@ interface TaskRow {
                         <app-status-badge [status]="row.task.status" />
                         @if (row.task.status === 'Running' && row.progress > 0) {
                           <progress
-                            class="progress progress-warning w-16"
+                            class="progress progress-info w-16"
                             max="100"
                             [value]="row.progress"
                             [attr.aria-label]="row.progress + '% done'"

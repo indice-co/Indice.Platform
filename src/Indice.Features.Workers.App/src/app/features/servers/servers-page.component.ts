@@ -64,7 +64,7 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                           <td class="text-right font-mono">{{ server.tasks }}</td>
                           <td class="text-right">
                             @if (server.runningTasks > 0) {
-                              <span class="badge badge-warning badge-sm">{{
+                              <span class="badge badge-info badge-soft badge-sm">{{
                                 server.runningTasks
                               }}</span>
                             } @else {

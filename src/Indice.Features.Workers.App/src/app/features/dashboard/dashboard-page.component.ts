@@ -23,13 +23,27 @@ interface StatCard {
   value: number;
   desc: string;
   route: string;
-  /** Text colour of the value; empty keeps the default. */
+  /** Status hue of the counter (`info`, `warning`, `error`…); empty for plain totals. */
   tone: string;
 }
 
 function card(label: string, value: number, desc: string, route: string, tone = ''): StatCard {
   return { label, value, desc, route, tone };
 }
+
+/** Literal class names, so Tailwind's scanner generates them. */
+const TONE_DOT: Record<string, string> = {
+  info: 'status-info',
+  secondary: 'status-secondary',
+  warning: 'status-warning',
+  error: 'status-error',
+};
+const TONE_TEXT: Record<string, string> = {
+  info: 'text-info',
+  secondary: 'text-secondary',
+  warning: 'text-warning',
+  error: 'text-error',
+};
 
 /** How many queues "Busiest queues" lists. */
 const BUSIEST = 5;
@@ -66,8 +80,16 @@ const BUSIEST = 5;
             class="stats bg-base-100 shadow-sm transition-shadow hover:shadow-md"
           >
             <div class="stat">
-              <div class="stat-title">{{ card.label }}</div>
-              <div class="stat-value tabular-nums" [class]="card.tone">{{ card.value }}</div>
+              <div class="stat-title flex items-center gap-2">
+                @if (card.tone) {
+                  <span class="status" [class]="toneDot[card.tone]" aria-hidden="true"></span>
+                }
+                {{ card.label }}
+              </div>
+              <!-- The hue only lights up when there is something to count; a calm board stays calm. -->
+              <div class="stat-value tabular-nums" [class]="card.value > 0 ? (toneText[card.tone] ?? '') : ''">
+                {{ card.value }}
+              </div>
               <div class="stat-desc">{{ card.desc }}</div>
             </div>
           </a>
@@ -97,7 +119,7 @@ const BUSIEST = 5;
           <div class="card-body">
             <div class="flex items-center justify-between gap-2">
               <h2 class="card-title text-base">Busiest queues</h2>
-              <a routerLink="/queues" class="link link-hover text-sm text-primary">All queues</a>
+              <a routerLink="/queues" class="link link-hover text-sm font-medium text-primary-ink">All queues</a>
             </div>
             @if (busiest(); as list) {
               @if (list.length) {
@@ -165,7 +187,7 @@ const BUSIEST = 5;
           <div class="card-body">
             <div class="flex items-center justify-between gap-2">
               <h2 class="card-title text-base">Tasks needing attention</h2>
-              <a routerLink="/scheduled" class="link link-hover text-sm text-primary">All tasks</a>
+              <a routerLink="/scheduled" class="link link-hover text-sm font-medium text-primary-ink">All tasks</a>
             </div>
             @if (attention(); as list) {
               @if (list.length) {
@@ -213,6 +235,8 @@ export class DashboardPageComponent {
   private readonly live = inject(LiveRefreshService);
   private readonly statsStore = inject(StatsStore);
 
+  protected readonly toneDot = TONE_DOT;
+  protected readonly toneText = TONE_TEXT;
   protected readonly skeletonCards = [1, 2, 3, 4, 5, 6, 7, 8];
   protected readonly skeletonRows = [1, 2, 3, 4];
 
@@ -238,13 +262,13 @@ export class DashboardPageComponent {
     const queues = '/queues';
     const tasks = '/scheduled';
     return [
-      card('Enqueued', s.enqueued, `across ${plural(s.queues, 'queue')}`, queues, 'text-info'),
-      card('Scheduled', s.scheduled, 'delayed messages', queues),
-      card('Retrying', s.retrying, 'will retry', queues, 'text-warning'),
-      card('Poison', s.poison, 'need attention', queues, 'text-error'),
+      card('Enqueued', s.enqueued, `across ${plural(s.queues, 'queue')}`, queues, 'info'),
+      card('Scheduled', s.scheduled, 'delayed messages', queues, 'secondary'),
+      card('Retrying', s.retrying, 'will retry', queues, 'warning'),
+      card('Poison', s.poison, 'need attention', queues, 'error'),
       card('Scheduled tasks', s.scheduledTasks, `${s.disabledTasks} disabled`, tasks),
-      card('Running', s.runningTasks, 'tasks running now', tasks, 'text-warning'),
-      card('Failing', s.failingTasks, 'last run failed', tasks, 'text-error'),
+      card('Running', s.runningTasks, 'tasks running now', tasks, 'info'),
+      card('Failing', s.failingTasks, 'last run failed', tasks, 'error'),
       card('Active locks', s.activeLocks, `${plural(s.servers, 'server')} seen`, '/servers'),
     ];
   });
