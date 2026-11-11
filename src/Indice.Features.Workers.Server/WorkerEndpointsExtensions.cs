@@ -1,6 +1,8 @@
 using Indice.Features.Workers.Server;
 using Indice.Features.Workers.Server.Services;
 using Indice.Hosting.Data;
+using Indice.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -48,8 +50,22 @@ public static class WorkerEndpointsExtensions
         services.TryAddScoped<ILockDbContext>(serviceProvider => serviceProvider.GetRequiredService<TContext>());
         services.AddEndpointParameterFluentValidation(typeof(WorkerEndpointsExtensions).Assembly);
         services.TryAddScoped<IWorkerDashboardService, WorkerDashboardService>();
+        services.AddMemoryCache();
+        services.AddAuthorization();
+        services.AddOptions<AuthorizationOptions>().Configure<IOptions<WorkerEndpointsOptions>>((authorization, endpointOptions) => {
+            var requiredScope = endpointOptions.Value.RequiredScope;
+            authorization.AddPolicy(WorkerPolicies.BeWorkersReader, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => HasRequiredScope(context.User, requiredScope) && context.User.CanReadWorkers()));
+            authorization.AddPolicy(WorkerPolicies.BeWorkersAdmin, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => HasRequiredScope(context.User, requiredScope) && context.User.CanManageWorkers()));
+        });
         return services;
     }
+
+    private static bool HasRequiredScope(System.Security.Claims.ClaimsPrincipal user, string? requiredScope) =>
+        string.IsNullOrEmpty(requiredScope) || user.HasScope(requiredScope);
 
 
 

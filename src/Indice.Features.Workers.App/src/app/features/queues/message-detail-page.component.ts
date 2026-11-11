@@ -6,6 +6,7 @@ import {
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
@@ -15,6 +16,7 @@ import { EMPTY, Observable, catchError, combineLatest, finalize, map, of, switch
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
 import { ToastService } from '../../core/services/toast.service';
 import {
   BulkActionResult,
@@ -24,6 +26,7 @@ import {
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { JsonViewComponent } from '../../shared/json-view.component';
+import { PayloadDialogComponent, PayloadDialogResult } from '../../shared/payload-dialog.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
 import { describeBulkResult } from './queue-status';
@@ -45,6 +48,7 @@ const COPIED_MS = 1500;
     ConfirmDialogComponent,
     EmptyStateComponent,
     JsonViewComponent,
+    PayloadDialogComponent,
     RelativeTimePipe,
     StatusBadgeComponent,
   ],
@@ -96,24 +100,34 @@ const COPIED_MS = 1500;
               </button>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              class="btn btn-primary btn-sm"
-              [disabled]="busy()"
-              (click)="requeue(m)"
-            >
-              {{ m.status === 'Scheduled' ? 'Enqueue now' : 'Requeue' }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-error btn-outline btn-sm"
-              [disabled]="busy()"
-              (click)="deleteDialog.open()"
-            >
-              Delete
-            </button>
-          </div>
+          @if (canManage()) {
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                [disabled]="busy()"
+                (click)="requeue(m)"
+              >
+                {{ m.status === 'Scheduled' ? 'Enqueue now' : 'Requeue' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm"
+                [disabled]="busy()"
+                (click)="payloadDialog.open(m.payload)"
+              >
+                Edit &amp; requeue
+              </button>
+              <button
+                type="button"
+                class="btn btn-error btn-outline btn-sm"
+                [disabled]="busy()"
+                (click)="deleteDialog.open()"
+              >
+                Delete
+              </button>
+            </div>
+          }
         </header>
 
         <div class="card bg-base-100 shadow-sm">
@@ -162,6 +176,15 @@ const COPIED_MS = 1500;
       confirmLabel="Delete"
       (confirmed)="delete()"
     />
+    <app-payload-dialog
+      #payloadDialog
+      title="Edit payload and requeue"
+      description="The message becomes visible now with its attempts reset; a poison message moves back to its queue."
+      hint="It must still deserialize into the work item of the queue."
+      confirmLabel="Save and requeue"
+      [busy]="busy()"
+      (submitted)="saveAndRequeue($event)"
+    />
   `,
 })
 export class MessageDetailPageComponent {
@@ -170,6 +193,8 @@ export class MessageDetailPageComponent {
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly canManage = inject(PermissionsStore).canManage;
+  private readonly payloadDialog = viewChild.required<PayloadDialogComponent>('payloadDialog');
 
   /** Route param `:id`. */
   readonly id = input.required<string>();
@@ -248,6 +273,37 @@ export class MessageDetailPageComponent {
       this.toasts.show('success', describeBulkResult('deleted', affected, 1));
       this.router.navigate(queue ? ['/queues', queue] : ['/queues']);
     });
+  }
+
+  protected saveAndRequeue(result: PayloadDialogResult): void {
+    const id = this.message()?.id;
+    if (!id) {
+      return;
+    }
+    this.busy.set(true);
+    this.api
+      .updateMessage(id, result.payload)
+      .pipe(
+        finalize(() => this.busy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (message) => {
+          this.payloadDialog().close();
+          this.message.set(message);
+          this.toasts.show('success', 'Payload saved and message requeued.');
+          this.live.refreshNow();
+        },
+        error: (e: unknown) => {
+          if (e instanceof HttpErrorResponse && e.status === 404) {
+            this.payloadDialog().close();
+            this.toasts.show('error', 'The message is gone — it was processed or deleted meanwhile.');
+            this.live.refreshNow();
+            return;
+          }
+          this.toasts.show('error', describeError(e));
+        },
+      });
   }
 
   private run(call: Observable<BulkActionResult>, done: (affected: number) => void): void {

@@ -5,7 +5,8 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { LucideMenu, LucideMonitor, LucideMoon, LucidePause, LucideRefreshCw, LucideSun } from '@lucide/angular';
 import { filter } from 'rxjs';
 
-import { LiveRefreshService, REFRESH_INTERVALS } from '../services/live-refresh.service';
+import { LiveRefreshService, REFRESH_INTERVALS, formatInterval } from '../services/live-refresh.service';
+import { PermissionsStore } from '../services/permissions.store';
 import { StatsStore } from '../services/stats.store';
 import { ToastHostComponent } from '../../shared/toast-host.component';
 import { AppSidebarComponent, NavBadges } from './app-sidebar.component';
@@ -92,7 +93,7 @@ import { ThemeMode, ThemeService } from './theme.service';
               (change)="onInterval($event)"
             >
               @for (ms of intervals; track ms) {
-                <option [value]="ms" [selected]="ms === live.intervalMs()">{{ ms / 1000 }} s</option>
+                <option [value]="ms" [selected]="ms === live.intervalMs()">{{ label(ms) }}</option>
               }
             </select>
             <button
@@ -163,6 +164,7 @@ import { ThemeMode, ThemeService } from './theme.service';
 })
 export class ShellComponent {
   protected readonly intervals = REFRESH_INTERVALS;
+  protected readonly label = formatInterval;
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -193,6 +195,7 @@ export class ShellComponent {
 
   constructor() {
     this.statsStore.start(this.destroyRef);
+    inject(PermissionsStore).load();
 
     const clock = setInterval(() => this.now.set(Date.now()), 1000);
     this.destroyRef.onDestroy(() => clearInterval(clock));

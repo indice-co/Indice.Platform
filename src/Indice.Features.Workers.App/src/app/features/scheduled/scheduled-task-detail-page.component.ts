@@ -7,12 +7,14 @@ import { EMPTY, catchError, combineLatest, distinctUntilChanged, map, of, switch
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
 import { ScheduledTaskDetails, WorkersApiService } from '../../core/services/workers-api.service';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { JsonViewComponent } from '../../shared/json-view.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
 import { clampProgress, describeCron } from './cron';
+import { RunTaskButtonComponent } from './run-task-button.component';
 import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
 
 /** One scheduled task: overview, the last error and its persisted state. */
@@ -25,6 +27,7 @@ import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
     EmptyStateComponent,
     JsonViewComponent,
     RelativeTimePipe,
+    RunTaskButtonComponent,
     StatusBadgeComponent,
     TaskEnabledToggleComponent,
   ],
@@ -61,10 +64,15 @@ import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
             }
             <app-status-badge [status]="task.status" />
           </div>
-          <label class="flex items-center gap-2 text-sm text-base-content/70">
-            Enabled
-            <app-task-enabled-toggle [task]="task" />
-          </label>
+          <div class="flex flex-wrap items-center gap-4">
+            @if (canManage()) {
+              <app-run-task-button [task]="task" />
+            }
+            <label class="flex items-center gap-2 text-sm text-base-content/70">
+              Enabled
+              <app-task-enabled-toggle [task]="task" />
+            </label>
+          </div>
         </header>
 
         @if (!task.hasRun) {
@@ -205,6 +213,7 @@ export class ScheduledTaskDetailPageComponent {
 
   private readonly api = inject(WorkersApiService);
   private readonly live = inject(LiveRefreshService);
+  protected readonly canManage = inject(PermissionsStore).canManage;
 
   protected readonly task = signal<ScheduledTaskDetails | null>(null);
   protected readonly notFound = signal(false);

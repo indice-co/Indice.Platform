@@ -16,6 +16,7 @@ internal class WorkerHostedService : IHostedService
     private readonly IEnumerable<ScheduledJobSettings> _scheduledJobSettings;
     private readonly IJobFactory _jobFactory;
     private readonly WorkerLifetimeOptions _workerLifetimeOptions;
+    private readonly RunNowSettings? _runNowSettings;
 
     /// <summary>Creates a new instance of <see cref="WorkerHostedService"/>.</summary>
     /// <param name="schedulerFactory">Provides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
@@ -24,13 +25,15 @@ internal class WorkerHostedService : IHostedService
     /// <param name="scheduledJobSettings">Job schedule settings. Describes what to execute and when.</param>
     /// <param name="jobFactory">A JobFactory is responsible for producing instances of <see cref="IJob"/> classes.</param>
     /// <param name="workerLifetimeOptions">The configured WorkerLifetimeOptions instance.</param>
-    public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory, IOptions<WorkerLifetimeOptions> workerLifetimeOptions) {
+    /// <param name="runNowSettings">The settings of the run now job. Empty when run now is not supported or disabled.</param>
+    public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory, IOptions<WorkerLifetimeOptions> workerLifetimeOptions, IEnumerable<RunNowSettings> runNowSettings) {
         _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dequeueJobSchedules = dequeueJobSettings ?? throw new ArgumentNullException(nameof(dequeueJobSettings));
         _scheduledJobSettings = scheduledJobSettings ?? throw new ArgumentNullException(nameof(scheduledJobSettings));
         _jobFactory = jobFactory ?? throw new ArgumentNullException(nameof(jobFactory));
         _workerLifetimeOptions = workerLifetimeOptions?.Value ?? throw new ArgumentNullException(nameof(workerLifetimeOptions));
+        _runNowSettings = runNowSettings?.LastOrDefault();
     }
 
     /// <summary>The Quartz scheduler.</summary>
@@ -104,7 +107,38 @@ internal class WorkerHostedService : IHostedService
                                            .Build();
             await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
         }
+        await ScheduleRunNowJob(Scheduler, cancellationToken);
         await Scheduler.Start(cancellationToken);
+    }
+
+    private async Task ScheduleRunNowJob(IScheduler scheduler, CancellationToken cancellationToken) {
+        if (_runNowSettings is null) {
+            return;
+        }
+        // Only the tasks hosted by this worker, so a worker never claims a request it cannot serve.
+        var jobKeys = new Dictionary<string, JobKey>(StringComparer.Ordinal);
+        foreach (var schedule in _scheduledJobSettings) {
+            var jobKey = new JobKey(schedule.Name, schedule.Group ?? JobGroups.InternalJobsGroup);
+            jobKeys[HostingConventions.GetRunNowQueueName(jobKey.ToString())] = jobKey;
+        }
+        if (jobKeys.Count == 0) {
+            return;
+        }
+        var runNowJob = JobBuilder.Create<RunNowJob>()
+                                  .StoreDurably()
+                                  .WithIdentity(name: nameof(RunNowJob), group: JobGroups.InternalJobsGroup)
+                                  .SetJobData(new JobDataMap(new Dictionary<string, object> {
+                                      [JobDataKeys.RunNow] = (IReadOnlyDictionary<string, JobKey>)jobKeys
+                                  } as IDictionary<string, object>))
+                                  .Build();
+        await scheduler.AddJob(runNowJob, replace: true, cancellationToken);
+        var runNowTrigger = TriggerBuilder.Create()
+                                          .ForJob(runNowJob)
+                                          .WithIdentity(name: $"{nameof(RunNowJob)}Trigger", group: JobGroups.InternalJobsGroup)
+                                          .StartNow()
+                                          .WithSimpleSchedule(x => x.WithInterval(_runNowSettings.PollingInterval).RepeatForever())
+                                          .Build();
+        await scheduler.ScheduleJob(runNowTrigger, cancellationToken);
     }
 
     /// <inheritdoc />

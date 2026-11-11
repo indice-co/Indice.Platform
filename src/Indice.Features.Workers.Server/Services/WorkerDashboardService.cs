@@ -1,10 +1,14 @@
+using System.Data;
+using System.Text.Json;
 using Indice.Features.Workers.Server.Services;
 using Indice.Features.Workers.Server.Models;
 using Indice.Hosting;
 using Indice.Hosting.Data;
+using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Indice.Features.Workers.Server.Services;
 
@@ -12,6 +16,10 @@ namespace Indice.Features.Workers.Server.Services;
 /// Reads the worker tables through <see cref="ITaskDbContext"/> and <see cref="ILockDbContext"/>.
 /// The dashboard runs in a host without <c>AddWorkerHost()</c>, so everything it shows comes from the database.
 /// </summary>
+/// <remarks>
+/// The workers use the same tables in real time, so they come first: the aggregations and lists of the queue table run in <see cref="IsolationLevel.ReadUncommitted"/>.
+/// They take no shared locks and never block a dequeue, at the cost of counters that may include messages of uncommitted transactions.
+/// </remarks>
 public class WorkerDashboardService : IWorkerDashboardService
 {
     private const int PayloadPreviewLength = 200;
@@ -27,32 +35,51 @@ public class WorkerDashboardService : IWorkerDashboardService
 
     /// <inheritdoc />
     public async Task<DashboardStats> GetStats(CancellationToken cancellationToken = default) {
+        var now = DateTime.UtcNow;
         var queues = await GetQueues(cancellationToken);
-        var tasks = await GetScheduledTasks(cancellationToken);
-        var locks = await GetLocks(cancellationToken);
-        var servers = await GetServers(cancellationToken);
+        var tasks = await GetScheduledTaskRows(cancellationToken);
+        var activeLocks = await _lockDb.Locks.AsNoTracking().CountAsync(x => x.ExpirationDate >= now, cancellationToken);
+        var taskInfos = tasks.Select(row => ToInfo(row, new ScheduledTaskInfo())).ToList();
         return new DashboardStats {
-            ServerTimeUtc = DateTime.UtcNow,
+            ServerTimeUtc = now,
             Queues = queues.Count,
             Enqueued = queues.Sum(x => x.Enqueued),
             Scheduled = queues.Sum(x => x.Scheduled),
             Retrying = queues.Sum(x => x.Retrying),
             Poison = queues.Sum(x => x.Poison),
             Dequeued = queues.Sum(x => x.Dequeued),
-            ScheduledTasks = tasks.Count,
-            RunningTasks = tasks.Count(x => x.Status == ScheduledTaskState.Running),
-            FailingTasks = tasks.Count(x => x.LastRunFailed),
-            DisabledTasks = tasks.Count(x => !x.Enabled),
-            ActiveLocks = locks.Count(x => !x.IsExpired),
-            Servers = servers.Count
+            ScheduledTasks = taskInfos.Count,
+            RunningTasks = taskInfos.Count(x => x.Status == ScheduledTaskState.Running),
+            FailingTasks = taskInfos.Count(x => x.LastRunFailed),
+            DisabledTasks = taskInfos.Count(x => !x.Enabled),
+            ActiveLocks = activeLocks,
+            Servers = taskInfos.Where(x => x.WorkerId is not null).Select(x => x.WorkerId).Distinct(StringComparer.Ordinal).Count()
         };
     }
 
     /// <inheritdoc />
-    public async Task<List<QueueInfo>> GetQueues(CancellationToken cancellationToken = default) {
+    public Task<List<QueueInfo>> GetQueues(CancellationToken cancellationToken = default) => QueryQueues(null, cancellationToken);
+
+    /// <inheritdoc />
+    public async Task<QueueInfo> GetQueue(string queueName, CancellationToken cancellationToken = default) {
+        ArgumentNullException.ThrowIfNull(queueName);
+        var queues = await QueryQueues(queueName, cancellationToken);
+        // A queue without messages has no rows at all, which reads as zero everywhere.
+        return queues.FirstOrDefault() ?? new QueueInfo { Name = queueName };
+    }
+
+    private async Task<List<QueueInfo>> QueryQueues(string? queueName, CancellationToken cancellationToken) {
         var now = DateTime.UtcNow;
-        var rows = await _taskDb.Queue
-            .AsNoTracking()
+        var query = _taskDb.Queue.AsNoTracking();
+        if (queueName is null) {
+            query = query.Where(x => !x.QueueName.StartsWith(HostingConventions.RunNowQueuePrefix));
+        } else {
+            // Two index seeks instead of a scan of every queue.
+            var poisonQueueName = queueName + HostingConventions.PoisonSuffix;
+            query = query.Where(x => x.QueueName == queueName || x.QueueName == poisonQueueName);
+        }
+        // Covered by the (QueueName, Date) INCLUDE (State, DequeueCount) index, so the payloads are never read.
+        var rows = await ReadUncommitted(_taskDb.Database, () => query
             .GroupBy(x => x.QueueName)
             .Select(g => new {
                 QueueName = g.Key,
@@ -64,7 +91,7 @@ public class WorkerDashboardService : IWorkerDashboardService
                 Enqueued = g.Sum(x => x.State == QMessageState.New && x.Date <= now && x.DequeueCount == 0 ? 1 : 0),
                 OldestEnqueuedAt = g.Min(x => x.State == QMessageState.New && x.Date <= now ? (DateTime?)x.Date : null)
             })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(cancellationToken), cancellationToken);
         var queues = new Dictionary<string, QueueInfo>(StringComparer.Ordinal);
         foreach (var row in rows) {
             var name = QueueMessageStatusRules.GetLogicalQueueName(row.QueueName);
@@ -104,7 +131,7 @@ public class WorkerDashboardService : IWorkerDashboardService
                 : query.Where(x => x.Payload.Contains(search));
         }
         // options.Sort is ignored: messages are always listed in the order they become visible.
-        var page = await query
+        var page = await ReadUncommitted(_taskDb.Database, () => query
             .OrderBy(x => x.Date)
             .ThenBy(x => x.Id)
             .Select(x => new {
@@ -115,7 +142,7 @@ public class WorkerDashboardService : IWorkerDashboardService
                 x.DequeueCount,
                 PayloadPreview = x.Payload.Length > PayloadPreviewLength ? x.Payload.Substring(0, PayloadPreviewLength) : x.Payload
             })
-            .ToResultSetAsync(Math.Max(options.Page ?? 1, 1), Math.Clamp(options.Size ?? ListOptions.DEFAULT_SIZE, 0, MaxPageSize), cancellationToken);
+            .ToResultSetAsync(Math.Max(options.Page ?? 1, 1), Math.Clamp(options.Size ?? ListOptions.DEFAULT_SIZE, 0, MaxPageSize), cancellationToken), cancellationToken);
         var items = page.Items.Select(x => new QueueMessageListItem {
             Id = x.Id,
             QueueName = x.QueueName,
@@ -129,22 +156,20 @@ public class WorkerDashboardService : IWorkerDashboardService
 
     /// <inheritdoc />
     public async Task<QueueMessageDetails?> GetMessage(Guid messageId, CancellationToken cancellationToken = default) {
-        var now = DateTime.UtcNow;
         var message = await _taskDb.Queue.AsNoTracking().SingleOrDefaultAsync(x => x.Id == messageId, cancellationToken);
-        if (message is null) {
-            return null;
-        }
-        return new QueueMessageDetails {
-            Id = message.Id,
-            QueueName = message.QueueName,
-            LogicalQueueName = QueueMessageStatusRules.GetLogicalQueueName(message.QueueName),
-            Status = QueueMessageStatusRules.Classify(message.QueueName, message.State, message.Date, message.DequeueCount, now),
-            Date = DateTime.SpecifyKind(message.Date, DateTimeKind.Utc),
-            DequeueCount = message.DequeueCount,
-            PayloadPreview = message.Payload?.Length > PayloadPreviewLength ? message.Payload[..PayloadPreviewLength] : message.Payload,
-            Payload = message.Payload
-        };
+        return message is null ? null : ToDetails(message, DateTime.UtcNow);
     }
+
+    private static QueueMessageDetails ToDetails(DbQMessage message, DateTime now) => new() {
+        Id = message.Id,
+        QueueName = message.QueueName,
+        LogicalQueueName = QueueMessageStatusRules.GetLogicalQueueName(message.QueueName),
+        Status = QueueMessageStatusRules.Classify(message.QueueName, message.State, message.Date, message.DequeueCount, now),
+        Date = DateTime.SpecifyKind(message.Date, DateTimeKind.Utc),
+        DequeueCount = message.DequeueCount,
+        PayloadPreview = message.Payload?.Length > PayloadPreviewLength ? message.Payload[..PayloadPreviewLength] : message.Payload,
+        Payload = message.Payload
+    };
 
     /// <inheritdoc />
     public async Task<int> RequeueMessages(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default) {
@@ -179,9 +204,68 @@ public class WorkerDashboardService : IWorkerDashboardService
     }
 
     /// <inheritdoc />
+    public async Task<QueueMessageDetails> EnqueueMessage(string queueName, string payload, DateTime? visibleAt, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(payload);
+        var now = DateTime.UtcNow;
+        // A date without an offset is taken as UTC, like every date of the API.
+        var visibleAtUtc = visibleAt is { Kind: DateTimeKind.Unspecified } ? DateTime.SpecifyKind(visibleAt.Value, DateTimeKind.Utc) : visibleAt?.ToUniversalTime();
+        var message = new DbQMessage {
+            Id = Guid.NewGuid(),
+            QueueName = queueName,
+            Payload = payload,
+            Date = visibleAtUtc > now ? visibleAtUtc.Value : now,
+            DequeueCount = 0,
+            State = QMessageState.New
+        };
+        _taskDb.Add(message);
+        await _taskDb.SaveChangesAsync(cancellationToken);
+        return ToDetails(message, now);
+    }
+
+    /// <inheritdoc />
+    public async Task<QueueMessageDetails?> UpdateMessage(Guid messageId, string payload, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(payload);
+        // A message that a worker has dequeued is gone (deleted), so this cannot overwrite a message in progress.
+        var affected = await _taskDb.Queue
+            .Where(x => x.Id == messageId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(x => x.Payload, payload)
+                .SetProperty(x => x.QueueName, x =>
+                    x.QueueName.EndsWith(HostingConventions.PoisonSuffix)
+                        ? x.QueueName.Substring(0, x.QueueName.Length - HostingConventions.PoisonSuffix.Length)
+                        : x.QueueName
+                )
+                .SetProperty(x => x.State, QMessageState.New)
+                .SetProperty(x => x.DequeueCount, 0)
+                .SetProperty(x => x.Date, DateTime.UtcNow), cancellationToken);
+        return affected > 0 ? await GetMessage(messageId, cancellationToken) : null;
+    }
+
+    /// <inheritdoc />
     public async Task<List<ScheduledTaskInfo>> GetScheduledTasks(CancellationToken cancellationToken = default) {
+        var rows = await GetScheduledTaskRows(cancellationToken);
+        // A range seek on the (QueueName, Date) index: the run now queues share a prefix.
+        var runRequests = await _taskDb.Queue
+            .AsNoTracking()
+            .Where(x => x.QueueName.StartsWith(HostingConventions.RunNowQueuePrefix))
+            .GroupBy(x => x.QueueName)
+            .Select(g => new { QueueName = g.Key, RequestedAt = g.Min(x => x.Date) })
+            .ToDictionaryAsync(x => x.QueueName, x => x.RequestedAt, StringComparer.Ordinal, cancellationToken);
+        return [
+            .. rows.Select(row => {
+                    var info = ToInfo(row, new ScheduledTaskInfo());
+                    info.RunRequestedAt = runRequests.TryGetValue(HostingConventions.GetRunNowQueueName(row.Id), out var requestedAt) ? AsUtc(requestedAt) : null;
+                    return info;
+                })
+                .OrderBy(x => x.Group, StringComparer.Ordinal)
+                .ThenBy(x => x.Name, StringComparer.Ordinal)
+        ];
+    }
+
+    private Task<List<ScheduledTaskRow>> GetScheduledTaskRows(CancellationToken cancellationToken) =>
         // Payload and Errors can be large, so the list leaves them out.
-        var rows = await _taskDb.Tasks
+        _taskDb.Tasks
             .AsNoTracking()
             .Select(x => new ScheduledTaskRow {
                 Id = x.Id,
@@ -199,12 +283,6 @@ public class WorkerDashboardService : IWorkerDashboardService
                 Enabled = x.Enabled
             })
             .ToListAsync(cancellationToken);
-        return [
-            .. rows.Select(row => ToInfo(row, new ScheduledTaskInfo()))
-                .OrderBy(x => x.Group, StringComparer.Ordinal)
-                .ThenBy(x => x.Name, StringComparer.Ordinal)
-        ];
-    }
 
     /// <inheritdoc />
     public async Task<ScheduledTaskDetails?> GetScheduledTask(string taskId, CancellationToken cancellationToken = default) {
@@ -234,7 +312,9 @@ public class WorkerDashboardService : IWorkerDashboardService
         var details = ToInfo(row, new ScheduledTaskDetails());
         details.Errors = task.Errors;
         details.State = task.Payload;
-        
+        var runNowQueueName = HostingConventions.GetRunNowQueueName(taskId);
+        details.RunRequestedAt = AsUtc(await _taskDb.Queue.AsNoTracking().Where(x => x.QueueName == runNowQueueName).MinAsync(x => (DateTime?)x.Date, cancellationToken));
+
         return details;
     }
 
@@ -248,6 +328,37 @@ public class WorkerDashboardService : IWorkerDashboardService
                 s.SetProperty(x => x.Enabled, enabled), cancellationToken);
         
         return affected > 0;
+    }
+
+    /// <inheritdoc />
+    public async Task<RunScheduledTaskResult?> RunScheduledTask(string taskId, string? requestedBy = null, CancellationToken cancellationToken = default) {
+        ArgumentNullException.ThrowIfNull(taskId);
+        if (!await _taskDb.Tasks.AnyAsync(x => x.Id == taskId, cancellationToken)) {
+            return null;
+        }
+        var queueName = HostingConventions.GetRunNowQueueName(taskId);
+        var pending = await _taskDb.Queue
+            .AsNoTracking()
+            .Where(x => x.QueueName == queueName)
+            .OrderBy(x => x.Date)
+            .Select(x => new { x.Id, x.Date })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (pending is not null) {
+            return new RunScheduledTaskResult { RequestId = pending.Id, RequestedAt = DateTime.SpecifyKind(pending.Date, DateTimeKind.Utc) };
+        }
+        var now = DateTime.UtcNow;
+        var request = new DbQMessage {
+            Id = Guid.NewGuid(),
+            QueueName = queueName,
+            // The worker only needs the queue name; the payload is kept for troubleshooting.
+            Payload = JsonSerializer.Serialize(new { taskId, requestedBy, requestedAt = now }),
+            Date = now,
+            DequeueCount = 0,
+            State = QMessageState.New
+        };
+        _taskDb.Add(request);
+        await _taskDb.SaveChangesAsync(cancellationToken);
+        return new RunScheduledTaskResult { RequestId = request.Id, RequestedAt = now };
     }
 
     /// <inheritdoc />
@@ -265,6 +376,10 @@ public class WorkerDashboardService : IWorkerDashboardService
             })
         ];
     }
+
+    /// <inheritdoc />
+    public async Task<bool> ReleaseLock(Guid lockId, CancellationToken cancellationToken = default) =>
+        await _lockDb.Locks.Where(x => x.Id == lockId).ExecuteDeleteAsync(cancellationToken) > 0;
 
     /// <inheritdoc />
     public async Task<List<WorkerServerInfo>> GetServers(CancellationToken cancellationToken = default) {
@@ -337,6 +452,20 @@ public class WorkerDashboardService : IWorkerDashboardService
     }
 
     private static DateTime? AsUtc(DateTime? date) => date.HasValue ? DateTime.SpecifyKind(date.Value, DateTimeKind.Utc) : null;
+
+    /// <summary>Runs a read in <see cref="IsolationLevel.ReadUncommitted"/>, so that it takes no shared locks on the rows the workers dequeue.</summary>
+    internal static async Task<T> ReadUncommitted<T>(DatabaseFacade database, Func<Task<T>> query, CancellationToken cancellationToken) {
+        if (!database.IsRelational() || database.CurrentTransaction is not null) {
+            return await query();
+        }
+        // A retrying execution strategy only allows a user initiated transaction inside the strategy.
+        return await database.CreateExecutionStrategy().ExecuteAsync(async () => {
+            await using var transaction = await database.BeginTransactionAsync(IsolationLevel.ReadUncommitted, cancellationToken);
+            var result = await query();
+            await transaction.CommitAsync(cancellationToken);
+            return result;
+        });
+    }
 
     private sealed class ScheduledTaskRow
     {

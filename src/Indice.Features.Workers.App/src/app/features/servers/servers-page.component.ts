@@ -1,15 +1,27 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
+import { ToastService } from '../../core/services/toast.service';
 import {
   LockInfo,
   WorkerServerInfo,
   WorkersApiService,
 } from '../../core/services/workers-api.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
@@ -18,7 +30,13 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 @Component({
   selector: 'app-servers-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, EmptyStateComponent, PageHeaderComponent, RelativeTimePipe],
+  imports: [
+    DatePipe,
+    ConfirmDialogComponent,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    RelativeTimePipe,
+  ],
   template: `
     <section class="p-4 sm:p-6">
       <app-page-header title="Servers & locks" [subtitle]="subtitle()" />
@@ -104,6 +122,9 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                         <th>Name</th>
                         <th>Expires</th>
                         <th class="text-right">Lease</th>
+                        @if (canManage()) {
+                          <th><span class="sr-only">Actions</span></th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
@@ -122,6 +143,24 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                           <td class="text-right font-mono whitespace-nowrap">
                             {{ lock.durationSeconds }} s
                           </td>
+                          @if (canManage()) {
+                            <td class="text-right">
+                              <button
+                                type="button"
+                                class="btn btn-ghost btn-xs text-error"
+                                [disabled]="releasing() === lock.id"
+                                (click)="askRelease(lock)"
+                              >
+                                @if (releasing() === lock.id) {
+                                  <span
+                                    class="loading loading-spinner loading-xs"
+                                    aria-hidden="true"
+                                  ></span>
+                                }
+                                Release
+                              </button>
+                            </td>
+                          }
                         </tr>
                       }
                     </tbody>
@@ -138,11 +177,34 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
         </div>
       </div>
     </section>
+
+    <app-confirm-dialog
+      #releaseDialog
+      title="Release lock?"
+      [message]="releaseMessage()"
+      confirmLabel="Release"
+      (confirmed)="release()"
+    />
   `,
 })
 export class ServersPageComponent {
   private readonly api = inject(WorkersApiService);
   private readonly live = inject(LiveRefreshService);
+  private readonly toasts = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly canManage = inject(PermissionsStore).canManage;
+  private readonly releaseDialog = viewChild.required<ConfirmDialogComponent>('releaseDialog');
+
+  /** The lock the confirm dialog is about. */
+  private readonly pending = signal<LockInfo | null>(null);
+  /** Id of the lock being released, for the button spinner. */
+  protected readonly releasing = signal<string | null>(null);
+  protected readonly releaseMessage = computed(() => {
+    const lock = this.pending();
+    return lock
+      ? `Force-release "${lock.name}". If its task is still running, it is cancelled at its next lease renewal, and another worker may take the lock right away. Only do this for a lock left behind by a worker that died.`
+      : '';
+  });
 
   /** `null` until the first response, so the template can show skeletons instead of "empty". */
   protected readonly servers = signal<WorkerServerInfo[] | null>(null);
@@ -185,6 +247,39 @@ export class ServersPageComponent {
         if (failure === null) {
           this.live.markUpdated();
         }
+      });
+  }
+
+  protected askRelease(lock: LockInfo): void {
+    this.pending.set(lock);
+    this.releaseDialog().open();
+  }
+
+  protected release(): void {
+    const lock = this.pending();
+    if (!lock) {
+      return;
+    }
+    this.releasing.set(lock.id);
+    this.api
+      .releaseLock(lock.id)
+      .pipe(
+        finalize(() => this.releasing.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.toasts.show('success', `Lock ${lock.name} released.`);
+          this.live.refreshNow();
+        },
+        error: (e: unknown) => {
+          if (e instanceof HttpErrorResponse && e.status === 404) {
+            this.toasts.show('success', `Lock ${lock.name} was already released.`);
+            this.live.refreshNow();
+          } else {
+            this.toasts.show('error', describeError(e));
+          }
+        },
       });
   }
 

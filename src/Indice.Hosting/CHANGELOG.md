@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Run now for scheduled tasks: a worker picks up requests left in the `$run-now:{taskId}` queue (e.g. by the workers dashboard) and runs the task once, even when it is disabled. Relational store only. Configure with `WorkerHostOptions.RunNowPollingInterval` (default 15 seconds, `null` to disable) and `WorkerHostOptions.RunNowExpiration` (default 10 minutes).
+
+### Changed
+- The queue table index on `QueueName` is replaced by one on `(QueueName, Date)` that includes `State` and `DequeueCount` (SQL Server). It matches the dequeue query and lets monitoring count messages without reading the payloads. **Add a migration** to the context that holds the worker tables.
+
 ## ## [8.60.0] - 2026-10-07
 ### Fixed
 - Fixed an EF Core multiple-operation error caused by exclusive runs in singleton jobs.

@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { EMPTY, catchError, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
-import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { LiveRefreshService, formatInterval } from '../../core/services/live-refresh.service';
 import { StatsStore } from '../../core/services/stats.store';
 import {
   QueueInfo,
@@ -109,7 +109,7 @@ const BUSIEST = 5;
             <div class="skeleton h-40 w-full"></div>
           }
           <p class="text-xs text-base-content/55">
-            Sampled every {{ intervalSeconds() }} s in this browser — not stored.
+            Sampled every {{ intervalLabel() }} in this browser — not stored.
           </p>
         </div>
       </div>
@@ -251,7 +251,7 @@ export class DashboardPageComponent {
     () => this.statsStore.error() ?? this.queuesError() ?? this.tasksError(),
   );
 
-  protected readonly intervalSeconds = computed(() => this.live.intervalMs() / 1000);
+  protected readonly intervalLabel = computed(() => formatInterval(this.live.intervalMs()));
 
   /** From the shell's `StatsStore` poll — this page never calls `/stats` itself. */
   protected readonly cards = computed<StatCard[]>(() => {
