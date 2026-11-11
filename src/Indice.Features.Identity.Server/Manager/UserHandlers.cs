@@ -73,6 +73,17 @@ internal static class UserHandlers
             if (filter.Admin is bool admin) {
                 query = query.Where(x => x.Admin == admin);
             }
+            if (filter.PasswordExpired is bool passwordExpired) {
+                var now = DateTimeOffset.UtcNow;
+                query = passwordExpired
+                    ? query.Where(x => x.PasswordExpired || x.PasswordExpirationDate < now)
+                    : query.Where(x => !x.PasswordExpired && (x.PasswordExpirationDate == null || x.PasswordExpirationDate >= now));
+            }
+            if (filter.SignedIn is bool signedIn) {
+                query = signedIn
+                    ? query.Where(x => x.LastSignInDate != null)
+                    : query.Where(x => x.LastSignInDate == null);
+            }
         }
         // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
         var usersQuery =
