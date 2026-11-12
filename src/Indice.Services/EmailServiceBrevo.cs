@@ -97,6 +97,17 @@ public class EmailServiceBrevo : IEmailService
 public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> options) : IWebhookHttpHandler
 {
     private readonly EmailServiceBrevoSettings _options = options.Value;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "Sent",
+        "Clicked",
+        "Deferred",
+        "Delivered",
+        "First Opening",
+        "Opened",
+        "Unsubscribed",
+        "Proxy Open",
+        "Unique Proxy Open"
+    };
 
     /// <inheritdoc/>
     public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
@@ -162,7 +173,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         }
     }
     private static bool EventSucceeded(string eventType) {
-        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+        return SucceededStatuses.Contains(eventType);
     }
     private static string? GetString(JsonObject data, string propertyName) {
         var value = data[propertyName];

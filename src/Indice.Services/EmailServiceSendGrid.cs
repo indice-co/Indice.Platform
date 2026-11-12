@@ -101,6 +101,15 @@ public class EmailServiceSendGrid : IEmailService
 public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSettings> options) : IWebhookHttpHandler
 {
     private readonly EmailServiceSendGridSettings _options = options.Value;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "processed",
+        "delivered",
+        "open",
+        "click",
+        "unsubscribe",
+        "group_unsubscribe",
+        "group_resubscribe"
+    };
 
     /// <inheritdoc/>
     public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
@@ -149,8 +158,8 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
             };
         }
     }
-    private static bool EventSucceeded(string  eventType) {
-        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+    private static bool EventSucceeded(string eventType) {
+        return SucceededStatuses.Contains(eventType);
     }
 
     private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders, byte[] payloadBytes) {

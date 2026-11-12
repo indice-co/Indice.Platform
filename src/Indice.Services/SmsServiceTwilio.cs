@@ -157,6 +157,17 @@ public class SmsServiceTwilioSettings
 /// <inheritdoc/>
 public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
     private readonly SmsServiceTwilioSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "Status:queued",
+        "Status:sending",
+        "Status:sent",
+        "Status:delivered",
+        "Status:receiving",
+        "Status:received",
+        "Status:accepted",
+        "Status:scheduled",
+        "Status:read"
+    };
 
     /// <inheritdoc/>
     public TwilioWebhookHttpHandler(IOptionsSnapshot<SmsServiceTwilioSettings> settings) {
@@ -218,7 +229,7 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
     }
 
     private static bool EventSucceeded(string eventType) {
-        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+        return SucceededStatuses.Contains(eventType);
     }
     private bool IsTwilioSignatureValid(
         IDictionary<string, StringValues> requestHeaders,

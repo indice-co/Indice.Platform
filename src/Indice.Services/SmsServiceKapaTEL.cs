@@ -224,6 +224,10 @@ internal class KapaTELResponse
 /// <inheritdoc/>
 public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
     private readonly SmsServiceKapaTELSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "DeliveredToPhone",
+        "DeliveredToSMSC"
+    };
 
     /// <inheritdoc/>
     public KapaTELWebhookHttpHandler(IOptionsSnapshot<SmsServiceKapaTELSettings> settings) {
@@ -280,7 +284,7 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
     }
 
     private static bool EventSucceeded(string eventType) {
-        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+        return SucceededStatuses.Contains(eventType);
     }
 
     private static bool TryParseNotificationTimestamp(string value, out DateTimeOffset timestamp) {

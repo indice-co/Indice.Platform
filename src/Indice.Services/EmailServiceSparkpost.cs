@@ -109,6 +109,22 @@ public class EmailServiceSparkPost : IEmailService
 public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSettings> options) : IWebhookHttpHandler
 {
     private readonly EmailServiceSparkPostSettings _options = options.Value;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "delivery",
+        "injection",
+        "click",
+        "open",
+        "initial_open",
+        "amp_click",
+        "amp_open",
+        "amp_initial_open",
+        "list_unsubscribe",
+        "link_unsubscribe",
+        "relay_injection",
+        "relay_delivery",
+        "ab_test_completed",
+        "success"
+    };
 
     /// <inheritdoc/>
     public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
@@ -168,11 +184,18 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
                             ?? GetString(data, "raw_rcpt_to")
                             ?? GetString(data, "sms_dst")
                             ?? string.Empty,
-                        Subject = GetString(data, "subject")
+                        Subject = GetString(data, "subject"),
+                        Payload = data,
+                        Succeeded = EventSucceeded(GetString(data, "type") ?? family.Key),
+                        Channel = "Email"
                     };
                 }
             }
         }
+    }
+
+    private static bool EventSucceeded(string eventType) {
+        return SucceededStatuses.Contains(eventType);
     }
 
     private static string? GetString(JsonObject data, string propertyName) {

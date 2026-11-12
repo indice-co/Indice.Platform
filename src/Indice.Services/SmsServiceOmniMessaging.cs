@@ -507,6 +507,10 @@ internal sealed class SmsServiceOmniResponse
 public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
 {
     private readonly SmsServiceOmniMessagingSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "pending",
+        "delivered"
+    };
 
     /// <inheritdoc/>
     public OmnimessagingWebhookHttpHandler(IOptionsSnapshot<SmsServiceOmniMessagingSettings> settings) {
@@ -660,7 +664,7 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
     }
 
     private static bool EventSucceeded(string eventType) {
-        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+        return SucceededStatuses.Contains(eventType);
     }
     private static string? GetJsonValueAsString(JsonElement json, string propertyName) {
         if (!json.TryGetProperty(propertyName, out var property)) {

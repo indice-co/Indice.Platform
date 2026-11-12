@@ -127,6 +127,11 @@ public class SmsServiceVonageSettings : SmsServiceSettings
 /// <inheritdoc/>
 public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
     private readonly SmsServiceVonageSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "Status:accepted",
+        "Status:delivered",
+        "Status:buffered"
+    };
 
     /// <inheritdoc/>
     public VonageWebhookHttpHandler(IOptionsSnapshot<SmsServiceVonageSettings> settings) {
@@ -199,7 +204,7 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
     }
 
     private static bool EventSucceeded(string eventType) {
-        return eventType.Equals("delivered", StringComparison.OrdinalIgnoreCase) || eventType.Equals("sent", StringComparison.OrdinalIgnoreCase);
+        return SucceededStatuses.Contains(eventType);
     }
     private static async Task<Dictionary<string, string>> BuildParametersAsync(
         IDictionary<string, StringValues> requestHeaders,
