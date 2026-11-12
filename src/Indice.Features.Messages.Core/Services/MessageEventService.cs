@@ -132,7 +132,7 @@ public class MessageEventService : IMessageEventService
         var sent = nameof(MessageEventType.Sent);
         var created = nameof(MessageEventType.Created);
         var inbox = nameof(MessageChannelKind.Inbox);
-        var attempts = DbContext.MessageEvents.Where(x => x.Type == sent || (x.Channel == inbox && x.Type == created));
+        var attempts = DbContext.MessageEvents.Where(x => !x.Orphan && (x.Type == sent || (x.Channel == inbox && x.Type == created)));
         if (filter.Channel.HasValue) {
             var channel = filter.Channel.Value.ToString();
             attempts = attempts.Where(x => x.Channel == channel);
