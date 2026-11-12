@@ -49,6 +49,7 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
                 ReceiptId = webhookEvent.MessageId,
                 CampaignId = Guid.Empty,
                 ContactId = Guid.Empty,
+                Orphan = true,
                 Title = webhookEvent.Subject ?? webhookEvent.Provider + " " + webhookEvent.EventType,
                 Channel = webhookEvent.Channel,
                 CreatedOn = GetCreatedOn(webhookEvent),
