@@ -35,6 +35,8 @@ public class ScheduledTaskInfo
     public double Progress { get; set; }
     /// <summary>The worker that ran the task last.</summary>
     public string? WorkerId { get; set; }
+    /// <summary>When a run now was requested, in UTC, while it waits for a worker to pick it up.</summary>
+    public DateTime? RunRequestedAt { get; set; }
 }
 
 /// <summary>A scheduled task with its errors and state.</summary>
@@ -53,4 +55,13 @@ public class SetScheduledTaskEnabledRequest
 {
     /// <summary>Whether the task runs on its schedule.</summary>
     public bool Enabled { get; set; }
+}
+
+/// <summary>A pending request to run a scheduled task now.</summary>
+public class RunScheduledTaskResult
+{
+    /// <summary>The id of the request.</summary>
+    public Guid RequestId { get; set; }
+    /// <summary>When the run was requested, in UTC.</summary>
+    public DateTime RequestedAt { get; set; }
 }

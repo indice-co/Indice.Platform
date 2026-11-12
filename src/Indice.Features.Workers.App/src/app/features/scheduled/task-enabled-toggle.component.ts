@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   inject,
   input,
   linkedSignal,
@@ -12,13 +13,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
 import { ToastService } from '../../core/services/toast.service';
 import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/workers-api.service';
 
 /**
  * The Enabled switch of a scheduled task, shared by the list and the detail page. Optimistic: it
  * flips at once, reverts if the request fails, and stays disabled while the request is in flight.
- * A task without a row (never run) can't be toggled — the API has nothing to update.
+ * A task without a row (never run) can't be toggled — the API has nothing to update. A reader sees
+ * the switch read-only.
  */
 @Component({
   selector: 'app-task-enabled-toggle',
@@ -26,15 +29,15 @@ import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/worker
   template: `
     <span
       class="inline-flex align-middle"
-      [class.tooltip]="!task().hasRun"
-      [class.tooltip-left]="!task().hasRun"
-      [attr.data-tip]="task().hasRun ? null : 'Available after the first run'"
+      [class.tooltip]="!!tip()"
+      [class.tooltip-left]="!!tip()"
+      [attr.data-tip]="tip()"
     >
       <input
         type="checkbox"
         class="toggle toggle-sm toggle-success"
         [checked]="checked()"
-        [disabled]="!task().hasRun || busy()"
+        [disabled]="!task().hasRun || !canManage() || busy()"
         [attr.aria-label]="(checked() ? 'Disable ' : 'Enable ') + task().name"
         (click)="$event.stopPropagation()"
         (change)="onChange($event)"
@@ -49,8 +52,16 @@ export class TaskEnabledToggleComponent {
   private readonly live = inject(LiveRefreshService);
   private readonly toasts = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly canManage = inject(PermissionsStore).canManage;
 
   protected readonly busy = signal(false);
+  protected readonly tip = computed(() =>
+    !this.task().hasRun
+      ? 'Available after the first run'
+      : !this.canManage()
+        ? 'Needs the WorkersAdmin role'
+        : null,
+  );
 
   /**
    * Follows the server value on every poll, except while a request is in flight: a poll that

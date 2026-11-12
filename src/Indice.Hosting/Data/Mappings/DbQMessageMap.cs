@@ -14,7 +14,10 @@ public sealed class DbQMessageMap : IEntityTypeConfiguration<DbQMessage>
         // Configure primary key.
         builder.HasKey(x => x.Id);
         // Configure indexes.
-        builder.HasIndex(x => x.QueueName);
+        // (QueueName, Date) matches the dequeue query (WHERE QueueName = @q AND Date <= now ORDER BY Date), so workers seek straight to the next message.
+        // State and DequeueCount are included so that monitoring counters can be computed from the index without touching the payload pages.
+        builder.HasIndex(x => new { x.QueueName, x.Date })
+               .IncludeProperties(x => new { x.State, x.DequeueCount });
         // Configure properties.
         builder.Property(x => x.RowVersion).IsRowVersion();
     }

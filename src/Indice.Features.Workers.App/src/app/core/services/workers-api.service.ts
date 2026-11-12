@@ -99,6 +99,8 @@ export interface ScheduledTaskInfo {
   lastRunFailed: boolean;
   progress: number;
   workerId?: string | null;
+  /** When a pending "run now" request was made; `null` when there is none. */
+  runRequestedAt?: string | null;
 }
 
 export interface ScheduledTaskDetails extends ScheduledTaskInfo {
@@ -125,6 +127,23 @@ export interface WorkerServerInfo {
   runningTasks: number;
 }
 
+/** What the signed-in user may do. Reading needs the `WorkersReader` role, changing anything `WorkersAdmin`. */
+export interface WorkerDashboardPermissions {
+  canManage: boolean;
+}
+
+export interface EnqueueMessageRequest {
+  /** JSON of the queue's work item. */
+  payload: string;
+  /** UTC; omit to make the message visible now. */
+  visibleAt?: string | null;
+}
+
+export interface RunScheduledTaskResult {
+  requestId: string;
+  requestedAt: string;
+}
+
 /** Typed client for the workers dashboard API (`/api/workers`). Mirrors Indice.Hosting.UI Models. */
 @Injectable({ providedIn: 'root' })
 export class WorkersApiService {
@@ -134,12 +153,33 @@ export class WorkersApiService {
     '',
   );
 
+  getPermissions(): Observable<WorkerDashboardPermissions> {
+    return this.http.get<WorkerDashboardPermissions>(`${this.baseUrl}/me`);
+  }
+
   getStats(): Observable<DashboardStats> {
     return this.http.get<DashboardStats>(`${this.baseUrl}/stats`);
   }
 
   getQueues(): Observable<QueueInfo[]> {
     return this.http.get<QueueInfo[]>(`${this.baseUrl}/queues`);
+  }
+
+  /** One logical queue; a queue without messages comes back with zero counters. */
+  getQueue(name: string): Observable<QueueInfo> {
+    return this.http.get<QueueInfo>(`${this.baseUrl}/queues/${encodeURIComponent(name)}`);
+  }
+
+  enqueueMessage(queueName: string, request: EnqueueMessageRequest): Observable<QueueMessageDetails> {
+    return this.http.post<QueueMessageDetails>(
+      `${this.baseUrl}/queues/${encodeURIComponent(queueName)}/messages`,
+      request,
+    );
+  }
+
+  /** Replaces the payload and requeues the message (visible now, attempts reset, out of poison). */
+  updateMessage(id: string, payload: string): Observable<QueueMessageDetails> {
+    return this.http.put<QueueMessageDetails>(`${this.baseUrl}/messages/${id}`, { payload });
   }
 
   getQueueMessages(
@@ -188,8 +228,20 @@ export class WorkersApiService {
     );
   }
 
+  /** Asks a worker that hosts the task to run it now; returns the pending request if there is one already. */
+  runScheduledTask(id: string): Observable<RunScheduledTaskResult> {
+    return this.http.post<RunScheduledTaskResult>(
+      `${this.baseUrl}/scheduled-tasks/${encodeURIComponent(id)}/run`,
+      null,
+    );
+  }
+
   getLocks(): Observable<LockInfo[]> {
     return this.http.get<LockInfo[]>(`${this.baseUrl}/locks`);
+  }
+
+  releaseLock(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/locks/${id}`);
   }
 
   getServers(): Observable<WorkerServerInfo[]> {

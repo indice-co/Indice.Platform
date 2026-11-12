@@ -79,3 +79,19 @@ public class BulkActionResult
     /// <summary>The number of messages affected. Messages already processed by a worker are not counted.</summary>
     public int Affected { get; set; }
 }
+
+/// <summary>A new message to put in a queue.</summary>
+public class EnqueueMessageRequest
+{
+    /// <summary>The JSON payload. It must match the work item type of the queue, as serialized by the worker.</summary>
+    public string Payload { get; set; } = null!;
+    /// <summary>When the message becomes visible, in UTC. Leave empty to make it visible now.</summary>
+    public DateTime? VisibleAt { get; set; }
+}
+
+/// <summary>A new payload for a message.</summary>
+public class UpdateMessageRequest
+{
+    /// <summary>The JSON payload. It must match the work item type of the queue, as serialized by the worker.</summary>
+    public string Payload { get; set; } = null!;
+}

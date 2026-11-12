@@ -10,7 +10,7 @@ const THEME_QUERY_PARAM = 'uitheme';
 // Theme names end up in a CSS selector, so keep them to a safe slug.
 const toThemeName = (value: string | null | undefined) => (value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/gu, '');
 
-// Picks the theme: session storage first, then the host's <html data-theme>, then `indice`.
+// Picks the theme: session storage first, then the host's <html data-theme>, then `workers`.
 // A `?uitheme=name` query string argument is written to session storage, so it sticks for the rest of the
 // browser session (an empty `?uitheme=` clears it and hands control back to the host).
 function resolveTheme(): string {
@@ -30,7 +30,7 @@ function resolveTheme(): string {
   } catch {
     // Session storage can be unavailable (blocked site data, private window) — fall through to the host's theme.
   }
-  const theme = stored || toThemeName(root.dataset['theme']) || 'indice';
+  const theme = stored || toThemeName(root.dataset['theme']) || 'workers';
   if (root.dataset['theme'] !== theme) {
     root.dataset['theme'] = theme;
   }

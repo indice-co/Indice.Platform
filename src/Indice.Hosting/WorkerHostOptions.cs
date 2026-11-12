@@ -22,4 +22,11 @@ public class WorkerHostOptions
     public WorkerJsonOptions JsonOptions { get; }
     /// <summary>If set to true, the worker host will wait for all jobs to finish before shutting down. Defaults to false.</summary>
     public bool WaitJobsToCompleteOnShutdown { get; set; }
+    /// <summary>
+    /// How often the worker checks for "run now" requests of its scheduled tasks (e.g. from the workers dashboard). Defaults to 15 seconds.
+    /// Only supported by the relational store. Set to <see langword="null"/> or <see cref="TimeSpan.Zero"/> to disable.
+    /// </summary>
+    public TimeSpan? RunNowPollingInterval { get; set; } = TimeSpan.FromSeconds(15);
+    /// <summary>Run now requests older than this are discarded instead of executed, e.g. when no worker was running at the time. Defaults to 10 minutes.</summary>
+    public TimeSpan RunNowExpiration { get; set; } = TimeSpan.FromMinutes(10);
 }

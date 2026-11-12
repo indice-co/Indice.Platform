@@ -2706,6 +2706,15 @@ user_code_2</value>
   <data name="Events.ClearFilters" xml:space="preserve">
     <value>Clear filters</value>
   </data>
+  <data name="Events.AllOutcomes" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Events.Succeeded" xml:space="preserve">
+    <value>Succeeded</value>
+  </data>
+  <data name="Events.Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
   <data name="Events.EmptyMessage" xml:space="preserve">
     <value>No message events match the current filters.</value>
   </data>

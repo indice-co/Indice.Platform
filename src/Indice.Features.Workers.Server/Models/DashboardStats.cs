@@ -42,3 +42,10 @@ public class DashboardStats
     /// <summary>Number of workers that have run a scheduled task.</summary>
     public int Servers { get; init; }
 }
+
+/// <summary>What the current user can do in the dashboard.</summary>
+public class WorkerDashboardPermissions
+{
+    /// <summary>Whether the user can change queues, scheduled tasks and locks (the <see cref="WorkerPolicies.BeWorkersAdmin"/> policy).</summary>
+    public bool CanManage { get; init; }
+}
