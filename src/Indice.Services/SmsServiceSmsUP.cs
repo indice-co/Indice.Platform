@@ -246,7 +246,8 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler
                 Subject = sender,
                 Timestamp = timestamp,
                 Payload = payload,
-                Succeeded = EventSucceeded(eventType)
+                Succeeded = EventSucceeded(eventType),
+                Channel = "SMS"
             }
         };
 

@@ -50,7 +50,7 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
                 CampaignId = Guid.Empty,
                 ContactId = Guid.Empty,
                 Title = webhookEvent.Subject ?? webhookEvent.Provider + " " + webhookEvent.EventType,
-                Channel = ResolveChannel(webhookEvent),
+                Channel = webhookEvent.Channel,
                 CreatedOn = GetCreatedOn(webhookEvent),
                 Success = webhookEvent.Succeeded,
                 Type = webhookEvent.EventType,
@@ -70,8 +70,4 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
 
     private static DateTimeOffset GetCreatedOn(WebhookEvent webhookEvent) =>
         webhookEvent.Timestamp == default ? DateTimeOffset.UtcNow : webhookEvent.Timestamp;
-
-    private static string ResolveChannel(WebhookEvent webhookEvent) =>
-        webhookEvent.Recipient?.Contains('@') == true ? nameof(MessageChannelKind.Email) : nameof(MessageChannelKind.SMS);
-
 }

@@ -270,7 +270,8 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
                 MessageId = messageId,
                 Timestamp = timestamp,
                 Payload = payload,
-                Succeeded = EventSucceeded(eventType)
+                Succeeded = EventSucceeded(eventType),
+                Channel = "SMS"
             }
         };
 

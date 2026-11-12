@@ -144,7 +144,8 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
                 Recipient = GetString(item, "email") ?? string.Empty,
                 Subject = GetString(item, "subject"),
                 Payload = item,
-                Succeeded = EventSucceeded(eventType)
+                Succeeded = EventSucceeded(eventType),
+                Channel = "Email"
             };
         }
     }

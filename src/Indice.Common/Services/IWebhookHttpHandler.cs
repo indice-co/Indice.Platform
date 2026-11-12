@@ -86,6 +86,8 @@ public sealed class WebhookEvent
     public JsonNode? Payload { get; set; }
     /// <summary>Gets or sets a value indicating whether the webhook event was processed successfully.</summary>
     public bool Succeeded { get; set; }
+    /// <summary>Gets or sets the channel that the message was sent through.</summary>
+    public string Channel { get; set; } = null!;
 }
 
 /// <summary>Represents the result of parsing a webhook request.</summary>

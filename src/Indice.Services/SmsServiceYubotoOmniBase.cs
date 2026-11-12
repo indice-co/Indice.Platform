@@ -492,7 +492,8 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
                 Subject = sender,
                 Timestamp = timestamp,
                 Payload = payload,
-                Succeeded = EventSucceeded(eventType)
+                Succeeded = EventSucceeded(eventType),
+                Channel = "SMS"
             }
         };
 

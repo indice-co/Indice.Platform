@@ -211,7 +211,8 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
                 Subject = sender,
                 Timestamp = timestamp,
                 Payload = payload,
-                Succeeded = EventSucceeded(eventType)
+                Succeeded = EventSucceeded(eventType),
+                Channel = "SMS"
             }
         }, 204);
     }
