@@ -1,10 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { EMPTY, catchError, switchMap } from 'rxjs';
+import { EMPTY, catchError, finalize, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
+import { ToastService } from '../../core/services/toast.service';
 import {
   QueueInfo,
   QueueMessageStatus,
@@ -12,6 +22,7 @@ import {
 } from '../../core/services/workers-api.service';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
+import { PayloadDialogComponent, PayloadDialogResult } from '../../shared/payload-dialog.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { COUNT_BADGE, countOf, plural, shortTypeName } from './queue-status';
 
@@ -25,7 +36,13 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retryi
 @Component({
   selector: 'app-queues-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, EmptyStateComponent, PageHeaderComponent, RelativeTimePipe],
+  imports: [
+    RouterLink,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    PayloadDialogComponent,
+    RelativeTimePipe,
+  ],
   template: `
     <section class="space-y-4 p-4 sm:p-6">
       <app-page-header title="Queues" [subtitle]="subtitle()">
@@ -46,6 +63,9 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retryi
             (input)="filter.set($any($event.target).value)"
           />
         </label>
+        @if (canManage()) {
+          <button type="button" class="btn btn-sm" (click)="payloadDialog.open()">Add message</button>
+        }
       </app-page-header>
 
       @if (error(); as message) {
@@ -128,12 +148,30 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retryi
         }
       </div>
     </section>
+
+    <app-payload-dialog
+      #payloadDialog
+      title="Add a message"
+      description="Pick an existing queue or type the name of a queue whose worker has no messages yet."
+      hint="It must deserialize into the work item of the queue, or it ends up as poison."
+      confirmLabel="Add message"
+      [askQueue]="true"
+      [queues]="queueNames()"
+      [askVisibleAt]="true"
+      [busy]="busy()"
+      (submitted)="enqueue($event)"
+    />
   `,
 })
 export class QueuesPageComponent {
   private readonly api = inject(WorkersApiService);
   private readonly live = inject(LiveRefreshService);
   private readonly router = inject(Router);
+  private readonly toasts = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly canManage = inject(PermissionsStore).canManage;
+  protected readonly busy = signal(false);
+  private readonly payloadDialog = viewChild.required<PayloadDialogComponent>('payloadDialog');
 
   protected readonly columns = COLUMNS;
   protected readonly badge = COUNT_BADGE;
@@ -155,6 +193,7 @@ export class QueuesPageComponent {
     return term ? queues.filter((q) => q.name.toLowerCase().includes(term)) : queues;
   });
   protected readonly noMatchText = computed(() => `Nothing matches “${this.filter().trim()}”.`);
+  protected readonly queueNames = computed(() => (this.queues() ?? []).map((q) => q.name));
 
   protected readonly subtitle = computed(() => {
     const queues = this.queues();
@@ -199,5 +238,27 @@ export class QueuesPageComponent {
 
   protected open(queue: QueueInfo): void {
     this.router.navigate(['/queues', queue.name]);
+  }
+
+  protected enqueue(result: PayloadDialogResult): void {
+    const queueName = result.queueName;
+    if (!queueName) {
+      return;
+    }
+    this.busy.set(true);
+    this.api
+      .enqueueMessage(queueName, { payload: result.payload, visibleAt: result.visibleAt })
+      .pipe(
+        finalize(() => this.busy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (message) => {
+          this.payloadDialog().close();
+          this.toasts.show('success', `Message added to ${queueName}.`);
+          this.router.navigate(['/queues', queueName], { queryParams: { status: message.status } });
+        },
+        error: (e: unknown) => this.toasts.show('error', describeError(e)),
+      });
   }
 }

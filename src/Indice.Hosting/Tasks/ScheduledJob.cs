@@ -39,9 +39,13 @@ internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : cl
     
     private async Task ExecuteInternal(IJobExecutionContext context, Type jobHandlerType, CancellationToken? cancellationToken = null) {
         var scheduledTask = await _scheduledTaskStore.GetById(context.JobDetail.Key.ToString());
-        if (scheduledTask?.Enabled == false) {
+        // A run now request is explicit, so it also runs a disabled task: disabling only pauses the schedule.
+        var runNow = context.MergedJobDataMap.TryGetValue(JobDataKeys.RunNow, out var runNowValue) && runNowValue is true;
+        if (scheduledTask?.Enabled == false && !runNow) {
             return;
         }
+        // A run now fires through a one-off trigger that has no next fire time, so take it from the schedule.
+        var nextExecution = runNow ? await GetNextScheduledFireTime(context) : context.NextFireTimeUtc;
         if (scheduledTask is null) {
             scheduledTask = new ScheduledTask<TState> {
                 Id = context.JobDetail.Key.ToString(),
@@ -49,7 +53,7 @@ internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : cl
                 ExecutionCount = 0,
                 Group = context.JobDetail.Key.Group,
                 LastExecution = context.FireTimeUtc,
-                NextExecution = context.NextFireTimeUtc,
+                NextExecution = nextExecution,
                 Progress = 0,
                 State = new TState(),
                 Status = ScheduledTaskStatus.Running,
@@ -60,7 +64,7 @@ internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : cl
         }
         scheduledTask.ExecutionCount++;
         scheduledTask.LastExecution = context.FireTimeUtc;
-        scheduledTask.NextExecution = context.NextFireTimeUtc;
+        scheduledTask.NextExecution = nextExecution;
         scheduledTask.Status = ScheduledTaskStatus.Running;
         scheduledTask.WorkerId = Environment.MachineName;
         await _scheduledTaskStore.Save(scheduledTask);
@@ -74,5 +78,14 @@ internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : cl
             scheduledTask.Status = ScheduledTaskStatus.Idle;
             await _scheduledTaskStore.Save(scheduledTask);
         }
+    }
+
+    private static async Task<DateTimeOffset?> GetNextScheduledFireTime(IJobExecutionContext context) {
+        var triggers = await context.Scheduler.GetTriggersOfJob(context.JobDetail.Key, context.CancellationToken);
+        return triggers.Where(trigger => !trigger.Key.Equals(context.Trigger.Key))
+                       .Select(trigger => trigger.GetNextFireTimeUtc())
+                       .Where(fireTime => fireTime.HasValue)
+                       .DefaultIfEmpty()
+                       .Min();
     }
 }

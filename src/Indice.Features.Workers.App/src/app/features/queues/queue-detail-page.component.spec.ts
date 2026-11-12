@@ -1,9 +1,10 @@
-import { provideZonelessChangeDetection, signal } from '@angular/core';
+import { WritableSignal, provideZonelessChangeDetection, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
 import {
   QueueInfo,
   QueueMessageListItem,
@@ -43,7 +44,7 @@ function liveStub() {
   return {
     tick$,
     enabled: signal(true),
-    intervalMs: signal(5000),
+    intervalMs: signal(30000),
     lastUpdated: signal<Date | null>(null),
     markUpdated: () => undefined,
     refreshNow: () => tick$.next(),
@@ -53,19 +54,25 @@ function liveStub() {
 describe('QueueDetailPageComponent', () => {
   let fixture: ComponentFixture<QueueDetailPageComponent>;
   let api: jasmine.SpyObj<WorkersApiService>;
+  let canManage: WritableSignal<boolean>;
   let el: HTMLElement;
 
   beforeEach(async () => {
     api = jasmine.createSpyObj<WorkersApiService>('WorkersApiService', [
       'getQueueMessages',
-      'getQueues',
+      'getQueue',
       'requeueMessages',
       'deleteMessages',
+      'enqueueMessage',
     ]);
     api.getQueueMessages.and.returnValue(of({ count: 45, items: MESSAGES }));
-    api.getQueues.and.returnValue(of([QUEUE]));
+    api.getQueue.and.returnValue(of(QUEUE));
     api.deleteMessages.and.returnValue(of({ affected: 2 }));
     api.requeueMessages.and.returnValue(of({ affected: 1 }));
+    api.enqueueMessage.and.returnValue(
+      of({ ...MESSAGES[0], logicalQueueName: 'orders', payload: '{"orderId":7}' }),
+    );
+    canManage = signal(true);
 
     await TestBed.configureTestingModule({
       imports: [QueueDetailPageComponent],
@@ -74,6 +81,7 @@ describe('QueueDetailPageComponent', () => {
         provideRouter([]),
         { provide: WorkersApiService, useValue: api },
         { provide: LiveRefreshService, useValue: liveStub() },
+        { provide: PermissionsStore, useValue: { canManage } },
       ],
     }).compileComponents();
 
@@ -166,5 +174,40 @@ describe('QueueDetailPageComponent', () => {
 
     expect(el.textContent).not.toContain('1 selected');
     expect(button('Delete selected').disabled).toBeTrue();
+  });
+
+  it('loads only its own queue', () => {
+    expect(api.getQueue).toHaveBeenCalledWith('orders');
+  });
+
+  it('hides the actions from a reader', async () => {
+    canManage.set(false);
+    await fixture.whenStable();
+
+    expect(el.querySelectorAll('input[type=checkbox]').length).toBe(0);
+    // Closed dialogs stay in the DOM; only the page's own buttons matter.
+    const labels = Array.from(el.querySelectorAll('button:not(dialog button)')).map((b) =>
+      b.textContent?.trim(),
+    );
+    expect(labels).not.toContain('Delete selected');
+    expect(labels).not.toContain('Add message');
+  });
+
+  it('adds a message with the typed payload', async () => {
+    button('Add message').click();
+    await fixture.whenStable();
+
+    const textarea = el.querySelector<HTMLTextAreaElement>('dialog[open] textarea')!;
+    textarea.value = '{"orderId":7}';
+    textarea.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    el.querySelector<HTMLButtonElement>('dialog[open] button[type=submit]')!.click();
+    await fixture.whenStable();
+
+    expect(api.enqueueMessage).toHaveBeenCalledOnceWith('orders', {
+      payload: '{"orderId":7}',
+      visibleAt: null,
+    });
+    expect(el.querySelector('dialog[open]')).toBeNull();
   });
 });

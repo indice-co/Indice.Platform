@@ -574,6 +574,10 @@ public static class IndiceServicesServiceCollectionExtensions
         where THandler : class, IWebhookHandler {
         var provider = configuration.GetDefaultSmsProvider();
         switch (provider) {
+            case "smsup":
+                services.Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSettings.Name));
+                services.AddWebhookServices<THandler, SmsUpWebhookHttpHandler>(configuration, provider);
+                break;
             case "apifon":
             case "ApiFon":
                 services.AddWebhookServices<THandler, ApifonWebhookHttpHandler>(configuration, provider);
@@ -625,6 +629,10 @@ public static class IndiceServicesServiceCollectionExtensions
         switch (provider) {
             case EmailServiceSparkPost.ServiceName:
                 services.AddWebhookServices<THandler, SparkPostWebhookHttpHandler>(configuration, provider);
+                break;
+            case EmailServiceSendGrid.ServiceName:
+                services.Configure<EmailServiceSendGridSettings>(configuration.GetSection(EmailServiceSendGridSettings.Name));
+                services.AddWebhookServices<THandler, SendGridWebhookHttpHandler>(configuration, provider);
                 break;
             case EmailServiceBrevo.ServiceName:
                 services.AddWebhookServices<THandler, BrevoWebhookHttpHandler>(configuration, provider);

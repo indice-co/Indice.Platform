@@ -17,20 +17,38 @@ and registers its own `ITaskDbContext` and `ILockDbContext`.
 | Page | Contents |
 | --- | --- |
 | **Dashboard** | Counters (enqueued, scheduled, retrying, poison, scheduled tasks, running, failing, active locks), a live queue-depth chart sampled in the browser, the busiest queues and the tasks that need attention. |
-| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status and the age of the oldest waiting message. |
-| **Queue detail** | The messages of a queue by status: **Enqueued**, **Scheduled** (delayed), **Retrying**, **Poison**. Select messages to **requeue** them (poison → back to the queue, scheduled → visible now, retrying → attempts reset) or **delete** them. |
-| **Message detail** | Status, attempts, visibility date and the JSON payload. |
-| **Scheduled tasks** | Every task that has run at least once: last run and its outcome, next run, run count, status, progress, and an **Enabled** switch. |
+| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status and the age of the oldest waiting message. **Add message** enqueues a new message into any queue. |
+| **Queue detail** | The messages of a queue by status: **Enqueued**, **Scheduled** (delayed), **Retrying**, **Poison**. Select messages to **requeue** them (poison → back to the queue, scheduled → visible now, retrying → attempts reset) or **delete** them. **Add message** enqueues a new message, now or at a later date. |
+| **Message detail** | Status, attempts, visibility date and the JSON payload. **Edit & requeue** fixes the payload of a message (typically a poison one) and puts it back in its queue. |
+| **Scheduled tasks** | Every task that has run at least once: last run and its outcome, next run, run count, status, progress, an **Enabled** switch and **Run now**. |
 | **Scheduled task detail** | Handler, worker of the last run, the last error (full exception text) and the persisted state. |
-| **Servers & locks** | The workers seen running scheduled tasks, and the distributed locks. |
+| **Servers & locks** | The workers seen running scheduled tasks, and the distributed locks. **Release** force-deletes a lock left behind by a worker that died. |
 
-All pages refresh by polling (2 s – 30 s, default 5 s). Polling pauses when the browser tab is hidden and can be paused by hand.
+All pages refresh by polling (30 s, 1 min, 2 min or 5 min; default 30 s). Polling pauses when the browser tab is hidden and can
+be paused by hand. The overall counters (`GET stats`) are cached on the server for `StatsCacheDuration` (10 s), so many open
+dashboards cost one query per period. Read-only queue queries run in `READ UNCOMMITTED` so that they never block, or wait
+for, the workers that dequeue; the counters may be a little off while messages move.
 
-The only changes the dashboard makes are plain database updates, so they work from any process:
+The changes the dashboard makes are plain database writes, so they work from any process:
 
 - enable / disable a scheduled task — the worker skips the next runs of a disabled task,
-- requeue messages,
-- delete messages.
+- run a scheduled task now (see below),
+- requeue, edit and delete messages,
+- enqueue a new message,
+- release a lock.
+
+### Run now
+
+The scheduler runs inside each worker, so **Run now** leaves a request in the database (a message in the internal queue
+`$run-now:{taskId}`, hidden from the dashboard). Every worker checks the requests of the tasks it hosts every
+`WorkerHostOptions.RunNowPollingInterval` (default 15 s), claims one atomically and runs the task once, outside its schedule:
+
+- it runs even when the task is **disabled**; the schedule stays disabled,
+- a singleton task still takes its lock: when another run holds it, the requested run is skipped,
+- while a request waits, the task shows **Run requested** and asking again does not queue a second run,
+- a request no worker picks up within `WorkerHostOptions.RunNowExpiration` (default 10 min) is discarded.
+
+Run now needs workers on a version of `Indice.Hosting` that has it, using the relational store (`UseStoreRelational`).
 
 ### What it can't show
 
@@ -38,10 +56,8 @@ Everything comes from the database, and the database keeps only what is pending:
 
 - **No history of processed messages.** The relational queue store deletes a message when a worker dequeues it, so there is
   no Processing / Succeeded / Deleted list and no throughput graph. A message that disappears while you look at it was most
-  likely processed.
-- **No "Trigger now".** Scheduled tasks run on the in-process Quartz scheduler of each worker; there is nothing to signal it
-  from another process.
-- **No cron expressions, polling settings or retry limits.** These live in the worker's `AddJob<…>()` registrations, not in the
+  most likely processed.
+- **No cron expressions, polling settings or retry limits.**
   database. A scheduled task appears **after its first run** (that run creates its row), with its next fire time.
 - **Workers that only process queues don't appear under Servers.** Servers are derived from the scheduled task rows.
 - **Locks kept outside the database** (`UseLockManagerAzure()`, `UseLockManagerInMemory()`) are not visible.
@@ -113,12 +129,21 @@ that registration is reused and `ConfigureDbContext` is ignored.
    - redirect URIs `{host}/workers/auth-callback` and `{host}/workers/auth-renew`,
    - post-logout redirect URI `{host}/workers/logged-out`,
    - allowed scopes `openid profile role email workers`.
-The API accepts an authenticated caller that **has the `workers` scope, or is an administrator** (`IsAdmin()`). Anyone else gets
-`403`.
+3. The roles **`WorkersReader`** and **`WorkersAdmin`** (`BasicRoleNames.WorkersReader` / `BasicRoleNames.WorkersAdmin`), given
+   to the users that operate the workers. The role claim must reach the API (the `role` scope / API resource claims).
 
-> **Who gets in.** The `workers-ui` client requests the `workers` scope for everyone who signs in through it, so every user who
-> can sign in to that client can use the dashboard. Restrict who can sign in to `workers-ui`, or set
-> `WorkerEndpointsOptions.RequiredScope = null` (and drop `workers` from the client scopes) to allow administrators only.
+The API requires an authenticated user with the `workers` scope (`WorkerEndpointsOptions.RequiredScope`) **and** a role:
+
+| Policy | Who | Allows |
+| --- | --- | --- |
+| `WorkerPolicies.BeWorkersReader` | `WorkersReader`, `WorkersAdmin` or an administrator (`IsAdmin()`) | Every `GET` — all pages, read only. |
+| `WorkerPolicies.BeWorkersAdmin` | `WorkersAdmin` or an administrator (`IsAdmin()`) | Every change: enable/disable, run now, requeue, edit, delete, enqueue, release lock. |
+
+Anyone else gets `403`; a client that only has the scope (e.g. a machine client) is not enough. The SPA asks `GET me` for the
+permissions of the user and hides the actions of a reader.
+
+> **Who gets in.** The `workers-ui` client requests the `workers` scope for everyone who signs in through it; the roles decide
+> what each user can do. Set `WorkerEndpointsOptions.RequiredScope = null` to check the roles only.
 
 The SPA reads the identity server address and its own public address from the host configuration:
 
@@ -141,7 +166,9 @@ The SPA reads the identity server address and its own public address from the ho
 | --- | --- | --- |
 | `PathPrefix` | `/api/workers` | Route prefix of the API. Must match `WorkerUIOptions.ApiBase`. |
 | `GroupName` | `workers` | OpenAPI document (group) name of the endpoints. |
-| `RequiredScope` | `workers` | Scope that grants access. Administrators are always allowed. Set it to `null` to allow administrators only. |
+| `RequiredScope` | `workers` | Scope that the caller must have, on top of the role (see above). Set it to `null` to check the roles only. |
+| `StatsCacheDuration` | 10 s | How long the overall counters (`GET stats`) are cached. |
+| `MaxPayloadLength` | 1,000,000 | The maximum length, in characters, of a payload enqueued or edited from the dashboard. |
 | `ConfigureDbContext` | SQL Server, connection string `WorkerDb` | Configures the database that holds the worker tables. Ignored when the host already registered the context type. |
 
 ### `WorkerUIOptions` — the SPA (`UseWorkersUI`)
@@ -157,10 +184,40 @@ Inherits the common options of `Indice.AspNetCore.EmbeddedUI` (`SpaUIOptions`).
 | `Authority` | `General:Authority` | The identity server address. |
 | `Host` | `General:Host` | The public address of this host; the redirect URIs are built from it. |
 | `DocumentTitle` | `Workers` | The browser tab title. |
-| `Theme` | `indice` | The daisyUI theme name. A `?uitheme=name` query argument overrides it for the browser session. |
+| `Theme` | `workers` | The daisyUI theme name. The built-in `workers` theme follows the user's light/dark/system choice; any other name (e.g. `workers-dark`, or a custom theme added through `HeadContent`) is applied as-is and hides the theme switcher. A `?uitheme=name` query argument overrides it for the browser session. |
 | `Lang` | the current UI culture | The `lang` attribute of the page. |
 | `HeadContent` | — | Extra markup for the page `<head>` (e.g. a stylesheet with a custom theme). |
 | `Enabled` | `true` | Set to `false` to stop serving the SPA. |
+
+---
+
+## Health checks
+
+`Indice.Features.Workers.Server` also adds two health checks over the worker tables. They report `Degraded` by default and need
+an `ITaskDbContext`, registered by `AddWorkerEndpoints()` (or by `UseStoreRelational()` in a worker process):
+
+```csharp
+builder.Services.AddHealthChecks()
+    // Poison messages above the threshold, with the count per queue in the result data.
+    .AddWorkerPoisonMessages(configure: options => {
+        options.Threshold = 10;
+        options.QueueNames = ["orders"];          // empty = every queue
+    })
+    // Tasks still running long after they started, and (optionally) enabled tasks that missed their schedule.
+    .AddWorkerStuckTasks(configure: options => {
+        options.StuckAfter = TimeSpan.FromHours(2);
+        options.OverdueAfter = TimeSpan.FromMinutes(30);  // null (default) = don't check
+        options.IgnoredTaskIds = ["InternalJobsGroup.long-etl"];
+    });
+```
+
+---
+
+## Database index
+
+`Indice.Hosting` now indexes the queue table on `(QueueName, Date)` including `State` and `DequeueCount` (SQL Server), replacing
+the index on `QueueName`. It serves both the dequeue query of the workers and the counters of the dashboard. Add a migration to
+the context that holds the worker tables to apply it.
 
 ---
 

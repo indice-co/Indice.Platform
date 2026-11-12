@@ -69,6 +69,20 @@ public class EtlPipelineHandler
 
 If you deploy to different machines, you can set `Singleton = true` per scheduled job to run only one instance of a job.
 
+### Run now
+
+With the relational store, a scheduled task can be run once on demand, e.g. from the workers dashboard
+(`Indice.Features.Workers.UI`). The request is a message in the queue `$run-now:{taskId}`; each worker checks the requests of
+the tasks it hosts every `RunNowPollingInterval` and discards the ones older than `RunNowExpiration`:
+
+```csharp
+services.AddWorkerHost(options => {
+    options.RunNowPollingInterval = TimeSpan.FromSeconds(15); // default; null disables it
+    options.RunNowExpiration = TimeSpan.FromMinutes(10);      // default
+    options.UseStoreRelational(...);
+});
+```
+
 ---
 
 ## Poison Queue

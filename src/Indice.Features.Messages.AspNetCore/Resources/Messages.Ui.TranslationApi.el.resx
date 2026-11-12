@@ -2705,6 +2705,15 @@
   <data name="Events.ClearFilters" xml:space="preserve">
     <value>Καθαρισμός φίλτρων</value>
   </data>
+  <data name="Events.AllOutcomes" xml:space="preserve">
+    <value>Όλα</value>
+  </data>
+  <data name="Events.Succeeded" xml:space="preserve">
+    <value>Επιτυχή</value>
+  </data>
+  <data name="Events.Failed" xml:space="preserve">
+    <value>Αποτυχημένα</value>
+  </data>
   <data name="Events.EmptyMessage" xml:space="preserve">
     <value>Δεν υπάρχουν συμβάντα που να ταιριάζουν με τα τρέχοντα φίλτρα.</value>
   </data>

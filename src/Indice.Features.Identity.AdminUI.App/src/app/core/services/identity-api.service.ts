@@ -731,10 +731,12 @@ export interface IIdentityApiService {
      * @param emailConfirmed (optional) 
      * @param phoneNumberConfirmed (optional) 
      * @param twoFactorEnabled (optional) 
+     * @param passwordExpired (optional) 
+     * @param signedIn (optional) 
      * @param expandClaims (optional) 
      * @return OK
      */
-    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet>;
+    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, passwordExpired?: boolean | null | undefined, signedIn?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet>;
     /**
      * Creates a new user.
      * @return Created
@@ -10312,10 +10314,12 @@ export class IdentityApiService implements IIdentityApiService {
      * @param emailConfirmed (optional) 
      * @param phoneNumberConfirmed (optional) 
      * @param twoFactorEnabled (optional) 
+     * @param passwordExpired (optional) 
+     * @param signedIn (optional) 
      * @param expandClaims (optional) 
      * @return OK
      */
-    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet> {
+    getUsers(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, claimType?: string | null | undefined, claimValue?: string | null | undefined, userId?: string[] | undefined, blocked?: boolean | null | undefined, lockedOut?: boolean | null | undefined, emailConfirmed?: boolean | null | undefined, phoneNumberConfirmed?: boolean | null | undefined, twoFactorEnabled?: boolean | null | undefined, admin?: boolean | null | undefined, passwordExpired?: boolean | null | undefined, signedIn?: boolean | null | undefined, expandClaims?: string[] | undefined): Observable<UserInfoResultSet> {
         let url_ = this.baseUrl + "/api/users?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -10345,6 +10349,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "TwoFactorEnabled=" + encodeURIComponent("" + twoFactorEnabled) + "&";
         if (admin !== undefined && admin !== null)
             url_ += "Admin=" + encodeURIComponent("" + admin) + "&";
+        if (passwordExpired !== undefined && passwordExpired !== null)
+            url_ += "PasswordExpired=" + encodeURIComponent("" + passwordExpired) + "&";
+        if (signedIn !== undefined && signedIn !== null)
+            url_ += "SignedIn=" + encodeURIComponent("" + signedIn) + "&";
         if (expandClaims === null)
             throw new globalThis.Error("The parameter 'expandClaims' cannot be null.");
         else if (expandClaims !== undefined)

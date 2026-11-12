@@ -17,16 +17,29 @@ import {
 const LIVE_KEY = 'workers.live';
 const INTERVAL_KEY = 'workers.interval';
 
-/** The poll intervals the top-bar control offers, in ms. */
-export const REFRESH_INTERVALS = [2000, 5000, 10000, 30000] as const;
+/**
+ * The poll intervals the top-bar control offers, in ms. 30 s is the floor: the counters read the
+ * live queue table that the workers dequeue from, and the server caches `/stats` for a few seconds anyway.
+ */
+export const REFRESH_INTERVALS = [30000, 60000, 120000, 300000] as const;
+
+const DEFAULT_INTERVAL = 30000;
+
+/** `30 s`, `1 min`, `5 min`. */
+export function formatInterval(ms: number): string {
+  return ms < 60000 ? `${ms / 1000} s` : `${ms / 60000} min`;
+}
 
 /** Global poll clock (Hangfire-style). Pages combine `tick$` with their own query and refetch on every emission. */
 @Injectable({ providedIn: 'root' })
 export class LiveRefreshService {
   /** Auto-refresh on/off — remembered in localStorage `workers.live`. Default true. */
   readonly enabled = signal(readBool(LIVE_KEY, true));
-  /** Poll interval in ms — one of 2000/5000/10000/30000, remembered in `workers.interval`. Default 5000. */
-  readonly intervalMs = signal(readInterval(INTERVAL_KEY, 5000));
+  /**
+   * Poll interval in ms — one of `REFRESH_INTERVALS`, remembered in `workers.interval`. Default 30 s;
+   * a value stored by an older version (2–10 s) falls back to it.
+   */
+  readonly intervalMs = signal(readInterval(INTERVAL_KEY, DEFAULT_INTERVAL));
   /** When the last successful refresh landed (shown as "Updated 3 s ago"). */
   readonly lastUpdated = signal<Date | null>(null);
 

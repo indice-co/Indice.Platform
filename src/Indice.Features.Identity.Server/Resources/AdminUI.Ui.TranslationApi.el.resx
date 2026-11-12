@@ -2795,6 +2795,12 @@
   <data name="Users.Filters.Phone" xml:space="preserve">
     <value>Τηλέφωνο</value>
   </data>
+  <data name="Users.Filters.PasswordExpired" xml:space="preserve">
+    <value>Ληγμένος κωδικός</value>
+  </data>
+  <data name="Users.Filters.SignedIn" xml:space="preserve">
+    <value>Έχει συνδεθεί</value>
+  </data>
   <data name="Users.List.Any" xml:space="preserve">
     <value>Οποιοδήποτε</value>
   </data>
@@ -3097,6 +3103,18 @@
   </data>
   <data name="Users.Status.PhoneVerified" xml:space="preserve">
     <value>Επιβεβαιωμένο τηλέφωνο</value>
+  </data>
+  <data name="Users.Status.PasswordExpired" xml:space="preserve">
+    <value>Ληγμένος κωδικός</value>
+  </data>
+  <data name="Users.Status.PasswordNotExpired" xml:space="preserve">
+    <value>Έγκυρος κωδικός</value>
+  </data>
+  <data name="Users.Status.HasSignedIn" xml:space="preserve">
+    <value>Έχει συνδεθεί</value>
+  </data>
+  <data name="Users.Status.NeverSignedIn" xml:space="preserve">
+    <value>Δεν έχει συνδεθεί ποτέ</value>
   </data>
   <data name="Users.Toasts.UserUpdated" xml:space="preserve">
     <value>Ο χρήστης ενημερώθηκε</value>

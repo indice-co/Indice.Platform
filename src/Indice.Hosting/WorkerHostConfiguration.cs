@@ -34,6 +34,11 @@ public static class WorkerHostConfiguration
         };
         configureAction?.Invoke(workerHostOptions);
         services.AddSingleton(workerHostOptions.JsonOptions);
+        // Run now requests are read from the queue table, so they need the relational store.
+        if (workerHostOptions.RunNowPollingInterval > TimeSpan.Zero && services.Any(sd => sd.ServiceType == typeof(ITaskDbContext))) {
+            services.AddSingleton(new RunNowSettings(workerHostOptions.RunNowPollingInterval.Value, workerHostOptions.RunNowExpiration));
+            services.AddTransient<RunNowJob>();
+        }
         services.Configure<WorkerLifetimeOptions>(options => options.WaitJobsToCompleteOnShutdown = workerHostOptions.WaitJobsToCompleteOnShutdown);
         // https://www.quartz-scheduler.net/documentation/quartz-3.x/configuration/reference.html
         var quartzConfiguration = new NameValueCollection {

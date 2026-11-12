@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { LucideCalendarClock, LucideLayers, LucideLayoutDashboard, LucideServer } from '@lucide/angular';
 
 import { LogoComponent } from '../../shared/logo.component';
 import { appName } from '../models/brand';
@@ -16,159 +17,124 @@ export interface NavBadges {
 
 interface NavItem {
   label: string;
-  route: string;
+  link: string;
   exact: boolean;
+  icon: 'dashboard' | 'queues' | 'scheduled' | 'servers';
   badge?: keyof NavBadges;
 }
 
-const NAV: NavItem[] = [
-  { label: 'Dashboard', route: '/', exact: true },
-  { label: 'Queues', route: '/queues', exact: false, badge: 'poison' },
-  { label: 'Scheduled tasks', route: '/scheduled', exact: false, badge: 'failingTasks' },
-  { label: 'Servers & locks', route: '/servers', exact: false },
+interface NavSection {
+  /** Section heading; omitted for the first section. */
+  label?: string;
+  items: NavItem[];
+}
+
+const NAV: NavSection[] = [
+  {
+    items: [{ label: 'Dashboard', link: '/', exact: true, icon: 'dashboard' }],
+  },
+  {
+    label: 'Background work',
+    items: [
+      { label: 'Queues', link: '/queues', exact: false, icon: 'queues', badge: 'poison' },
+      {
+        label: 'Scheduled tasks',
+        link: '/scheduled',
+        exact: false,
+        icon: 'scheduled',
+        badge: 'failingTasks',
+      },
+    ],
+  },
+  {
+    label: 'Infrastructure',
+    items: [{ label: 'Servers & locks', link: '/servers', exact: false, icon: 'servers' }],
+  },
 ];
 
 /**
- * The application rail: brand, the page navigation and the account anchor at the bottom.
- * Presentational — the shell owns the data.
- *
- * Two shapes share one component: `collapsed` renders the desktop icon strip, and the same
- * expanded markup serves both the wide desktop rail and the mobile drawer.
+ * The application rail: brand, the page navigation and the account anchor at the bottom. It is pinned from `lg` up and
+ * slides in as the shell's drawer below it. Presentational — the shell owns the data.
  */
 @Component({
   selector: 'app-sidebar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, LogoComponent, PoweredByComponent, SidebarAccountComponent],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    LucideLayoutDashboard,
+    LucideLayers,
+    LucideCalendarClock,
+    LucideServer,
+    LogoComponent,
+    PoweredByComponent,
+    SidebarAccountComponent,
+  ],
+  host: { class: 'flex min-h-full' },
   template: `
-    <aside class="flex h-full w-full flex-col overflow-hidden bg-base-100">
-      <!-- Brand + collapse control -->
-      <div class="flex shrink-0 flex-col gap-1 px-3 pt-3">
-        <div class="flex items-center gap-2.5" [class.justify-center]="collapsed()">
-          <a
-            routerLink="/"
-            class="flex min-w-0 items-center py-1 text-base-content"
-            [title]="appName"
-            (click)="navigated.emit()"
-          >
-            <app-logo [mark]="collapsed()" />
-          </a>
-          @if (!collapsed()) {
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm btn-circle ml-auto hidden text-base-content/50
-                     md:inline-flex"
-              (click)="toggle.emit()"
-              aria-label="Collapse sidebar"
-              aria-expanded="true"
-              title="Collapse sidebar"
-            >
-              <svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
-                <path
-                  d="M15 6l-6 6 6 6"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
-          }
-        </div>
-        @if (collapsed()) {
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm btn-circle mx-auto text-base-content/50"
-            (click)="toggle.emit()"
-            aria-label="Expand sidebar"
-            aria-expanded="false"
-            title="Expand sidebar"
-          >
-            <svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
-              <path
-                d="M9 6l6 6-6 6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-        }
-      </div>
+    <aside
+      class="flex min-h-full flex-col border-r"
+      style="width: var(--app-sidebar-width); background: var(--app-sidebar-bg); color: var(--app-sidebar-content); border-color: var(--app-sidebar-border)"
+    >
+      <a
+        routerLink="/"
+        class="flex h-16 shrink-0 items-center px-5"
+        style="color: var(--app-sidebar-content-strong)"
+        [title]="appName"
+        (click)="navigated.emit()"
+      >
+        <app-logo [size]="30" ring="var(--app-sidebar-bg)" />
+      </a>
 
-      <!-- Navigation -->
-      <nav class="app-scroll flex-1 overflow-x-hidden overflow-y-auto pt-3 pb-3" aria-label="Main">
-        <ul class="menu w-full" [class.items-center]="collapsed()" [class.px-1]="collapsed()">
-          @for (item of nav; track item.route) {
-            <li
-              [class.tooltip]="collapsed()"
-              [class.tooltip-right]="collapsed()"
-              [attr.data-tip]="collapsed() ? item.label : null"
-            >
-              <a
-                [routerLink]="item.route"
-                routerLinkActive="menu-active"
-                [routerLinkActiveOptions]="{ exact: item.exact }"
-                [class.justify-center]="collapsed()"
-                [class.relative]="collapsed()"
-                [attr.aria-label]="collapsed() ? item.label : null"
-                (click)="navigated.emit()"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="size-5 shrink-0"
-                  aria-hidden="true"
-                >
-                  @switch (item.route) {
-                    @case ('/') {
-                      <path
-                        d="M4 5a1 1 0 0 1 1-1h5v7H4zM14 4h5a1 1 0 0 1 1 1v4h-6zM14 13h6v6a1 1 0 0 1-1 1h-5zM4 15h6v5H5a1 1 0 0 1-1-1z"
-                      />
+      <nav class="app-scroll flex-1 space-y-6 overflow-y-auto px-3 py-4" aria-label="Main">
+        @for (section of nav; track $index) {
+          <div>
+            @if (section.label) {
+              <p class="mb-1.5 px-3 text-[0.7rem] font-semibold tracking-wider uppercase opacity-55">
+                {{ section.label }}
+              </p>
+            }
+            <ul class="space-y-0.5">
+              @for (item of section.items; track item.link) {
+                <li>
+                  <a
+                    class="nav-link"
+                    [routerLink]="item.link"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: item.exact }"
+                    (click)="navigated.emit()"
+                  >
+                    @switch (item.icon) {
+                      @case ('dashboard') {
+                        <svg lucideLayoutDashboard class="size-[1.125rem] shrink-0"></svg>
+                      }
+                      @case ('queues') {
+                        <svg lucideLayers class="size-[1.125rem] shrink-0"></svg>
+                      }
+                      @case ('scheduled') {
+                        <svg lucideCalendarClock class="size-[1.125rem] shrink-0"></svg>
+                      }
+                      @case ('servers') {
+                        <svg lucideServer class="size-[1.125rem] shrink-0"></svg>
+                      }
                     }
-                    @case ('/queues') {
-                      <path d="M4 6h16M4 12h16M4 18h10" />
+                    <span class="flex-1 truncate">{{ item.label }}</span>
+                    @if (countOf(item); as count) {
+                      <span class="badge badge-error badge-sm tabular-nums">
+                        {{ count }}<span class="sr-only"> need attention</span>
+                      </span>
                     }
-                    @case ('/scheduled') {
-                      <circle cx="12" cy="12" r="8" />
-                      <path d="M12 8v4l3 2" />
-                    }
-                    @case ('/servers') {
-                      <path d="M4 5h16v5H4zM4 14h16v5H4zM8 7.5h.01M8 16.5h.01" />
-                    }
-                  }
-                </svg>
-                @if (!collapsed()) {
-                  <span class="flex-1">{{ item.label }}</span>
-                }
-                @if (countOf(item); as count) {
-                  @if (collapsed()) {
-                    <span
-                      class="status status-error absolute right-1.5 top-1.5"
-                      [attr.aria-label]="count + ' need attention'"
-                    ></span>
-                  } @else {
-                    <span class="badge badge-error badge-sm">{{ count }}</span>
-                  }
-                }
-              </a>
-            </li>
-          }
-        </ul>
-      </nav>
-
-      <!-- Account anchor -->
-      <div class="shrink-0 border-t border-base-300 px-3 py-3">
-        <app-sidebar-account [collapsed]="collapsed()" (navigated)="navigated.emit()" />
-        @if (!collapsed()) {
-          <div class="mt-3">
-            <app-powered-by />
+                  </a>
+                </li>
+              }
+            </ul>
           </div>
         }
+      </nav>
+
+      <div class="shrink-0 border-t px-3 py-3" style="border-color: var(--app-sidebar-border)">
+        <app-sidebar-account (navigated)="navigated.emit()" />
+        <app-powered-by class="mt-3 block" />
       </div>
     </aside>
   `,
@@ -177,13 +143,9 @@ export class AppSidebarComponent {
   protected readonly appName = appName;
   protected readonly nav = NAV;
 
-  /** Desktop icon-rail mode; always `false` inside the mobile drawer. */
-  readonly collapsed = input(false);
   /** Attention counts per nav item; `null` until the first `/stats` response. */
   readonly badges = input<NavBadges | null>(null);
 
-  /** The collapse/expand control was used. */
-  readonly toggle = output<void>();
   /** Something navigational happened — the shell closes the mobile drawer on it. */
   readonly navigated = output<void>();
 
