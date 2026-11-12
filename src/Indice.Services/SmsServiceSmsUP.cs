@@ -252,7 +252,7 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler
                 Timestamp = timestamp,
                 Payload = payload,
                 Succeeded = EventSucceeded(eventType),
-                Channel = "SMS"
+                Channel = WebhookChannel.Sms
             }
         };
 

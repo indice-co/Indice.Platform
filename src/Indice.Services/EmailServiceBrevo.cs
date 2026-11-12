@@ -168,7 +168,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
                 Subject = GetString(item, "subject"),
                 Payload = item,
                 Succeeded = EventSucceeded(eventType),
-                Channel = "Email"
+                Channel = WebhookChannel.Email
             };
         }
     }

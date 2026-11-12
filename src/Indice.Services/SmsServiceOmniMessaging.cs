@@ -604,7 +604,7 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             Timestamp = timestamp,
             Payload = JsonNode.Parse(root.GetRawText()),
             Succeeded = EventSucceeded(string.IsNullOrWhiteSpace(status) ? "SmsDelivery" : status),
-            Channel = "SMS"
+            Channel = WebhookChannel.Sms
         };
 
         return true;
@@ -657,7 +657,7 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             Timestamp = timestamp,
             Payload = JsonNode.Parse(root.GetRawText()),
             Succeeded = EventSucceeded(interaction ?? webhookType ?? "Interaction"),
-            Channel = "SMS"
+            Channel = WebhookChannel.Sms
         };
 
         return true;

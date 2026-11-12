@@ -196,7 +196,7 @@ public sealed class VonageWebhookHttpHandler : IWebhookHttpHandler {
                 Timestamp = timestamp,
                 Payload = payload,
                 Succeeded = EventSucceeded(eventType),
-                Channel = "SMS"
+                Channel = WebhookChannel.Sms
             }
         };
 

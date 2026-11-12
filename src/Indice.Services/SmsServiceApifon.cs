@@ -178,7 +178,7 @@ public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
             Recipient = item.To,
             Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.Timestamp),
             Succeeded = EventSucceeded(item),
-            Channel = string.IsNullOrWhiteSpace(payload.Type) ? "SMS" : payload.Type
+            Channel = WebhookChannel.Sms
         }).ToList();
 
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);

@@ -51,7 +51,7 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
                 ContactId = Guid.Empty,
                 Orphan = true,
                 Title = webhookEvent.Subject ?? webhookEvent.Provider + " " + webhookEvent.EventType,
-                Channel = webhookEvent.Channel,
+                Channel = GetChannel(webhookEvent.Channel),
                 CreatedOn = GetCreatedOn(webhookEvent),
                 Success = webhookEvent.Succeeded,
                 Type = webhookEvent.EventType,
@@ -68,6 +68,12 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
             throw;
         }
     }
+
+    private static string GetChannel(WebhookChannel channel) => channel switch {
+        WebhookChannel.Sms => nameof(MessageChannelKind.SMS),
+        WebhookChannel.Email => nameof(MessageChannelKind.Email),
+        _ => channel.ToString()
+    };
 
     private static DateTimeOffset GetCreatedOn(WebhookEvent webhookEvent) =>
         webhookEvent.Timestamp == default ? DateTimeOffset.UtcNow : webhookEvent.Timestamp;

@@ -187,7 +187,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
                         Subject = GetString(data, "subject"),
                         Payload = data,
                         Succeeded = EventSucceeded(GetString(data, "type") ?? family.Key),
-                        Channel = "Email"
+                        Channel = WebhookChannel.Email
                     };
                 }
             }

@@ -223,7 +223,7 @@ public sealed class TwilioWebhookHttpHandler : IWebhookHttpHandler {
                 Timestamp = timestamp,
                 Payload = payload,
                 Succeeded = EventSucceeded(eventType),
-                Channel = "SMS"
+                Channel = WebhookChannel.Sms
             }
         }, 204);
     }
