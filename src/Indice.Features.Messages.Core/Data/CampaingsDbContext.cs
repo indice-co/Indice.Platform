@@ -4,7 +4,6 @@ using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Core.Data;
@@ -14,9 +13,7 @@ public class CampaignsDbContext : DbContext
 {
     /// <summary>Creates a new instance of <see cref="CampaignsDbContext"/>.</summary>
     /// <param name="options">The options to be used by <see cref="CampaignsDbContext"/>.</param>
-    public CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : base(options) {
-
-    }
+    public CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : base(options) { }
 
     /// <summary>Campaign attachments table.</summary>
     public DbSet<DbAttachment> Attachments { get; set; }
@@ -40,7 +37,6 @@ public class CampaignsDbContext : DbContext
     public DbSet<DbContact> Contacts { get; set; }
     /// <summary>A table that associates contacts and distribution lists.</summary>
     public DbSet<DbDistributionListContact> ContactDistributionLists { get; set; }
-
     /// <summary>Contact preferences</summary>
     public DbSet<DbContactPreference> ContactPreferences { get; set; }
     /// <summary>Contacts communication options.</summary>

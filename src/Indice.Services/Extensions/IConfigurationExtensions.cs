@@ -350,12 +350,12 @@ public static class IConfigurationExtensions
     /// </summary>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The primary provider name.</returns>
-    public static string GetDefaultSmsProvider(this IConfiguration configuration) => configuration.GetSmsProviders().First();
+    public static string? GetDefaultSmsProvider(this IConfiguration configuration) => configuration.GetSmsProviders().FirstOrDefault();
 
     /// <summary>
     /// Gets the primary configured Email provider.
     /// </summary>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The primary provider name.</returns>
-    public static string GetDefaultEmailProvider(this IConfiguration configuration) => configuration.GetEmailProviders().First();
+    public static string? GetDefaultEmailProvider(this IConfiguration configuration) => configuration.GetEmailProviders().FirstOrDefault();
 }

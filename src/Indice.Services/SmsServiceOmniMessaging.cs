@@ -507,6 +507,10 @@ internal sealed class SmsServiceOmniResponse
 public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
 {
     private readonly SmsServiceOmniMessagingSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "pending",
+        "delivered"
+    };
 
     /// <inheritdoc/>
     public OmnimessagingWebhookHttpHandler(IOptionsSnapshot<SmsServiceOmniMessagingSettings> settings) {
@@ -598,11 +602,14 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             Recipient = recipient,
             Subject = GetJsonValueAsString(root, "campaign_reference"),
             Timestamp = timestamp,
-            Payload = JsonNode.Parse(root.GetRawText())
+            Payload = JsonNode.Parse(root.GetRawText()),
+            Succeeded = EventSucceeded(string.IsNullOrWhiteSpace(status) ? "SmsDelivery" : status),
+            Channel = WebhookChannel.Sms
         };
 
         return true;
     }
+
 
     private static bool TryParseInteraction(JsonElement root, out WebhookEvent webhookEvent, out string error) {
         webhookEvent = null!;
@@ -648,10 +655,20 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             Recipient = recipient,
             Subject = GetJsonValueAsString(webhookData, "campaign_reference"),
             Timestamp = timestamp,
-            Payload = JsonNode.Parse(root.GetRawText())
+            Payload = JsonNode.Parse(root.GetRawText()),
+            Succeeded = InteractionSucceeded(interaction),
+            Channel = WebhookChannel.Sms
         };
 
         return true;
+    }
+
+    private static bool EventSucceeded(string eventType) {
+        return SucceededStatuses.Contains(eventType);
+    }
+
+    private static bool InteractionSucceeded(string? interaction) {
+        return !string.IsNullOrWhiteSpace(interaction);
     }
 
     private static string? GetJsonValueAsString(JsonElement json, string propertyName) {

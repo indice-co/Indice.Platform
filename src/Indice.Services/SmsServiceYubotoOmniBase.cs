@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Indice.Extensions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -432,6 +433,13 @@ public class SmsServiceYubotoOmniSettings : SmsServiceSettings
 /// <inheritdoc/>
 public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
     private readonly SmsServiceYubotoOmniSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "Delivered",
+        "Seen",
+        "Clicked",
+        "Subscribed",
+        "Unsubscribed"
+    };
 
     /// <inheritdoc/>
     public YubotoWebhookHttpHandler(IOptionsSnapshot<SmsServiceYubotoOmniSettings> settings) {
@@ -490,7 +498,9 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
                 Recipient = recipient,
                 Subject = sender,
                 Timestamp = timestamp,
-                Payload = payload
+                Payload = payload,
+                Succeeded = EventSucceeded(statusDescription),
+                Channel = WebhookChannel.Sms
             }
         };
 
@@ -498,6 +508,9 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
     }
 
+    private static bool EventSucceeded(string statusDescription) {
+        return SucceededStatuses.Contains(statusDescription);
+    }
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
         if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
             return false;
@@ -574,7 +587,7 @@ internal static class YubotoSmsServiceExtensions {
         var payload = $"{referenceId}:{timestamp}";
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-        var signature = Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var signature = hash.ToBase64UrlSafe();
         var option1 = signature;
         request.Option1 = option1;
         var option2 = payload.Replace(":", "_");

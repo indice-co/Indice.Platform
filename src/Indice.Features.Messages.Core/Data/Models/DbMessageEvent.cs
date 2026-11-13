@@ -22,6 +22,13 @@ public class DbMessageEvent
     public string Recipient { get; set; } = string.Empty;
     /// <summary>Indicates whether the event was successful.</summary>
     public bool Success { get; set; } = false;
+    /// <summary>The unique identifier given from the send provider for successful events.</summary>
+    public string? ReceiptId { get; set; }
+    /// <summary>
+    /// Indicates a provider (webhook) event that could not be matched to a sent campaign message, so its <see cref="CampaignId"/> and <see cref="ContactId"/> are <see cref="Guid.Empty"/>.
+    /// Orphan events are excluded from the dashboard and the analytics.
+    /// </summary>
+    public bool Orphan { get; set; }
 
     /// <summary>The date and time when the event occurred.</summary>   
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;

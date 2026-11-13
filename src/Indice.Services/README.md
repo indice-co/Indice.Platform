@@ -240,37 +240,35 @@ services.AddSmsService(configuration);
 
 ### 🔗 Webhooks
 
-Webhook services can be registered independently of SMS services, allowing webhook handling for SMS providers or other integrations.
+Webhook services can be registered independently of SMS and email services, allowing webhook handling for SMS and email providers or other integrations.
 
-Register webhook services directly:
-
-```csharp
-services.AddWebhookServices<YourWebhookHandler, YourWebhookHttpHandler>(configuration);
-```
-
-For SMS provider-specific webhooks:
+Register the core webhook services with your `IWebhookHandler` and add the provider specific HTTP handlers through the returned `WebhooksBuilder`:
 
 ```csharp
-services.AddSmsWebhooks<YourWebhookHandler>(configuration);
+builder.AddWebhooks<YourWebhookHandler>(options => options.ChannelCapacity = 200)
+       .AddSmsWebhooks()    // handler of the configured Sms:Provider
+       .AddEmailWebhooks()  // handler of the configured email provider
+       .AddHttpHandler<YourWebhookHttpHandler>("your-provider");
 ```
 
 Configuration:
 
 ```json
 {
-  "WebhookSettings": {
+  "Webhooks": {
     "Enabled": true,
     "ChannelCapacity": 100
   }
 }
 ```
 
-- `Enabled`: Enables or disables webhook processing. Defaults to `false`.
-- `ChannelCapacity`: Maximum number of pending webhook batches. Must be greater than zero when enabled.
+- `Enabled`: Enables or disables webhook processing. Defaults to `true`. When disabled, the webhook endpoints return `404`.
+- `ChannelCapacity`: Maximum number of pending webhook batches. Must be greater than zero.
 
-Events are processed asynchronously by the hosted `WebhookEventSink`. When webhooks are disabled, webhook services are not registered.
+Events are processed asynchronously by the hosted `WebhookEventSink`.
 
-**Currently supported SMS providers:** `apifon`.
+**Currently supported SMS providers:** `apifon`, `kapatel`, `omnimessaging`, `smsup`, `twilio`, `vonage`, `yuboto`.<br/>
+**Currently supported email providers:** Brevo, SendGrid, SparkPost.
 
 Don't forget to also register Webhook endpoints for accepting and processing events:
 

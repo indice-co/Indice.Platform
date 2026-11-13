@@ -142,6 +142,7 @@ public class SmsServiceApifonSettings : SmsServiceSettings
 public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
 {
     private readonly SmsServiceApifonSettings _settings;
+    private static readonly HashSet<int> SucceededStatusCodes = [3, 4, 7, 11];
 
     /// <inheritdoc/>
     public ApifonWebhookHttpHandler(IOptionsSnapshot<SmsServiceApifonSettings> settings) {
@@ -171,11 +172,13 @@ public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
         }
         var incomingEvents = payload!.Data.Select(item => new WebhookEvent {
             Provider = "Apifon",
-            EventType = "SmsDelivery",
+            EventType = GetEventType(item),
             MessageId = item.MessageId,
             EventId = payload.RequestId,
             Recipient = item.To,
-            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.Timestamp)
+            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.Timestamp),
+            Succeeded = EventSucceeded(item),
+            Channel = WebhookChannel.Sms
         }).ToList();
 
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
@@ -205,6 +208,15 @@ public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
         } catch {
             return true;
         }
+    }
+    private static string GetEventType(ApifonWebhookItem item) {
+        return !string.IsNullOrWhiteSpace(item.Status?.Text)
+            ? $"Status:{item.Status.Text}"
+            : $"Status:{item.Status?.Code}";
+    }
+
+    private static bool EventSucceeded(ApifonWebhookItem item) {
+        return item.Status is not null && SucceededStatusCodes.Contains(item.Status.Code);
     }
 }
 
