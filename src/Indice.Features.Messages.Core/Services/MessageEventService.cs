@@ -33,7 +33,8 @@ public class MessageEventService : IMessageEventService
             MessageId = x.MessageId,
             Recipient = x.Recipient,
             Title = x.Title,
-            Success = x.Success
+            Success = x.Success,
+            ReceiptId = x.ReceiptId
         });
         if (options.Filter is not null) {
             if (options.Filter.CampaignId.HasValue) {
