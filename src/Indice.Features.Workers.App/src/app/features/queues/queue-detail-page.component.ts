@@ -9,14 +9,14 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideChevronRight, LucidePlay, LucidePlus, LucideRotateCcw, LucideTrash2 } from '@lucide/angular';
 import {
   EMPTY,
   catchError,
   combineLatest,
-  debounceTime,
   finalize,
   switchMap,
   tap,
@@ -39,36 +39,108 @@ import { PageHeaderComponent } from '../../shared/page-header.component';
 import { PagerComponent } from '../../shared/pager.component';
 import { PayloadDialogComponent, PayloadDialogResult } from '../../shared/payload-dialog.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
+import { SearchInputComponent } from '../../shared/search-input.component';
+import { QueueMixComponent } from './queue-mix.component';
 import {
-  COUNT_BADGE,
-  MESSAGE_STATUSES,
+  LIFECYCLE,
+  STATUS_TONE,
   countOf,
   describeBulkResult,
+  formatPolling,
   plural,
   shortTypeName,
   toStatus,
 } from './queue-status';
+import { QueueStatusIconComponent } from './queue-status-icon.component';
 
 /** Default page size; the pager offers 20/50/100. */
 const PAGE_SIZE = 20;
 
+/** How each status reads and paints on this page. Literal class names, so Tailwind's scanner generates them. */
+interface Stage {
+  /** Under the count on the status card. */
+  hint: string;
+  /** Next to the list title. */
+  detail: string;
+  /** What a message's visible-at means in this status. */
+  dateLabel: string;
+  /** The selected status card. */
+  selected: string;
+  /** The attempts meter. */
+  progress: string;
+}
+
+const STAGES: Record<QueueMessageStatus, Stage> = {
+  Scheduled: {
+    hint: 'Waiting for their time',
+    detail: 'Delayed; each one becomes enqueued at its time.',
+    dateLabel: 'Runs',
+    selected: 'border-secondary bg-secondary/5',
+    progress: 'progress-secondary',
+  },
+  Enqueued: {
+    hint: 'Ready for a worker',
+    detail: 'Visible now; the next free worker picks them up.',
+    dateLabel: 'Ready since',
+    selected: 'border-info bg-info/5',
+    progress: 'progress-info',
+  },
+  Retrying: {
+    hint: 'Failed, trying again',
+    detail: 'Failed at least once and will be tried again.',
+    dateLabel: 'Next attempt',
+    selected: 'border-warning bg-warning/5',
+    progress: 'progress-warning',
+  },
+  Poison: {
+    hint: 'Out of retries',
+    detail: 'Failed every attempt. Requeue them once the cause is fixed, or delete them.',
+    dateLabel: 'Since',
+    selected: 'border-error bg-error/5',
+    progress: 'progress-error',
+  },
+  Dequeued: {
+    hint: 'Awaiting cleanup',
+    detail: 'Processed and waiting to be cleaned up.',
+    dateLabel: 'Dequeued',
+    selected: 'border-base-content/40 bg-base-200/50',
+    progress: '',
+  },
+};
+
+interface Fact {
+  label: string;
+  value: string;
+  title?: string | null;
+  mono?: boolean;
+}
+
 /**
- * One queue's messages, split by status (Hangfire's "Jobs" pages): a status menu with counts, a
- * paged table with checkbox selection, and bulk Requeue / Delete. The status lives in `?status=`
- * so a link can point straight at a queue's poison messages.
+ * One queue's messages, split by status (Hangfire's "Jobs" pages): the message lifecycle as status cards with
+ * counts, the queue's settings, and a paged table with checkbox selection and bulk Requeue / Delete. The status
+ * lives in `?status=` so a link can point straight at a queue's poison messages.
  */
 @Component({
   selector: 'app-queue-detail-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
+    DecimalPipe,
     RouterLink,
+    LucideChevronRight,
+    LucidePlay,
+    LucidePlus,
+    LucideRotateCcw,
+    LucideTrash2,
     ConfirmDialogComponent,
     EmptyStateComponent,
     PageHeaderComponent,
     PagerComponent,
     PayloadDialogComponent,
+    QueueMixComponent,
+    QueueStatusIconComponent,
     RelativeTimePipe,
+    SearchInputComponent,
   ],
   template: `
     <section class="space-y-4 p-4 sm:p-6">
@@ -81,7 +153,9 @@ const PAGE_SIZE = 20;
 
       <app-page-header [title]="name()" [subtitle]="subtitle()">
         @if (canManage()) {
-          <button type="button" class="btn btn-sm" (click)="payloadDialog.open()">Add message</button>
+          <button type="button" class="btn btn-sm btn-primary gap-1.5" (click)="payloadDialog.open()">
+            <svg lucidePlus class="size-4"></svg>Add message
+          </button>
         }
       </app-page-header>
 
@@ -89,177 +163,219 @@ const PAGE_SIZE = 20;
         <div role="alert" class="alert alert-error alert-soft">{{ message }}</div>
       }
 
-      <!-- Mobile status switcher; the side menu takes over from lg up. -->
-      <div class="overflow-x-auto lg:hidden">
-        <div role="tablist" class="tabs tabs-box w-max">
-          @for (item of statusItems(); track item.status) {
-            <a
-              role="tab"
-              class="tab gap-2 whitespace-nowrap"
-              [class.tab-active]="item.status === currentStatus()"
-              [attr.aria-selected]="item.status === currentStatus()"
-              [routerLink]="[]"
-              [queryParams]="{ status: item.status }"
+      <!-- Overview: the lifecycle as status cards that switch the list, the mix of the queue, and its settings. -->
+      <div class="card bg-base-100 shadow-sm">
+        <div class="card-body gap-4 p-4">
+          <nav aria-label="Message status" class="grid grid-cols-2 gap-3 lg:flex lg:items-stretch lg:gap-2">
+            @for (item of statusItems(); track item.status; let last = $last) {
+              <a
+                [routerLink]="[]"
+                [queryParams]="{ status: item.status }"
+                [attr.aria-current]="item.active ? 'page' : null"
+                class="flex min-w-0 flex-col gap-2 rounded-box border p-3 transition-colors lg:flex-1"
+                [class]="
+                  item.active
+                    ? item.stage.selected
+                    : 'border-base-300 hover:border-base-content/25 hover:bg-base-200/40'
+                "
+              >
+                <span class="flex items-center justify-between gap-2">
+                  <span class="text-sm font-medium text-base-content/85">{{ item.status }}</span>
+                  <span class="grid size-7 place-items-center rounded-field" [class]="item.tone.chip">
+                    <app-queue-status-icon class="size-4" [status]="item.status" />
+                  </span>
+                </span>
+                @if (queue()) {
+                  <span
+                    class="text-2xl font-semibold tabular-nums"
+                    [class]="item.count ? item.tone.text : 'text-base-content/45'"
+                    >{{ item.count | number }}</span
+                  >
+                } @else {
+                  <span class="skeleton h-8 w-12"></span>
+                }
+                <span class="truncate text-xs text-base-content/70">
+                  @if (item.status === 'Enqueued' && item.count && oldestReady()) {
+                    Oldest ready {{ oldestReady() | relativeTime }}
+                  } @else {
+                    {{ item.stage.hint }}
+                  }
+                </span>
+              </a>
+              @if (!last) {
+                <svg
+                  lucideChevronRight
+                  class="hidden size-4 shrink-0 self-center text-base-content/25 lg:block"
+                  aria-hidden="true"
+                ></svg>
+              }
+            }
+          </nav>
+
+          <app-queue-mix [queue]="queue()" />
+
+          @if (facts().length) {
+            <dl
+              class="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-base-200 pt-4 sm:grid-cols-3
+                     lg:flex lg:flex-wrap lg:gap-x-10"
             >
-              {{ item.status }}
-              <span class="badge badge-xs" [class]="countClass(item)">{{ item.count }}</span>
-            </a>
+              @for (fact of facts(); track fact.label) {
+                <div class="min-w-0">
+                  <dt class="text-xs text-base-content/70">{{ fact.label }}</dt>
+                  <dd class="truncate text-sm" [class.font-mono]="fact.mono" [title]="fact.title ?? fact.value">
+                    {{ fact.value }}
+                  </dd>
+                </div>
+              }
+            </dl>
           }
         </div>
       </div>
 
-      <div class="gap-6 lg:grid lg:grid-cols-[13rem_1fr]">
-        <ul class="menu hidden w-full self-start rounded-box bg-base-100 shadow-sm lg:flex">
-          @for (item of statusItems(); track item.status) {
-            <li>
-              <a
-                [routerLink]="[]"
-                [queryParams]="{ status: item.status }"
-                [class.menu-active]="item.status === currentStatus()"
-                [attr.aria-current]="item.status === currentStatus() ? 'page' : null"
-              >
-                <span class="flex-1">{{ item.status }}</span>
-                <span class="badge badge-sm" [class]="countClass(item)">{{ item.count }}</span>
-              </a>
-            </li>
-          }
-        </ul>
+      <div class="card min-w-0 bg-base-100 shadow-sm">
+        <div class="card-body gap-4 p-4">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2 class="card-title text-base">{{ currentStatus() }} messages</h2>
+            <p class="text-sm text-base-content/70">{{ stage().detail }}</p>
+          </div>
 
-        <div class="card min-w-0 bg-base-100 shadow-sm">
-          <div class="card-body gap-4 p-4">
-            <!-- Toolbar -->
-            <div class="flex flex-wrap items-center gap-2">
-              @if (canManage()) {
-                <label class="flex items-center px-2" [title]="'Select all on this page'">
-                  <input
-                    type="checkbox"
-                    class="checkbox checkbox-sm"
-                    aria-label="Select all on this page"
-                    [checked]="allSelected()"
-                    [indeterminate]="someSelected()"
-                    [disabled]="!items().length"
-                    (change)="toggleAll()"
-                  />
-                </label>
-                <button
-                  type="button"
-                  class="btn btn-sm"
-                  [disabled]="!selected().size || busy()"
-                  (click)="requeueSelected()"
-                >
-                  {{ requeueLabel() }}
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-error btn-outline"
-                  [disabled]="!selected().size || busy()"
-                  (click)="deleteDialog.open()"
-                >
-                  Delete selected
-                </button>
-                @if (selected().size) {
-                  <span class="text-sm text-base-content/60">{{ selected().size }} selected</span>
-                }
-              }
-              <label class="input input-sm ml-auto w-full sm:w-64">
-                <svg viewBox="0 0 24 24" fill="none" class="size-4 opacity-50" aria-hidden="true">
-                  <path
-                    d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+          <!-- Toolbar -->
+          <div class="flex flex-wrap items-center gap-2">
+            @if (canManage()) {
+              <label class="flex items-center px-2" [title]="'Select all on this page'">
                 <input
-                  type="search"
-                  placeholder="Search id or payload"
-                  aria-label="Search id or payload"
-                  [value]="search()"
-                  (input)="search.set($any($event.target).value)"
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                  aria-label="Select all on this page"
+                  [checked]="allSelected()"
+                  [indeterminate]="someSelected()"
+                  [disabled]="!items().length"
+                  (change)="toggleAll()"
                 />
               </label>
-            </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-soft btn-primary gap-1.5"
+                [disabled]="!selected().size || busy()"
+                (click)="requeueSelected()"
+              >
+                @if (currentStatus() === 'Scheduled') {
+                  <svg lucidePlay class="size-4"></svg>
+                } @else {
+                  <svg lucideRotateCcw class="size-4"></svg>
+                }
+                {{ requeueLabel() }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-soft btn-error gap-1.5"
+                [disabled]="!selected().size || busy()"
+                (click)="deleteDialog.open()"
+              >
+                <svg lucideTrash2 class="size-4"></svg>
+                Delete selected
+              </button>
+              @if (selected().size) {
+                <span class="text-sm text-base-content/70">{{ selected().size }} selected</span>
+              }
+            }
+            <app-search-input
+              class="ml-auto w-full sm:w-64"
+              placeholder="Search id or payload"
+              [value]="search()"
+              (search)="search.set($event)"
+            />
+          </div>
 
-            @if (result(); as rs) {
-              @if (rs.items.length) {
-                <div class="overflow-x-auto">
-                  <table class="table table-sm">
-                    <thead>
-                      <tr>
+          @if (result(); as rs) {
+            @if (rs.items.length) {
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      @if (canManage()) {
+                        <th class="w-8"><span class="sr-only">Select</span></th>
+                      }
+                      <th>Message</th>
+                      <th>{{ stage().dateLabel }}</th>
+                      <th>Attempts</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (message of rs.items; track message.id) {
+                      <tr class="hover:bg-base-200">
                         @if (canManage()) {
-                          <th class="w-8"><span class="sr-only">Select</span></th>
-                        }
-                        <th>Id</th>
-                        <th>Available</th>
-                        <th>Attempts</th>
-                        <th>Payload</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (message of rs.items; track message.id) {
-                        <tr class="hover:bg-base-200">
-                          @if (canManage()) {
-                            <td>
-                              <input
-                                type="checkbox"
-                                class="checkbox checkbox-sm"
-                                [attr.aria-label]="'Select message ' + message.id"
-                                [checked]="selected().has(message.id)"
-                                (change)="toggle(message.id)"
-                              />
-                            </td>
-                          }
                           <td>
-                            <a
-                              [routerLink]="['/messages', message.id]"
-                              class="link link-hover font-mono text-xs"
-                              [title]="message.id"
-                              >{{ message.id.slice(0, 8) }}</a
-                            >
+                            <input
+                              type="checkbox"
+                              class="checkbox checkbox-sm"
+                              [attr.aria-label]="'Select message ' + message.id"
+                              [checked]="selected().has(message.id)"
+                              (change)="toggle(message.id)"
+                            />
                           </td>
-                          <td
-                            class="whitespace-nowrap"
-                            [title]="(message.date | date: 'yyyy-MM-dd HH:mm:ss' : 'UTC') + ' UTC'"
+                        }
+                        <!-- max-w-0 + w-full: the payload takes the spare width and truncates instead of widening the table. -->
+                        <td class="w-full max-w-0 min-w-48">
+                          <a
+                            [routerLink]="['/messages', message.id]"
+                            class="link link-hover block truncate font-mono text-xs"
+                            [title]="message.payloadPreview ?? ''"
+                            >{{ message.payloadPreview || '(empty payload)' }}</a
                           >
-                            {{ message.date | relativeTime }}
-                          </td>
-                          <td class="whitespace-nowrap tabular-nums">
+                          <span class="font-mono text-[0.7rem] text-base-content/70" [title]="message.id">{{
+                            message.id.slice(0, 8)
+                          }}</span>
+                        </td>
+                        <td
+                          class="whitespace-nowrap"
+                          [title]="(message.date | date: 'yyyy-MM-dd HH:mm:ss' : 'UTC') + ' UTC'"
+                        >
+                          {{ message.date | relativeTime }}
+                          <span class="block text-xs text-base-content/70">{{
+                            message.date | date: 'MMM d, HH:mm'
+                          }}</span>
+                        </td>
+                        <td class="whitespace-nowrap tabular-nums">
+                          <span [class.text-base-content/70]="!message.dequeueCount">
                             {{ message.dequeueCount }}
                             @if (maxRetryCount() != null) {
                               / {{ maxRetryCount() }}
                             }
-                          </td>
-                          <td>
-                            <span
-                              class="block max-w-md truncate font-mono text-xs text-base-content/70"
-                              >{{ message.payloadPreview }}</span
-                            >
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-                <app-pager
-                  [page]="page()"
-                  [size]="size()"
-                  [count]="rs.count"
-                  (pageChange)="page.set($event)"
-                  (sizeChange)="setSize($event)"
-                />
-              } @else if (debouncedSearch()) {
-                <app-empty-state title="No messages match" [text]="noMatchText()" />
-              } @else {
-                <app-empty-state [title]="emptyTitle()" [text]="emptyText()" />
-              }
-            } @else if (!error()) {
-              <div class="space-y-2">
-                @for (i of skeletonRows; track i) {
-                  <div class="skeleton h-8 w-full"></div>
-                }
+                          </span>
+                          @if (maxRetryCount() && message.dequeueCount) {
+                            <progress
+                              class="progress mt-1 block h-1 w-16"
+                              [class]="stage().progress"
+                              [value]="message.dequeueCount"
+                              [max]="maxRetryCount()"
+                            ></progress>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
               </div>
+              <app-pager
+                [page]="page()"
+                [size]="size()"
+                [count]="rs.count"
+                (pageChange)="page.set($event)"
+                (sizeChange)="setSize($event)"
+              />
+            } @else if (search()) {
+              <app-empty-state title="No messages match" [text]="noMatchText()" />
+            } @else {
+              <app-empty-state [title]="emptyTitle()" [text]="emptyText()" />
             }
-          </div>
+          } @else if (!error()) {
+            <div class="space-y-2">
+              @for (i of skeletonRows; track i) {
+                <div class="skeleton h-10 w-full"></div>
+              }
+            </div>
+          }
         </div>
       </div>
     </section>
@@ -285,6 +401,7 @@ const PAGE_SIZE = 20;
       description="The worker of the queue processes it like any other message."
       hint="It must deserialize into the work item of the queue, or it ends up as poison."
       confirmLabel="Add message"
+      confirmIcon="add"
       [askVisibleAt]="true"
       [busy]="busy()"
       (submitted)="enqueue($event)"
@@ -308,15 +425,14 @@ export class QueueDetailPageComponent {
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
 
   protected readonly currentStatus = computed(() => toStatus(this.status()));
+  protected readonly stage = computed(() => STAGES[this.currentStatus()]);
 
+  /** Applied search term; the search box debounces it. */
   protected readonly search = signal('');
-  protected readonly debouncedSearch = toSignal(toObservable(this.search).pipe(debounceTime(300)), {
-    initialValue: '',
-  });
   protected readonly size = signal(PAGE_SIZE);
   /** Back to page 1 whenever the queue, status or search changes — the old page may not exist. */
   protected readonly page = linkedSignal({
-    source: () => [this.name(), this.currentStatus(), this.debouncedSearch()].join('\u0000'),
+    source: () => [this.name(), this.currentStatus(), this.search()].join('\u0000'),
     computation: () => 1,
   });
   /** Cleared when the queue or status changes; a refresh only drops the ids that left the page. */
@@ -330,12 +446,12 @@ export class QueueDetailPageComponent {
     status: this.currentStatus(),
     page: this.page(),
     size: this.size(),
-    search: this.debouncedSearch().trim(),
+    search: this.search().trim(),
   }));
 
-  /** `null` while a new query loads, so the template shows skeletons, not another tab's rows. */
+  /** `null` while a new query loads, so the template shows skeletons, not another status's rows. */
   protected readonly result = signal<ResultSet<QueueMessageListItem> | null>(null);
-  private readonly queue = signal<QueueInfo | null>(null);
+  protected readonly queue = signal<QueueInfo | null>(null);
   private readonly messagesError = signal<string | null>(null);
   private readonly queueError = signal<string | null>(null);
   protected readonly error = computed(() => this.messagesError() ?? this.queueError());
@@ -354,28 +470,46 @@ export class QueueDetailPageComponent {
   );
 
   protected readonly maxRetryCount = computed(() => this.queue()?.maxRetryCount ?? null);
+  protected readonly oldestReady = computed(() => this.queue()?.oldestEnqueuedAt ?? null);
 
   /** Dequeued only exists in the obsolete EF store, so it is listed only when it has messages. */
   protected readonly statusItems = computed(() => {
     const queue = this.queue();
     const current = this.currentStatus();
-    return MESSAGE_STATUSES.map((status) => ({ status, count: countOf(queue, status) })).filter(
-      (item) => item.status !== 'Dequeued' || item.count > 0 || current === 'Dequeued',
-    );
+    return LIFECYCLE.map((status) => ({
+      status,
+      count: countOf(queue, status),
+      stage: STAGES[status],
+      tone: STATUS_TONE[status],
+      active: status === current,
+    })).filter((item) => item.status !== 'Dequeued' || item.count > 0 || item.active);
   });
 
   /** Only the known parts — handler and polling settings live in the worker process. */
-  protected readonly subtitle = computed(() => {
+  protected readonly facts = computed<Fact[]>(() => {
     const queue = this.queue();
     if (!queue) {
-      return null;
+      return [];
     }
-    const parts = [
-      shortTypeName(queue.handlerType),
-      queue.maxRetryCount != null ? `max ${queue.maxRetryCount} retries` : null,
-      queue.instanceCount != null ? plural(queue.instanceCount, 'instance') : null,
-    ].filter((part): part is string => !!part);
-    return parts.length ? parts.join(' · ') : `${plural(queue.total, 'message')} waiting`;
+    const facts: (Fact | null)[] = [
+      queue.handlerType
+        ? { label: 'Handler', value: shortTypeName(queue.handlerType)!, title: queue.handlerType, mono: true }
+        : null,
+      queue.workItemType
+        ? { label: 'Work item', value: shortTypeName(queue.workItemType)!, title: queue.workItemType, mono: true }
+        : null,
+      queue.maxRetryCount != null ? { label: 'Max retries', value: `${queue.maxRetryCount}` } : null,
+      queue.instanceCount != null ? { label: 'Workers', value: plural(queue.instanceCount, 'instance') } : null,
+      queue.pollingInterval != null
+        ? { label: 'Polls every', value: formatPolling(queue.pollingInterval) }
+        : null,
+    ];
+    return facts.filter((fact): fact is Fact => !!fact);
+  });
+
+  protected readonly subtitle = computed(() => {
+    const queue = this.queue();
+    return queue ? `${plural(queue.total, 'message')} in the store` : null;
   });
 
   protected readonly emptyTitle = computed(
@@ -383,7 +517,7 @@ export class QueueDetailPageComponent {
   );
   protected readonly emptyText = computed(() => EMPTY_TEXT[this.currentStatus()]);
   protected readonly noMatchText = computed(
-    () => `Nothing in ${this.currentStatus()} matches “${this.debouncedSearch()}”.`,
+    () => `Nothing in ${this.currentStatus()} matches “${this.search()}”.`,
   );
 
   protected readonly requeueMessage = computed(
@@ -451,10 +585,6 @@ export class QueueDetailPageComponent {
         this.queue.set(queue);
         this.queueError.set(null);
       });
-  }
-
-  protected countClass(item: { status: QueueMessageStatus; count: number }): string {
-    return item.count ? COUNT_BADGE[item.status] : 'badge-ghost';
   }
 
   protected toggle(id: string): void {
@@ -542,7 +672,7 @@ export class QueueDetailPageComponent {
   }
 }
 
-/** Why a status tab can be empty — mostly reassurance that nothing was lost. */
+/** Why a status can be empty — mostly reassurance that nothing was lost. */
 const EMPTY_TEXT: Record<QueueMessageStatus, string> = {
   Enqueued: 'Processed messages are removed from the store, so only waiting messages appear here.',
   Scheduled: 'No message in this queue is delayed.',

@@ -11,6 +11,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LucidePlay } from '@lucide/angular';
 import { finalize } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
@@ -27,7 +28,7 @@ import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/worker
 @Component({
   selector: 'app-run-task-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe],
+  imports: [DatePipe, LucidePlay],
   template: `
     @if (requestedAt(); as at) {
       <span
@@ -41,7 +42,7 @@ import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/worker
     } @else {
       <button
         type="button"
-        class="btn btn-soft whitespace-nowrap"
+        class="btn btn-soft btn-primary gap-1.5 whitespace-nowrap"
         [class.btn-xs]="size() === 'xs'"
         [class.btn-sm]="size() === 'sm'"
         [disabled]="!task().hasRun || busy()"
@@ -50,6 +51,8 @@ import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/worker
       >
         @if (busy()) {
           <span class="loading loading-spinner loading-xs" aria-hidden="true"></span>
+        } @else {
+          <svg lucidePlay [class]="size() === 'xs' ? 'size-3.5' : 'size-4'"></svg>
         }
         Run now
       </button>

@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LucideLock, LucideLockOpen, LucideServer } from '@lucide/angular';
 import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
@@ -32,6 +33,9 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
+    LucideLock,
+    LucideLockOpen,
+    LucideServer,
     ConfirmDialogComponent,
     EmptyStateComponent,
     PageHeaderComponent,
@@ -48,8 +52,10 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
       <div class="flex flex-col gap-4">
         <div class="card bg-base-100 shadow-sm">
           <div class="card-body">
-            <h2 class="card-title text-base">Servers</h2>
-            <p class="text-xs text-base-content/60">
+            <h2 class="card-title text-base">
+              <svg lucideServer class="size-4 text-base-content/70"></svg>Servers
+            </h2>
+            <p class="text-sm text-base-content/70">
               Derived from scheduled task runs. Workers that only process queues don't appear here.
             </p>
             @if (servers(); as servers) {
@@ -71,22 +77,37 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                     </thead>
                     <tbody>
                       @for (server of servers; track server.workerId) {
-                        <tr>
-                          <td class="font-mono break-all">{{ server.workerId }}</td>
-                          <td
-                            class="whitespace-nowrap"
-                            [title]="(server.lastSeen | date: 'medium') ?? ''"
-                          >
-                            {{ server.lastSeen | relativeTime }}
+                        <tr class="hover:bg-base-200/60">
+                          <td class="py-2.5">
+                            <div class="flex items-center gap-3">
+                              <span
+                                class="grid size-8 shrink-0 place-items-center rounded-field"
+                                [class]="
+                                  server.runningTasks > 0
+                                    ? 'bg-info/10 text-info'
+                                    : 'bg-base-content/8 text-base-content/70'
+                                "
+                              >
+                                <svg lucideServer class="size-4"></svg>
+                              </span>
+                              <span class="font-mono break-all">{{ server.workerId }}</span>
+                            </div>
                           </td>
-                          <td class="text-right font-mono">{{ server.tasks }}</td>
-                          <td class="text-right">
+                          <td class="whitespace-nowrap" [title]="(server.lastSeen | date: 'medium') ?? ''">
+                            {{ server.lastSeen | relativeTime }}
+                            <span class="block text-xs text-base-content/70">{{
+                              server.lastSeen | date: 'MMM d, HH:mm'
+                            }}</span>
+                          </td>
+                          <td class="text-right font-medium tabular-nums">{{ server.tasks }}</td>
+                          <td class="text-right tabular-nums">
                             @if (server.runningTasks > 0) {
-                              <span class="badge badge-info badge-soft badge-sm">{{
-                                server.runningTasks
-                              }}</span>
+                              <span class="inline-flex items-center gap-1.5 font-semibold text-info">
+                                <span class="loading loading-spinner loading-xs" aria-hidden="true"></span>
+                                {{ server.runningTasks }}
+                              </span>
                             } @else {
-                              <span class="font-mono text-base-content/40">0</span>
+                              <span class="text-base-content/45">0</span>
                             }
                           </td>
                         </tr>
@@ -106,8 +127,10 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 
         <div class="card bg-base-100 shadow-sm">
           <div class="card-body">
-            <h2 class="card-title text-base">Locks</h2>
-            <p class="text-xs text-base-content/60">
+            <h2 class="card-title text-base">
+              <svg lucideLock class="size-4 text-base-content/70"></svg>Locks
+            </h2>
+            <p class="text-sm text-base-content/70">
               Distributed locks held by singleton scheduled tasks. Expired locks are cleaned up
               lazily.
             </p>
@@ -129,33 +152,54 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                     </thead>
                     <tbody>
                       @for (lock of locks; track lock.id) {
-                        <tr [class.opacity-60]="lock.isExpired">
-                          <td class="font-mono break-all">{{ lock.name }}</td>
-                          <td
-                            class="whitespace-nowrap"
-                            [title]="(lock.expirationDate | date: 'medium') ?? ''"
-                          >
-                            {{ lock.expirationDate | relativeTime }}
-                            @if (lock.isExpired) {
-                              <span class="badge badge-ghost badge-sm ml-1">expired</span>
-                            }
+                        <tr class="hover:bg-base-200/60">
+                          <td class="py-2.5">
+                            <div class="flex items-center gap-3">
+                              <span
+                                class="grid size-8 shrink-0 place-items-center rounded-field"
+                                [class]="
+                                  lock.isExpired
+                                    ? 'bg-base-content/8 text-base-content/55'
+                                    : 'bg-warning/15 text-warning'
+                                "
+                              >
+                                @if (lock.isExpired) {
+                                  <svg lucideLockOpen class="size-4"></svg>
+                                } @else {
+                                  <svg lucideLock class="size-4"></svg>
+                                }
+                              </span>
+                              <span class="font-mono break-all" [class.text-base-content/70]="lock.isExpired">{{
+                                lock.name
+                              }}</span>
+                            </div>
                           </td>
-                          <td class="text-right font-mono whitespace-nowrap">
+                          <td class="whitespace-nowrap" [title]="(lock.expirationDate | date: 'medium') ?? ''">
+                            <span class="inline-flex items-center gap-1.5">
+                              {{ lock.expirationDate | relativeTime }}
+                              @if (lock.isExpired) {
+                                <span class="badge badge-ghost badge-sm">expired</span>
+                              }
+                            </span>
+                            <span class="block text-xs text-base-content/70">{{
+                              lock.expirationDate | date: 'MMM d, HH:mm:ss'
+                            }}</span>
+                          </td>
+                          <td class="whitespace-nowrap text-right tabular-nums">
                             {{ lock.durationSeconds }} s
                           </td>
                           @if (canManage()) {
                             <td class="text-right">
                               <button
                                 type="button"
-                                class="btn btn-ghost btn-xs text-error"
+                                class="btn btn-soft btn-error btn-xs gap-1"
                                 [disabled]="releasing() === lock.id"
                                 (click)="askRelease(lock)"
                               >
                                 @if (releasing() === lock.id) {
-                                  <span
-                                    class="loading loading-spinner loading-xs"
-                                    aria-hidden="true"
-                                  ></span>
+                                  <span class="loading loading-spinner loading-xs" aria-hidden="true"></span>
+                                } @else {
+                                  <svg lucideLockOpen class="size-3.5"></svg>
                                 }
                                 Release
                               </button>
