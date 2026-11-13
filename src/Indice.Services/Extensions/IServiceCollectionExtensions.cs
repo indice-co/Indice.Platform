@@ -633,6 +633,10 @@ public static class IndiceServicesServiceCollectionExtensions
             case EmailServiceBrevo.ServiceName:
                 services.AddWebhookServices<THandler, BrevoWebhookHttpHandler>(configuration, provider);
                 break;
+            case EmailServiceWeMail.ServiceName:
+                services.Configure<EmailServiceWeMailSettings>(configuration.GetSection(EmailServiceWeMailSettings.Name));
+                services.AddWebhookServices<THandler, WeMailWebhookHttpHandler>(configuration, provider);
+                break;
         }
         return services;
     }
