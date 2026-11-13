@@ -1529,6 +1529,48 @@ body {
   font-size: 0.75rem;
 }
 
+.mfa-challenge__method {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--idui-color-border);
+  border-radius: var(--idui-radius);
+  background: var(--idui-color-surface-muted);
+}
+.mfa-challenge__method-icon {
+  width: 1.25rem;
+  text-align: center;
+  color: var(--idui-color-brand);
+}
+.mfa-challenge__method-name {
+  font-weight: 500;
+}
+.mfa-challenge__hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--idui-color-text-muted);
+}
+.mfa-challenge__blocked {
+  color: var(--idui-color-danger);
+}
+.mfa-challenge__cancel {
+  margin-right: 0.5rem;
+  color: var(--idui-color-ink);
+  text-decoration: underline;
+}
+.mfa-challenge__alternatives {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--idui-color-border);
+}
+.mfa-challenge__alternatives-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .data-card__back {
   display: inline-flex;
   align-items: center;
@@ -1774,24 +1816,6 @@ body {
 }
 .account-row__toggle:hover, .account-row__toggle:focus-visible {
   background: var(--idui-color-border);
-}
-.account-row__edit {
-  display: none;
-  grid-column: 1/-1;
-  margin-top: 0.75rem;
-}
-.account-row__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-.account-row--editing .account-row__value,
-.account-row--editing .account-row__toggle {
-  display: none;
-}
-.account-row--editing .account-row__edit {
-  display: block;
 }
 
 .data-card__meta-separator {

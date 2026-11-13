@@ -1,0 +1,97 @@
+@using Indice.Features.Identity.Core.Models
+@model ProfileMfaChallengeViewModel
+@inject IdentityUILocalizer Localizer
+
+@{
+    var errors = ViewData.ModelState.TryGetValue(BaseProfileMfaChallengePageModel.MfaChallengeCodeKey, out var entry) ? entry.Errors.Select(error => error.ErrorMessage).ToArray() : [];
+}
+
+<div class="verify-dialog mfa-challenge" role="dialog" aria-modal="true" aria-labelledby="mfa-challenge-title" aria-describedby="mfa-challenge-prompt">
+    <div class="verify-dialog__box">
+        <a class="verify-dialog__close" asp-page="/Profile" aria-label="@Localizer.ChangeEmail_Close">&times;</a>
+        <h2 class="verify-dialog__title" id="mfa-challenge-title">@Localizer.ProfileMfaChallenge_Title</h2>
+        @if (Model.IsBlocked)
+        {
+            <p class="verify-dialog__text mfa-challenge__blocked" id="mfa-challenge-prompt" role="alert">@Localizer.ProfileMfaChallenge_Blocked</p>
+            <div class="verify-dialog__actions">
+                <a class="btn btn-primary" asp-page="/Profile">@Localizer.ChangeEmail_Close</a>
+            </div>
+        }
+        else
+        {
+            var method = Model.SelectedMethod!;
+            <p class="verify-dialog__text" id="mfa-challenge-prompt">@Localizer.ProfileMfaChallenge_Prompt</p>
+            <div class="mfa-challenge__method">
+                <i class="mfa-challenge__method-icon @GetIcon(method)" aria-hidden="true"></i>
+                <span class="mfa-challenge__method-name">@Localizer.GetGeneric(method.DisplayName)</span>
+            </div>
+            <form method="post" asp-page-handler="@(Model.CanEnterCode ? "MfaChallengeVerify" : "MfaChallengeSend")" class="auth-form mfa-challenge__form" novalidate>
+                <input type="hidden" name="mfaChallengeMethod" value="@method.Code" />
+                @if (Model.CanEnterCode)
+                {
+                    <p class="mfa-challenge__hint">@(Model.RequiresSending ? Localizer.ProfileMfaChallenge_CodeSentPrompt : Localizer.ProfileMfaChallenge_AuthenticatorPrompt)</p>
+                    <div class="field">
+                        <label for="mfaChallengeCode" class="field__label">@Localizer.ChangeEmail_OtpCode</label>
+                        <input class="form-control field__control otp-field__input @(errors.Length > 0 ? "input-validation-error" : null)" data-otp-length="@Model.CodeLength" type="text" inputmode="numeric" autocomplete="one-time-code" id="mfaChallengeCode" name="mfaChallengeCode" value="" aria-describedby="mfaChallengeCode-error" aria-invalid="@(errors.Length > 0 ? "true" : "false")" autofocus />
+                        <span class="field__error" id="mfaChallengeCode-error" role="alert">@string.Join(" ", errors)</span>
+                    </div>
+                    @if (Model.RequiresSending)
+                    {
+                        <p class="otp-field__resend">
+                            <button type="submit" id="otp-resend" asp-page-handler="MfaChallengeSend" formnovalidate class="otp-field__resend-btn">
+                                <span class="otp-field__resend-text">@Localizer.VerifyPhone_Resend</span>
+                                <span class="otp-field__wait">@Localizer.Mfa_ResendAvailableIn <span class="countdown otp-field__countdown"></span></span>
+                            </button>
+                        </p>
+                    }
+                    <div class="verify-dialog__actions">
+                        <a class="btn mfa-challenge__cancel" asp-page="/Profile">@Localizer.ProfileMfaChallenge_Cancel</a>
+                        <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.ChangeEmail_Verify</button>
+                    </div>
+                }
+                else
+                {
+                    <p class="mfa-challenge__hint">@Localizer.ProfileMfaChallenge_SendPrompt</p>
+                    @if (errors.Length > 0)
+                    {
+                        <p class="field__error" role="alert">@string.Join(" ", errors)</p>
+                    }
+                    <div class="verify-dialog__actions">
+                        <a class="btn mfa-challenge__cancel" asp-page="/Profile">@Localizer.ProfileMfaChallenge_Cancel</a>
+                        <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.ProfileMfaChallenge_SendCode</button>
+                    </div>
+                }
+            </form>
+            @if (Model.AlternativeMethods.Any())
+            {
+                <form method="post" asp-page-handler="MfaChallengeSelect" class="mfa-challenge__alternatives" novalidate>
+                    <p class="mfa-challenge__alternatives-title">@Localizer.ProfileMfaChallenge_UseAnotherMethod</p>
+                    <ul class="choice-list">
+                        @foreach (var alternative in Model.AlternativeMethods)
+                        {
+                            <li class="choice-list__item choice-list__item--button">
+                                <button type="submit" name="mfaChallengeMethod" value="@alternative.Code" formnovalidate class="choice-list__button">
+                                    <span class="choice-list__icon"><i class="@GetIcon(alternative)" aria-hidden="true"></i></span>
+                                    <span class="choice-list__body">
+                                        <span class="choice-list__title">@Localizer.GetGeneric(alternative.DisplayName)</span>
+                                    </span>
+                                    <i class="fa-solid fa-chevron-right choice-list__chevron" aria-hidden="true"></i>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                </form>
+            }
+        }
+    </div>
+</div>
+
+@functions {
+    private static string GetIcon(AuthenticationMethod method) => method.Code.ToLowerInvariant() switch {
+        "viber" => "fa-brands fa-viber",
+        "sms" => "fa-regular fa-message",
+        "email" => "fa-regular fa-envelope",
+        "authenticatorapp" => "fa-solid fa-shield-halved",
+        _ => "fa-regular fa-message"
+    };
+}

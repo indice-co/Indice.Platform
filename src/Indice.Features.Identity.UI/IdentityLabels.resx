@@ -1326,4 +1326,16 @@
 <data name="ChangeEmail_Close" xml:space="preserve"><value>Close</value></data>
 <data name="ChangePhone_PageTitle" xml:space="preserve"><value>Change phone number</value></data>
 <data name="ChangePhone_VerifyOtpPrompt" xml:space="preserve"><value>For security reasons, confirm the change by entering the one-time code (OTP) we sent to &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
+<data name="ProfileMfaChallenge_Title" xml:space="preserve"><value>Verify your identity</value></data>
+<data name="ProfileMfaChallenge_Prompt" xml:space="preserve"><value>For your security, verify your identity before changing your account details.</value></data>
+<data name="ProfileMfaChallenge_SendPrompt" xml:space="preserve"><value>We will send you a one-time code using the method below.</value></data>
+<data name="ProfileMfaChallenge_CodeSentPrompt" xml:space="preserve"><value>Enter the one-time code (OTP) we sent you.</value></data>
+<data name="ProfileMfaChallenge_AuthenticatorPrompt" xml:space="preserve"><value>Enter the code shown in your authenticator app.</value></data>
+<data name="ProfileMfaChallenge_SendCode" xml:space="preserve"><value>Send code</value></data>
+<data name="ProfileMfaChallenge_UseAnotherMethod" xml:space="preserve"><value>Use another method</value></data>
+<data name="ProfileMfaChallenge_Blocked" xml:space="preserve"><value>Changing your account details requires a verification method that is not available on your account. Please contact support.</value></data>
+<data name="ProfileMfaChallenge_Cancel" xml:space="preserve"><value>Cancel</value></data>
+<data name="ChangeUserName_PageTitle" xml:space="preserve"><value>Change username</value></data>
+<data name="ChangeUserName_Description" xml:space="preserve"><value>You will use your new username to sign in.</value></data>
+<data name="ChangeUserName_Succeeded" xml:space="preserve"><value>Your username has been changed successfully.</value></data>
 </root>

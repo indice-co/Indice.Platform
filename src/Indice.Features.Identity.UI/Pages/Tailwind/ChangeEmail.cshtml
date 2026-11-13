@@ -1,4 +1,5 @@
 @page "/manage/email"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/mfa-challenge")]
 
 @model BaseChangeEmailModel
 
@@ -8,9 +9,10 @@
     Layout = "_IdentityProfileLayout";
     ViewData["Title"] = Localizer.ChangeEmail_PageTitle;
     var pendingEmail = Model.PendingEmail;
+    var mfaChallenge = Model.MfaChallenge;
 }
 
-<div class="tab-panel" role="tabpanel">
+<div class="tab-panel" role="tabpanel" inert="@(mfaChallenge is not null)">
     <a class="inline-flex items-center gap-1 mb-4 text-black no-underline" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
     <h3 class="text-black mb-4">@Localizer.ChangeEmail_PageTitle</h3>
     <partial name="_ValidationSummary" />
@@ -67,9 +69,14 @@
     </div>
 }
 
+@if (mfaChallenge is not null)
+{
+    <partial name="_ProfileMfaChallenge" model="mfaChallenge" />
+}
+
 @section scripts {
     <partial name="_ValidationScripts" />
-    @if (pendingEmail is not null && Model.UseOtp)
+    @if ((pendingEmail is not null && Model.UseOtp) || mfaChallenge?.CanEnterCode == true)
     {
         <script type="text/javascript" src="~/js/otp.js" csp-nonce="true"></script>
         <script type="text/javascript" src="~/js/otp-field.js" csp-nonce="true"></script>

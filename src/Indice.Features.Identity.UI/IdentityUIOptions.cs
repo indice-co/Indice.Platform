@@ -123,6 +123,11 @@ public class IdentityUIOptions
     /// <summary>When this property is true, the phone edit option will be disabled in the profile management page.</summary>
     public bool DisablePhoneEdit { get; set; } = false;
     /// <summary>
+    /// How long a successful MFA challenge allows the user to change their email, phone number and username in the profile pages. Defaults to 5 minutes.
+    /// The check applies only to users with MFA enabled.
+    /// </summary>
+    public TimeSpan ProfileMfaChallengeLifetime { get; set; } = TimeSpan.FromMinutes(5);
+    /// <summary>
     /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
     /// </summary>
     public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "G" : "N";

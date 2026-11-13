@@ -84,28 +84,15 @@
                 </a>
             </span>
         </div>
-        <form method="post" asp-page-handler="UpdateUserName" class="js-account-row border-b py-2" data-editing="@(Model.View.EditingField == "UserName" ? "true" : "false")">
-            <div class="flex items-center justify-between gap-2">
-                <span class="text-sm">@Localizer.Profile_Username</span>
-                <span class="js-account-view flex items-center gap-2">
-                    <span>@Model.View.UserName</span>
-                    <button indice-if="canEditUserName" type="button" class="js-account-toggle account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Username">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="@pencilPath" /></svg>
-                    </button>
-                </span>
-            </div>
-            <div indice-if="canEditUserName" class="js-account-edit hidden mt-2">
-                <div class="input-group">
-                    <input class="peer" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" autocomplete="username" />
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.UserName">@Localizer.Profile_Username</label>
-                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
-                </div>
-                <div class="flex justify-end gap-2 mt-2">
-                    <button type="button" class="js-account-cancel btn btn-outline">@Localizer.Profile_Cancel</button>
-                    <button type="submit" class="btn btn-primary">@Localizer.Profile_Save</button>
-                </div>
-            </div>
-        </form>
+        <div class="border-b py-2 flex items-center justify-between gap-2">
+            <span class="text-sm">@Localizer.Profile_Username</span>
+            <span class="flex items-center gap-2">
+                <span>@Model.View.UserName</span>
+                <a indice-if="canEditUserName" asp-page="/ChangeUserName" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Username">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="@pencilPath" /></svg>
+                </a>
+            </span>
+        </div>
     </section>
     <form method="post" class="md:max-h-[60vh] overflow-y-scroll pr-8">
         <div class="flex flex-wrap items-baseline justify-between gap-2 mb-4">
@@ -260,35 +247,6 @@
         });
     </script>
     <partial name="_ValidationScripts" />
-    <script csp-nonce="true">
-        document.querySelectorAll('.js-account-row').forEach(function (row) {
-            var view = row.querySelector('.js-account-view');
-            var edit = row.querySelector('.js-account-edit');
-            var toggle = row.querySelector('.js-account-toggle');
-            var cancel = row.querySelector('.js-account-cancel');
-            if (!edit || !toggle) {
-                return;
-            }
-            function setEditing(editing) {
-                edit.classList.toggle('hidden', !editing);
-                toggle.classList.toggle('hidden', editing);
-            }
-            setEditing(row.dataset.editing === 'true');
-            toggle.addEventListener('click', function () {
-                setEditing(true);
-                var input = edit.querySelector('input, select');
-                if (input) {
-                    input.focus();
-                }
-            });
-            cancel.addEventListener('click', function () {
-                row.reset();
-                row.querySelectorAll('.text-danger').forEach(function (el) { el.textContent = ''; });
-                setEditing(false);
-                toggle.focus();
-            });
-        });
-    </script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a')
             el.onclick = function (link) {

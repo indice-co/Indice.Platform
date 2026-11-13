@@ -96,7 +96,7 @@
                                     }) {
                                     <li class="mr-2"
                                         role="presentation">
-                                        <a class="tab @($"{(Context.Request.Path == Url.Page(item.PagePath) || (item.PagePath == "/Profile" && ViewContext.RouteData.Values["page"]?.ToString() is "/ChangeEmail" or "/ChangePhone") ? "selected" : string.Empty )}")"
+                                        <a class="tab @($"{(Context.Request.Path == Url.Page(item.PagePath) || (item.PagePath == "/Profile" && ViewContext.RouteData.Values["page"]?.ToString() is "/ChangeEmail" or "/ChangePhone" or "/ChangeUserName") ? "selected" : string.Empty )}")"
                                            id="@item.Id-tab"
                                            asp-page="@item.PagePath" asp-route-sidebar="true"
                                            role="tab"

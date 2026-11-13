@@ -36,6 +36,10 @@ public class ExtendedIdentityConstants
     public const string AntiforgeryCookieName = CookiePrefix + ".xss";
     /// <summary>The cookie name used to by the CookieTempDataProvider to store temp parameters.</summary>
     public const string TempDataCookieName = CookiePrefix + ".tmp";
+    /// <summary>The scheme used to identify the short lived cookie proving a recent MFA check before changing sensitive profile data (email, phone number and username).</summary>
+    public const string ProfileMfaChallengeScheme = "Identity.ProfileMfaChallenge";
+    /// <summary>The cookie name used to identify the short lived profile MFA challenge cookie.</summary>
+    public const string ProfileMfaChallengeCookieName = CookiePrefix + ".mfachallenge";
 }
 
 /// <summary>Constant values for custom grants.</summary>
@@ -81,6 +85,8 @@ public static class TotpConstants
         public const string SessionOtp = "Session OTP";
         /// <summary>Multi factor authentication.</summary>
         public const string MultiFactorAuthentication = "mfa";
+        /// <summary>MFA challenge before changing sensitive profile data (email, phone number and username).</summary>
+        public const string ProfileMfaChallenge = "Profile MFA Challenge";
     }
 
     /// <summary>Grant type.</summary>
@@ -172,7 +178,9 @@ public static partial class RateLimiterPolicies
     public static readonly string VerifyPhonePage = "login/verify-phone";
     /// <summary>Rate limiting policy for verify email page.</summary>
     public static readonly string VerifyEmailPage = "login/verify-email";
-    
+    /// <summary>Rate limiting policy for the change email, change phone and change username pages, including the profile MFA challenge.</summary>
+    public static readonly string ProfileMfaChallengePage = "manage/mfa-challenge";
+
 
     /// <summary>All rate limiting policies.</summary>
     public static IReadOnlyList<string> All { get; } = new List<string> {
@@ -204,7 +212,8 @@ public static partial class RateLimiterPolicies
             MfaSetupAuthenticatorPage,
             ProfilePage,
             VerifyPhonePage,
-            VerifyEmailPage
+            VerifyEmailPage,
+            ProfileMfaChallengePage
         };
 }
 

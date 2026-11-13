@@ -1325,4 +1325,16 @@
 <data name="ChangeEmail_Close" xml:space="preserve"><value>Κλείσιμο</value></data>
 <data name="ChangePhone_PageTitle" xml:space="preserve"><value>Αλλαγή αριθμού τηλεφώνου</value></data>
 <data name="ChangePhone_VerifyOtpPrompt" xml:space="preserve"><value>Για λόγους ασφαλείας, επιβεβαιώστε την αλλαγή εισάγοντας τον κωδικό μιας χρήσης (OTP) που σας αποστείλαμε στο &lt;strong&gt;{0}&lt;/strong&gt;.</value></data>
+<data name="ProfileMfaChallenge_Title" xml:space="preserve"><value>Επιβεβαίωση ταυτότητας</value></data>
+<data name="ProfileMfaChallenge_Prompt" xml:space="preserve"><value>Για την ασφάλειά σας, επιβεβαιώστε την ταυτότητά σας πριν αλλάξετε τα στοιχεία του λογαριασμού σας.</value></data>
+<data name="ProfileMfaChallenge_SendPrompt" xml:space="preserve"><value>Θα σας αποστείλουμε έναν κωδικό μιας χρήσης με τον παρακάτω τρόπο.</value></data>
+<data name="ProfileMfaChallenge_CodeSentPrompt" xml:space="preserve"><value>Εισάγετε τον κωδικό μιας χρήσης (OTP) που σας αποστείλαμε.</value></data>
+<data name="ProfileMfaChallenge_AuthenticatorPrompt" xml:space="preserve"><value>Εισάγετε τον κωδικό που εμφανίζεται στην εφαρμογή επαλήθευσης.</value></data>
+<data name="ProfileMfaChallenge_SendCode" xml:space="preserve"><value>Αποστολή κωδικού</value></data>
+<data name="ProfileMfaChallenge_UseAnotherMethod" xml:space="preserve"><value>Χρήση άλλου τρόπου</value></data>
+<data name="ProfileMfaChallenge_Blocked" xml:space="preserve"><value>Η αλλαγή των στοιχείων του λογαριασμού σας απαιτεί τρόπο επαλήθευσης που δεν είναι διαθέσιμος στον λογαριασμό σας. Παρακαλούμε επικοινωνήστε με την υποστήριξη.</value></data>
+<data name="ProfileMfaChallenge_Cancel" xml:space="preserve"><value>Ακύρωση</value></data>
+<data name="ChangeUserName_PageTitle" xml:space="preserve"><value>Αλλαγή ονόματος χρήστη</value></data>
+<data name="ChangeUserName_Description" xml:space="preserve"><value>Θα χρησιμοποιείτε το νέο όνομα χρήστη για να συνδέεστε.</value></data>
+<data name="ChangeUserName_Succeeded" xml:space="preserve"><value>Το όνομα χρήστη σας άλλαξε επιτυχώς.</value></data>
 </root>

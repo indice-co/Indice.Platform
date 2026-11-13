@@ -985,6 +985,28 @@ public class IdentityUILocalizer
     public virtual HtmlString ChangePhone_PageTitle => new HtmlString(IdentityLabels.ChangePhone_PageTitle);
     /// <summary>Gets the localized prompt for phone number change confirmation via OTP.</summary>
     public virtual HtmlString ChangePhone_VerifyOtpPrompt(string phoneNumber) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePhone_VerifyOtpPrompt, System.Net.WebUtility.HtmlEncode(phoneNumber)));
+    /// <summary>Gets the localized string for "Change username".</summary>
+    public virtual HtmlString ChangeUserName_PageTitle => new HtmlString(IdentityLabels.ChangeUserName_PageTitle);
+    /// <summary>Gets the localized string explaining that the new username is used to sign in.</summary>
+    public virtual HtmlString ChangeUserName_Description => new HtmlString(IdentityLabels.ChangeUserName_Description);
+    /// <summary>Gets the localized string for "Verify your identity".</summary>
+    public virtual HtmlString ProfileMfaChallenge_Title => new HtmlString(IdentityLabels.ProfileMfaChallenge_Title);
+    /// <summary>Gets the localized prompt explaining why the profile MFA challenge is needed.</summary>
+    public virtual HtmlString ProfileMfaChallenge_Prompt => new HtmlString(IdentityLabels.ProfileMfaChallenge_Prompt);
+    /// <summary>Gets the localized prompt displayed before an MFA challenge code is sent.</summary>
+    public virtual HtmlString ProfileMfaChallenge_SendPrompt => new HtmlString(IdentityLabels.ProfileMfaChallenge_SendPrompt);
+    /// <summary>Gets the localized prompt displayed after an MFA challenge code is sent.</summary>
+    public virtual HtmlString ProfileMfaChallenge_CodeSentPrompt => new HtmlString(IdentityLabels.ProfileMfaChallenge_CodeSentPrompt);
+    /// <summary>Gets the localized prompt for the authenticator app MFA challenge code.</summary>
+    public virtual HtmlString ProfileMfaChallenge_AuthenticatorPrompt => new HtmlString(IdentityLabels.ProfileMfaChallenge_AuthenticatorPrompt);
+    /// <summary>Gets the localized string for "Send code".</summary>
+    public virtual HtmlString ProfileMfaChallenge_SendCode => new HtmlString(IdentityLabels.ProfileMfaChallenge_SendCode);
+    /// <summary>Gets the localized string for "Use another method".</summary>
+    public virtual HtmlString ProfileMfaChallenge_UseAnotherMethod => new HtmlString(IdentityLabels.ProfileMfaChallenge_UseAnotherMethod);
+    /// <summary>Gets the localized message displayed when the MFA challenge cannot be performed and changes are blocked.</summary>
+    public virtual HtmlString ProfileMfaChallenge_Blocked => new HtmlString(IdentityLabels.ProfileMfaChallenge_Blocked);
+    /// <summary>Gets the localized string for "Cancel".</summary>
+    public virtual HtmlString ProfileMfaChallenge_Cancel => new HtmlString(IdentityLabels.ProfileMfaChallenge_Cancel);
 
     /// <summary>
     /// Label for Manage Profile action.

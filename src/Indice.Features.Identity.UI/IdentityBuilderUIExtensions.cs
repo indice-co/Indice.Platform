@@ -50,6 +50,7 @@ public static class IdentityBuilderUIExtensions
             var extraHomePageLinks = configuredOptions.HomepageLinks.Where(h => !options.HomepageLinks.Select(x => x.DisplayName).Contains(h.DisplayName));
             options.DisableEmailEdit = configuredOptions.DisableEmailEdit;
             options.DisablePhoneEdit = configuredOptions.DisablePhoneEdit;
+            options.ProfileMfaChallengeLifetime = configuredOptions.ProfileMfaChallengeLifetime;
             options.HomepageLinks.AddRange(extraHomePageLinks);
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
@@ -116,6 +117,21 @@ public static class IdentityBuilderUIExtensions
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
         services.TryAddScoped<IdentityUILocalizer>();
+        // Profile MFA challenge (before changing email or phone number).
+        services.AddHttpContextAccessor();
+        services.TryAddSingleton(TimeProvider.System);
+        services.TryAddScoped<IProfileMfaChallengeService, ProfileMfaChallengeService>();
+        services.AddAuthentication().AddCookie(ExtendedIdentityConstants.ProfileMfaChallengeScheme, options => {
+            options.Cookie.Name = ExtendedIdentityConstants.ProfileMfaChallengeCookieName;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.IsEssential = true;
+            options.ExpireTimeSpan = configuredOptions.ProfileMfaChallengeLifetime;
+            options.SlidingExpiration = false;
+            options.LoginPath = new PathString("/login");
+            options.AccessDeniedPath = new PathString("/403");
+        });
         // Add reCAPTCHA service with options pattern
         services.AddRecaptcha(configuration);
         return services;

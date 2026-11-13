@@ -13,12 +13,12 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the change email screen.</summary>
+/// <summary>Page model for the change email screen. When the user has MFA enabled, the change requires an MFA challenge.</summary>
 [Authorize]
 [IdentityUI(typeof(ChangeEmailModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
-public abstract class BaseChangeEmailModel : BasePageModel
+public abstract class BaseChangeEmailModel : BaseProfileMfaChallengePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseChangeEmailModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -27,13 +27,10 @@ public abstract class BaseChangeEmailModel : BasePageModel
     public BaseChangeEmailModel(
         ExtendedUserManager<User> userManager,
         IOptions<IdentityUIOptions> identityUiOptions
-    ) : base() {
-        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    ) : base(userManager) {
         IdentityUiOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
 
-    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
-    protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Configuration options for Identity UI.</summary>
     public IdentityUIOptions IdentityUiOptions { get; }
 
@@ -61,13 +58,23 @@ public abstract class BaseChangeEmailModel : BasePageModel
     /// <summary>The token purpose used to bind an email change OTP to the new email address.</summary>
     protected static string ChangeEmailOtpPurpose(string newEmail) => $"ChangeEmailOtp:{newEmail.ToUpperInvariant()}";
 
+    /// <inheritdoc />
+    protected override bool IsEditDisabled => IdentityUiOptions.DisableEmailEdit;
+
+    /// <inheritdoc />
+    protected override Task PreparePageAsync(User user) {
+        CurrentEmail = user.Email;
+        return Task.CompletedTask;
+    }
+
     /// <summary>Change email page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
         if (IdentityUiOptions.DisableEmailEdit) {
             return RedirectToPage("/Profile");
         }
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        CurrentEmail = user.Email;
+        var user = await GetUserAsync();
+        await PreparePageAsync(user);
+        await EnsureMfaChallengeAsync(user);
         return Page();
     }
 
@@ -76,8 +83,12 @@ public abstract class BaseChangeEmailModel : BasePageModel
         if (IdentityUiOptions.DisableEmailEdit) {
             return BadRequest();
         }
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        CurrentEmail = user.Email;
+        var user = await GetUserAsync();
+        await PreparePageAsync(user);
+        if (!await EnsureMfaChallengeAsync(user)) {
+            ModelState.Clear();
+            return Page();
+        }
         ModelState.Remove(nameof(Code));
         if (!PrivacyConsent) {
             ModelState.AddModelError(nameof(PrivacyConsent), IdentityLabels.ChangeEmail_ConsentRequired);
@@ -122,9 +133,12 @@ public abstract class BaseChangeEmailModel : BasePageModel
         if (IdentityUiOptions.DisableEmailEdit || !UseOtp) {
             return BadRequest();
         }
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        CurrentEmail = user.Email;
+        var user = await GetUserAsync();
+        await PreparePageAsync(user);
         ModelState.Clear();
+        if (!await EnsureMfaChallengeAsync(user)) {
+            return Page();
+        }
         var newEmail = Input.Email?.Trim();
         if (string.IsNullOrWhiteSpace(newEmail)) {
             return RedirectToPage();

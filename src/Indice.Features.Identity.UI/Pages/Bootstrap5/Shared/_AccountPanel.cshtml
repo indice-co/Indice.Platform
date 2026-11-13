@@ -5,7 +5,7 @@
     var user = await UserManager.GetUserAsync(User);
     var hasPassword = user is not null && await UserManager.HasPasswordAsync(user);
     var currentPage = (ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty);
-    if (currentPage is "/ChangeEmail" or "/ChangePhone") { currentPage = "/Profile"; }
+    if (currentPage is "/ChangeEmail" or "/ChangePhone" or "/ChangeUserName") { currentPage = "/Profile"; }
     string Current(string page) => string.Equals(currentPage, page, StringComparison.OrdinalIgnoreCase) ? "page" : null!;
     var displayName = User.FindDisplayName();
     var secondaryLine = user?.Email ?? user?.UserName ?? string.Empty;

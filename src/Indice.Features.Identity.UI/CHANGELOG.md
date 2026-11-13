@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - next major
+### Added (profile MFA challenge, breaking)
+- **Profile MFA challenge (SCA):** users with MFA enabled must pass an MFA check before changing their email, phone
+  number or username on `/ChangeEmail` (`/manage/email`), `/ChangePhone` (`/manage/phone`) and `/ChangeUserName`
+  (`/manage/username`). The check is an inline modal (Bootstrap5 and Tailwind,
+  partial `Shared/_ProfileMfaChallenge`). It uses the user's code-based methods (SMS, Viber, email, authenticator app).
+  The user can pick another method only when `AllowDowngradeAuthenticationMethod` is enabled, the same rule as `/Mfa`.
+  Codes are sent only when the user clicks *Send code*. Push (trusted device), FIDO2 and recovery codes are not
+  supported yet. Users with MFA but no code-based method are blocked from changing email, phone and username; users
+  without MFA are not affected.
+- A passed check is stored in a new short-lived cookie (`.mfachallenge`, scheme
+  `ExtendedIdentityConstants.ProfileMfaChallengeScheme`). It covers email, phone and username, is bound to the user (`sub`)
+  and the login session (`sid`), and lasts `IdentityUIOptions.ProfileMfaChallengeLifetime` (default 5 minutes, absolute).
+  Wrong codes count towards account lockout; a locked-out user is signed out. Signing out clears the cookie.
+- New service `IProfileMfaChallengeService` (default `ProfileMfaChallengeService`), registered by `AddIdentityUI` with
+  `TryAddScoped` so hosts can replace it.
+- New rate limiter policy `manage/mfa-challenge` (default 10 POST requests per minute). Hosts with an explicit
+  `IdentityServer:RateLimiter:Rules` list can add it to tune the limit; when missing, the default is used.
+- New labels `ProfileMfaChallenge_*` (English and Greek; other languages fall back to English).
+- New **Change username** page `/ChangeUserName` (`/manage/username`, `BaseChangeUserNameModel`, input
+  `ChangeUserNameInputModel` with `ChangeUserNameInputModelValidator`), styled like *Change email* and gated by the MFA
+  challenge. It is unavailable (redirects to `/Profile`) when `DisableEmailEdit` is set or
+  `IdentityOptions:User:EmailAsUserName` is enabled. New labels `ChangeUserName_PageTitle`, `ChangeUserName_Description`
+  and `ChangeUserName_Succeeded`.
+### Changed
+- **Breaking:** the inline username editor on `/Profile` is replaced by a link to `/ChangeUserName`. The
+  `BaseProfileModel.OnPostUpdateUserNameAsync` handler, the `AccountFieldEmail` / `AccountFieldPhone` /
+  `AccountFieldUserName` constants and `ProfileViewModel.EditingField` are removed, together with the unused
+  `account-row__edit`, `account-row__actions` and `account-row--editing` styles. Profile page overrides that post the
+  `UpdateUserName` handler must link to `/ChangeUserName` instead.
+- `ProfileMfaChallenge_Prompt` and `ProfileMfaChallenge_Blocked` now refer to "account details" instead of email and phone.
+- **Breaking:** `BaseChangeEmailModel` and `BaseChangePhoneModel` now inherit `BaseProfileMfaChallengePageModel`
+  (the `UserManager` property is inherited from it). Their `OnGetAsync`, `OnPostAsync` and `OnPostVerifyAsync`
+  handlers return the page with the MFA challenge modal while a check is needed. Hosts that override these pages must render
+  `<partial name="_ProfileMfaChallenge" model="Model.MfaChallenge" />` and post the `MfaChallengeSend` / `MfaChallengeSelect` /
+  `MfaChallengeVerify` handlers, otherwise the user cannot change email or phone.
+### Known limitations
+- The `/api/my/account/email`, `/api/my/account/phone-number` and `/api/my/account/username` endpoints are not covered
+  by the MFA challenge.
+
 ## [8.XX.0] - 2026-09-22
 ### Changed (Bootstrap5 and Tailwind — stylesheet locations, breaking for hosts that reference them)
 - **Breaking:** stylesheets are split per UI framework into `wwwroot/css/bootstrap5/` and `wwwroot/css/tailwind/`,

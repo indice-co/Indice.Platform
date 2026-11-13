@@ -1,0 +1,43 @@
+@page "/manage/username"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/mfa-challenge")]
+
+@model BaseChangeUserNameModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_IdentityProfileLayout";
+    ViewData["Title"] = Localizer.ChangeUserName_PageTitle;
+    var mfaChallenge = Model.MfaChallenge;
+}
+
+<div class="tab-panel" role="tabpanel" inert="@(mfaChallenge is not null)">
+    <a class="inline-flex items-center gap-1 mb-4 text-black no-underline" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
+    <h3 class="text-black mb-1">@Localizer.ChangeUserName_PageTitle</h3>
+    <p class="text-sm mb-4">@Localizer.ChangeUserName_Description</p>
+    <partial name="_ValidationSummary" />
+    <form method="post" class="px-0" novalidate>
+        <div class="input-group">
+            <input class="peer" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" value="@(Model.Input.UserName ?? Model.CurrentUserName)" autocomplete="username" autofocus />
+            <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.UserName">@Localizer.Profile_Username</label>
+            <span asp-validation-for="Input.UserName" class="text-danger"></span>
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+            <button class="btn btn-primary" type="submit">@Localizer.Profile_Save</button>
+        </div>
+    </form>
+</div>
+
+@if (mfaChallenge is not null)
+{
+    <partial name="_ProfileMfaChallenge" model="mfaChallenge" />
+}
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    @if (mfaChallenge?.CanEnterCode == true)
+    {
+        <script type="text/javascript" src="~/js/otp.js" csp-nonce="true"></script>
+        <script type="text/javascript" src="~/js/otp-field.js" csp-nonce="true"></script>
+    }
+}

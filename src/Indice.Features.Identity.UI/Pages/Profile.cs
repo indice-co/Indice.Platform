@@ -100,8 +100,8 @@ public abstract class BaseProfileModel : BasePageModel
     /// <summary>Profile page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        // Account fields (user name, email, phone) are updated through their dedicated handlers.
-        foreach (var key in AccountFieldKeys.SelectMany(x => x.Value)) {
+        // Account fields (user name, email, phone) are updated through their dedicated pages.
+        foreach (var key in AccountFieldKeys) {
             ModelState.Remove(key);
         }
         _ = PhoneNumber.TryParse(user.PhoneNumber!, out var currentPhoneNumber);
@@ -141,67 +141,13 @@ public abstract class BaseProfileModel : BasePageModel
         return Page();
     }
 
-    /// <summary>Profile page update user name POST handler.</summary>
-    public virtual async Task<IActionResult> OnPostUpdateUserNameAsync() {
-        if (IdentityUIOptions.DisableEmailEdit || UserManager.EmailAsUserName) {
-            return BadRequest();
-        }
-        KeepModelStateFor(AccountFieldUserName);
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (!ModelState.IsValid) {
-            return await AccountFieldPageAsync(AccountFieldUserName);
-        }
-        if (user.UserName != Input.UserName) {
-            var result = await UserManager.SetUserNameAsync(user, Input.UserName);
-            AddModelErrors(result);
-            if (!result.Succeeded) {
-                return await AccountFieldPageAsync(AccountFieldUserName);
-            }
-            await SignInManager.RefreshSignInAsync(user);
-        }
-        return await AccountFieldSuccessPageAsync();
-    }
-
-    /// <summary>Account field identifier for email.</summary>
-    protected const string AccountFieldEmail = "Email";
-    /// <summary>Account field identifier for phone number.</summary>
-    protected const string AccountFieldPhone = "Phone";
-    /// <summary>Account field identifier for user name.</summary>
-    protected const string AccountFieldUserName = "UserName";
-
-    private static readonly Dictionary<string, string[]> AccountFieldKeys = new() {
-        [AccountFieldEmail] = [$"{nameof(Input)}.{nameof(ProfileInputModel.Email)}"],
-        [AccountFieldPhone] = [
-            $"{nameof(Input)}.{nameof(ProfileInputModel.CallingCode)}",
-            $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumber)}",
-            $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumberWithCallingCode)}"
-        ],
-        [AccountFieldUserName] = [$"{nameof(Input)}.{nameof(ProfileInputModel.UserName)}"]
-    };
-
-    private void KeepModelStateFor(string field) {
-        var keep = AccountFieldKeys[field];
-        foreach (var key in ModelState.Keys.Where(x => x != string.Empty && !keep.Contains(x)).ToList()) {
-            ModelState.Remove(key);
-        }
-    }
-
-    private async Task<IActionResult> AccountFieldPageAsync(string field) {
-        var view = await BuildProfileViewModelAsync();
-        view.EditingField = field;
-        Input = View = view;
-        return Page();
-    }
-
-    private async Task<IActionResult> AccountFieldSuccessPageAsync() {
-        ModelState.Clear();
-        var view = await BuildProfileViewModelAsync();
-        view.EmailChangePending |= EmailChangeRequested;
-        Input = View = view;
-        ProfileSuccessfullyChanged = true;
-        return Page();
-    }
-
+    private static readonly string[] AccountFieldKeys = [
+        $"{nameof(Input)}.{nameof(ProfileInputModel.UserName)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.Email)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.CallingCode)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumber)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumberWithCallingCode)}"
+    ];
 
     /// <summary>Profile page remove external login POST handler.</summary>
     public virtual async Task<IActionResult> OnPostRemoveLoginAsync() {

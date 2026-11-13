@@ -116,7 +116,9 @@ services.AddIdentityUI(options =>
     options.RememberMeLoginDuration = TimeSpan.FromDays(30);
     options.ShowLogoutPrompt = true;
     options.AutomaticRedirectAfterSignOut = false;
-    
+    // How long a passed MFA challenge before changing email, phone or username lasts (see "Profile MFA challenge").
+    options.ProfileMfaChallengeLifetime = TimeSpan.FromMinutes(5);
+
     // Custom URLs
     options.TermsUrl = "https://example.com/terms";
     options.PrivacyUrl = "https://example.com/privacy";
@@ -328,6 +330,18 @@ Indice.Features.Identity.UI/
 - `/AddEmail` - Add additional email address
 - `/AddPhone` - Add phone number
 - `/VerifyPhone` - Phone number verification
+
+#### Profile MFA challenge
+When a user with MFA enabled changes their email (`/ChangeEmail`, `/manage/email`), phone number (`/ChangePhone`,
+`/manage/phone`) or username (`/ChangeUserName`, `/manage/username`), an inline modal first asks for a code from one of
+the user's code-based MFA methods (SMS, Viber, email or authenticator app). Another method can be picked only when
+`AllowDowngradeAuthenticationMethod` is enabled, as on `/Mfa`. A passed check is kept in a short-lived cookie
+(`.mfachallenge`) bound to the user and the login session, lasts `ProfileMfaChallengeLifetime` (5 minutes) and covers
+email, phone and username. Wrong codes count towards lockout. Users with MFA
+but no code-based method are blocked; users without MFA are not affected. Requests are limited by the
+`manage/mfa-challenge` rate limiter policy. Replace `IProfileMfaChallengeService` to customise the rules. Page overrides must
+render `<partial name="_ProfileMfaChallenge" model="Model.MfaChallenge" />`. The username page is unavailable when
+`DisableEmailEdit` is set or the email is used as the username (`IdentityOptions:User:EmailAsUserName`).
 
 ### Multi-Factor Authentication
 - `/Mfa` - MFA challenge page

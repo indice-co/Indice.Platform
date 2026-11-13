@@ -3748,6 +3748,114 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("ChangePhone_VerifyOtpPrompt", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify your identity.
+        /// </summary>
+        public static string ProfileMfaChallenge_Title {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to For your security, verify your identity before changing your account details..
+        /// </summary>
+        public static string ProfileMfaChallenge_Prompt {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_Prompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to We will send you a one-time code using the method below..
+        /// </summary>
+        public static string ProfileMfaChallenge_SendPrompt {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_SendPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the one-time code (OTP) we sent you..
+        /// </summary>
+        public static string ProfileMfaChallenge_CodeSentPrompt {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_CodeSentPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the code shown in your authenticator app..
+        /// </summary>
+        public static string ProfileMfaChallenge_AuthenticatorPrompt {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_AuthenticatorPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send code.
+        /// </summary>
+        public static string ProfileMfaChallenge_SendCode {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_SendCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use another method.
+        /// </summary>
+        public static string ProfileMfaChallenge_UseAnotherMethod {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_UseAnotherMethod", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Changing your account details requires a verification method that is not available on your account. Please contact support..
+        /// </summary>
+        public static string ProfileMfaChallenge_Blocked {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_Blocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string ProfileMfaChallenge_Cancel {
+            get {
+                return ResourceManager.GetString("ProfileMfaChallenge_Cancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Change username.
+        /// </summary>
+        public static string ChangeUserName_PageTitle {
+            get {
+                return ResourceManager.GetString("ChangeUserName_PageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You will use your new username to sign in..
+        /// </summary>
+        public static string ChangeUserName_Description {
+            get {
+                return ResourceManager.GetString("ChangeUserName_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your username has been changed successfully..
+        /// </summary>
+        public static string ChangeUserName_Succeeded {
+            get {
+                return ResourceManager.GetString("ChangeUserName_Succeeded", resourceCulture);
+            }
+        }
+
     }
 }

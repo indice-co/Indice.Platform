@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Features.Identity.Server\Indice.Features.Identity.Server.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.UI\Indice.Features.Identity.UI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Images\Profile.jpg">

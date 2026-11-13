@@ -10,12 +10,15 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the change phone number screen. The new number is applied only after it is verified with an OTP.</summary>
+/// <summary>
+/// Page model for the change phone number screen. The new number is applied only after it is verified with an OTP.
+/// When the user has MFA enabled, the change also requires an MFA challenge.
+/// </summary>
 [Authorize]
 [IdentityUI(typeof(ChangePhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
-public abstract class BaseChangePhoneModel : BasePageModel
+public abstract class BaseChangePhoneModel : BaseProfileMfaChallengePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseChangePhoneModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -26,14 +29,11 @@ public abstract class BaseChangePhoneModel : BasePageModel
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IOptions<IdentityUIOptions> identityUiOptions
-    ) : base() {
-        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    ) : base(userManager) {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         IdentityUiOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
 
-    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
-    protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Provides the APIs for user sign in.</summary>
     protected ExtendedSignInManager<User> SignInManager { get; }
     /// <summary>Configuration options for Identity UI.</summary>
@@ -48,17 +48,27 @@ public abstract class BaseChangePhoneModel : BasePageModel
     /// <summary>The current phone number of the user.</summary>
     public string? CurrentPhoneNumber { get; set; }
 
-    /// <summary>Change phone page GET handler.</summary>
-    public virtual async Task<IActionResult> OnGetAsync() {
-        if (IdentityUiOptions.DisablePhoneEdit) {
-            return RedirectToPage("/Profile");
-        }
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+    /// <inheritdoc />
+    protected override bool IsEditDisabled => IdentityUiOptions.DisablePhoneEdit;
+
+    /// <inheritdoc />
+    protected override Task PreparePageAsync(User user) {
         CurrentPhoneNumber = user.PhoneNumber;
         if (PhoneNumber.TryParse(user.PhoneNumber!, out var phone)) {
             Input.CallingCode = phone.CallingCode;
             Input.PhoneNumber = phone.Number;
         }
+        return Task.CompletedTask;
+    }
+
+    /// <summary>Change phone page GET handler.</summary>
+    public virtual async Task<IActionResult> OnGetAsync() {
+        if (IdentityUiOptions.DisablePhoneEdit) {
+            return RedirectToPage("/Profile");
+        }
+        var user = await GetUserAsync();
+        await PreparePageAsync(user);
+        await EnsureMfaChallengeAsync(user);
         return Page();
     }
 
@@ -67,8 +77,13 @@ public abstract class BaseChangePhoneModel : BasePageModel
         if (IdentityUiOptions.DisablePhoneEdit) {
             return BadRequest();
         }
+        var user = await GetUserAsync();
+        if (!await EnsureMfaChallengeAsync(user)) {
+            await PreparePageAsync(user);
+            ModelState.Clear();
+            return Page();
+        }
         Input = input;
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         CurrentPhoneNumber = user.PhoneNumber;
         if (!ModelState.IsValid) {
             return Page();
@@ -95,13 +110,18 @@ public abstract class BaseChangePhoneModel : BasePageModel
         if (IdentityUiOptions.DisablePhoneEdit) {
             return BadRequest();
         }
+        var user = await GetUserAsync();
+        if (!await EnsureMfaChallengeAsync(user)) {
+            await PreparePageAsync(user);
+            ModelState.Clear();
+            return Page();
+        }
         Verify = verify;
         CodeSent = true;
         if (PhoneNumber.TryParse(Verify.PhoneNumber ?? string.Empty, out var pendingPhone)) {
             Input.CallingCode = pendingPhone.CallingCode;
             Input.PhoneNumber = pendingPhone.Number;
         }
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         CurrentPhoneNumber = user.PhoneNumber;
         if (!ModelState.IsValid) {
             return Page();
