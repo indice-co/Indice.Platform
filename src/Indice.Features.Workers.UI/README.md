@@ -16,13 +16,13 @@ and registers its own `ITaskDbContext` and `ILockDbContext`.
 
 | Page | Contents |
 | --- | --- |
-| **Dashboard** | Counters (enqueued, scheduled, retrying, poison, scheduled tasks, running, failing, active locks), a live queue-depth chart sampled in the browser, the busiest queues and the tasks that need attention. |
-| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status and the age of the oldest waiting message. Queues the live workers consume appear even when empty, with their polling settings; a queue no live worker consumes, or whose workers have different settings, is flagged. **Add message** enqueues a new message into any queue. |
+| **Dashboard** | Counters (enqueued, scheduled, retrying, poison, scheduled tasks, running, failing, active locks), the messages processed per minute, a live queue-depth chart sampled in the browser, the busiest queues and the tasks that need attention. |
+| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status, the age of the oldest waiting message and its throughput (processed and failed per minute, average handler time, in progress). Queues the live workers consume appear even when empty, with their polling settings; a queue no live worker consumes, or whose workers have different settings, is flagged. **Add message** enqueues a new message into any queue. |
 | **Queue detail** | The messages of a queue by status: **Enqueued**, **Scheduled** (delayed), **Retrying**, **Poison**. Select messages to **requeue** them (poison → back to the queue, scheduled → visible now, retrying → attempts reset) or **delete** them. **Add message** enqueues a new message, now or at a later date. |
 | **Message detail** | Status, attempts, visibility date and the JSON payload. **Edit & requeue** fixes the payload of a message (typically a poison one) and puts it back in its queue. |
 | **Scheduled tasks** | Every task that has run at least once or that a live worker hosts: cron expression, last run and its outcome, next run, run count, status, progress, an **Enabled** switch and **Run now**. |
-| **Scheduled task detail** | Handler, worker of the last run, the last error (full exception text) and the persisted state. |
-| **Servers & locks** | The registered workers — **Alive** while they send their heartbeat, **Stale** when they miss it — with their process, version, uptime, queues and scheduled tasks, plus older workers seen only running scheduled tasks (**Unknown**). Then the distributed locks: **Release** force-deletes a lock left behind by a worker that died. |
+| **Scheduled task detail** | Handler, worker of the last run, average and last run duration, the last error (full exception text) and the persisted state. |
+| **Servers & locks** | The registered workers — **Alive** while they send their heartbeat, **Stale** when they miss it — with their process, version, uptime, queues, scheduled tasks and messages processed (per minute and since start), plus older workers seen only running scheduled tasks (**Unknown**). Then the distributed locks: **Release** force-deletes a lock left behind by a worker that died. |
 
 All pages refresh by polling (30 s, 1 min, 2 min or 5 min; default 30 s). Polling pauses when the browser tab is hidden and can
 be paused by hand. The overall counters (`GET stats`) are cached on the server for `StatsCacheDuration` (10 s), so many open
@@ -55,8 +55,9 @@ Run now needs workers on a version of `Indice.Hosting` that has it, using the re
 Everything comes from the database, and the database keeps only what is pending:
 
 - **No history of processed messages.** The relational queue store deletes a message when a worker dequeues it, so there is
-  no Processing / Succeeded / Deleted list and no throughput graph. A message that disappears while you look at it was most
-  most likely processed.
+  no Processing / Succeeded / Deleted list. A message that disappears while you look at it was most likely processed. The
+  throughput and duration figures come from the workers themselves (see [Server registration](#server-registration)):
+  they cover the last minute of the live workers only, not past days.
 - **No cron expressions, polling settings or retry limits without server registration.** They live in the worker process;
   each worker writes them to the `work.Server` table when it starts (see below). Workers on older versions of
   `Indice.Hosting` don't, so their queues show no settings and a scheduled task appears **after its first run** (that run
@@ -247,6 +248,12 @@ scheduled tasks that have never run — which can also **Run now**. When workers
 a scheduled task, the dashboard shows those of the most recently started live worker, i.e. the newest deployment. Add a
 migration to the context that holds the worker tables to create the table (the `Indice.Hosting` changelog has the scripts).
 Until then the dashboard works as before.
+
+With every heartbeat the worker also stores a snapshot of its own metrics (the `Indice.Hosting` meter): messages processed
+and failed since it started and in the last minute, messages in progress, average handler time and wait, and scheduled task
+run durations. The dashboard sums them up across the live workers and shows throughput on the dashboard, the queues and the
+servers, and run durations on the scheduled task page. The figures are as fresh as the last heartbeat; export the meter to
+your monitoring system (OpenTelemetry) for history and alerts.
 
 ---
 

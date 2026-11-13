@@ -1,5 +1,6 @@
 using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
+using Indice.Hosting.Diagnostics;
 using Indice.Hosting.Services;
 using Indice.Hosting.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ public class WorkerServerRegistryIntegrationTests : IAsyncLifetime
     private const string QueueName = "server-registry-queue";
     private readonly string _connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database=WorkerDb.Servers.Test_{Environment.Version.Major}_{Guid.NewGuid():N};Trusted_Connection=True;MultipleActiveResultSets=true";
     private readonly ServiceProvider _services;
+    private readonly WorkerMetrics _metrics = new();
     private readonly WorkerServerRegistry _registry;
 
     public WorkerServerRegistryIntegrationTests() {
@@ -55,6 +57,31 @@ public class WorkerServerRegistryIntegrationTests : IAsyncLifetime
 
         var server = Assert.Single(await GetServers());
         Assert.True(server.LastHeartbeat > past.AddSeconds(30));
+    }
+
+    [Fact]
+    public async Task HeartbeatStoresTheMetricsOfTheServer() {
+        await _registry.Register(TestContext.Current.CancellationToken);
+        Assert.Empty(Assert.Single(await GetServers()).GetMetrics()!.Queues);
+        _metrics.MessageCompleted(QueueName, _metrics.MessageStarted(QueueName, DateTime.UtcNow), MessageOutcome.Succeeded);
+        _metrics.MessageCompleted(QueueName, _metrics.MessageStarted(QueueName, DateTime.UtcNow), MessageOutcome.Retried);
+        _metrics.TaskCompleted("reports.nightly", _metrics.TaskStarted("reports.nightly"), failed: false);
+
+        await _registry.Heartbeat(TestContext.Current.CancellationToken);
+
+        var metrics = Assert.Single(await GetServers()).GetMetrics();
+        Assert.NotNull(metrics);
+        var queue = Assert.Single(metrics.Queues);
+        Assert.Equal(QueueName, queue.Name);
+        Assert.Equal(1, queue.Succeeded);
+        Assert.Equal(1, queue.Retried);
+        Assert.Equal(2, queue.RecentProcessed);
+        Assert.Equal(1, queue.RecentFailed);
+        Assert.Equal(0, queue.Processing);
+        var task = Assert.Single(metrics.Tasks);
+        Assert.Equal("reports.nightly", task.Id);
+        Assert.Equal(1, task.Succeeded);
+        Assert.NotNull(task.LastDuration);
     }
 
     [Fact]
@@ -111,7 +138,7 @@ public class WorkerServerRegistryIntegrationTests : IAsyncLifetime
         await UseContext(db => db.Database.ExecuteSqlRawAsync(
             "CREATE TABLE [work].[Server] ([Id] nvarchar(256) NOT NULL PRIMARY KEY, [MachineName] nvarchar(128) NOT NULL, [ProcessId] int NOT NULL, " +
             "[ApplicationName] nvarchar(256) NULL, [Version] nvarchar(128) NULL, [StartedAt] datetime2 NOT NULL, [LastHeartbeat] datetime2 NOT NULL, " +
-            "[HeartbeatInterval] int NOT NULL, [Queues] nvarchar(max) NULL, [ScheduledTasks] nvarchar(max) NULL)",
+            "[HeartbeatInterval] int NOT NULL, [Queues] nvarchar(max) NULL, [ScheduledTasks] nvarchar(max) NULL, [Metrics] nvarchar(max) NULL)",
             TestContext.Current.CancellationToken));
         await _registry.Heartbeat(TestContext.Current.CancellationToken);
 
@@ -126,6 +153,7 @@ public class WorkerServerRegistryIntegrationTests : IAsyncLifetime
     public async ValueTask DisposeAsync() {
         await UseContext(db => db.Database.EnsureDeletedAsync());
         await _services.DisposeAsync();
+        _metrics.Dispose();
     }
 
     private WorkerServerRegistry CreateRegistry(TimeSpan timeout) => new(
@@ -133,7 +161,8 @@ public class WorkerServerRegistryIntegrationTests : IAsyncLifetime
         new ServerRegistrationSettings(TimeSpan.FromSeconds(30), timeout),
         [new DequeueJobSettings(typeof(TestHandler), typeof(TestWorkItem), QueueName, 500, 5000, 0, 1000, 2, 7)],
         [new ScheduledJobSettings(typeof(TestHandler), typeof(TestWorkItem), "0 0 2 * * ?", "nightly", "reports", "Nightly report", singleton: true)],
-        NullLogger<WorkerServerRegistry>.Instance
+        NullLogger<WorkerServerRegistry>.Instance,
+        metrics: _metrics
     );
 
     private static DbServer NewServer(string id, DateTime lastHeartbeat) => new() {

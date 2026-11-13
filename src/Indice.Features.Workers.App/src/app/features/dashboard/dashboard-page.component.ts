@@ -19,6 +19,7 @@ import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService, formatInterval } from '../../core/services/live-refresh.service';
 import { StatsStore } from '../../core/services/stats.store';
 import {
+  DashboardStats,
   QueueInfo,
   QueueMessageStatus,
   ScheduledTaskInfo,
@@ -30,7 +31,7 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { SparklineChartComponent, SparklineSeries } from '../../shared/sparkline-chart.component';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
 import { QueueMixComponent } from '../queues/queue-mix.component';
-import { NEUTRAL_CHIP, STATUS_TONE, countOf, plural, queueChip } from '../queues/queue-status';
+import { NEUTRAL_CHIP, STATUS_TONE, countOf, formatRate, plural, queueChip } from '../queues/queue-status';
 import { QueueStatusIconComponent } from '../queues/queue-status-icon.component';
 
 /** The icon of a counter: a message status draws its own, the rest name theirs. */
@@ -74,6 +75,16 @@ const TONE_CHIP: Record<string, string> = {
 
 /** How many queues "Busiest queues" lists. */
 const BUSIEST = 5;
+
+/** ` · 42/min processed, 1/min failed`, from the live workers' metrics; empty when none reports them. */
+function describeThroughput(stats: DashboardStats): string {
+  if (stats.processedPerMinute == null) {
+    return '';
+  }
+  const failed = stats.failedPerMinute ? `, ${formatRate(stats.failedPerMinute)} failed` : '';
+  const processing = stats.processing ? `, ${stats.processing} in progress` : '';
+  return ` · ${formatRate(stats.processedPerMinute)} processed${failed}${processing}`;
+}
 
 /**
  * Landing page (Hangfire's Dashboard): the `/stats` counters, a live queue-depth chart built from
@@ -384,7 +395,8 @@ export class DashboardPageComponent {
         key: 'messages',
         title: 'Queue messages',
         desc: s
-          ? `Waiting in ${plural(s.queues, 'queue')} right now — processed messages leave the store`
+          ? `Waiting in ${plural(s.queues, 'queue')} right now — processed messages leave the store` +
+            describeThroughput(s)
           : 'Waiting in the queues right now',
         cards: s
           ? [

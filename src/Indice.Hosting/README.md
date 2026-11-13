@@ -100,6 +100,38 @@ services.AddWorkerHost(options => {
 
 Add a migration for the `work.Server` table (see the changelog). Until it exists the worker logs a warning and runs as before.
 
+### Metrics
+
+The workers measure their own work with a `System.Diagnostics.Metrics` meter named `Indice.Hosting`
+(`WorkerDiagnostics.MeterName`). Messages of the run-now queues are not counted.
+
+| Instrument | Type | Unit | Tags |
+|---|---|---|---|
+| `indice.worker.queue.messages.processed` | Counter | `{message}` | `worker.queue`, `worker.outcome` (`succeeded`, `retried`, `poisoned`) |
+| `indice.worker.queue.messages.active` | UpDownCounter | `{message}` | `worker.queue` |
+| `indice.worker.queue.message.duration` | Histogram | `s` | `worker.queue`, `worker.outcome` |
+| `indice.worker.queue.message.wait_time` | Histogram | `s` | `worker.queue` |
+| `indice.worker.task.runs` | Counter | `{run}` | `worker.task`, `worker.outcome` (`succeeded`, `failed`) |
+| `indice.worker.task.runs.active` | UpDownCounter | `{run}` | `worker.task` |
+| `indice.worker.task.run.duration` | Histogram | `s` | `worker.task`, `worker.outcome` |
+
+Export them with OpenTelemetry, or watch them live with `dotnet-counters`:
+
+```csharp
+builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter(WorkerDiagnostics.MeterName));
+```
+
+```bash
+dotnet-counters monitor --name MyWorker --counters Indice.Hosting
+```
+
+On .NET 9 and later the histograms advise bucket boundaries in seconds; on .NET 8 the exporter's defaults apply, so
+configure a view if you need finer buckets.
+
+With server registration on, each worker also stores a snapshot of these numbers in `work.Server.Metrics` on every heartbeat:
+totals since it started, what it is processing now and the counts and average durations of the last minute. The workers
+dashboard sums them up across the live servers for its throughput and duration figures.
+
 ---
 
 ## Poison Queue

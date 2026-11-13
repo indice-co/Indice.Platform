@@ -53,6 +53,10 @@ public class WorkerDashboardService : IWorkerDashboardService
         var rows = await GetScheduledTaskRows(cancellationToken);
         var activeLocks = await _lockDb.Locks.AsNoTracking().CountAsync(x => x.ExpirationDate >= now, cancellationToken);
         var taskInfos = ToScheduledTaskInfos(rows, servers);
+        var reporting = servers?.Where(x => x.ReportsMetrics).ToList() ?? [];
+        var activity = reporting.Count > 0
+            ? QueueActivity.From(reporting.SelectMany(server => server.Metrics!.Queues.Select(queue => (queue, server.Metrics.Window))))
+            : null;
         return new DashboardStats {
             ServerTimeUtc = now,
             Queues = queues.Count,
@@ -69,7 +73,10 @@ public class WorkerDashboardService : IWorkerDashboardService
             // Before any worker registers (e.g. while older workers are still deployed), count the workers seen running tasks.
             Servers = servers is { Count: > 0 }
                 ? servers.Count(x => x.IsAlive)
-                : taskInfos.Where(x => x.WorkerId is not null).Select(x => x.WorkerId).Distinct(StringComparer.Ordinal).Count()
+                : taskInfos.Where(x => x.WorkerId is not null).Select(x => x.WorkerId).Distinct(StringComparer.Ordinal).Count(),
+            Processing = activity?.Processing,
+            ProcessedPerMinute = activity?.ProcessedPerMinute,
+            FailedPerMinute = activity?.FailedPerMinute
         };
     }
 
@@ -136,6 +143,7 @@ public class WorkerDashboardService : IWorkerDashboardService
         }
         if (servers is not null) {
             ApplyQueueDeclarations(queues, servers, queueName);
+            ApplyQueueMetrics(queues, servers);
         }
         return [.. queues.Values.OrderBy(x => x.Name, StringComparer.Ordinal)];
     }
@@ -178,6 +186,30 @@ public class WorkerDashboardService : IWorkerDashboardService
             queue.PollingInterval = settings.PollingInterval;
             queue.MaxRetryCount = settings.MaxRetryCount;
             queue.InstanceCount = live.Sum(x => x.InstanceCount);
+        }
+    }
+
+    /// <summary>Adds the activity of the queues, as measured by the live workers that report metrics.</summary>
+    private static void ApplyQueueMetrics(Dictionary<string, QueueInfo> queues, List<RegisteredServer> servers) {
+        var reporting = servers.Where(x => x.ReportsMetrics).ToList();
+        if (reporting.Count == 0) {
+            return;
+        }
+        foreach (var queue in queues.Values) {
+            var items = reporting
+                .Select(server => (Queue: server.GetQueueMetrics(queue.Name), server.Metrics!.Window))
+                .Where(x => x.Queue is not null)
+                .Select(x => (x.Queue!, x.Window))
+                .ToList();
+            if (items.Count == 0) {
+                continue;
+            }
+            var activity = QueueActivity.From(items);
+            queue.Processing = activity.Processing;
+            queue.ProcessedPerMinute = activity.ProcessedPerMinute;
+            queue.FailedPerMinute = activity.FailedPerMinute;
+            queue.AverageDuration = activity.AverageDuration;
+            queue.AverageWait = activity.AverageWait;
         }
     }
 
@@ -397,7 +429,8 @@ public class WorkerDashboardService : IWorkerDashboardService
     /// <inheritdoc />
     public async Task<ScheduledTaskDetails?> GetScheduledTask(string taskId, CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(taskId);
-        var declarations = GetTaskDeclarations(await GetRegisteredServers(DateTime.UtcNow, cancellationToken));
+        var servers = await GetRegisteredServers(DateTime.UtcNow, cancellationToken);
+        var declarations = GetTaskDeclarations(servers);
         var task = await _taskDb.Tasks.AsNoTracking().SingleOrDefaultAsync(x => x.Id == taskId, cancellationToken);
         ScheduledTaskDetails details;
         if (task is null) {
@@ -434,8 +467,31 @@ public class WorkerDashboardService : IWorkerDashboardService
             .Select(x => new { x.Date, x.Payload })
             .FirstOrDefaultAsync(cancellationToken);
         details.RunRequestedAt = runRequest is null ? null : AsUtc(GetRunRequestedAt(runRequest.Payload, runRequest.Date));
+        ApplyTaskMetrics(details, servers);
 
         return details;
+    }
+
+    /// <summary>Adds the run times of the task, as measured by the live workers that report metrics.</summary>
+    private static void ApplyTaskMetrics(ScheduledTaskDetails details, List<RegisteredServer>? servers) {
+        var runs = servers?
+            .Where(x => x.ReportsMetrics)
+            .Select(server => (Server: server, Task: server.Metrics!.Tasks.FirstOrDefault(x => x.Id == details.Id)))
+            .Where(x => x.Task?.AverageDuration is not null)
+            .ToList();
+        if (runs is not { Count: > 0 }) {
+            return;
+        }
+        details.AverageDuration = Math.Round(
+            runs.Sum(x => x.Task!.AverageDuration!.Value * (x.Task.Succeeded + x.Task.Failed)) / runs.Sum(x => x.Task!.Succeeded + x.Task.Failed),
+            1
+        );
+        // The tasks only know the machine of their last run, so prefer a worker of that machine.
+        details.LastDuration = runs
+            .OrderByDescending(x => x.Server.Row.MachineName == details.WorkerId)
+            .ThenByDescending(x => x.Server.Row.StartedAt)
+            .First()
+            .Task!.LastDuration;
     }
 
     /// <inheritdoc />
@@ -558,6 +614,8 @@ public class WorkerDashboardService : IWorkerDashboardService
         foreach (var server in servers) {
             registeredMachines.Add(server.Row.MachineName);
             machinesByName.TryGetValue(server.Row.MachineName, out var machine);
+            var metrics = server.Metrics;
+            var activity = server.ReportsMetrics ? QueueActivity.From(metrics!.Queues.Select(queue => (queue, metrics.Window))) : null;
             result.Add(new WorkerServerInfo {
                 WorkerId = server.Row.Id,
                 MachineName = server.Row.MachineName,
@@ -571,7 +629,12 @@ public class WorkerDashboardService : IWorkerDashboardService
                 Queues = [.. server.Queues.Select(x => x.Name).Order(StringComparer.Ordinal)],
                 ScheduledTasks = [.. server.ScheduledTasks.Select(x => x.Id).Order(StringComparer.Ordinal)],
                 Tasks = machine?.Tasks ?? 0,
-                RunningTasks = machine?.RunningTasks ?? 0
+                RunningTasks = machine?.RunningTasks ?? 0,
+                Processed = metrics?.Queues.Sum(x => x.Succeeded + x.Retried + x.Poisoned),
+                Failed = metrics?.Queues.Sum(x => x.Retried + x.Poisoned),
+                Processing = activity?.Processing,
+                ProcessedPerMinute = activity?.ProcessedPerMinute,
+                FailedPerMinute = activity?.FailedPerMinute
             });
         }
         result.AddRange(machines
@@ -750,6 +813,59 @@ public class WorkerDashboardService : IWorkerDashboardService
         public bool IsAlive { get; } = isAlive;
         public IReadOnlyList<DbServerQueue> Queues { get; } = row.GetQueues();
         public IReadOnlyList<DbServerScheduledTask> ScheduledTasks { get; } = row.GetScheduledTasks();
+        public DbServerMetrics? Metrics { get; } = Normalize(row.GetMetrics());
+        /// <summary>Whether the server is alive and reports metrics: the activity of a stale server is outdated.</summary>
+        public bool ReportsMetrics => IsAlive && Metrics is not null;
+
+        /// <summary>The metrics of a queue. A queue the server consumes but is missing from its metrics processed nothing yet.</summary>
+        public DbServerQueueMetrics? GetQueueMetrics(string queueName) {
+            if (Metrics is null) {
+                return null;
+            }
+            return Metrics.Queues.FirstOrDefault(x => x.Name == queueName)
+                ?? (Queues.Any(x => x.Name == queueName) ? new DbServerQueueMetrics { Name = queueName } : null);
+        }
+
+        private static DbServerMetrics? Normalize(DbServerMetrics? metrics) {
+            if (metrics is not null) {
+                metrics.Queues ??= [];
+                metrics.Tasks ??= [];
+            }
+            return metrics;
+        }
+    }
+
+    /// <summary>The activity of one or more queues, summed over the workers that report it.</summary>
+    private sealed record QueueActivity(long Processing, double ProcessedPerMinute, double FailedPerMinute, double? AverageDuration, double? AverageWait)
+    {
+        public static QueueActivity From(IEnumerable<(DbServerQueueMetrics Queue, double Window)> items) {
+            long processing = 0;
+            double processed = 0, failed = 0, durationSum = 0, durationWeight = 0, waitSum = 0, waitWeight = 0;
+            foreach (var (queue, window) in items) {
+                processing += queue.Processing;
+                if (window > 0) {
+                    processed += queue.RecentProcessed * 60 / window;
+                    failed += queue.RecentFailed * 60 / window;
+                }
+                // The averages are weighted by the messages of each worker.
+                if (queue.RecentAverageDuration is { } duration && queue.RecentProcessed > 0) {
+                    durationSum += duration * queue.RecentProcessed;
+                    durationWeight += queue.RecentProcessed;
+                }
+                if (queue.RecentAverageWait is { } wait) {
+                    var weight = Math.Max(queue.RecentProcessed, 1);
+                    waitSum += wait * weight;
+                    waitWeight += weight;
+                }
+            }
+            return new QueueActivity(
+                processing,
+                Math.Round(processed, 2),
+                Math.Round(failed, 2),
+                durationWeight > 0 ? Math.Round(durationSum / durationWeight, 1) : null,
+                waitWeight > 0 ? Math.Round(waitSum / waitWeight, 1) : null
+            );
+        }
     }
 
     /// <param name="Task">The declaration of the task.</param>

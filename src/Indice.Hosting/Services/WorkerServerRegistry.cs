@@ -1,6 +1,7 @@
 using System.Reflection;
 using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
+using Indice.Hosting.Diagnostics;
 using Indice.Hosting.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ internal sealed record ServerRegistrationSettings(TimeSpan HeartbeatInterval, Ti
 
 /// <summary>
 /// Registers the current worker process in the <c>work.Server</c> table, with the queues it consumes and the scheduled tasks it hosts,
-/// so that the workers dashboard can show the live servers and the configuration of the queues.
+/// so that the workers dashboard can show the live servers, the configuration of the queues and the work of each server.
 /// </summary>
 /// <remarks>
 /// A worker that stops gracefully removes its row. A worker that crashes cannot, so every heartbeat also removes the servers that missed theirs for longer than <see cref="ServerRegistrationSettings.Timeout"/>.
@@ -27,9 +28,11 @@ internal sealed class WorkerServerRegistry
 {
     private const int MaxVersionLength = 128;
     private static readonly TimeSpan UnregisterTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan MinMetricsWindow = TimeSpan.FromMinutes(1);
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ServerRegistrationSettings _settings;
     private readonly ILogger<WorkerServerRegistry> _logger;
+    private readonly WorkerMetrics? _metrics;
     private readonly int _queueCount;
     private readonly string _queues;
     private readonly string _scheduledTasks;
@@ -44,11 +47,13 @@ internal sealed class WorkerServerRegistry
         IEnumerable<DequeueJobSettings> dequeueJobSettings,
         IEnumerable<ScheduledJobSettings> scheduledJobSettings,
         ILogger<WorkerServerRegistry> logger,
-        IHostEnvironment? hostEnvironment = null
+        IHostEnvironment? hostEnvironment = null,
+        WorkerMetrics? metrics = null
     ) {
         _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _metrics = metrics;
         ArgumentNullException.ThrowIfNull(dequeueJobSettings);
         ArgumentNullException.ThrowIfNull(scheduledJobSettings);
         ServerId = $"{Environment.MachineName}:{Environment.ProcessId}:{Guid.NewGuid().ToString("N")[..8]}";
@@ -119,9 +124,12 @@ internal sealed class WorkerServerRegistry
             await using (var scope = _scopeFactory.CreateAsyncScope()) {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ITaskDbContext>();
                 var now = DateTime.UtcNow;
+                var metrics = CollectMetrics();
                 var updated = await dbContext.Servers
                     .Where(x => x.Id == ServerId)
-                    .ExecuteUpdateAsync(s => s.SetProperty(x => x.LastHeartbeat, now), cancellationToken);
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(x => x.LastHeartbeat, now)
+                        .SetProperty(x => x.Metrics, metrics), cancellationToken);
                 if (updated > 0) {
                     await PruneStaleServers(dbContext, now, cancellationToken);
                     _failing = false;
@@ -154,13 +162,15 @@ internal sealed class WorkerServerRegistry
 
     private async Task UpsertServer(ITaskDbContext dbContext, DateTime now, CancellationToken cancellationToken) {
         var heartbeatInterval = (int)Math.Ceiling(_settings.HeartbeatInterval.TotalSeconds);
+        var metrics = CollectMetrics();
         var updated = await dbContext.Servers
             .Where(x => x.Id == ServerId)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(x => x.LastHeartbeat, now)
                 .SetProperty(x => x.HeartbeatInterval, heartbeatInterval)
                 .SetProperty(x => x.Queues, _queues)
-                .SetProperty(x => x.ScheduledTasks, _scheduledTasks), cancellationToken);
+                .SetProperty(x => x.ScheduledTasks, _scheduledTasks)
+                .SetProperty(x => x.Metrics, metrics), cancellationToken);
         if (updated > 0) {
             return;
         }
@@ -175,7 +185,8 @@ internal sealed class WorkerServerRegistry
             LastHeartbeat = now,
             HeartbeatInterval = heartbeatInterval,
             Queues = _queues,
-            ScheduledTasks = _scheduledTasks
+            ScheduledTasks = _scheduledTasks,
+            Metrics = metrics
         });
         try {
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -190,6 +201,15 @@ internal sealed class WorkerServerRegistry
         return dbContext.Servers
             .Where(x => x.LastHeartbeat < staleBefore && x.Id != ServerId)
             .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    private string? CollectMetrics() {
+        if (_metrics is null) {
+            return null;
+        }
+        // The recent activity spans at least a minute, so that rates per minute are steady with a short heartbeat.
+        var window = _settings.HeartbeatInterval > MinMetricsWindow ? _settings.HeartbeatInterval : MinMetricsWindow;
+        return DbServer.Serialize(_metrics.Collect(window));
     }
 
     private void OnFailure(Exception exception) {

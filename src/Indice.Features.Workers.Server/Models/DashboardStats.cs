@@ -41,6 +41,15 @@ public class DashboardStats
     
     /// <summary>Number of live workers. When no worker is registered (e.g. the server table is missing), the number of workers that have run a scheduled task.</summary>
     public int Servers { get; init; }
+
+    /// <summary>The messages the live workers are processing now. <see langword="null"/> when no live worker reports metrics.</summary>
+    public long? Processing { get; init; }
+
+    /// <summary>The messages processed per minute by the live workers, successfully or not. <see langword="null"/> when no live worker reports metrics.</summary>
+    public double? ProcessedPerMinute { get; init; }
+
+    /// <summary>The messages that failed per minute on the live workers. <see langword="null"/> when no live worker reports metrics.</summary>
+    public double? FailedPerMinute { get; init; }
 }
 
 /// <summary>What the current user can do in the dashboard.</summary>

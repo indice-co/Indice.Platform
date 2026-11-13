@@ -45,8 +45,11 @@ import {
   LIFECYCLE,
   STATUS_TONE,
   countOf,
+  describeActivity,
   describeBulkResult,
+  formatDuration,
   formatPolling,
+  formatRate,
   plural,
   shortTypeName,
   toStatus,
@@ -512,6 +515,26 @@ export class QueueDetailPageComponent {
         : null,
       queue.pollingInterval != null
         ? { label: 'Polls every', value: formatPolling(queue.pollingInterval) }
+        : null,
+      queue.processedPerMinute != null
+        ? {
+            label: 'Throughput',
+            value: queue.failedPerMinute
+              ? `${formatRate(queue.processedPerMinute)} · ${formatRate(queue.failedPerMinute)} failed`
+              : formatRate(queue.processedPerMinute),
+            title: describeActivity(queue),
+          }
+        : null,
+      queue.processing != null ? { label: 'In progress', value: plural(queue.processing, 'message') } : null,
+      queue.averageDuration != null
+        ? { label: 'Avg handler time', value: formatDuration(queue.averageDuration), title: describeActivity(queue) }
+        : null,
+      queue.averageWait != null
+        ? {
+            label: 'Avg wait',
+            value: formatDuration(queue.averageWait),
+            title: 'How long the messages dequeued in the last minute waited in the queue.',
+          }
         : null,
       queue.hasConfigurationMismatch
         ? {

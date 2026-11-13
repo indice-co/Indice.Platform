@@ -28,7 +28,17 @@ import { PayloadDialogComponent, PayloadDialogResult } from '../../shared/payloa
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { SearchInputComponent } from '../../shared/search-input.component';
 import { QueueMixComponent } from './queue-mix.component';
-import { STATUS_TONE, countOf, formatPolling, plural, queueChip, shortTypeName } from './queue-status';
+import {
+  STATUS_TONE,
+  countOf,
+  describeActivity,
+  formatDuration,
+  formatPolling,
+  formatRate,
+  plural,
+  queueChip,
+  shortTypeName,
+} from './queue-status';
 import { QueueStatusIconComponent } from './queue-status-icon.component';
 
 /** The status columns in lifecycle order, as on the queue page. Dequeued only exists in the obsolete EF store. */
@@ -94,6 +104,9 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Scheduled', 'Enqueued', 'Retryi
                       </th>
                     }
                     <th>Oldest waiting</th>
+                    @if (showActivity()) {
+                      <th>Throughput</th>
+                    }
                     @if (showWorkers()) {
                       <th class="pr-4">Workers</th>
                     }
@@ -156,6 +169,31 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Scheduled', 'Enqueued', 'Retryi
                           <span class="text-base-content/45">—</span>
                         }
                       </td>
+                      @if (showActivity()) {
+                        <td class="whitespace-nowrap tabular-nums" [title]="activityTitle(queue)">
+                          @if (queue.processedPerMinute != null) {
+                            <span class="font-medium">{{ rate(queue.processedPerMinute) }}</span>
+                            @if (queue.failedPerMinute) {
+                              <span class="ml-1 text-xs text-error">{{ rate(queue.failedPerMinute) }} failed</span>
+                            }
+                            @if (queue.averageDuration != null || queue.processing) {
+                              <span class="block text-xs text-base-content/70">
+                                @if (queue.averageDuration != null) {
+                                  {{ duration(queue.averageDuration) }} avg
+                                }
+                                @if (queue.averageDuration != null && queue.processing) {
+                                  ·
+                                }
+                                @if (queue.processing) {
+                                  {{ queue.processing | number }} in progress
+                                }
+                              </span>
+                            }
+                          } @else {
+                            <span class="text-base-content/45">—</span>
+                          }
+                        </td>
+                      }
                       @if (showWorkers()) {
                         <td class="whitespace-nowrap pr-4 text-base-content/80">
                           @if (queue.isRegistered && queue.pollingInterval != null) {
@@ -229,6 +267,9 @@ export class QueuesPageComponent {
   protected readonly tone = STATUS_TONE;
   protected readonly count = countOf;
   protected readonly polling = formatPolling;
+  protected readonly rate = formatRate;
+  protected readonly duration = formatDuration;
+  protected readonly activityTitle = (queue: QueueInfo): string => describeActivity(queue) ?? '';
   protected readonly chip = queueChip;
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
   protected readonly emptyText =
@@ -264,6 +305,11 @@ export class QueuesPageComponent {
    */
   protected readonly showWorkers = computed(() =>
     (this.queues() ?? []).some((q) => q.instanceCount != null),
+  );
+
+  /** Throughput is measured by the workers that report metrics, so it appears only when some queue has it. */
+  protected readonly showActivity = computed(() =>
+    (this.queues() ?? []).some((q) => q.processedPerMinute != null),
   );
 
   constructor() {

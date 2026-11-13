@@ -1,6 +1,8 @@
 ﻿using System.Collections.Specialized;
+using System.Diagnostics.Metrics;
 using Indice.Hosting;
 using Indice.Hosting.Data;
+using Indice.Hosting.Diagnostics;
 using Indice.Hosting.Services;
 using Indice.Hosting.Tasks;
 using Indice.Services;
@@ -34,6 +36,7 @@ public static class WorkerHostConfiguration
         };
         configureAction?.Invoke(workerHostOptions);
         services.AddSingleton(workerHostOptions.JsonOptions);
+        services.TryAddSingleton(serviceProvider => new WorkerMetrics(serviceProvider.GetService<IMeterFactory>(), serviceProvider.GetService<TimeProvider>()));
         var hasRelationalStore = services.Any(sd => sd.ServiceType == typeof(ITaskDbContext));
         // Run now requests are read from the queue table, so they need the relational store.
         if (workerHostOptions.RunNowPollingInterval > TimeSpan.Zero && hasRelationalStore) {

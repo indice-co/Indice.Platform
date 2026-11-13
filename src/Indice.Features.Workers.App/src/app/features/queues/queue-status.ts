@@ -86,6 +86,56 @@ export function formatPolling(ms: number): string {
   return ms < 1000 ? `${ms} ms` : formatInterval(ms);
 }
 
+/** A per-minute rate: `0/min`, `0.5/min`, `42/min`, `1.2k/min`. */
+export function formatRate(perMinute: number): string {
+  if (perMinute >= 1000) {
+    return `${trimZero((perMinute / 1000).toFixed(1))}k/min`;
+  }
+  return `${perMinute > 0 && perMinute < 10 ? trimZero(perMinute.toFixed(1)) : Math.round(perMinute)}/min`;
+}
+
+/** A measured duration: `<1 ms`, `120 ms`, `2.5 s`, `3.2 min`, `1.5 h`. */
+export function formatDuration(ms: number): string {
+  if (ms < 1) {
+    return '<1 ms';
+  }
+  if (ms < 1000) {
+    return `${Math.round(ms)} ms`;
+  }
+  if (ms < 60_000) {
+    return `${trimZero((ms / 1000).toFixed(1))} s`;
+  }
+  if (ms < 3_600_000) {
+    return `${trimZero((ms / 60_000).toFixed(1))} min`;
+  }
+  return `${trimZero((ms / 3_600_000).toFixed(1))} h`;
+}
+
+/** The recent activity of a queue in a sentence, for a tooltip; `null` when no live worker reports it. */
+export function describeActivity(queue: QueueInfo): string | null {
+  if (queue.processedPerMinute == null) {
+    return null;
+  }
+  const parts = [`${formatRate(queue.processedPerMinute)} processed`];
+  if (queue.failedPerMinute) {
+    parts.push(`${formatRate(queue.failedPerMinute)} failed`);
+  }
+  if (queue.averageDuration != null) {
+    parts.push(`${formatDuration(queue.averageDuration)} average handler time`);
+  }
+  if (queue.averageWait != null) {
+    parts.push(`${formatDuration(queue.averageWait)} average wait`);
+  }
+  if (queue.processing) {
+    parts.push(`${plural(queue.processing, 'message')} in progress`);
+  }
+  return `Last minute, as reported by the live workers: ${parts.join(', ')}.`;
+}
+
+function trimZero(value: string): string {
+  return value.endsWith('.0') ? value.slice(0, -2) : value;
+}
+
 /** A bulk action's toast. Fewer affected than requested means a worker got there first. */
 export function describeBulkResult(
   verb: 'requeued' | 'enqueued' | 'deleted',

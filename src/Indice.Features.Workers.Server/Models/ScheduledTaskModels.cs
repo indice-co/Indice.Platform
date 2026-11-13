@@ -50,6 +50,10 @@ public class ScheduledTaskDetails : ScheduledTaskInfo
     public string? Errors { get; set; }
     /// <summary>The task state, as a JSON string.</summary>
     public string? State { get; set; }
+    /// <summary>The average run time on the live workers since they started, in milliseconds. <see langword="null"/> when no live worker reports a run.</summary>
+    public double? AverageDuration { get; set; }
+    /// <summary>The time the last run took on a live worker, in milliseconds.</summary>
+    public double? LastDuration { get; set; }
 }
 
 /// <summary>Enables or disables a scheduled task.</summary>

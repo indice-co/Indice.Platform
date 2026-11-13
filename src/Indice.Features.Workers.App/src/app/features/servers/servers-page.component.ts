@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -27,6 +27,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
+import { formatRate } from '../queues/queue-status';
 
 /** Hangfire's "Servers": the workers that registered themselves (or ran scheduled tasks), and the distributed locks. */
 @Component({
@@ -34,6 +35,7 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
+    DecimalPipe,
     LucideLock,
     LucideLockOpen,
     LucideServer,
@@ -79,6 +81,9 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                         <th class="text-right">Scheduled tasks</th>
                         <th class="text-right">Tasks last run here</th>
                         <th class="text-right">Running now</th>
+                        @if (showActivity()) {
+                          <th class="text-right">Messages</th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
@@ -147,6 +152,28 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                               <span class="text-base-content/45">0</span>
                             }
                           </td>
+                          @if (showActivity()) {
+                            <td class="whitespace-nowrap text-right tabular-nums" [title]="activityTitle(server)">
+                              @if (server.processed != null) {
+                                @if (server.processedPerMinute != null) {
+                                  <span class="font-medium">{{ rate(server.processedPerMinute) }}</span>
+                                  @if (server.failedPerMinute) {
+                                    <span class="ml-1 text-xs text-error"
+                                      >{{ rate(server.failedPerMinute) }} failed</span
+                                    >
+                                  }
+                                }
+                                <span class="block text-xs text-base-content/70">
+                                  {{ server.processed | number }} since start
+                                  @if (server.failed) {
+                                    · <span class="text-error">{{ server.failed | number }} failed</span>
+                                  }
+                                </span>
+                              } @else {
+                                <span class="text-base-content/45">—</span>
+                              }
+                            </td>
+                          }
                         </tr>
                       }
                     </tbody>
@@ -293,6 +320,10 @@ export class ServersPageComponent {
   protected readonly error = signal<string | null>(null);
 
   protected readonly STATUS_BADGE = STATUS_BADGE;
+  protected readonly rate = formatRate;
+
+  /** Message counts come from the workers' own metrics, so the column appears only when some worker reports them. */
+  protected readonly showActivity = computed(() => (this.servers() ?? []).some((s) => s.processed != null));
 
   protected readonly subtitle = computed(() => {
     const servers = this.servers();
@@ -308,6 +339,23 @@ export class ServersPageComponent {
         : plural(servers.length, 'server');
     return `${head} · ${plural(active, 'active lock')}`;
   });
+
+  /** The worker's own message counts in a sentence, for the tooltip. */
+  protected activityTitle(server: WorkerServerInfo): string {
+    if (server.processed == null) {
+      return 'This worker does not report metrics.';
+    }
+    const parts = [
+      server.processedPerMinute != null
+        ? `${formatRate(server.processedPerMinute)} processed in the last minute`
+        : 'No recent rate, the worker is not live',
+    ];
+    if (server.processing) {
+      parts.push(`${plural(server.processing, 'message')} in progress`);
+    }
+    parts.push(`${server.processed} processed and ${server.failed ?? 0} failed since it started`);
+    return `${parts.join('; ')}. Run-now messages are not counted.`;
+  }
 
   /** Process, application and version — whatever the worker reported. */
   protected describe(server: WorkerServerInfo): string | null {

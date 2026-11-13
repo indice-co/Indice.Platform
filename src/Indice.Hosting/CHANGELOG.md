@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `WorkerHostOptions.ServerHeartbeatInterval` (default 30 seconds, `null` or zero to disable registration).
   - `WorkerHostOptions.ServerTimeout` (default 5 minutes, at least three heartbeats): every node removes the rows of servers that have not sent a heartbeat for this long, so a crashed node goes away on its own.
   - Registration never stops the worker: while the table is missing, the worker logs a warning and runs as before.
+- Worker metrics: the workers publish the `Indice.Hosting` meter (`WorkerDiagnostics.MeterName`) with `System.Diagnostics.Metrics`, so the throughput, handler time, queue wait time and in-flight work of every node can be exported with OpenTelemetry or watched with `dotnet-counters`. See the README for the instruments.
+  - The server heartbeat also stores a snapshot of these metrics in the `Metrics` column of `work.Server` (totals since startup and the activity of the last minute), so the workers dashboard can show the throughput, failures, handler time and wait time of each queue, server and scheduled task without querying the nodes.
 
 **Add a migration** to the context that holds the worker tables, or run the script below on existing databases.
 
@@ -29,6 +31,7 @@ BEGIN
         [HeartbeatInterval] int NOT NULL,
         [Queues] nvarchar(max) NULL,
         [ScheduledTasks] nvarchar(max) NULL,
+        [Metrics] nvarchar(max) NULL,
         CONSTRAINT [PK_Server] PRIMARY KEY ([Id])
     );
     CREATE INDEX [IX_Server_LastHeartbeat] ON [work].[Server]([LastHeartbeat]);
@@ -49,6 +52,7 @@ CREATE TABLE IF NOT EXISTS work."Server" (
     "HeartbeatInterval" integer NOT NULL,
     "Queues" text NULL,
     "ScheduledTasks" text NULL,
+    "Metrics" text NULL,
     CONSTRAINT "PK_Server" PRIMARY KEY ("Id")
 );
 CREATE INDEX IF NOT EXISTS "IX_Server_LastHeartbeat" ON work."Server" ("LastHeartbeat");

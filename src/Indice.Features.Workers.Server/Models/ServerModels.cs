@@ -48,4 +48,15 @@ public class WorkerServerInfo
     public int Tasks { get; set; }
     /// <summary>The tasks currently running on the machine of this worker.</summary>
     public int RunningTasks { get; set; }
+    /// <summary>The messages the worker processed since it started, successfully or not.</summary>
+    /// <remarks>The metrics below are measured by the worker and stored with its heartbeat. They are <see langword="null"/> when the worker does not report metrics.</remarks>
+    public long? Processed { get; set; }
+    /// <summary>The messages that failed on the worker since it started (retried or poisoned).</summary>
+    public long? Failed { get; set; }
+    /// <summary>The messages the worker is processing now. Only known for a live worker.</summary>
+    public long? Processing { get; set; }
+    /// <summary>The messages the worker processed per minute recently, successfully or not. Only known for a live worker.</summary>
+    public double? ProcessedPerMinute { get; set; }
+    /// <summary>The messages that failed per minute recently. Only known for a live worker.</summary>
+    public double? FailedPerMinute { get; set; }
 }

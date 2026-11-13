@@ -38,6 +38,20 @@ public class QueueInfo
     public int? InstanceCount { get; set; }
     /// <summary>The maximum number of attempts before a message becomes poison.</summary>
     public int? MaxRetryCount { get; set; }
+    /// <summary>The messages the live workers are processing now.</summary>
+    /// <remarks>
+    /// The activity below is measured by the live workers and stored with their heartbeat, so it is up to a heartbeat old and covers about the last minute.
+    /// It is <see langword="null"/> when no live worker reports metrics for the queue.
+    /// </remarks>
+    public long? Processing { get; set; }
+    /// <summary>The messages processed per minute by the live workers, successfully or not.</summary>
+    public double? ProcessedPerMinute { get; set; }
+    /// <summary>The messages that failed per minute (retried or poisoned).</summary>
+    public double? FailedPerMinute { get; set; }
+    /// <summary>The average handler time, in milliseconds. <see langword="null"/> when no message was processed recently.</summary>
+    public double? AverageDuration { get; set; }
+    /// <summary>The average time the messages waited in the queue before a worker dequeued them, in milliseconds. <see langword="null"/> when no message was dequeued recently.</summary>
+    public double? AverageWait { get; set; }
 }
 
 /// <summary>A queue message, as shown in a list.</summary>

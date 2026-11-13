@@ -21,7 +21,7 @@ import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { JsonViewComponent } from '../../shared/json-view.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
-import { shortTypeName } from '../queues/queue-status';
+import { formatDuration, shortTypeName } from '../queues/queue-status';
 import { clampProgress, describeCron } from './cron';
 import { RunTaskButtonComponent } from './run-task-button.component';
 import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
@@ -145,6 +145,14 @@ import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
                 <div class="min-w-0">
                   <dt class="text-xs text-base-content/70">Runs</dt>
                   <dd class="text-sm font-medium tabular-nums">{{ task.executionCount | number }}</dd>
+                  @if (durations(); as durations) {
+                    <dd
+                      class="text-xs text-base-content/70 tabular-nums"
+                      title="Measured by the live workers that host the task, since they started."
+                    >
+                      {{ durations }}
+                    </dd>
+                  }
                 </div>
                 <div class="min-w-0">
                   <dt class="text-xs text-base-content/70">Progress</dt>
@@ -273,6 +281,16 @@ export class ScheduledTaskDetailPageComponent {
   protected readonly schedule = computed(() => describeCron(this.task()?.cronExpression));
   protected readonly progress = computed(() => clampProgress(this.task()?.progress ?? 0));
   protected readonly shortType = shortTypeName;
+
+  /** `avg 1.2 s · last 900 ms`, from the workers' own metrics; `null` when none reports them. */
+  protected readonly durations = computed(() => {
+    const task = this.task();
+    const parts = [
+      task?.averageDuration != null ? `avg ${formatDuration(task.averageDuration)}` : null,
+      task?.lastDuration != null ? `last ${formatDuration(task.lastDuration)}` : null,
+    ].filter((part): part is string => !!part);
+    return parts.length ? parts.join(' · ') : null;
+  });
 
   /** The task icon's tint: red when the last run failed, blue while it runs. Literal classes for Tailwind. */
   protected readonly chip = computed(() => {
