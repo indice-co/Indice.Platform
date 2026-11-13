@@ -1,16 +1,8 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityModel;
+﻿using Duende.IdentityModel;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Configuration;
 using Duende.IdentityServer.Stores;
-#else
-using IdentityModel;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Guards;
@@ -278,9 +270,7 @@ public abstract class BasePageModel : PageModel
         var errorMessageStore = context.RequestServices.GetRequiredService<IMessageStore<ErrorMessage>>();
 
         var errorModel = new ErrorMessage() {
-#if NET9_0_OR_GREATER
             ActivityId = System.Diagnostics.Activity.Current?.Id,
-#endif
             RequestId = context.TraceIdentifier,
             Error = error,
             ErrorDescription = errorDescription,

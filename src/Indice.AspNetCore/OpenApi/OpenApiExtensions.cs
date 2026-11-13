@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Net.Mime;
 using System.Reflection.Metadata;
 using System.Text.Json.Nodes;
@@ -490,4 +489,3 @@ public record ExtraHeaderParameterMetadata(string HeaderName, bool Required, str
 /// <param name="ContentType">The content type of the example. Defaults to 'application/json'.</param>
 public record EndpointBodyExampleMetadata(string ExampleName, JsonNode? Value, string? ExternalValue = null, string? Summary = null, string? Description = null, string ContentType = MediaTypeNames.Application.Json);
 
-#endif

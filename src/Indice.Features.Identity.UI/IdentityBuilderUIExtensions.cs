@@ -16,9 +16,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.Configuration;
-#endif
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extension methods on <see cref="IServiceCollection"/> for registering required services for Identity UI pages feature.</summary>
@@ -67,9 +65,7 @@ public static class IdentityBuilderUIExtensions
             }
             options.ProductionEnvironmentsSet.UnionWith(configuredOptions.ProductionEnvironmentsSet);
         });
-#if NET9_0_OR_GREATER
         services.AddSingleton<IConfigureOptions<IdentityServerOptions>, IdentityServerOptionsConfigure>();
-#endif
         services.PostConfigure<AntiforgeryOptions>(options => {
             options.HeaderName = "X-XSRF-TOKEN";
             options.Cookie.HttpOnly = true;

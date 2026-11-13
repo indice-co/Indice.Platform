@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
@@ -66,4 +65,3 @@ public class CanonicalDocumentTransformer : IOpenApiDocumentTransformer
         return Task.CompletedTask;
     }
 }
-#endif

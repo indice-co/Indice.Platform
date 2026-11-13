@@ -1,4 +1,3 @@
-#if NET9_0_OR_GREATER
 using System.Security.Claims;
 using Duende.IdentityModel;
 using Duende.IdentityModel.Client;
@@ -318,4 +317,3 @@ public class MobileSessionIdServerSideSessionsTests : IAsyncLifetime
     }
 }
 
-#endif

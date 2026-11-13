@@ -1,18 +1,9 @@
-#if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Indice.AspNetCore.Features.Recaptcha;
 
-#else
-using IdentityModel;
-using IdentityServer4;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using Indice.AspNetCore.Features.Recaptcha;
-
-#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;

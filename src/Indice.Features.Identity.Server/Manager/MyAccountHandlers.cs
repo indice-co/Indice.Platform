@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Duende.IdentityModel;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Models;
@@ -8,15 +7,6 @@ using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Stores.Serialization;
 using static Duende.IdentityServer.IdentityServerConstants;
-#else 
-using IdentityServer4.Events;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Stores.Serialization;
-using static IdentityServer4.IdentityServerConstants;
-#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -891,7 +881,6 @@ internal static partial class MyAccountHandlers
                                                   break;
                                               case PersistedGrantTypes.RefreshToken:
                                                   var refresh = serializer.Deserialize<RefreshToken>(grant.Data);
-#if NET9_0_OR_GREATER
                                                   info.UpdateWith(PersistedGrantTypes.RefreshToken, refresh.CreationTime, refresh.CreationTime.AddSeconds(refresh.Lifetime), refresh.AuthorizedScopes);
                                                   info.Grants.Add(new UserGrantInfo {
                                                       Type = PersistedGrantTypes.RefreshToken,
@@ -902,18 +891,6 @@ internal static partial class MyAccountHandlers
                                                       DeviceId = refresh.AccessTokens.SelectMany(x => x.Value.Claims)?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
                                                       IpAddress = refresh.AccessTokens.SelectMany(x => x.Value.Claims)?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
                                                   });
-#else
-                                                  info.UpdateWith(PersistedGrantTypes.RefreshToken, refresh.CreationTime, refresh.CreationTime.AddSeconds(refresh.Lifetime), refresh.Scopes);
-                                                  info.Grants.Add(new UserGrantInfo {
-                                                      Type = PersistedGrantTypes.RefreshToken,
-                                                      SessionId = grant.SessionId,
-                                                      CreatedAt = refresh.CreationTime,
-                                                      ExpiresAt = refresh.CreationTime.AddSeconds(refresh.Lifetime),
-                                                      TokenId = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.JwtId)?.Value,
-                                                      DeviceId = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
-                                                      IpAddress = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
-                                                  });
-#endif
                                                   break;
                                               case PersistedGrantTypes.ReferenceToken:
                                                   var token = serializer.Deserialize<Token>(grant.Data);

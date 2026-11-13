@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-using System.Reflection;
+﻿using System.Reflection;
 using Indice.AspNetCore.OpenApi.Attributes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
@@ -42,4 +41,3 @@ public static class OpenApiIgnoreTransformer
         return Task.CompletedTask;
     }
 }
-#endif

@@ -1,13 +1,7 @@
 ﻿using System.Security.Claims;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Validation;
-#else
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Validation;
-#endif
 
 namespace Indice.Features.Identity.Core.Scopes;
 

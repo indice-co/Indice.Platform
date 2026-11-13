@@ -300,8 +300,8 @@ One grid to take to your team — the capability on the left, the mechanism that
 ## 🏗️ 4. Architecture & hosting
 
 - **Built on `Indice.Platform`** — `Indice.Features.Identity.{Core, Server, SignInLogs, UI, AdminUI}` and `Indice.Features.ActivityLogs`.
-- **Standard foundations** — ASP.NET Core (Razor Pages + Minimal APIs), ASP.NET Core Identity, Duende IdentityServer
-  (IdentityServer4 on .NET 8), EF Core (SQL Server), SignalR.
+- **Standard foundations** — ASP.NET Core (Razor Pages + Minimal APIs), ASP.NET Core Identity, Duende IdentityServer,
+  EF Core (SQL Server), SignalR.
 - **Reference template** — `Indice.IdentityPages` (`dotnet new`), a complete production wiring of the libraries.
 
 ### 🏗️ 4.1 High-level architecture
@@ -412,7 +412,7 @@ app.MapMultiFactorAuthenticationHub();    // /mfa SignalR hub
 - **Management** (`api/…`, scope `identity` + sub-scopes) — `users`, `roles`, `clients`, `resources`, `claim-types`,
   `devices`, `dashboard`, `lookups`, `app-settings`, `totp`.
 - **User** — `my/account/*`, `my/devices`; public `account/*` helpers.
-- **Docs** — OpenAPI document with Scalar UI (Swagger UI on .NET 8) when enabled.
+- **Docs** — OpenAPI document with Scalar UI when enabled.
 
 ### 🖥️ Admin UI
 

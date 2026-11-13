@@ -355,8 +355,7 @@ Most services auto-configure from `IConfiguration`. Common connection string nam
 
 ## Target Frameworks
 
-- .NET 8.0
-- .NET 9.0
+- .NET 10.0
 
 ## License
 

@@ -1,8 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.Events;
-#else
-using IdentityServer4.Events;
-#endif
+﻿using Duende.IdentityServer.Events;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.SignInLogs.Models;
 

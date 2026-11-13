@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-
+﻿
 using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
@@ -82,4 +81,3 @@ public static class OpenApiMetadataExtensions
     public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string? contentType = null)
         => builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [contentType ?? MediaTypeNames.Application.ProblemJson]));
 }
-#endif

@@ -1,5 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using System.Net;
+﻿using System.Net;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Indice.AspNetCore.Http.Headers;
@@ -108,4 +107,3 @@ public class CertificateForwardingHeaderParseException : Exception
     /// specified.</param>
     public CertificateForwardingHeaderParseException(string message, Exception? innerException) : base(message, innerException) { }
 }
-#endif

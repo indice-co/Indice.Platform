@@ -1,8 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.Events;
-#else
-using IdentityServer4.Events;
-#endif
+﻿using Duende.IdentityServer.Events;
 namespace Indice.Features.Identity.Core.Events;
 
 /// <summary>Event for successful user password authentication.</summary>

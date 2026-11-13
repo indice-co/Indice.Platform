@@ -1,4 +1,3 @@
-#if NET9_0_OR_GREATER
 using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -149,4 +148,3 @@ public class CertificateForwardingHeaderConvertersTests
         Assert.DoesNotContain(invalidValue, ex.Message);
     }
 }
-#endif

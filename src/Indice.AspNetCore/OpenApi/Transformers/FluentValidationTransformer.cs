@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-using System.Globalization;
+﻿using System.Globalization;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
@@ -111,4 +110,3 @@ public static class FluentValidationTransformer
 
     private static bool IsOneOf(this Type type, params Type[] possibleTypes) => possibleTypes.Any(possibleType => possibleType == type);
 }
-#endif
