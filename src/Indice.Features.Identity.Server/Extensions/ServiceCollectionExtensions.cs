@@ -4,17 +4,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using Duende.IdentityModel;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Stores;
 using Indice.Features.Identity.Core.Events;
-#else
-using IdentityServer4.EntityFramework.Services;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Services;
-using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
-using Indice.Features.Identity.Core.TokenCreation;
-#endif
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -133,9 +125,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         bool enforceSingleActiveSession
     ) {
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
-#if !NET9_0_OR_GREATER
-        services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
-#endif
 
         var identityServerBuilder = services.AddIdentityServer(options => {
             options.IssuerUri = configuration.GetHost();
@@ -148,13 +137,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorUrl = "/error";
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
-#if NET9_0_OR_GREATER
             options.KeyManagement.Enabled = false;
             options.Endpoints.EnablePushedAuthorizationEndpoint = false;
             var licenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
             if (!string.IsNullOrEmpty(licenseKey))
                 options.LicenseKey = licenseKey;
-#endif
 
         })
         .AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
@@ -175,39 +162,24 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         .AddDelegationGrantValidator()
         .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
         .AddExtendedResourceOwnerPasswordValidator()
-#if NET9_0_OR_GREATER
         .AddConfigurationStoreCache()
-#else
-        .AddDotnet7CompatibleStores()
-        // Add store decorators for caching after calling AddDotnet7CompatibleStores.
-        .AddInMemoryCaching()
-        .AddClientStoreCache<IndiceStores.ClientStore>()
-        .AddResourceStoreCache<IndiceStores.ResourceStore>()
-        .AddCorsPolicyCache<CorsPolicyService>()
-#endif
         .AddClientStoreCacheInvalidation()
         ;
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();
         } else {
-#if NET9_0_OR_GREATER
 
             var certificate = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
-#else
-            var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
-#endif
             identityServerBuilder.AddSigningCredential(certificate);
         }
 
-#if NET9_0_OR_GREATER
         if (enableServerSideSessions) {
             identityServerBuilder.AddServerSideSessions();
             if (enforceSingleActiveSession) {
                 services.AddPlatformEventHandler<UserLoginEvent, SingleSessionLoginEventHandler>();
             }
         }
-#endif
         return identityServerBuilder;
     }
 
@@ -410,7 +382,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddTransient<IValidator<TotpRequest>, TotpRequestValidator>();
         return builder;
     }
-#if NET9_0_OR_GREATER
     /// <summary>Adds the certificate using for IIS and Windows were the new registration failes.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <remarks>This is a polyfill for running under IIS on .NET 9 on windows where the new registration fails.</remarks>
@@ -427,7 +398,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.AddSigningCredential(cert);
         return builder;
     }
-#endif
     /// <summary>Adds all required services for <b>Database Settings</b> feature.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration used for <b>Database Settings</b> feature.</param>

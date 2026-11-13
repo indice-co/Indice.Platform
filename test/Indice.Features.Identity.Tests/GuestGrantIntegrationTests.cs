@@ -1,13 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Duende.IdentityModel.Client;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Validation;
-#else
-using IdentityServer4.Models;
-using IdentityServer4.Validation;
-#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Grants;
 using Indice.Services;

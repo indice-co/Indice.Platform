@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-using Microsoft.AspNetCore.OpenApi;
+﻿using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -33,4 +32,3 @@ public static class ExamplesTransformer
     }
 }
 
-#endif

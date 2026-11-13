@@ -1,9 +1,5 @@
 ﻿using System.Text.Json;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.EntityFramework.Entities;
-#else
-using IdentityServer4.EntityFramework.Entities;
-#endif
 
 namespace Indice.Features.Identity.Core.Data.Models;
 

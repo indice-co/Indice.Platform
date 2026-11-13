@@ -48,9 +48,6 @@ public class JsonSerializerTests
         options.Converters.Add(new JsonStringEnumConverter());
         options.Converters.Add(new TypeConverterJsonAdapterFactory());
 
-#if !NET10_0_OR_GREATER
-        options.Converters.Add(new JsonObjectToInferredTypeConverter()); // this converter is not needed in the new System.Text.Json in .NET 10, will be removed in the future
-#endif
 
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         var model = new TestTypeConverters {
@@ -124,9 +121,6 @@ public class JsonSerializerTests
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
         options.Converters.Add(new JsonStringEnumConverter());
-#if !NET10_0_OR_GREATER
-        options.Converters.Add(new DictionaryEnumConverter());
-#endif
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         var model = new MusicLibrary {
             Tracks = new Dictionary<MusicGenre, List<MusicTrack>> {

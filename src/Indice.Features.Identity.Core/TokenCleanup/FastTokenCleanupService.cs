@@ -1,5 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.EntityFramework;
+﻿using Duende.IdentityServer.EntityFramework;
 using Duende.IdentityServer.EntityFramework.Interfaces;
 using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
@@ -103,4 +102,3 @@ public class FastTokenCleanupService : TokenCleanupService
         }
     }
 }
-#endif // NET9_0_OR_GREATER

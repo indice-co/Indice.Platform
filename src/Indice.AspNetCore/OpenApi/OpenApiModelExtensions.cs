@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-
+﻿
 namespace Microsoft.OpenApi.Models;
 
 /// <summary>Extensions over Open Api to generate example models </summary>
@@ -34,4 +33,3 @@ public static class OpenApiModelExtensions
         return enumType;
     }
 }
-#endif

@@ -1,8 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.Validation;
-#else
-using IdentityServer4.Validation;
-#endif
+﻿using Duende.IdentityServer.Validation;
 
 namespace Indice.Features.Identity.Core.Scopes;
 

@@ -1,10 +1,6 @@
 using System.Security.Claims;
 using System.Text;
-#if NET9_0_OR_GREATER
 using Duende.IdentityModel;
-#else
-using IdentityModel;
-#endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;

@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json.Nodes;
@@ -131,4 +130,3 @@ internal class EnumNamesOpenApiExtension : IOpenApiExtension
         writer.WriteEndArray();
     }
 }
-#endif

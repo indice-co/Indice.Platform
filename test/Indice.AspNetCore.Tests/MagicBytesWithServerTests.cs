@@ -1,5 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Indice.AspNetCore.Configuration;
+﻿using Indice.AspNetCore.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -130,4 +129,3 @@ public static class MagicBytesUploadTestEndpoints
         return routes;
     }
 }
-#endif

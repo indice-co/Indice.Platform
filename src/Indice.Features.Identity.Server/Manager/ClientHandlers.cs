@@ -4,17 +4,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Humanizer;
 using Duende.IdentityModel;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Extensions;
 using IdSrvModels = Duende.IdentityServer.Models;
 using IdSrvEntities = Duende.IdentityServer.EntityFramework.Entities;
-#else
-using IdentityServer4;
-using IdentityServer4.Extensions;
-using IdSrvModels = IdentityServer4.Models;
-using IdSrvEntities = IdentityServer4.EntityFramework.Entities;
-#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -364,12 +357,10 @@ internal static class ClientHandlers
             ClientId = client.Id
         };
         client.AllowedGrantTypes = [grantTypeToAdd];
-#if NET9_0_OR_GREATER
         if (IdSrvModels.GrantType.ClientCredentials.Equals(grantTypeToAdd.GrantType, StringComparison.OrdinalIgnoreCase)) {
             // ensure that client has secret if client credentials grant type is added
             client.RequireClientSecret = true;
         }
-#endif
         await configurationDbContext.SaveChangesAsync();
         await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new GrantTypeInfo {
@@ -429,11 +420,7 @@ internal static class ClientHandlers
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
-#if NET9_0_OR_GREATER
             certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
-#else
-            certificate = new X509Certificate2(certificateBytes, request.Password);
-#endif
 
         } catch (CryptographicException) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
@@ -471,11 +458,7 @@ internal static class ClientHandlers
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
-#if NET9_0_OR_GREATER
             certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
-#else
-            certificate = new X509Certificate2(certificateBytes, request.Password);
-#endif
         } catch (CryptographicException) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
         } finally {
@@ -505,11 +488,7 @@ internal static class ClientHandlers
         X509Certificate2? certificate = null;
         byte[] certificateBytes;
         try {
-#if NET9_0_OR_GREATER
             certificate = X509CertificateLoader.LoadCertificate(Convert.FromBase64String(clientSecret.Value));
-#else
-            certificate = new X509Certificate2(Convert.FromBase64String(clientSecret.Value));
-#endif
             certificateBytes = certificate.Export(X509ContentType.Cert);
         } catch (CryptographicException) {
             throw;
@@ -605,11 +584,7 @@ internal static class ClientHandlers
             case IdentityServerConstants.SecretTypes.X509CertificateBase64:
                 var certificateData = Convert.FromBase64String(clientSecret.Value);
 
-#if NET9_0_OR_GREATER
                 var certificate = X509CertificateLoader.LoadCertificate(certificateData);
-#else
-                var certificate = new X509Certificate2(certificateData);
-#endif
                 using (certificate) {
                     return $"Thumbprint: {certificate.Thumbprint}, Expiration Date: {certificate.GetExpirationDateString()}";
                 }

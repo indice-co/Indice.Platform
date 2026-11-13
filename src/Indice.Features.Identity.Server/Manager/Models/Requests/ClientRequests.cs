@@ -1,9 +1,5 @@
 ﻿using System.Collections.Generic;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
-#else
-using IdentityServer4.Models;
-#endif
 
 using Indice.Types;
 

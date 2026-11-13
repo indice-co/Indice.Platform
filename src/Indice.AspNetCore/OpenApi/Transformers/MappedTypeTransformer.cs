@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
@@ -121,4 +120,3 @@ public static class MappedTypeTransformer
         }
     }
 }
-#endif

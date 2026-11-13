@@ -101,9 +101,6 @@ public static class CasesWorkflowFeatureExtensions
             })
             .AddEmailActivities(casesWorkflowOptions.ConfigureSmtp)
             .AddUserTaskActivities()
-            #if NET8_0
-            .AddElsaStores()
-            #endif
             .AddActivitiesFrom(typeof(CasesWorkflowOptions).Assembly);
 
             // Register consumer assembly

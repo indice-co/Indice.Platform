@@ -1,10 +1,6 @@
-#if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 
-#else
-using IdentityModel;
-#endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Extensions;

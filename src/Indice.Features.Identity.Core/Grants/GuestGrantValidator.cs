@@ -8,18 +8,9 @@ using Indice.Configuration;
 using Indice.Globalization;
 using Indice.Security;
 using Indice.Services;
-#if NET9_0_OR_GREATER
 using Duende.IdentityModel;
-#else
-using IdentityModel;
-#endif
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Validation;
-#else
-using IdentityServer4.Models;
-using IdentityServer4.Validation;
-#endif
 
 namespace Indice.Features.Identity.Core.Grants;
 
