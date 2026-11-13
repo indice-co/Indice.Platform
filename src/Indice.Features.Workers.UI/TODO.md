@@ -17,7 +17,7 @@
 - [x] Add health checks reporting poison messages above a threshold. If "stuck" scheduled tasks is implemented this too.
 
 ## Advanced
-- [ ] Introduce host registration - with a ping - to check heartbeat/liveness. Can also mark stale servers without the additional table provided we write in queues - in scheduled tasks we do - the server name so we can deduce liveness somehow. Or even better with a heartbeat table with e.g. instanceId and LastHeartbeat.
+- [x] Introduce host registration - with a ping - to check heartbeat/liveness. Done with the `work.Server` table: each worker registers on startup with its queues and scheduled tasks, sends a heartbeat (`ServerHeartbeatInterval`) and is pruned after `ServerTimeout`.
 - [x] Add ability to `RunNow` on Scheduled jobs
 - [ ] Flag "stuck" tasks in the UI - show time running above a value if no alternative with current db - should not have
 - [ ] Known bug where last error is not cleared and shows up in the UI.

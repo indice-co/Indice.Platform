@@ -40,11 +40,17 @@ export interface QueueInfo {
   total: number;
   /** Min visible-at of Enqueued/Retrying messages — the lag indicator. */
   oldestEnqueuedAt?: string | null;
+  /** A live worker consumes the queue. The settings below come from the registered workers. */
   isRegistered: boolean;
+  /** Live workers that consume the queue; `null` when the server table isn't available. */
+  consumers?: number | null;
+  /** The live consumers have different settings, e.g. during a rolling deployment. */
+  hasConfigurationMismatch: boolean;
   workItemType?: string | null;
   handlerType?: string | null;
   /** Milliseconds. */
   pollingInterval?: number | null;
+  /** Dequeue instances across the live workers. */
   instanceCount?: number | null;
   maxRetryCount?: number | null;
 }
@@ -91,6 +97,7 @@ export interface ScheduledTaskInfo {
   enabled: boolean;
   /** A DB row exists — the task has run at least once. */
   hasRun: boolean;
+  /** A live worker hosts the task, so it can run now even if it has never run. */
   isRegistered: boolean;
   lastExecution?: string | null;
   nextExecution?: string | null;
@@ -119,10 +126,30 @@ export interface LockInfo {
   isExpired: boolean;
 }
 
+/**
+ * `Alive` sends its heartbeat, `Stale` missed its last heartbeats (stopping, hung or gone), and
+ * `Unknown` isn't registered — only seen from the scheduled tasks it ran (e.g. an older worker).
+ */
+export type WorkerServerStatus = 'Alive' | 'Stale' | 'Unknown';
+
 export interface WorkerServerInfo {
+  /** `{machine}:{process}:{random}`, or the machine name when the worker isn't registered. */
   workerId: string;
-  /** Max last execution of its tasks. */
+  machineName: string;
+  status: WorkerServerStatus;
+  processId?: number | null;
+  applicationName?: string | null;
+  version?: string | null;
+  startedAt?: string | null;
+  /** Last heartbeat, or the max last execution of its tasks when the worker isn't registered. */
   lastSeen?: string | null;
+  /** Seconds. */
+  heartbeatInterval?: number | null;
+  /** Queues the worker consumes. */
+  queues: string[];
+  /** Ids of the scheduled tasks the worker hosts. */
+  scheduledTasks: string[];
+  /** Tasks whose last run was on this machine. */
   tasks: number;
   runningTasks: number;
 }

@@ -21,13 +21,22 @@ public class QueueInfo
     public int Total { get; set; }
     /// <summary>The oldest date of the visible messages (enqueued or retrying), in UTC. Indicates the lag of the queue.</summary>
     public DateTime? OldestEnqueuedAt { get; set; }
-    /// <summary>The handler type. Only known in the worker process, so it is <see langword="null"/> in the dashboard host.</summary>
+    /// <summary>Whether a live worker consumes the queue.</summary>
+    /// <remarks>The settings below come from the registered workers that consume the queue, preferably the live ones. They are <see langword="null"/> when no registered worker declares the queue.</remarks>
+    public bool IsRegistered { get; set; }
+    /// <summary>The number of live workers that consume the queue. <see langword="null"/> when the server table is not available.</summary>
+    public int? Consumers { get; set; }
+    /// <summary>Whether the live workers that consume the queue have different settings, e.g. during a rolling deployment.</summary>
+    public bool HasConfigurationMismatch { get; set; }
+    /// <summary>The work item type.</summary>
+    public string? WorkItemType { get; set; }
+    /// <summary>The handler type.</summary>
     public string? HandlerType { get; set; }
-    /// <summary>The polling interval in milliseconds. Only known in the worker process.</summary>
+    /// <summary>The polling interval in milliseconds.</summary>
     public double? PollingInterval { get; set; }
-    /// <summary>The number of dequeue instances. Only known in the worker process.</summary>
+    /// <summary>The number of dequeue instances across the live workers.</summary>
     public int? InstanceCount { get; set; }
-    /// <summary>The maximum number of attempts before a message becomes poison. Only known in the worker process.</summary>
+    /// <summary>The maximum number of attempts before a message becomes poison.</summary>
     public int? MaxRetryCount { get; set; }
 }
 
@@ -55,7 +64,7 @@ public class QueueMessageDetails : QueueMessageListItem
     public string LogicalQueueName { get; set; } = null!;
     /// <summary>The full JSON payload.</summary>
     public string? Payload { get; set; }
-    /// <summary>The maximum number of attempts before a message becomes poison. Only known in the worker process.</summary>
+    /// <summary>The maximum number of attempts before a message becomes poison. Only known when a registered worker consumes the queue.</summary>
     public int? MaxRetryCount { get; set; }
 }
 

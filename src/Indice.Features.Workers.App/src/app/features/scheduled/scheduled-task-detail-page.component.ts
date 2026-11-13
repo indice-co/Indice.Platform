@@ -105,7 +105,7 @@ import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
         }
 
         <div class="flex flex-col gap-4">
-          <!-- Run facts first, then what the task is. Schedule and singleton are only known inside the worker process. -->
+          <!-- Run facts first, then what the task is. Schedule and singleton come from the registered workers that host the task. -->
           <div class="card bg-base-100 shadow-sm">
             <div class="card-body gap-4 p-4">
               <dl class="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-4">

@@ -83,6 +83,23 @@ services.AddWorkerHost(options => {
 });
 ```
 
+### Server registration
+
+With the relational store, each worker registers itself in the `work.Server` table on startup, with the queues it consumes
+(and their settings) and the scheduled tasks it hosts. It refreshes its row with a heartbeat and deletes it on shutdown; every
+worker also deletes the rows that have had no heartbeat for `ServerTimeout`, so a crashed worker goes away on its own. The
+workers dashboard uses the table to show the live servers and the configured queues and tasks.
+
+```csharp
+services.AddWorkerHost(options => {
+    options.ServerHeartbeatInterval = TimeSpan.FromSeconds(30); // default; null or zero disables registration
+    options.ServerTimeout = TimeSpan.FromMinutes(5);            // default; at least three heartbeats
+    options.UseStoreRelational(...);
+});
+```
+
+Add a migration for the `work.Server` table (see the changelog). Until it exists the worker logs a warning and runs as before.
+
 ---
 
 ## Poison Queue

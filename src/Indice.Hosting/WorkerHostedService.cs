@@ -1,4 +1,5 @@
-﻿using Indice.Hosting.Tasks;
+﻿using Indice.Hosting.Services;
+using Indice.Hosting.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ internal class WorkerHostedService : IHostedService
     private readonly IJobFactory _jobFactory;
     private readonly WorkerLifetimeOptions _workerLifetimeOptions;
     private readonly RunNowSettings? _runNowSettings;
+    private readonly WorkerServerRegistry? _serverRegistry;
 
     /// <summary>Creates a new instance of <see cref="WorkerHostedService"/>.</summary>
     /// <param name="schedulerFactory">Provides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
@@ -26,7 +28,8 @@ internal class WorkerHostedService : IHostedService
     /// <param name="jobFactory">A JobFactory is responsible for producing instances of <see cref="IJob"/> classes.</param>
     /// <param name="workerLifetimeOptions">The configured WorkerLifetimeOptions instance.</param>
     /// <param name="runNowSettings">The settings of the run now job. Empty when run now is not supported or disabled.</param>
-    public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory, IOptions<WorkerLifetimeOptions> workerLifetimeOptions, IEnumerable<RunNowSettings> runNowSettings) {
+    /// <param name="serverRegistries">Registers this worker in the server table. Empty when the server registration is not supported or disabled.</param>
+    public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory, IOptions<WorkerLifetimeOptions> workerLifetimeOptions, IEnumerable<RunNowSettings> runNowSettings, IEnumerable<WorkerServerRegistry> serverRegistries) {
         _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dequeueJobSchedules = dequeueJobSettings ?? throw new ArgumentNullException(nameof(dequeueJobSettings));
@@ -34,6 +37,7 @@ internal class WorkerHostedService : IHostedService
         _jobFactory = jobFactory ?? throw new ArgumentNullException(nameof(jobFactory));
         _workerLifetimeOptions = workerLifetimeOptions?.Value ?? throw new ArgumentNullException(nameof(workerLifetimeOptions));
         _runNowSettings = runNowSettings?.LastOrDefault();
+        _serverRegistry = serverRegistries?.LastOrDefault();
     }
 
     /// <summary>The Quartz scheduler.</summary>
@@ -108,7 +112,28 @@ internal class WorkerHostedService : IHostedService
             await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
         }
         await ScheduleRunNowJob(Scheduler, cancellationToken);
+        await ScheduleServerHeartbeatJob(Scheduler, cancellationToken);
         await Scheduler.Start(cancellationToken);
+    }
+
+    private async Task ScheduleServerHeartbeatJob(IScheduler scheduler, CancellationToken cancellationToken) {
+        if (_serverRegistry is null) {
+            return;
+        }
+        // Failures are logged inside and retried by the heartbeat, so a database without the server tables never stops the worker.
+        await _serverRegistry.Register(cancellationToken);
+        var heartbeatJob = JobBuilder.Create<ServerHeartbeatJob>()
+                                     .StoreDurably()
+                                     .WithIdentity(name: nameof(ServerHeartbeatJob), group: JobGroups.InternalJobsGroup)
+                                     .Build();
+        await scheduler.AddJob(heartbeatJob, replace: true, cancellationToken);
+        var heartbeatTrigger = TriggerBuilder.Create()
+                                             .ForJob(heartbeatJob)
+                                             .WithIdentity(name: $"{nameof(ServerHeartbeatJob)}Trigger", group: JobGroups.InternalJobsGroup)
+                                             .StartAt(DateTimeOffset.UtcNow + _serverRegistry.HeartbeatInterval)
+                                             .WithSimpleSchedule(x => x.WithInterval(_serverRegistry.HeartbeatInterval).RepeatForever())
+                                             .Build();
+        await scheduler.ScheduleJob(heartbeatTrigger, cancellationToken);
     }
 
     private async Task ScheduleRunNowJob(IScheduler scheduler, CancellationToken cancellationToken) {
@@ -145,5 +170,9 @@ internal class WorkerHostedService : IHostedService
     public async Task StopAsync(CancellationToken cancellationToken) {
         _logger.LogInformation("Queued Hosted Service is stopping.");
         await Scheduler?.Shutdown(_workerLifetimeOptions.WaitJobsToCompleteOnShutdown, cancellationToken)!;
+        // After the shutdown, so the server stays listed while its jobs complete.
+        if (_serverRegistry is not null) {
+            await _serverRegistry.Unregister();
+        }
     }
 }

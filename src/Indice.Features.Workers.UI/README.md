@@ -17,12 +17,12 @@ and registers its own `ITaskDbContext` and `ILockDbContext`.
 | Page | Contents |
 | --- | --- |
 | **Dashboard** | Counters (enqueued, scheduled, retrying, poison, scheduled tasks, running, failing, active locks), a live queue-depth chart sampled in the browser, the busiest queues and the tasks that need attention. |
-| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status and the age of the oldest waiting message. **Add message** enqueues a new message into any queue. |
+| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status and the age of the oldest waiting message. Queues the live workers consume appear even when empty, with their polling settings; a queue no live worker consumes, or whose workers have different settings, is flagged. **Add message** enqueues a new message into any queue. |
 | **Queue detail** | The messages of a queue by status: **Enqueued**, **Scheduled** (delayed), **Retrying**, **Poison**. Select messages to **requeue** them (poison → back to the queue, scheduled → visible now, retrying → attempts reset) or **delete** them. **Add message** enqueues a new message, now or at a later date. |
 | **Message detail** | Status, attempts, visibility date and the JSON payload. **Edit & requeue** fixes the payload of a message (typically a poison one) and puts it back in its queue. |
-| **Scheduled tasks** | Every task that has run at least once: last run and its outcome, next run, run count, status, progress, an **Enabled** switch and **Run now**. |
+| **Scheduled tasks** | Every task that has run at least once or that a live worker hosts: cron expression, last run and its outcome, next run, run count, status, progress, an **Enabled** switch and **Run now**. |
 | **Scheduled task detail** | Handler, worker of the last run, the last error (full exception text) and the persisted state. |
-| **Servers & locks** | The workers seen running scheduled tasks, and the distributed locks. **Release** force-deletes a lock left behind by a worker that died. |
+| **Servers & locks** | The registered workers — **Alive** while they send their heartbeat, **Stale** when they miss it — with their process, version, uptime, queues and scheduled tasks, plus older workers seen only running scheduled tasks (**Unknown**). Then the distributed locks: **Release** force-deletes a lock left behind by a worker that died. |
 
 All pages refresh by polling (30 s, 1 min, 2 min or 5 min; default 30 s). Polling pauses when the browser tab is hidden and can
 be paused by hand. The overall counters (`GET stats`) are cached on the server for `StatsCacheDuration` (10 s), so many open
@@ -57,9 +57,12 @@ Everything comes from the database, and the database keeps only what is pending:
 - **No history of processed messages.** The relational queue store deletes a message when a worker dequeues it, so there is
   no Processing / Succeeded / Deleted list and no throughput graph. A message that disappears while you look at it was most
   most likely processed.
-- **No cron expressions, polling settings or retry limits.**
-  database. A scheduled task appears **after its first run** (that run creates its row), with its next fire time.
-- **Workers that only process queues don't appear under Servers.** Servers are derived from the scheduled task rows.
+- **No cron expressions, polling settings or retry limits without server registration.** They live in the worker process;
+  each worker writes them to the `work.Server` table when it starts (see below). Workers on older versions of
+  `Indice.Hosting` don't, so their queues show no settings and a scheduled task appears **after its first run** (that run
+  creates its row).
+- **Servers that don't register** (older workers) appear under Servers only through the scheduled tasks they ran, and
+  workers that only process queues don't appear at all.
 - **Locks kept outside the database** (`UseLockManagerAzure()`, `UseLockManagerInMemory()`) are not visible.
 - **A task stuck in Running** means a worker stopped in the middle of a run. It is shown as it is stored.
 
@@ -230,6 +233,20 @@ builder.Services.AddHealthChecks()
 `Indice.Hosting` now indexes the queue table on `(QueueName, Date)` including `State` and `DequeueCount` (SQL Server), replacing
 the index on `QueueName`. It serves both the dequeue query of the workers and the counters of the dashboard. Add a migration to
 the context that holds the worker tables to apply it.
+
+## Server registration
+
+Each worker (`AddWorkerHost()` with `UseStoreRelational()`) registers itself in the `work.Server` table on startup, refreshes
+its row every `WorkerHostOptions.ServerHeartbeatInterval` (30 s) and deletes it on shutdown. Every worker also deletes the
+rows that have had no heartbeat for `WorkerHostOptions.ServerTimeout` (5 min), so a crashed worker goes away on its own.
+The dashboard shows a server as **Stale** once it misses three heartbeats.
+
+The row holds the queues the worker consumes with their settings and the scheduled tasks it hosts, so the dashboard can show
+empty queues, queues no live worker consumes, settings that differ between workers (e.g. during a rolling deployment) and
+scheduled tasks that have never run — which can also **Run now**. When workers declare different settings for a queue or
+a scheduled task, the dashboard shows those of the most recently started live worker, i.e. the newest deployment. Add a
+migration to the context that holds the worker tables to create the table (the `Indice.Hosting` changelog has the scripts).
+Until then the dashboard works as before.
 
 ---
 

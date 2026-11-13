@@ -485,7 +485,7 @@ export class QueueDetailPageComponent {
     })).filter((item) => item.status !== 'Dequeued' || item.count > 0 || item.active);
   });
 
-  /** Only the known parts — handler and polling settings live in the worker process. */
+  /** Only the known parts — handler and polling settings come from the workers that consume the queue. */
   protected readonly facts = computed<Fact[]>(() => {
     const queue = this.queue();
     if (!queue) {
@@ -499,9 +499,26 @@ export class QueueDetailPageComponent {
         ? { label: 'Work item', value: shortTypeName(queue.workItemType)!, title: queue.workItemType, mono: true }
         : null,
       queue.maxRetryCount != null ? { label: 'Max retries', value: `${queue.maxRetryCount}` } : null,
-      queue.instanceCount != null ? { label: 'Workers', value: plural(queue.instanceCount, 'instance') } : null,
+      queue.consumers != null && queue.handlerType
+        ? {
+            label: 'Workers',
+            value: queue.consumers
+              ? `${plural(queue.consumers, 'worker')} · ${plural(queue.instanceCount ?? 0, 'instance')}`
+              : 'None running',
+            title: queue.consumers
+              ? null
+              : 'No live worker consumes this queue, so its messages wait until one starts.',
+          }
+        : null,
       queue.pollingInterval != null
         ? { label: 'Polls every', value: formatPolling(queue.pollingInterval) }
+        : null,
+      queue.hasConfigurationMismatch
+        ? {
+            label: 'Settings',
+            value: 'Differ between workers',
+            title: 'The live workers that consume this queue have different settings, e.g. during a rolling deployment. The settings of the most recently started worker are shown.',
+          }
         : null,
     ];
     return facts.filter((fact): fact is Fact => !!fact);

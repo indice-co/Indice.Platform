@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>Extension methods on <see cref="ModelBuilder"/> that configure the worker store entities.</summary>
 public static class ModelBuilderExtensions
 {
-    /// <summary>Applies the entity configuration for <see cref="DbQMessage"/>, <see cref="DbScheduledTask"/> and <see cref="DbLock"/>.</summary>
+    /// <summary>Applies the entity configuration for <see cref="DbQMessage"/>, <see cref="DbScheduledTask"/>, <see cref="DbLock"/> and <see cref="DbServer"/>.</summary>
     public static void ApplyWorkerConfiguration(this ModelBuilder builder, string? providerName = null) {
         builder.ApplyConfiguration(new DbQMessageMap());
         if (providerName == "Npgsql.EntityFrameworkCore.PostgreSQL") {
@@ -14,5 +14,6 @@ public static class ModelBuilderExtensions
         }
         builder.ApplyConfiguration(new DbScheduledTaskMap());
         builder.ApplyConfiguration(new DbLockMap());
+        builder.ApplyConfiguration(new DbServerMap());
     }
 }

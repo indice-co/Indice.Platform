@@ -158,8 +158,23 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Scheduled', 'Enqueued', 'Retryi
                       </td>
                       @if (showWorkers()) {
                         <td class="whitespace-nowrap pr-4 text-base-content/80">
-                          @if (queue.instanceCount != null && queue.pollingInterval != null) {
-                            {{ queue.instanceCount }} × every {{ polling(queue.pollingInterval) }}
+                          @if (queue.isRegistered && queue.pollingInterval != null) {
+                            <span [title]="workersTitle(queue)">
+                              {{ queue.instanceCount }} × every {{ polling(queue.pollingInterval) }}
+                            </span>
+                            @if (queue.hasConfigurationMismatch) {
+                              <span
+                                class="badge badge-warning badge-soft badge-xs ml-1"
+                                title="The workers that consume this queue have different settings, e.g. during a rolling deployment."
+                                >mixed settings</span
+                              >
+                            }
+                          } @else if (queue.consumers === 0) {
+                            <span
+                              class="badge badge-warning badge-soft badge-sm"
+                              title="No live worker consumes this queue, so its messages wait until one starts."
+                              >No worker</span
+                            >
                           } @else {
                             <span class="text-base-content/45">—</span>
                           }
@@ -244,8 +259,8 @@ export class QueuesPageComponent {
   });
 
   /**
-   * Polling settings are only known inside a worker process, and the dashboard normally runs
-   * elsewhere — so the column appears only when some queue actually reports them.
+   * Polling settings come from the workers that register themselves on startup. Older workers
+   * don't, so the column appears only when some queue actually reports them.
    */
   protected readonly showWorkers = computed(() =>
     (this.queues() ?? []).some((q) => q.instanceCount != null),
@@ -273,6 +288,10 @@ export class QueuesPageComponent {
 
   protected handlerName(queue: QueueInfo): string | null {
     return shortTypeName(queue.handlerType);
+  }
+
+  protected workersTitle(queue: QueueInfo): string {
+    return `${plural(queue.consumers ?? 0, 'live worker')}, ${plural(queue.instanceCount ?? 0, 'dequeue instance')} in total`;
   }
 
   protected open(queue: QueueInfo): void {

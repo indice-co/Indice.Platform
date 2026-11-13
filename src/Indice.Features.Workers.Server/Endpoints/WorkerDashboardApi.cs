@@ -45,17 +45,17 @@ internal static class WorkerDashboardApi
         dashboard.MapGet("stats", WorkerDashboardHandlers.GetStats)
              .WithName(nameof(WorkerDashboardHandlers.GetStats))
              .WithSummary("Get the overall counters.")
-             .WithDescription("Returns the message counters of all the queues, the scheduled task counters, the active locks and the number of workers.");
+             .WithDescription("Returns the message counters of all the queues, the scheduled task counters, the active locks and the number of live workers.");
 
         dashboard.MapGet("queues", WorkerDashboardHandlers.GetQueues)
              .WithName(nameof(WorkerDashboardHandlers.GetQueues))
              .WithSummary("List the queues.")
-             .WithDescription("Returns the logical queues ordered by name, with a counter per message status. Poison queues are merged into normal.");
+             .WithDescription("Returns the logical queues ordered by name, with a counter per message status. Poison queues are merged into normal. The queues the registered workers consume are listed even without messages, with their settings and the number of live consumers.");
 
         dashboard.MapGet("queues/{queueName}", WorkerDashboardHandlers.GetQueue)
              .WithName(nameof(WorkerDashboardHandlers.GetQueue))
              .WithSummary("Get a queue.")
-             .WithDescription("Returns the counters of one logical queue, its poison queue included. A queue without messages has zero counters.");
+             .WithDescription("Returns the counters of one logical queue, its poison queue included, and its settings when a registered worker consumes it. A queue without messages has zero counters.");
 
         dashboard.MapGet("queues/{queueName}/messages", WorkerDashboardHandlers.GetQueueMessages)
              .WithName(nameof(WorkerDashboardHandlers.GetQueueMessages))
@@ -97,12 +97,12 @@ internal static class WorkerDashboardApi
         dashboard.MapGet("scheduled-tasks", WorkerDashboardHandlers.GetScheduledTasks)
              .WithName(nameof(WorkerDashboardHandlers.GetScheduledTasks))
              .WithSummary("List the scheduled tasks.")
-             .WithDescription("Returns the scheduled tasks ordered by group and name. A task appears after its first execution.");
+             .WithDescription("Returns the scheduled tasks ordered by group and name: the ones that have run, and the ones the registered workers host but that have never run (`hasRun` is false).");
 
         dashboard.MapGet("scheduled-tasks/{taskId}", WorkerDashboardHandlers.GetScheduledTask)
              .WithName(nameof(WorkerDashboardHandlers.GetScheduledTask))
              .WithSummary("Get a scheduled task.")
-             .WithDescription("Returns a scheduled task with the text of its last error and its state.");
+             .WithDescription("Returns a scheduled task with the text of its last error and its state. Returns 404 when the task has never run and no registered worker hosts it.");
 
         dashboard.MapPut("scheduled-tasks/{taskId}/enabled", WorkerDashboardHandlers.SetScheduledTaskEnabled)
              .RequireAuthorization(WorkerPolicies.BeWorkersAdmin)
@@ -114,7 +114,7 @@ internal static class WorkerDashboardApi
              .RequireAuthorization(WorkerPolicies.BeWorkersAdmin)
              .WithName(nameof(WorkerDashboardHandlers.RunScheduledTask))
              .WithSummary("Run a scheduled task now.")
-             .WithDescription("Requests a run outside the schedule; it also runs a disabled task. A worker that hosts the task picks the request up within its polling interval (15 seconds by default) and requests older than 10 minutes are discarded. When a request is already pending, it is returned. Returns 404 when the task has never run.");
+             .WithDescription("Requests a run outside the schedule; it also runs a disabled task. A worker that hosts the task picks the request up within its polling interval (15 seconds by default) and requests older than 10 minutes are discarded. When a request is already pending, it is returned. Returns 404 when the task has never run and no live worker hosts it.");
 
         dashboard.MapGet("locks", WorkerDashboardHandlers.GetLocks)
              .WithName(nameof(WorkerDashboardHandlers.GetLocks))
@@ -130,7 +130,7 @@ internal static class WorkerDashboardApi
         dashboard.MapGet("servers", WorkerDashboardHandlers.GetServers)
              .WithName(nameof(WorkerDashboardHandlers.GetServers))
              .WithSummary("List the workers.")
-             .WithDescription("Returns the workers that ran scheduled tasks, most recently seen first.");
+             .WithDescription("Returns the workers that registered themselves on startup, live first, with the queues they consume and the scheduled tasks they host. Workers that are not registered (e.g. older versions) are listed when they have run scheduled tasks.");
 
         return group;
     }

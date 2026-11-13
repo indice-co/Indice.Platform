@@ -20,6 +20,7 @@ import { ToastService } from '../../core/services/toast.service';
 import {
   LockInfo,
   WorkerServerInfo,
+  WorkerServerStatus,
   WorkersApiService,
 } from '../../core/services/workers-api.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
@@ -27,7 +28,7 @@ import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 
-/** Hangfire's "Servers": the workers seen running scheduled tasks, and the distributed locks. */
+/** Hangfire's "Servers": the workers that registered themselves (or ran scheduled tasks), and the distributed locks. */
 @Component({
   selector: 'app-servers-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,13 +57,14 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
               <svg lucideServer class="size-4 text-base-content/70"></svg>Servers
             </h2>
             <p class="text-sm text-base-content/70">
-              Derived from scheduled task runs. Workers that only process queues don't appear here.
+              Each worker registers itself on startup and sends a heartbeat. Workers that don't register
+              (older versions) appear once they have run a scheduled task.
             </p>
             @if (servers(); as servers) {
               @if (servers.length === 0) {
                 <app-empty-state
                   title="No servers yet"
-                  text="A worker shows up here once it has run a scheduled task."
+                  text="A worker shows up here once it starts, or once it has run a scheduled task."
                 />
               } @else {
                 <div class="overflow-x-auto">
@@ -70,14 +72,18 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                     <thead>
                       <tr>
                         <th>Worker</th>
+                        <th>Status</th>
+                        <th>Started</th>
                         <th>Last seen</th>
+                        <th class="text-right">Queues</th>
+                        <th class="text-right">Scheduled tasks</th>
                         <th class="text-right">Tasks last run here</th>
                         <th class="text-right">Running now</th>
                       </tr>
                     </thead>
                     <tbody>
                       @for (server of servers; track server.workerId) {
-                        <tr class="hover:bg-base-200/60">
+                        <tr class="hover:bg-base-200/60" [class.opacity-70]="server.status === 'Stale'">
                           <td class="py-2.5">
                             <div class="flex items-center gap-3">
                               <span
@@ -90,14 +96,45 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                               >
                                 <svg lucideServer class="size-4"></svg>
                               </span>
-                              <span class="font-mono break-all">{{ server.workerId }}</span>
+                              <div class="min-w-0">
+                                <span class="font-mono break-all" [title]="server.workerId">{{
+                                  server.machineName
+                                }}</span>
+                                @if (describe(server); as details) {
+                                  <span class="block text-xs text-base-content/70">{{ details }}</span>
+                                }
+                              </div>
                             </div>
+                          </td>
+                          <td>
+                            <span
+                              class="badge badge-soft badge-sm"
+                              [class]="STATUS_BADGE[server.status]"
+                              [title]="statusTitle(server)"
+                              >{{ server.status }}</span
+                            >
+                          </td>
+                          <td class="whitespace-nowrap" [title]="(server.startedAt | date: 'medium') ?? ''">
+                            @if (server.startedAt) {
+                              {{ server.startedAt | relativeTime }}
+                              <span class="block text-xs text-base-content/70">{{
+                                server.startedAt | date: 'MMM d, HH:mm'
+                              }}</span>
+                            } @else {
+                              <span class="text-base-content/45">—</span>
+                            }
                           </td>
                           <td class="whitespace-nowrap" [title]="(server.lastSeen | date: 'medium') ?? ''">
                             {{ server.lastSeen | relativeTime }}
                             <span class="block text-xs text-base-content/70">{{
-                              server.lastSeen | date: 'MMM d, HH:mm'
+                              server.lastSeen | date: 'MMM d, HH:mm:ss'
                             }}</span>
+                          </td>
+                          <td class="text-right tabular-nums" [title]="server.queues.join(', ')">
+                            {{ server.queues.length }}
+                          </td>
+                          <td class="text-right tabular-nums" [title]="server.scheduledTasks.join(', ')">
+                            {{ server.scheduledTasks.length }}
                           </td>
                           <td class="text-right font-medium tabular-nums">{{ server.tasks }}</td>
                           <td class="text-right tabular-nums">
@@ -255,6 +292,8 @@ export class ServersPageComponent {
   protected readonly locks = signal<LockInfo[] | null>(null);
   protected readonly error = signal<string | null>(null);
 
+  protected readonly STATUS_BADGE = STATUS_BADGE;
+
   protected readonly subtitle = computed(() => {
     const servers = this.servers();
     const locks = this.locks();
@@ -262,8 +301,36 @@ export class ServersPageComponent {
       return null;
     }
     const active = locks.filter((l) => !l.isExpired).length;
-    return `${plural(servers.length, 'server')} · ${plural(active, 'active lock')}`;
+    const alive = servers.filter((s) => s.status === 'Alive').length;
+    const head =
+      alive > 0 || servers.every((s) => s.status !== 'Unknown')
+        ? `${plural(alive, 'live server')}`
+        : plural(servers.length, 'server');
+    return `${head} · ${plural(active, 'active lock')}`;
   });
+
+  /** Process, application and version — whatever the worker reported. */
+  protected describe(server: WorkerServerInfo): string | null {
+    const parts = [
+      server.processId != null ? `pid ${server.processId}` : null,
+      server.applicationName,
+      server.version ? `v${server.version}` : null,
+    ].filter((part): part is string => !!part);
+    return parts.length ? parts.join(' · ') : null;
+  }
+
+  protected statusTitle(server: WorkerServerInfo): string {
+    switch (server.status) {
+      case 'Alive':
+        return server.heartbeatInterval
+          ? `Sends a heartbeat every ${server.heartbeatInterval} s.`
+          : 'Sends a heartbeat.';
+      case 'Stale':
+        return 'Missed its last heartbeats: it is stopping, hung or gone. Its row is removed after the server timeout.';
+      default:
+        return "Not registered (e.g. an older worker) — seen only from the scheduled tasks it ran.";
+    }
+  }
 
   constructor() {
     // One poll for both cards. Each request fails on its own, so one card keeps its last good data
@@ -335,6 +402,12 @@ export class ServersPageComponent {
     );
   }
 }
+
+const STATUS_BADGE: Record<WorkerServerStatus, string> = {
+  Alive: 'badge-success',
+  Stale: 'badge-warning',
+  Unknown: 'badge-ghost',
+};
 
 function plural(count: number, noun: string): string {
   return `${count} ${noun}${count === 1 ? '' : 's'}`;

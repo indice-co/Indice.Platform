@@ -39,7 +39,7 @@ public class DashboardStats
     /// <summary>Locks that have not expired.</summary>
     public int ActiveLocks { get; init; }
     
-    /// <summary>Number of workers that have run a scheduled task.</summary>
+    /// <summary>Number of live workers. When no worker is registered (e.g. the server table is missing), the number of workers that have run a scheduled task.</summary>
     public int Servers { get; init; }
 }
 
