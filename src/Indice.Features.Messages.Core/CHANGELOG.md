@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [8.65.0]
+### Added provider webhook events
+Delivery events reported by the sms and email providers (delivered, opened, bounced etc.) are now stored as message events.
+Call `AddMessagesWebhookServices()` on the api host to register the default `MessagesWebhookHandler` and the webhook http handlers
+of the configured `Sms:Provider` and email provider, and map the endpoints with `MapWebhooks()` (`/webhooks/{provider}` by default).
+Use `AddMessagesWebhookServices<THandler>()` to plug in a custom `IWebhookHandler`.
+
+```csharp
+builder.AddMessagesWebhookServices(options => options.ChannelCapacity = 200);
+// ...
+app.MapWebhooks();
+```
+
+The `Webhooks` configuration section is bound to `WebhookOptions`. `Enabled` now defaults to `true`; when it is `false` the endpoints return `404`.
+```json
+{
+  "Webhooks": {
+    "Enabled": true,
+    "ChannelCapacity": 100
+  }
+}
+```
+
+### Breaking changes
+- `SendEmailEvent.ToMessageEvent` and `SendSmsEvent.ToMessageEvent` take a new `receiptId` parameter.
+- `MessageEventHostedServcie` is renamed to `MessageEventHostedService`.
+
 ### Added `ReceiptId` column to message events
 `MessageEvent.ReceiptId` stores the message id returned by the sms or email provider when a message is sent (`Sent` events).
 Provider webhook events (delivered, opened, bounced etc.) carry the same id, so they are matched to the sent message through it and
@@ -108,7 +134,6 @@ ALTER TABLE cmp."MessageEvent" ADD COLUMN IF NOT EXISTS "Orphan" boolean NOT NUL
 DROP INDEX IF EXISTS cmp."IX_MessageEvent_CampaignId_Type";
 CREATE INDEX "IX_MessageEvent_CampaignId_Type" ON cmp."MessageEvent" ("CampaignId", "Type") INCLUDE ("Channel", "MessageId", "ContactId", "Success", "Orphan");
 ```
-
 
 ## [8.64.0]
 ### Added real time inbox notifications
