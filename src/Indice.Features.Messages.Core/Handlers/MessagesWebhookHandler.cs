@@ -38,7 +38,7 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
                     ReceiptId = webhookEvent.MessageId,
                     CreatedOn = GetCreatedOn(webhookEvent),
                     Success = webhookEvent.Succeeded,
-                    Type = webhookEvent.EventType,
+                    Type = $"{webhookEvent.Provider}.{webhookEvent.EventType}",
                     Recipient = existingEvent.Recipient
                 });
                 continue;
@@ -54,7 +54,7 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
                 Channel = GetChannel(webhookEvent.Channel),
                 CreatedOn = GetCreatedOn(webhookEvent),
                 Success = webhookEvent.Succeeded,
-                Type = webhookEvent.EventType,
+                Type = $"{webhookEvent.Provider}.{webhookEvent.EventType}",
                 Recipient = webhookEvent.Recipient ?? "unknown"
             });
         }
