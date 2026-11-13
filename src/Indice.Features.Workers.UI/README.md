@@ -131,16 +131,26 @@ that registration is reused and `ConfigureDbContext` is ignored.
    - allowed scopes `openid profile role email workers`.
 3. The roles **`WorkersReader`** and **`WorkersAdmin`** (`BasicRoleNames.WorkersReader` / `BasicRoleNames.WorkersAdmin`), given
    to the users that operate the workers. The role claim must reach the API (the `role` scope / API resource claims).
+4. *Optional, for machine-to-machine publishing:* the API scope **`workers:producer`** (`WorkerScopes.Producer`), and a client with
+   grant type client credentials that is allowed it. The scope **`workers:consumer`** (`WorkerScopes.Consumer`) is reserved for the
+   future dequeue endpoints and grants nothing yet.
 
-The API requires an authenticated user with the `workers` scope (`WorkerEndpointsOptions.RequiredScope`) **and** a role:
+The dashboard requires an authenticated user with the `workers` scope (`WorkerEndpointsOptions.RequiredScope`) **and** a role:
 
 | Policy | Who | Allows |
 | --- | --- | --- |
 | `WorkerPolicies.BeWorkersReader` | `WorkersReader`, `WorkersAdmin` or an administrator (`IsAdmin()`) | Every `GET` — all pages, read only. |
 | `WorkerPolicies.BeWorkersAdmin` | `WorkersAdmin` or an administrator (`IsAdmin()`) | Every change: enable/disable, run now, requeue, edit, delete, enqueue, release lock. |
+| `WorkerPolicies.BeWorkersProducer` | `BeWorkersAdmin`, **or** the `workers:producer` scope | `POST queues/{queueName}/messages` (enqueue). |
+| `WorkerPolicies.BeWorkersConsumer` | A machine client with the `workers:consumer` scope | Reserved for the dequeue endpoints, not available yet. |
 
-Anyone else gets `403`; a client that only has the scope (e.g. a machine client) is not enough. The SPA asks `GET me` for the
+Anyone else gets `403`; a client that only has the `workers` scope (e.g. a machine client) is not enough. The SPA asks `GET me` for the
 permissions of the user and hides the actions of a reader.
+
+**Machine-to-machine publishing.** A client credentials token (no `sub` claim) with the `workers:producer` sub-scope is enough to
+enqueue messages — no role is needed. A *user* token with the sub-scope still needs the `WorkersAdmin` role. The sub-scope grants
+nothing else: reading the queues and messages, scheduled tasks, locks, servers, requeue, edit and delete stay with the dashboard users.
+Publish from another service with `AddEventDispatcherHostingHttp()` of `Indice.Services`. Set `ProducerScope` to `null` to turn this off.
 
 > **Who gets in.** The `workers-ui` client requests the `workers` scope for everyone who signs in through it; the roles decide
 > what each user can do. Set `WorkerEndpointsOptions.RequiredScope = null` to check the roles only.
@@ -167,6 +177,8 @@ The SPA reads the identity server address and its own public address from the ho
 | `PathPrefix` | `/api/workers` | Route prefix of the API. Must match `WorkerUIOptions.ApiBase`. |
 | `GroupName` | `workers` | OpenAPI document (group) name of the endpoints. |
 | `RequiredScope` | `workers` | Scope that the caller must have, on top of the role (see above). Set it to `null` to check the roles only. |
+| `ProducerScope` | `workers:producer` | Sub-scope that lets a machine client enqueue messages (`BeWorkersProducer`). `null` disables it. |
+| `ConsumerScope` | `workers:consumer` | Sub-scope reserved for the future dequeue endpoints (`BeWorkersConsumer`). `null` disables it. |
 | `StatsCacheDuration` | 10 s | How long the overall counters (`GET stats`) are cached. |
 | `MaxPayloadLength` | 1,000,000 | The maximum length, in characters, of a payload enqueued or edited from the dashboard. |
 | `ConfigureDbContext` | SQL Server, connection string `WorkerDb` | Configures the database that holds the worker tables. Ignored when the host already registered the context type. |
