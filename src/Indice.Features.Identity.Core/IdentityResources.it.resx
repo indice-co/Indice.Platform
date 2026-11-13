@@ -312,6 +312,12 @@
   <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
     <value>Nuova password</value>
   </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Il campo 'Conferma password' è obbligatorio.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La conferma della password non corrisponde alla password.</value>
+  </data>
   <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
     <value>Numero di telefono</value>
   </data>
@@ -326,6 +332,12 @@
   </data>
   <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
     <value>Token</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Il campo 'Conferma password' è obbligatorio.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La conferma della password non corrisponde alla password.</value>
   </data>
   <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
     <value>Email</value>
@@ -489,6 +501,12 @@
   <data name="UI_Validator_Register_ZoneInfo_InvalidFormat" xml:space="preserve">
     <value>Il campo 'Fuso orario' ha un formato non valido.</value>
   </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Il campo 'Conferma password' è obbligatorio.</value>
+  </data>
+  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>La conferma della password non corrisponde alla password.</value>
+  </data>
   <data name="AuthMethod_RecoveryCode_DisplayName" xml:space="preserve">
     <value>Verifica con codice di recupero</value>
   </data>
@@ -506,23 +524,5 @@
   </data>
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>Hai superato il numero massimo di tentativi non riusciti.</value>
-  </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Il campo 'Conferma password' è obbligatorio.</value>
-  </data>
-  <data name="UI_Validator_Register_PasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>La conferma della password non corrisponde alla password.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Il campo 'Conferma password' è obbligatorio.</value>
-  </data>
-  <data name="UI_Validator_ChangePassword_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>La conferma della password non corrisponde alla password.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
-    <value>Il campo 'Conferma password' è obbligatorio.</value>
-  </data>
-  <data name="UI_Validator_ForgotPasswordConfirmation_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
-    <value>La conferma della password non corrisponde alla password.</value>
   </data>
 </root>

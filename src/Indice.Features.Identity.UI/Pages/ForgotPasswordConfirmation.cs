@@ -47,7 +47,7 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string email, [FromQuery] string token, [FromQuery] string returnUrl) {
         Input.Email = email;
         Input.Token = token;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         if (!string.IsNullOrWhiteSpace(email)) {
             var user = await UserManager.FindByEmailAsync(email);
             if (user is not null) {

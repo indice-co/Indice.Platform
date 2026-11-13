@@ -44,14 +44,11 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var alert = user.PhoneNumberConfirmed
-            ? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
-            : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
-        TempData.Put(TempDataKey, AlertModel.Info(alert));
+        TempData.Remove(TempDataKey);
         Input = View = new EnableMfaSmsViewModel {
             PhoneNumber = user.PhoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-            ReturnUrl = returnUrl
+            ReturnUrl = SanitizeReturnUrl(returnUrl)
         };
         return Page();
     }
@@ -61,6 +58,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        TempData.Remove(TempDataKey);
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         IdentityResult result;
         if (!user.PhoneNumberConfirmed) {
@@ -82,9 +80,9 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
             return Page();
         }
         
-        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddPhoneSuccessMessage));
-        View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-        return Page();
+        TempData.Remove(TempDataKey);
+        TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(Core.Models.AuthenticationMethodType.PhoneNumber, user.PhoneNumber, Input.ReturnUrl ?? returnUrl));
+        return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
     }
 }
 

@@ -48,13 +48,11 @@ public abstract class BaseAddEmailModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.Email = user.Email;
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = returnUrl = SanitizeReturnUrl(returnUrl);
         if (!UiOptions.ShowAddEmailPrompt) {
             return await OnPostAsync(returnUrl);
         }
-        TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info(UserManager.MessageDescriber.AddEmailValidationEmailEmpty)
-        });
+        TempData.Remove(TempDataKey);
         return Page();
     }
 
@@ -64,11 +62,11 @@ public abstract class BaseAddEmailModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        TempData.Remove(TempDataKey);
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = Input.ReturnUrl;
-        } else {
-            Input.ReturnUrl = returnUrl;
         }
+        Input.ReturnUrl = returnUrl = SanitizeReturnUrl(returnUrl);
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (user.Email?.Equals(Input.Email) == true && user.EmailConfirmed) { 
             return RedirectToPage("/AddEmail", routeValues: new { returnUrl });
@@ -80,6 +78,18 @@ public abstract class BaseAddEmailModel : BasePageModel
                 AddModelErrors(result);
                 return Page();
             }
+        }
+
+        if (UiOptions.EmailConfirmationMethod == EmailConfirmationMethod.Otp) {
+            if (!await SendConfirmationOtpEmail(user)) {
+                TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
+                    Alert = AlertModel.Error(UserManager.MessageDescriber.LimitAttemptsReached),
+                    DisableForm = true,
+                    NextStepUrl = Url.PageLink("/AddEmail", values: new { returnUrl })
+                });
+                return Page();
+            }
+            return RedirectToPage("/VerifyEmail", new { returnUrl });
         }
 
         if (!await SendConfirmationEmail(user, returnUrl)) {
@@ -96,6 +106,22 @@ public abstract class BaseAddEmailModel : BasePageModel
             NextStepUrl = Url.PageLink("/AddEmail", values: new { returnUrl })
         });
         return Page();
+    }
+
+    /// <summary>Returns whether the user's email has been confirmed through the link sent to it. Used for polling when <see cref="EmailConfirmationMethod.Link"/> is configured.</summary>
+    /// <param name="returnUrl">The return URL.</param>
+    public virtual async Task<IActionResult> OnGetEmailStatusAsync([FromQuery] string? returnUrl) {
+        if (UiOptions.EmailConfirmationMethod != EmailConfirmationMethod.Link) {
+            return BadRequest();
+        }
+        Response.Headers.CacheControl = "no-store";
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (!user.EmailConfirmed) {
+            return new JsonResult(new { confirmed = false });
+        }
+        returnUrl = SanitizeReturnUrl(returnUrl);
+        TempData.Remove(TempDataKey);
+        return new JsonResult(new { confirmed = true, redirectUrl = Url.Page("/AddEmail", new { returnUrl }) });
     }
 }
 

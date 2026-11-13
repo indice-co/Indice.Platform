@@ -39,7 +39,6 @@ A comprehensive **Razor Class Library** that provides a complete, production-rea
 
 ### UI Framework Support
 - **Bootstrap 5** - Complete responsive UI components
-- **Tailwind CSS** - Modern utility-first styling
 - **Customizable Themes** - Easy branding and customization
 
 ### Additional Features
@@ -97,7 +96,7 @@ services.AddIdentityUI(options =>
     options.HomePageSlogan = "Welcome to the {0} Digital Services <strong>Portal</strong>";
     options.AvatarColorHex = "1abc9c";
     options.EmailLinkColorHex = "1abc9c";
-    options.HtmlBodyBackgroundCssClass = "gradient-bg";
+    options.Theme = IdentityUIThemes.Split;          // visual theme (data-theme on <html>)
     
     // Feature Toggles
     options.EnableLocalLogin = true;
@@ -116,7 +115,9 @@ services.AddIdentityUI(options =>
     options.RememberMeLoginDuration = TimeSpan.FromDays(30);
     options.ShowLogoutPrompt = true;
     options.AutomaticRedirectAfterSignOut = false;
-    
+    // How long a passed MFA challenge before changing email, phone or username lasts (see "Profile MFA challenge").
+    options.ProfileMfaChallengeLifetime = TimeSpan.FromMinutes(5);
+
     // Custom URLs
     options.TermsUrl = "https://example.com/terms";
     options.PrivacyUrl = "https://example.com/privacy";
@@ -142,20 +143,61 @@ services.AddIdentityUI(options =>
 
 ## 🎨 Customization
 
-### Theme Selection
+### UI framework
 
-The library supports multiple UI frameworks. Choose your preferred theme by organizing your views:
+The package ships one page tree, `Pages/Bootstrap5`. The host picks the UI framework with the
+`IdentityUIFrameworkVersion` MSBuild property (default `Bootstrap5`; any other value fails at startup). The Tailwind
+page tree was removed in the next major release.
 
-```
-Pages/
-├── Bootstrap5/          # Bootstrap 5 theme (default)
-│   ├── Login.cshtml
-│   ├── Register.cshtml
-│   └── ...
-├── Tailwind/           # Tailwind CSS theme
-│   ├── Login.cshtml
-│   ├── Register.cshtml
-│   └── ...
+Each framework is a page tree under `Pages/{Framework}/` and a stylesheet folder under `wwwroot/css/{framework}/`.
+The `{Framework}` folder (and the page group folders `Profile`, `Legal` and `Verification`) is removed from the view
+path at startup, so all frameworks share the page models in `Pages/*.cs`, the page names and the host override paths.
+To add a framework, add its value to the internal `UIFramework` enum and its page tree; Vite compiles every
+`wwwroot/css/**/*.scss` entry file that does not start with `_`.
+
+
+### Page groups and layouts (Bootstrap5)
+
+The Bootstrap5 pages are grouped in folders, and every page sets its group's layout, which nests in
+`Shared/_IdentityLayout.cshtml` (document, header, footer). The group folder only organises the source: it is removed
+from the view path like the framework folder, so `/Pages/Bootstrap5/Auth/Login.cshtml` is still the page `/Login`
+(same routes, `RedirectToPage` names and host overrides).
+
+| Folder | Layout | Shell (`<body>` class) | Pages |
+|---|---|---|---|
+| `Auth/` | `_AuthLayout` | `card` (one centered `.auth-card`); `auth` (hero aside + form) on Login, Register | Sign in/up, MFA and onboarding, verification, forgot password, consent, external login, logout, errors |
+| `Profile/` | `_ProfileLayout` | `profile` (image header band, `_ProfileNav` sidebar, `.data-card` stack) | Profile, Change/Add password, Grants |
+| `Home/` | `_HomeLayout` | `card` | Home |
+| `Article/` | `_ArticleLayout` | `article` (wide `.article-card` with rendered markdown) | Terms, Privacy, Accept terms |
+
+The group layouts pass the page's optional `meta`, `css`, `hero` and `scripts` sections through to `_IdentityLayout`.
+A host can replace a group layout by shipping e.g. `Pages/Shared/_AuthLayout.cshtml`, or the outer frame with
+`Pages/Shared/_IdentityLayout.cshtml`. Pages that set no group layout (host pages, the `Redirect` view) get the `card` shell.
+
+### Styling
+
+- Each UI framework has its own stylesheet folder. Bootstrap5 uses `wwwroot/css/bootstrap5/` (`bootstrap.bs.scss` +
+  `identity.bs.scss` → `bootstrap.bs.css` + `identity.bs.css`). The paths below are relative to `wwwroot/css/bootstrap5/`.
+- Design tokens live in `abstracts/_tokens.scss` (colours, fluid type scale, spacing, radii, shadows,
+  layout widths). They are mapped onto Bootstrap's Sass variables in `bootstrap.bs.scss` and exposed as
+  `--idui-*` custom properties for runtime tweaks.
+- Custom components use BEM (`.auth-card__title`, `.field__error`, `.provider-btn--microsoft`, …) and live in
+  `components/`. Themes live in `themes/` (values only), the layout engine and shells in `layouts/`.
+- Stylesheets are compiled by Vite (`npm run build`, also run by `dotnet build`); the compiled
+  `wwwroot/css/**/*.css` files are committed.
+- Hosts override styles by shipping `wwwroot/css/bootstrap5/identity.bs.css` (replaces the stylesheet) or by adding rules to a
+  `wwwroot/css/bootstrap5/_custom.scss` that the package imports last when the SCSS imports feature is enabled.
+- The hero image is `wwwroot/img/hero.jpg`; ship a file at the same path to replace it, or set
+  `--idui-hero-image` on `:root` / `[data-theme]`.
+
+A typical form field:
+
+```html
+<div class="field">
+    <label asp-for="Input.Email" class="field__label">Email <span class="field__required" aria-hidden="true">*</span></label>
+    <input class="form-control field__control" asp-for="Input.Email" aria-describedby="Input_Email-error" />
+    <span asp-validation-for="Input.Email" class="field__error" id="Input_Email-error"></span>
+</div>
 ```
 
 ### Overriding Static Assets
@@ -165,18 +207,42 @@ You can override any static asset by placing a file with the same path in your h
 ```
 wwwroot/
 ├── css/
-│   └── bootstrap.css    # Overrides library's bootstrap.css
+│   └── bootstrap5/
+│       └── identity.bs.css   # Overrides the library's Bootstrap5 identity stylesheet
 ├── js/
 │   └── app.js       # Additional JavaScript
 └── images/
     └── logo.png        # Custom logo
 ```
 
+### Upgrading to 8.58
+
+8.58.0 moved the stylesheets into one folder per UI framework. The compiled CSS is unchanged; only the paths moved.
+
+| Before | Now |
+|---|---|
+| `wwwroot/css/bootstrap.css` | `wwwroot/css/bootstrap5/bootstrap.bs.css` |
+| `wwwroot/css/identity.css` | `wwwroot/css/bootstrap5/identity.bs.css` |
+| `wwwroot/css/identity.tw.css` | `wwwroot/css/tailwind/identity.tw.css` |
+| `wwwroot/css/_custom.scss` | `wwwroot/css/bootstrap5/_custom.scss` |
+
+Check your host for:
+
+- **Overridden stylesheets**: a file at one of the old paths in your `wwwroot` is still served but no longer linked,
+  so it silently stops applying. Move it to the new path.
+- **Direct links**: layouts or partials copied from the package, a custom `_Styles` partial, or other apps that
+  link the IdP stylesheets get a 404 until the `href` is updated.
+- **SCSS**: a `_custom.scss` must move to `wwwroot/css/bootstrap5/`. Builds that compile or `@use` the package's
+  SCSS sources must use the new entry files (`bootstrap5/*.bs.scss`; 8.58 also had `tailwind/identity.tw.scss`, since removed).
+
+Hosts that use the package pages and layouts without overriding stylesheets need no changes. The Bootstrap5 variant
+was also redesigned in 8.58.0 (new markup and class names); see the CHANGELOG for those breaking changes.
+
 ### Custom Page Templates
 
 Override specific pages by creating them in your host application:
 
-1. On the same path as in the library but ommiting the `UIFramework` folder `/Pages/Bootstrap5/Login` will become `/Pages/Login`.
+1. On the same path as in the library but ommiting the `UIFramework` folder and, for Bootstrap5, the page group folder: `/Pages/Bootstrap5/Auth/Login` will become `/Pages/Login`.
 ```
 Pages/
 ├── Login.cshtml     # Custom login page
@@ -212,8 +278,7 @@ Pages/
 Indice.Features.Identity.UI/
 ├── Models/      # View models and input models
 ├── Pages/              # Razor pages organized by theme
-│   ├── Bootstrap5/         # Bootstrap 5 theme
-│   ├── Tailwind/          # Tailwind CSS theme
+│   ├── Bootstrap5/         # Bootstrap 5 theme: Auth/, Profile/, Home/, Article/ page groups + Shared/ layouts and partials
 │   └── Shared/         # Shared layouts and components
 ├── Validators/  # FluentValidation validators
 ├── ViewComponents/     # Reusable view components
@@ -247,7 +312,6 @@ Indice.Features.Identity.UI/
 | Bootstrap | 5.3.6 | UI framework |
 | jQuery | 3.7.1 | JavaScript functionality |
 | Font Awesome | 6.7.2 | Icons |
-| Tailwind CSS | 3.4.17 | Utility-first CSS framework |
 
 ## 🌐 Available Pages
 
@@ -269,6 +333,18 @@ Indice.Features.Identity.UI/
 - `/AddEmail` - Add additional email address
 - `/AddPhone` - Add phone number
 - `/VerifyPhone` - Phone number verification
+
+#### Profile MFA challenge
+When a user with MFA enabled changes their email (`/ChangeEmail`, `/manage/email`), phone number (`/ChangePhone`,
+`/manage/phone`) or username (`/ChangeUserName`, `/manage/username`), an inline modal first asks for a code from one of
+the user's code-based MFA methods (SMS, Viber, email or authenticator app). Another method can be picked only when
+`AllowDowngradeAuthenticationMethod` is enabled, as on `/Mfa`. A passed check is kept in a short-lived cookie
+(`.mfachallenge`) bound to the user and the login session, lasts `ProfileMfaChallengeLifetime` (5 minutes) and covers
+email, phone and username. Wrong codes count towards lockout. Users with MFA
+but no code-based method are blocked; users without MFA are not affected. Requests are limited by the
+`manage/mfa-challenge` rate limiter policy. Replace `IProfileMfaChallengeService` to customise the rules. Page overrides must
+render `<partial name="_ProfileMfaChallenge" model="Model.MfaChallenge" />`. The username page is unavailable when
+`DisableEmailEdit` is set or the email is used as the username (`IdentityOptions:User:EmailAsUserName`).
 
 ### Multi-Factor Authentication
 - `/Mfa` - MFA challenge page

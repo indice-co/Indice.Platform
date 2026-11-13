@@ -41,6 +41,7 @@ public static class IdentityBuilderUIExtensions
             options.AvatarColorHex = configuredOptions.AvatarColorHex;
             options.OnBoardingPage = configuredOptions.OnBoardingPage;
             options.ContactUsUrl = configuredOptions.ContactUsUrl;
+            options.FooterLinks = configuredOptions.FooterLinks;
             options.CopyYear = configuredOptions.CopyYear;
             options.EmailLinkColorHex = configuredOptions.EmailLinkColorHex;
             options.EnableForgotPasswordPage = configuredOptions.EnableForgotPasswordPage;
@@ -49,9 +50,12 @@ public static class IdentityBuilderUIExtensions
             var extraHomePageLinks = configuredOptions.HomepageLinks.Where(h => !options.HomepageLinks.Select(x => x.DisplayName).Contains(h.DisplayName));
             options.DisableEmailEdit = configuredOptions.DisableEmailEdit;
             options.DisablePhoneEdit = configuredOptions.DisablePhoneEdit;
+            options.ProfileMfaChallengeLifetime = configuredOptions.ProfileMfaChallengeLifetime;
             options.HomepageLinks.AddRange(extraHomePageLinks);
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
+            options.Theme = configuredOptions.Theme;
+            options.ShowMadeByCredit = configuredOptions.ShowMadeByCredit;
             options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
             options.PrivacyUrlResolver = configuredOptions.PrivacyUrlResolver;
             options.TermsUrlResolver = configuredOptions.TermsUrlResolver;
@@ -60,6 +64,7 @@ public static class IdentityBuilderUIExtensions
             options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
             options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
             options.EnablePasswordConfirmation = configuredOptions.EnablePasswordConfirmation;
+            options.EmailConfirmationMethod = configuredOptions.EmailConfirmationMethod;
             options.Events = configuredOptions.Events;
             options.EnablePhoneNumberCallingCodes = configuredOptions.EnablePhoneNumberCallingCodes;
             foreach (var url in configuredOptions.ValidReturnUrls) {
@@ -112,6 +117,21 @@ public static class IdentityBuilderUIExtensions
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
         services.TryAddScoped<IdentityUILocalizer>();
+        // Profile MFA challenge (before changing email or phone number).
+        services.AddHttpContextAccessor();
+        services.TryAddSingleton(TimeProvider.System);
+        services.TryAddScoped<IProfileMfaChallengeService, ProfileMfaChallengeService>();
+        services.AddAuthentication().AddCookie(ExtendedIdentityConstants.ProfileMfaChallengeScheme, options => {
+            options.Cookie.Name = ExtendedIdentityConstants.ProfileMfaChallengeCookieName;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.IsEssential = true;
+            options.ExpireTimeSpan = configuredOptions.ProfileMfaChallengeLifetime;
+            options.SlidingExpiration = false;
+            options.LoginPath = new PathString("/login");
+            options.AccessDeniedPath = new PathString("/403");
+        });
         // Add reCAPTCHA service with options pattern
         services.AddRecaptcha(configuration);
         return services;
@@ -157,8 +177,12 @@ public static class IdentityBuilderUIExtensions
         return true;
     }
 
+    /// <summary>Keeps only the views of the selected UI framework and removes the <c>Pages/{Framework}/</c> folder from their path.</summary>
     internal sealed class ViewVersionFeatureProvider : IApplicationFeatureProvider<ViewsFeature>
     {
+        // Pages may be grouped in these folders for source organisation only. The folder is removed from the view path so that
+        // page names (RedirectToPage("/Login")), host overrides (Pages/Login.cshtml) and route ordering stay the same as a flat tree.
+        private static readonly string[] PageGroups = ["Profile", "Legal", "Verification"];
         private readonly UIFramework _framework;
 
         public ViewVersionFeatureProvider(UIFramework framework) => _framework = framework;
@@ -166,32 +190,21 @@ public static class IdentityBuilderUIExtensions
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ViewsFeature feature) {
             var viewsToRemove = new List<CompiledViewDescriptor>();
             foreach (var descriptor in feature.ViewDescriptors) {
-                if (IsIdentityUIView(descriptor)) {
-                    switch (_framework) {
-                        case UIFramework.Bootstrap4:
-                        case UIFramework.Bootstrap5:
-                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Tailwind), StringComparison.Ordinal) is true ||
-                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true) {
-                                // Remove V5 views
-                                viewsToRemove.Add(descriptor);
-                            } else {
-                                // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", "");
-                            }
-                            break;
-                        case UIFramework.Tailwind:
-                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true ||
-                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is true) {
-                                // Remove V4 views
-                                viewsToRemove.Add(descriptor);
-                            } else {
-                                // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Tailwind)}/", "");
-                            }
-                            break;
-                        default:
-                            throw new InvalidOperationException($"Unknown framework: {_framework}");
-                    }
+                if (!IsIdentityUIView(descriptor)) {
+                    continue;
+                }
+                switch (_framework) {
+                    case UIFramework.Bootstrap5:
+                        if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is false) {
+                            // Remove other views
+                            viewsToRemove.Add(descriptor);
+                        } else {
+                            // Fix up paths to eliminate version subdir and page group subdir (/Pages/Bootstrap5/Auth/Login.cshtml -> /Pages/Login.cshtml).
+                            descriptor.RelativePath = StripPageGroup(descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", ""));
+                        }
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unknown framework: {_framework}");
                 }
             }
 
@@ -200,10 +213,16 @@ public static class IdentityBuilderUIExtensions
             }
         }
 
-        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase) ||
-                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap4)}", StringComparison.OrdinalIgnoreCase) ||
-                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Tailwind)}", StringComparison.OrdinalIgnoreCase))
-                                                                              &&
+        private static string StripPageGroup(string relativePath) {
+            foreach (var prefix in PageGroups.Select(group => $"/Pages/{group}/")) {
+                if (relativePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) {
+                    return string.Concat("/Pages/", relativePath.AsSpan(prefix.Length));
+                }
+            }
+            return relativePath;
+        }
+
+        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase)) &&
             desc.Type?.Assembly == typeof(IdentityBuilderUIExtensions).Assembly;
     }
 }

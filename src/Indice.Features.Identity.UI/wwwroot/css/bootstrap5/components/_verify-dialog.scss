@@ -1,0 +1,141 @@
+@use '../abstracts/tokens' as t;
+
+// Identity verification dialog shown over a page (e.g. change email confirmation).
+.verify-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: t.$space-4;
+    background: rgba(15, 60, 70, .3);
+    backdrop-filter: blur(6px);
+
+    &__box {
+        position: relative;
+        width: 100%;
+        max-width: 28rem;
+        padding: 2rem;
+        border-radius: var(--idui-radius);
+        background: var(--idui-color-surface);
+        color: var(--idui-color-text);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, .15);
+    }
+
+    &__close {
+        position: absolute;
+        top: t.$space-3;
+        right: t.$space-3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border: 0;
+        border-radius: 50%;
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-ink);
+        text-decoration: none;
+    }
+
+    &__title {
+        margin: 0 0 t.$space-2;
+        font-size: t.$font-size-lg;
+        font-weight: t.$font-weight-medium;
+    }
+
+    &__text {
+        margin: 0 0 t.$space-4;
+        font-size: t.$font-size-sm;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: t.$space-4;
+    }
+
+    .otp-field {
+        justify-content: space-between;
+    }
+
+    .otp-field__cell {
+        flex: 1 1 0;
+        max-width: none;
+        height: 3.5rem;
+        font-size: 1.25rem;
+    }
+
+    .otp-field__resend {
+        margin: t.$space-2 0 0;
+        text-align: left;
+        font-size: .75rem;
+    }
+}
+
+// MFA challenge before changing email or phone number. Extends the verify dialog.
+.mfa-challenge {
+    &__method {
+        display: flex;
+        align-items: center;
+        gap: t.$space-3;
+        margin: 0 0 t.$space-4;
+        padding: t.$space-3 t.$space-4;
+        border: 1px solid var(--idui-color-border);
+        border-radius: var(--idui-radius);
+        background: var(--idui-color-surface-muted);
+    }
+
+    &__method-icon {
+        width: 1.25rem;
+        text-align: center;
+        color: var(--idui-color-brand);
+    }
+
+    &__method-name {
+        font-weight: t.$font-weight-medium;
+    }
+
+    &__hint {
+        margin: 0 0 t.$space-3;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+    }
+
+    &__blocked {
+        color: var(--idui-color-danger);
+    }
+
+    &__cancel {
+        margin-right: t.$space-2;
+        color: var(--idui-color-ink);
+        text-decoration: underline;
+    }
+
+    &__alternatives {
+        margin-top: t.$space-5;
+        padding-top: t.$space-4;
+        border-top: 1px solid var(--idui-color-border);
+    }
+
+    &__alternatives-title {
+        margin: 0 0 t.$space-2;
+        font-size: t.$font-size-sm;
+        font-weight: t.$font-weight-medium;
+    }
+}
+
+// Back link and consent used on the change email page.
+.data-card__back {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-bottom: t.$space-4;
+    color: var(--idui-color-ink);
+    text-decoration: none;
+}
