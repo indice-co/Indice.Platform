@@ -257,6 +257,7 @@
         border-radius: t.$radius-sm;
         background: var(--idui-color-surface-muted);
         color: var(--idui-color-ink);
+        text-decoration: none;
         cursor: pointer;
 
         &:hover,

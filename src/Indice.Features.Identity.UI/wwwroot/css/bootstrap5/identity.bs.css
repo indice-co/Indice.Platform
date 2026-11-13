@@ -1812,6 +1812,7 @@ body {
   border-radius: 0.5rem;
   background: var(--idui-color-surface-muted);
   color: var(--idui-color-ink);
+  text-decoration: none;
   cursor: pointer;
 }
 .account-row__toggle:hover, .account-row__toggle:focus-visible {
