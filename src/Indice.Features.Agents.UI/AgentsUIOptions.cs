@@ -10,21 +10,11 @@ public class AgentsUIOptions : SpaUIOptions
     /// <summary> The html application language.</summary>
     public string? Lang { get; set; }
 
-    /// <summary>
-    /// The name of the visual theme to apply. Selects the colour palette as well as the logo and favicon. 
-    /// Built-in and default theme is <b>dex</b>.
-    /// </summary>
+    /// <summary>The name of the visual theme to apply. Selects the colour palette as well as the logo and favicon. Built-in themes are <b>dex</b>, <b>kosmocar</b>, <b>sfakianakis</b> and <b>papadopoulos</b>. Defaults to <b>dex</b>.</summary>
     public string? Theme { get; set; }
 
     /// <summary>The display name of the assistant, shown wherever the UI names it (brand, greetings, input placeholder, browser tab). Defaults to <b>Dex</b>.</summary>
     public string? AssistantName { get; set; }
-
-    /// <summary>
-    /// Origins (scheme, host and port — e.g. <c>https://portal.example.com</c>) of the sites allowed to frame the UI, which is what
-    /// embedding the chat widget (<c>widget.js</c>) on their pages does. Sent as the <c>Content-Security-Policy: frame-ancestors</c> of
-    /// the app's page. When empty, only the UI's own origin may frame it.
-    /// </summary>
-    public ICollection<string> FrameAncestors { get; set; } = [];
 
     /// <summary>Creates a new instance <see cref="AgentsUIOptions"/>.</summary>
     public AgentsUIOptions() {
@@ -40,9 +30,9 @@ public class AgentsUIOptions : SpaUIOptions
             if (DocumentTitle == DefaultAgentName) {
                 args[$"%({nameof(DocumentTitle)})"] = System.Net.WebUtility.HtmlEncode(assistantName);
             }
-var theme = string.IsNullOrWhiteSpace(Theme) ? "dex" : Theme.Trim().ToLowerInvariant();
-theme = System.Text.RegularExpressions.Regex.Replace(theme, "[^a-z0-9_-]", string.Empty);
-args[$"%({nameof(Theme)})"] = string.IsNullOrEmpty(theme) ? "dex" : theme;
+            var theme = string.IsNullOrWhiteSpace(Theme) ? "dex" : Theme.Trim().ToLowerInvariant();
+            theme = System.Text.RegularExpressions.Regex.Replace(theme, "[^a-z0-9_-]", string.Empty);
+            args[$"%({nameof(Theme)})"] = string.IsNullOrEmpty(theme) ? "dex" : theme;
         };
     }
 }
