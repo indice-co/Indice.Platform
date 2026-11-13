@@ -21,7 +21,28 @@ public class SmsUpWebhookHttpHandlerTests {
         Assert.Single(result.Events);
         Assert.Equal("123456", result.Events[0].MessageId);
         Assert.Equal("+306900000002", result.Events[0].Recipient);
-        Assert.Equal("Status:delivered", result.Events[0].EventType);
+        Assert.Equal("Status:DELIVRD", result.Events[0].EventType);
+        Assert.True(result.Events[0].Succeeded);
+    }
+
+    [Theory]
+    [InlineData("DELIVRD", true)]
+    [InlineData("ACCEPTD", false)]
+    [InlineData("EXPIRED", false)]
+    [InlineData("DELETED", false)]
+    [InlineData("UNDELIV", false)]
+    [InlineData("UNKNOWN", false)]
+    [InlineData("REJECTD", false)]
+    public async Task DocumentedStatuses_AreParsed_WithCorrectSuccessState(string status, bool succeeded) {
+        var parameters = CreateBaseParameters();
+        parameters["status"] = status;
+
+        var result = await ParseAsync(parameters);
+
+        Assert.True(result.Success);
+        var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal($"Status:{status}", webhookEvent.EventType);
+        Assert.Equal(succeeded, webhookEvent.Succeeded);
     }
 
     [Fact]
@@ -92,7 +113,7 @@ public class SmsUpWebhookHttpHandlerTests {
 
     private static Dictionary<string, StringValues> CreateBaseParameters() => new(StringComparer.OrdinalIgnoreCase) {
         ["sms_id"] = "123456",
-        ["status"] = "delivered",
+        ["status"] = "DELIVRD",
         ["from"] = "+306900000001",
         ["to"] = "+306900000002",
         ["timestamp"] = "1715871124"

@@ -656,7 +656,7 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
             Subject = GetJsonValueAsString(webhookData, "campaign_reference"),
             Timestamp = timestamp,
             Payload = JsonNode.Parse(root.GetRawText()),
-            Succeeded = EventSucceeded(interaction ?? webhookType ?? "Interaction"),
+            Succeeded = InteractionSucceeded(interaction),
             Channel = WebhookChannel.Sms
         };
 
@@ -666,6 +666,11 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
     private static bool EventSucceeded(string eventType) {
         return SucceededStatuses.Contains(eventType);
     }
+
+    private static bool InteractionSucceeded(string? interaction) {
+        return !string.IsNullOrWhiteSpace(interaction);
+    }
+
     private static string? GetJsonValueAsString(JsonElement json, string propertyName) {
         if (!json.TryGetProperty(propertyName, out var property)) {
             return null;

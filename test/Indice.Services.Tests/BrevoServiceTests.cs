@@ -143,6 +143,44 @@ public class BrevoServiceTests
     }
 
     [Theory]
+    [InlineData("sent", BrevoEventType.Sent, true)]
+    [InlineData("hardBounce", BrevoEventType.HardBounce, false)]
+    [InlineData("softBounce", BrevoEventType.SoftBounce, false)]
+    [InlineData("blocked", BrevoEventType.Blocked, false)]
+    [InlineData("spam", BrevoEventType.Spam, false)]
+    [InlineData("delivered", BrevoEventType.Delivered, true)]
+    [InlineData("request", BrevoEventType.Request, true)]
+    [InlineData("click", BrevoEventType.Click, true)]
+    [InlineData("invalid", BrevoEventType.Invalid, false)]
+    [InlineData("deferred", BrevoEventType.Deferred, true)]
+    [InlineData("opened", BrevoEventType.Opened, true)]
+    [InlineData("uniqueOpened", BrevoEventType.UniqueOpened, true)]
+    [InlineData("unsubscribed", BrevoEventType.Unsubscribed, true)]
+    [InlineData("listAddition", BrevoEventType.ListAddition, false)]
+    [InlineData("contactUpdated", BrevoEventType.ContactUpdated, false)]
+    [InlineData("contactDeleted", BrevoEventType.ContactDeleted, false)]
+    [InlineData("inboundEmailProcessed", BrevoEventType.InboundEmailProcessed, false)]
+    [InlineData("reply", BrevoEventType.Reply, false)]
+    public async Task WebhookHandler_Parses_BrevoEventTypes(string eventType, BrevoEventType expectedType, bool expectedSucceeded) {
+        var settings = Options.Create(new EmailServiceBrevoSettings());
+        var handler = new BrevoWebhookHttpHandler(settings);
+        var payload = $"{{\"uuid\":\"message-id\",\"event\":\"{eventType}\"}}";
+        using var body = new MemoryStream(Encoding.UTF8.GetBytes(payload));
+
+        var result = await handler.ParseAsync(
+            new Dictionary<string, StringValues>(),
+            Enumerable.Empty<KeyValuePair<string, StringValues>>(),
+            body,
+            CancellationToken.None);
+
+        Assert.True(result.Success);
+        var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal(eventType, webhookEvent.EventType);
+        Assert.Equal(expectedType, Enum.Parse<BrevoEventType>(eventType, ignoreCase: true));
+        Assert.Equal(expectedSucceeded, webhookEvent.Succeeded);
+    }
+
+    [Theory]
     [InlineData("Basic dXNlcjp3cm9uZw==")]       // user:wrong
     [InlineData("Basic d3Jvbmc6cGFzcw==")]       // wrong:pass
     [InlineData("Basic dXNlcjpwYXNzWA==")]       // user:passX

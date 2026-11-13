@@ -194,8 +194,7 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler
     private readonly SmsServiceSmsUpSettings _settings;
     private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
         "Status:DELIVRD",
-        "Status:ACCEPTD",
-        "Status:UNKNOWN"
+        "Status:ACCEPTD"
     };
 
     /// <inheritdoc/>

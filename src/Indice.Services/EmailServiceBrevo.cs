@@ -93,20 +93,60 @@ public class EmailServiceBrevo : IEmailService
     }
 }
 
+/// <summary>Brevo email webhook event types.</summary>
+public enum BrevoEventType
+{
+    /// <summary>Brevo reports that the email was sent.</summary>
+    Sent,
+    /// <summary>The recipient's mail server permanently rejected the email.</summary>
+    HardBounce,
+    /// <summary>The recipient's mail server temporarily rejected the email.</summary>
+    SoftBounce,
+    /// <summary>Brevo or the recipient's mail server blocked the email.</summary>
+    Blocked,
+    /// <summary>The recipient marked the email as spam.</summary>
+    Spam,
+    /// <summary>The email was delivered to the recipient's mail server.</summary>
+    Delivered,
+    /// <summary>Brevo received a request to send the email.</summary>
+    Request,
+    /// <summary>The recipient clicked a link in the email.</summary>
+    Click,
+    /// <summary>The recipient's email address is invalid.</summary>
+    Invalid,
+    /// <summary>The email delivery was temporarily deferred.</summary>
+    Deferred,
+    /// <summary>The recipient opened the email.</summary>
+    Opened,
+    /// <summary>The recipient opened the email for the first time.</summary>
+    UniqueOpened,
+    /// <summary>The recipient unsubscribed.</summary>
+    Unsubscribed,
+    /// <summary>A contact was added to a list.</summary>
+    ListAddition,
+    /// <summary>A contact was updated.</summary>
+    ContactUpdated,
+    /// <summary>A contact was deleted.</summary>
+    ContactDeleted,
+    /// <summary>An inbound email was processed.</summary>
+    InboundEmailProcessed,
+    /// <summary>A reply to the email was received.</summary>
+    Reply
+}
+
 /// <inheritdoc/>
 public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> options) : IWebhookHttpHandler
 {
     private readonly EmailServiceBrevoSettings _options = options.Value;
     private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
-        "Sent",
-        "Clicked",
-        "Deferred",
-        "Delivered",
-        "First Opening",
-        "Opened",
-        "Unsubscribed",
-        "Proxy Open",
-        "Unique Proxy Open"
+        "sent",
+        "request",
+        "click",
+        "deferred",
+        "delivered",
+        "opened",
+        "uniqueOpened",
+        "unsubscribed"
     };
 
     /// <inheritdoc/>
