@@ -39,7 +39,6 @@ A comprehensive **Razor Class Library** that provides a complete, production-rea
 
 ### UI Framework Support
 - **Bootstrap 5** - Complete responsive UI components
-- **Tailwind CSS** - Modern utility-first styling
 - **Customizable Themes** - Easy branding and customization
 
 ### Additional Features
@@ -146,8 +145,15 @@ services.AddIdentityUI(options =>
 
 ### UI framework
 
-Two page trees ship in the package: `Pages/Bootstrap5` (default) and `Pages/Tailwind`. The host picks one with
-the `IdentityUIFrameworkVersion` MSBuild property (`Bootstrap5` or `Tailwind`).
+The package ships one page tree, `Pages/Bootstrap5`. The host picks the UI framework with the
+`IdentityUIFrameworkVersion` MSBuild property (default `Bootstrap5`; any other value fails at startup). The Tailwind
+page tree was removed in the next major release.
+
+Each framework is a page tree under `Pages/{Framework}/` and a stylesheet folder under `wwwroot/css/{framework}/`.
+The `{Framework}` folder (and the page group folders `Profile`, `Legal` and `Verification`) is removed from the view
+path at startup, so all frameworks share the page models in `Pages/*.cs`, the page names and the host override paths.
+To add a framework, add its value to the internal `UIFramework` enum and its page tree; Vite compiles every
+`wwwroot/css/**/*.scss` entry file that does not start with `_`.
 
 
 ### Page groups and layouts (Bootstrap5)
@@ -170,9 +176,8 @@ A host can replace a group layout by shipping e.g. `Pages/Shared/_AuthLayout.csh
 
 ### Styling
 
-- Each UI framework has its own stylesheet folder: `wwwroot/css/bootstrap5/` (`bootstrap.bs.scss` +
-  `identity.bs.scss` → `bootstrap.bs.css` + `identity.bs.css`) and `wwwroot/css/tailwind/` (`identity.tw.scss` →
-  `identity.tw.css`). Nothing is shared between the two trees. The paths below are relative to `wwwroot/css/bootstrap5/`.
+- Each UI framework has its own stylesheet folder. Bootstrap5 uses `wwwroot/css/bootstrap5/` (`bootstrap.bs.scss` +
+  `identity.bs.scss` → `bootstrap.bs.css` + `identity.bs.css`). The paths below are relative to `wwwroot/css/bootstrap5/`.
 - Design tokens live in `abstracts/_tokens.scss` (colours, fluid type scale, spacing, radii, shadows,
   layout widths). They are mapped onto Bootstrap's Sass variables in `bootstrap.bs.scss` and exposed as
   `--idui-*` custom properties for runtime tweaks.
@@ -228,7 +233,7 @@ Check your host for:
 - **Direct links**: layouts or partials copied from the package, a custom `_Styles` partial, or other apps that
   link the IdP stylesheets get a 404 until the `href` is updated.
 - **SCSS**: a `_custom.scss` must move to `wwwroot/css/bootstrap5/`. Builds that compile or `@use` the package's
-  SCSS sources must use the new entry files (`bootstrap5/*.bs.scss`, `tailwind/identity.tw.scss`).
+  SCSS sources must use the new entry files (`bootstrap5/*.bs.scss`; 8.58 also had `tailwind/identity.tw.scss`, since removed).
 
 Hosts that use the package pages and layouts without overriding stylesheets need no changes. The Bootstrap5 variant
 was also redesigned in 8.58.0 (new markup and class names); see the CHANGELOG for those breaking changes.
@@ -274,7 +279,6 @@ Indice.Features.Identity.UI/
 ├── Models/      # View models and input models
 ├── Pages/              # Razor pages organized by theme
 │   ├── Bootstrap5/         # Bootstrap 5 theme: Auth/, Profile/, Home/, Article/ page groups + Shared/ layouts and partials
-│   ├── Tailwind/          # Tailwind CSS theme
 │   └── Shared/         # Shared layouts and components
 ├── Validators/  # FluentValidation validators
 ├── ViewComponents/     # Reusable view components
@@ -308,7 +312,6 @@ Indice.Features.Identity.UI/
 | Bootstrap | 5.3.6 | UI framework |
 | jQuery | 3.7.1 | JavaScript functionality |
 | Font Awesome | 6.7.2 | Icons |
-| Tailwind CSS | 3.4.17 | Utility-first CSS framework |
 
 ## 🌐 Available Pages
 

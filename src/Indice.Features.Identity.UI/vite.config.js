@@ -3,7 +3,6 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { globSync } from 'glob';
-import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -73,7 +72,6 @@ export default defineConfig({
         },
         postcss: {
             plugins: [
-                tailwindcss,
                 autoprefixer()
             ]
         }
@@ -221,20 +219,6 @@ export default defineConfig({
                 {
                     src: 'node_modules/swiper/swiper-bundle.min.css',
                     dest: 'lib/swiper'
-                },
-                // Copy Flowbite
-                {
-                    src: 'node_modules/flowbite/dist/flowbite.min.js',
-                    dest: 'lib/flowbite/dist',
-                    transform: stripComments
-                },
-                {
-                    src: 'node_modules/flowbite/LICENSE.md',
-                    dest: 'lib/flowbite/dist'
-                },
-                {
-                    src: 'node_modules/flowbite/dist/flowbite.min.css',
-                    dest: 'lib/flowbite/dist'
                 },
                 // Copy qrcodejs2
                 {

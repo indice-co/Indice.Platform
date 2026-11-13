@@ -165,7 +165,8 @@ What a signed-in user can do from your apps, without the back office.
 
 - **Razor Class Library** — every page can be overridden by a file with the same path in the host project; static
   files in the host's `wwwroot` win over the library's.
-- **Two UI frameworks** — `Bootstrap5` or `Tailwind`, chosen with `<IdentityUIFrameworkVersion>` in the `.csproj`.
+- **Bootstrap 5 pages** — the UI framework is selected with `<IdentityUIFrameworkVersion>` in the `.csproj`;
+  `Bootstrap5` is the only one shipped. The Tailwind pages are removed **(next release)**.
 - **Themes** — `Minimal`, `Split` (default), `Columns`, `Panel` or your own, as a set of `--idui-*` CSS variables
   **(next release)**.
 - **Per-client theming** — a client can carry its own theme config, applied to the pages it sends users to
@@ -290,7 +291,7 @@ One grid to take to your team — the capability on the left, the mechanism that
 | Entity-change audit | ✅ `AddActivityLogs` |
 | Self-service account API | ✅ `my/account/*` |
 | Runtime settings in the database | ✅ `api/app-settings` |
-| Bootstrap5 / Tailwind pages, per-client themes | ✅ Razor Class Library + `ClientThemingService` |
+| Bootstrap5 pages, per-client themes | ✅ Razor Class Library + `ClientThemingService` |
 | Embedded admin SPA | ✅ `UseAdminUI` |
 
 ---

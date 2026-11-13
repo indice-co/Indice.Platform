@@ -177,9 +177,10 @@ public static class IdentityBuilderUIExtensions
         return true;
     }
 
+    /// <summary>Keeps only the views of the selected UI framework and removes the <c>Pages/{Framework}/</c> folder from their path.</summary>
     internal sealed class ViewVersionFeatureProvider : IApplicationFeatureProvider<ViewsFeature>
     {
-        // Bootstrap5 pages are grouped in these folders for source organisation only. The folder is removed from the view path so that
+        // Pages may be grouped in these folders for source organisation only. The folder is removed from the view path so that
         // page names (RedirectToPage("/Login")), host overrides (Pages/Login.cshtml) and route ordering stay the same as a flat tree.
         private static readonly string[] PageGroups = ["Profile", "Legal", "Verification"];
         private readonly UIFramework _framework;
@@ -189,32 +190,21 @@ public static class IdentityBuilderUIExtensions
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ViewsFeature feature) {
             var viewsToRemove = new List<CompiledViewDescriptor>();
             foreach (var descriptor in feature.ViewDescriptors) {
-                if (IsIdentityUIView(descriptor)) {
-                    switch (_framework) {
-                        case UIFramework.Bootstrap4:
-                        case UIFramework.Bootstrap5:
-                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Tailwind), StringComparison.Ordinal) is true ||
-                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true) {
-                                // Remove V5 views
-                                viewsToRemove.Add(descriptor);
-                            } else {
-                                // Fix up paths to eliminate version subdir and page group subdir (/Pages/Bootstrap5/Auth/Login.cshtml -> /Pages/Login.cshtml).
-                                descriptor.RelativePath = StripPageGroup(descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", ""));
-                            }
-                            break;
-                        case UIFramework.Tailwind:
-                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true ||
-                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is true) {
-                                // Remove V4 views
-                                viewsToRemove.Add(descriptor);
-                            } else {
-                                // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Tailwind)}/", "");
-                            }
-                            break;
-                        default:
-                            throw new InvalidOperationException($"Unknown framework: {_framework}");
-                    }
+                if (!IsIdentityUIView(descriptor)) {
+                    continue;
+                }
+                switch (_framework) {
+                    case UIFramework.Bootstrap5:
+                        if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is false) {
+                            // Remove other views
+                            viewsToRemove.Add(descriptor);
+                        } else {
+                            // Fix up paths to eliminate version subdir and page group subdir (/Pages/Bootstrap5/Auth/Login.cshtml -> /Pages/Login.cshtml).
+                            descriptor.RelativePath = StripPageGroup(descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", ""));
+                        }
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unknown framework: {_framework}");
                 }
             }
 
@@ -232,10 +222,7 @@ public static class IdentityBuilderUIExtensions
             return relativePath;
         }
 
-        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase) ||
-                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap4)}", StringComparison.OrdinalIgnoreCase) ||
-                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Tailwind)}", StringComparison.OrdinalIgnoreCase))
-                                                                              &&
+        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase)) &&
             desc.Type?.Assembly == typeof(IdentityBuilderUIExtensions).Assembly;
     }
 }

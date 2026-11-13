@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added (profile MFA challenge, breaking)
 - **Profile MFA challenge (SCA):** users with MFA enabled must pass an MFA check before changing their email, phone
   number or username on `/ChangeEmail` (`/manage/email`), `/ChangePhone` (`/manage/phone`) and `/ChangeUserName`
-  (`/manage/username`). The check is an inline modal (Bootstrap5 and Tailwind,
-  partial `Shared/_ProfileMfaChallenge`). It uses the user's code-based methods (SMS, Viber, email, authenticator app).
+  (`/manage/username`). The check is an inline modal (partial `Shared/_ProfileMfaChallenge`). It uses the user's code-based methods (SMS, Viber, email, authenticator app).
   The user can pick another method only when `AllowDowngradeAuthenticationMethod` is enabled, the same rule as `/Mfa`.
   Codes are sent only when the user clicks *Send code*. Push (trusted device), FIDO2 and recovery codes are not
   supported yet. Users with MFA but no code-based method are blocked from changing email, phone and username; users
@@ -41,6 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   handlers return the page with the MFA challenge modal while a check is needed. Hosts that override these pages must render
   `<partial name="_ProfileMfaChallenge" model="Model.MfaChallenge" />` and post the `MfaChallengeSend` / `MfaChallengeSelect` /
   `MfaChallengeVerify` handlers, otherwise the user cannot change email or phone.
+### Removed (Tailwind UI, breaking)
+- **Breaking:** the Tailwind page tree (`Pages/Tailwind`), its stylesheets (`wwwroot/css/tailwind/`), `js/site.tw.js`,
+  `tailwind.config.js` and the `tailwindcss` / `flowbite` build dependencies are removed. `Bootstrap5` is the only UI
+  framework shipped. A host with `<IdentityUIFrameworkVersion>Tailwind</IdentityUIFrameworkVersion>` now fails at
+  startup with an invalid `IdentityUIFrameworkVersion` error; remove the property or set it to `Bootstrap5`.
+  Hosts that override pages must port them to the Bootstrap5 markup.
+- The framework selection (`IdentityUIFrameworkVersion`, `UIFrameworkAttribute`) is kept. The view provider now
+  works for any `Pages/{Framework}/` tree, so a new framework only needs an enum value and its pages.
 ### Known limitations
 - The `/api/my/account/email`, `/api/my/account/phone-number` and `/api/my/account/username` endpoints are not covered
   by the MFA challenge.

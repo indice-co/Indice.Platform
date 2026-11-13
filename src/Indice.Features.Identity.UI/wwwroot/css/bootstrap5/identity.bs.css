@@ -2342,6 +2342,9 @@ body.shell-article .site-main {
     bottom: 0;
     width: var(--idui-hero-column);
   }
+}
+
+@media (min-width: 992px) {
   :root[data-theme=columns] body:not(.shell-profile):has(.site-body > .site-hero) {
     --idui-page-bg: var(--idui-color-surface-muted);
     --idui-header-color: var(--idui-color-on-dark);
@@ -2368,6 +2371,9 @@ body.shell-article .site-main {
     bottom: 0;
     width: var(--idui-hero-column);
   }
+}
+
+@media (min-width: 992px) {
   :root[data-theme=panel] body:not(.shell-profile) {
     --idui-page-bg: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--idui-color-brand-bright), white 12%), var(--idui-color-brand-bright) 45%, color-mix(in srgb, var(--idui-color-brand-bright), black 15%) 100%);
     --idui-header-color: var(--idui-color-on-dark);
