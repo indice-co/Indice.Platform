@@ -50,7 +50,7 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
                 CampaignId = Guid.Empty,
                 ContactId = Guid.Empty,
                 Orphan = true,
-                Title = webhookEvent.Subject ?? webhookEvent.Provider + " " + webhookEvent.EventType,
+                Title = Indice.Extensions.StringExtensions.Truncate(webhookEvent.Subject ?? webhookEvent.Provider + " " + webhookEvent.EventType, Indice.Configuration.TextSizePresets.M128)!,
                 Channel = GetChannel(webhookEvent.Channel),
                 CreatedOn = GetCreatedOn(webhookEvent),
                 Success = webhookEvent.Succeeded,
@@ -76,5 +76,5 @@ public sealed class MessagesWebhookHandler(CampaignsDbContext dbContext, ILogger
     };
 
     private static DateTimeOffset GetCreatedOn(WebhookEvent webhookEvent) =>
-        webhookEvent.Timestamp == default ? DateTimeOffset.UtcNow : webhookEvent.Timestamp;
+        webhookEvent.Timestamp == default ? DateTimeOffset.UtcNow : webhookEvent.Timestamp.ToUniversalTime();
 }

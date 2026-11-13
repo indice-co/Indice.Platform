@@ -589,6 +589,7 @@ public static class IndiceServicesServiceCollectionExtensions
                 break;
             case "apifon":
             case "ApiFon":
+                services.Configure<SmsServiceApifonSettings>(smsSection);
                 builder.AddHttpHandler<ApifonWebhookHttpHandler>(provider);
                 break;
             case "vonage":
@@ -632,6 +633,7 @@ public static class IndiceServicesServiceCollectionExtensions
         var provider = builder.Configuration.GetDefaultEmailProvider();
         switch (provider) {
             case EmailServiceSparkPost.ServiceName:
+                builder.Services.Configure<EmailServiceSparkPostSettings>(builder.Configuration.GetSection(EmailServiceSparkPostSettings.Name));
                 builder.AddHttpHandler<SparkPostWebhookHttpHandler>(provider);
                 break;
             case EmailServiceSendGrid.ServiceName:
@@ -639,6 +641,7 @@ public static class IndiceServicesServiceCollectionExtensions
                 builder.AddHttpHandler<SendGridWebhookHttpHandler>(provider);
                 break;
             case EmailServiceBrevo.ServiceName:
+                builder.Services.Configure<EmailServiceBrevoSettings>(builder.Configuration.GetSection(EmailServiceBrevoSettings.Name));
                 builder.AddHttpHandler<BrevoWebhookHttpHandler>(provider);
                 break;
         }

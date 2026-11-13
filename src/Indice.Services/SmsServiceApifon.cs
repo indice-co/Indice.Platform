@@ -216,7 +216,7 @@ public sealed class ApifonWebhookHttpHandler : IWebhookHttpHandler
     }
 
     private static bool EventSucceeded(ApifonWebhookItem item) {
-        return SucceededStatusCodes.Contains(item.Status.Code);
+        return item.Status is not null && SucceededStatusCodes.Contains(item.Status.Code);
     }
 }
 
