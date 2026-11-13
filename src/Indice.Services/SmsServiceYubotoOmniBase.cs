@@ -434,13 +434,11 @@ public class SmsServiceYubotoOmniSettings : SmsServiceSettings
 public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
     private readonly SmsServiceYubotoOmniSettings _settings;
     private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
-        "Sent",
-        "Pending",
-        "Submitted",
-        "Scheduled",
-        "Fallbacksms",
+        "Delivered",
         "Seen",
-        "Clicked"
+        "Clicked",
+        "Subscribed",
+        "Unsubscribed"
     };
 
     /// <inheritdoc/>
@@ -501,7 +499,7 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
                 Subject = sender,
                 Timestamp = timestamp,
                 Payload = payload,
-                Succeeded = EventSucceeded(eventType),
+                Succeeded = EventSucceeded(statusDescription),
                 Channel = WebhookChannel.Sms
             }
         };
@@ -510,8 +508,8 @@ public sealed class YubotoWebhookHttpHandler : IWebhookHttpHandler {
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
     }
 
-    private static bool EventSucceeded(string eventType) {
-        return SucceededStatuses.Contains(eventType);
+    private static bool EventSucceeded(string statusDescription) {
+        return SucceededStatuses.Contains(statusDescription);
     }
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
         if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
