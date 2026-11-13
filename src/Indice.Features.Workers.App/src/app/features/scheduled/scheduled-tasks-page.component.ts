@@ -1,5 +1,12 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -17,6 +24,7 @@ import { PermissionsStore } from '../../core/services/permissions.store';
 import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/workers-api.service';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
+import { PAGE_SIZES, PagerComponent } from '../../shared/pager.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { SearchInputComponent } from '../../shared/search-input.component';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
@@ -59,6 +67,7 @@ function taskChip(task: ScheduledTaskInfo): string {
     LucideX,
     EmptyStateComponent,
     PageHeaderComponent,
+    PagerComponent,
     RelativeTimePipe,
     RunTaskButtonComponent,
     SearchInputComponent,
@@ -93,7 +102,8 @@ function taskChip(task: ScheduledTaskInfo): string {
       }
 
       <!-- A failed first load shows just the alert: an empty card would read as "no tasks". -->
-      <div class="card bg-base-100 shadow-sm" [class.hidden]="tasks() === null && error()">
+      <!-- overflow-hidden: the row hover would otherwise paint past the card's rounded corners. -->
+      <div class="card overflow-hidden bg-base-100 shadow-sm" [class.hidden]="tasks() === null && error()">
         @if (tasks() === null) {
           <div class="flex flex-col gap-2 p-4" aria-busy="true">
             @for (i of skeletonRows; track i) {
@@ -116,7 +126,7 @@ function taskChip(task: ScheduledTaskInfo): string {
             <table class="table table-sm">
               <thead>
                 <tr>
-                  <th>Task</th>
+                  <th class="pl-4">Task</th>
                   @if (hasSchedules()) {
                     <th>Schedule</th>
                   }
@@ -124,20 +134,20 @@ function taskChip(task: ScheduledTaskInfo): string {
                   <th>Next run</th>
                   <th class="text-right">Runs</th>
                   <th>Status</th>
-                  <th>Enabled</th>
+                  <th [class.pr-4]="!canManage()">Enabled</th>
                   @if (canManage()) {
-                    <th><span class="sr-only">Actions</span></th>
+                    <th class="pr-4"><span class="sr-only">Actions</span></th>
                   }
                 </tr>
               </thead>
               <tbody>
-                @for (row of rows(); track row.task.id) {
+                @for (row of pageRows(); track row.task.id) {
                   <tr
-                    class="cursor-pointer hover:bg-base-200"
+                    class="cursor-pointer hover:bg-base-200/60"
                     [class.opacity-70]="!row.task.enabled"
                     (click)="open(row.task)"
                   >
-                    <td class="min-w-56 py-2.5">
+                    <td class="min-w-56 py-2.5 pl-4">
                       <div class="flex items-center gap-3">
                         <span class="grid size-8 shrink-0 place-items-center rounded-field" [class]="row.chip">
                           <svg lucideCalendarClock class="size-4"></svg>
@@ -155,7 +165,9 @@ function taskChip(task: ScheduledTaskInfo): string {
                             }
                           </div>
                           @if (row.task.description) {
-                            <p class="text-xs text-base-content/70">{{ row.task.description }}</p>
+                            <p class="line-clamp-2 max-w-md text-xs text-base-content/70" [title]="row.task.description">
+                              {{ row.task.description }}
+                            </p>
                           }
                         </div>
                       </div>
@@ -224,11 +236,11 @@ function taskChip(task: ScheduledTaskInfo): string {
                         }
                       </div>
                     </td>
-                    <td (click)="$event.stopPropagation()">
+                    <td [class.pr-4]="!canManage()" (click)="$event.stopPropagation()">
                       <app-task-enabled-toggle [task]="row.task" />
                     </td>
                     @if (canManage()) {
-                      <td class="text-right" (click)="$event.stopPropagation()">
+                      <td class="pr-4 text-right" (click)="$event.stopPropagation()">
                         <app-run-task-button [task]="row.task" size="xs" />
                       </td>
                     }
@@ -237,6 +249,17 @@ function taskChip(task: ScheduledTaskInfo): string {
               </tbody>
             </table>
           </div>
+          <!-- The endpoint returns every task, so paging happens here; a short list needs none. -->
+          @if (rows().length > pageSizes[0]) {
+            <app-pager
+              class="border-t border-base-content/10 px-4 py-3"
+              [page]="currentPage()"
+              [size]="size()"
+              [count]="rows().length"
+              (pageChange)="page.set($event)"
+              (sizeChange)="setSize($event)"
+            />
+          }
         }
       </div>
     </section>
@@ -255,6 +278,14 @@ export class ScheduledTasksPageComponent {
   protected readonly group = signal('');
 
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
+  protected readonly pageSizes = PAGE_SIZES;
+  protected readonly size = signal<number>(PAGE_SIZES[0]);
+  /** 1-based; back to the first page whenever the filter changes, but not on a poll. */
+  protected readonly page = linkedSignal(() => {
+    this.search();
+    this.group();
+    return 1;
+  });
 
   protected readonly groups = computed(() =>
     [...new Set((this.tasks() ?? []).map((t) => t.group).filter((g): g is string => !!g))].sort(),
@@ -297,6 +328,15 @@ export class ScheduledTasksPageComponent {
       }));
   });
 
+  /** The requested page, pulled back when a poll or a bigger page size leaves it past the end. */
+  protected readonly currentPage = computed(() =>
+    Math.min(this.page(), Math.max(1, Math.ceil(this.rows().length / this.size()))),
+  );
+  protected readonly pageRows = computed(() => {
+    const start = (this.currentPage() - 1) * this.size();
+    return this.rows().slice(start, start + this.size());
+  });
+
   constructor() {
     this.live.tick$
       .pipe(
@@ -323,6 +363,11 @@ export class ScheduledTasksPageComponent {
 
   protected onGroup(event: Event): void {
     this.group.set((event.target as HTMLSelectElement).value);
+  }
+
+  protected setSize(size: number): void {
+    this.size.set(size);
+    this.page.set(1);
   }
 
   protected clearFilters(): void {

@@ -8,6 +8,7 @@ import {
   LucideCalendarClock,
   LucideCircleCheck,
   LucideCircleX,
+  LucideInbox,
   LucideLayers,
   LucideLock,
   LucidePlay,
@@ -39,10 +40,21 @@ interface StatCard {
   label: string;
   value: number;
   desc: string;
+  /** What the number counts, in full — the card's tooltip. */
+  hint: string;
   route: string;
   icon: StatIcon;
   /** Status hue of the counter (`info`, `warning`, `error`…); empty for plain totals. */
   tone: string;
+}
+
+/** A labelled row of counters. */
+interface StatGroup {
+  key: 'messages' | 'work';
+  title: string;
+  desc: string;
+  /** Empty until the first `/stats` response, so the row shows skeletons. */
+  cards: StatCard[];
 }
 
 /** Literal class names, so Tailwind's scanner generates them. */
@@ -79,6 +91,7 @@ const BUSIEST = 5;
     LucideCalendarClock,
     LucideCircleCheck,
     LucideCircleX,
+    LucideInbox,
     LucideLayers,
     LucideLock,
     LucidePlay,
@@ -98,50 +111,69 @@ const BUSIEST = 5;
         <div role="alert" class="alert alert-error alert-soft">{{ message }}</div>
       }
 
-      <!-- Counters: messages on the first row, scheduled work on the second. -->
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        @for (card of cards(); track card.label) {
-          <a
-            [routerLink]="card.route"
-            class="stats bg-base-100 shadow-sm transition-shadow hover:shadow-md"
-          >
-            <div class="stat">
-              <!-- The hue only lights up when there is something to count; a calm board stays calm. -->
-              <div
-                class="stat-figure grid size-10 place-items-center rounded-field"
-                [class]="card.value > 0 ? toneChip[card.tone] : neutralChip"
-              >
-                @switch (card.icon) {
-                  @case ('tasks') {
-                    <svg lucideCalendarClock class="size-5"></svg>
-                  }
-                  @case ('running') {
-                    <svg lucidePlay class="size-5"></svg>
-                  }
-                  @case ('failing') {
-                    <svg lucideCircleX class="size-5"></svg>
-                  }
-                  @case ('locks') {
-                    <svg lucideLock class="size-5"></svg>
-                  }
-                  @default {
-                    <app-queue-status-icon class="size-5" [status]="$any(card.icon)" />
-                  }
+      <!-- Counters: one labelled group for queue messages, one for scheduled work. -->
+      @for (group of groups(); track group.key) {
+        <div class="space-y-3">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h2 class="flex items-center gap-2 text-sm font-semibold text-base-content">
+              <span class="grid size-6 place-items-center rounded-field bg-base-content/8 text-base-content/70">
+                @if (group.key === 'messages') {
+                  <svg lucideInbox class="size-3.5"></svg>
+                } @else {
+                  <svg lucideCalendarClock class="size-3.5"></svg>
                 }
-              </div>
-              <div class="stat-title text-base-content/75">{{ card.label }}</div>
-              <div class="stat-value tabular-nums" [class]="card.value > 0 ? (toneText[card.tone] ?? '') : ''">
-                {{ card.value | number }}
-              </div>
-              <div class="stat-desc text-base-content/70">{{ card.desc }}</div>
-            </div>
-          </a>
-        } @empty {
-          @for (i of skeletonCards; track i) {
-            <div class="skeleton h-28 w-full"></div>
-          }
-        }
-      </div>
+              </span>
+              {{ group.title }}
+            </h2>
+            <span class="hidden h-4 w-px bg-base-content/15 sm:block" aria-hidden="true"></span>
+            <p class="text-sm text-base-content/70">{{ group.desc }}</p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @for (card of group.cards; track card.label) {
+              <a
+                [routerLink]="card.route"
+                class="stats bg-base-100 shadow-sm transition-shadow hover:shadow-md"
+                [title]="card.hint"
+              >
+                <div class="stat">
+                  <!-- The hue only lights up when there is something to count; a calm board stays calm. -->
+                  <div
+                    class="stat-figure grid size-10 place-items-center rounded-field"
+                    [class]="card.value > 0 ? toneChip[card.tone] : neutralChip"
+                  >
+                    @switch (card.icon) {
+                      @case ('tasks') {
+                        <svg lucideCalendarClock class="size-5"></svg>
+                      }
+                      @case ('running') {
+                        <svg lucidePlay class="size-5"></svg>
+                      }
+                      @case ('failing') {
+                        <svg lucideCircleX class="size-5"></svg>
+                      }
+                      @case ('locks') {
+                        <svg lucideLock class="size-5"></svg>
+                      }
+                      @default {
+                        <app-queue-status-icon class="size-5" [status]="$any(card.icon)" />
+                      }
+                    }
+                  </div>
+                  <div class="stat-title text-base-content/75">{{ card.label }}</div>
+                  <div class="stat-value tabular-nums" [class]="card.value > 0 ? (toneText[card.tone] ?? '') : ''">
+                    {{ card.value | number }}
+                  </div>
+                  <div class="stat-desc text-base-content/70">{{ card.desc }}</div>
+                </div>
+              </a>
+            } @empty {
+              @for (i of skeletonCards; track i) {
+                <div class="skeleton h-28 w-full"></div>
+              }
+            }
+          </div>
+        </div>
+      }
 
       <div class="card bg-base-100 shadow-sm">
         <div class="card-body">
@@ -326,7 +358,7 @@ export class DashboardPageComponent {
   protected readonly tone = STATUS_TONE;
   /** The statuses that need a person; delayed and dequeued messages live on the queue page. */
   protected readonly columns: readonly QueueMessageStatus[] = ['Enqueued', 'Retrying', 'Poison'];
-  protected readonly skeletonCards = [1, 2, 3, 4, 5, 6, 7, 8];
+  protected readonly skeletonCards = [1, 2, 3, 4];
   protected readonly skeletonRows = [1, 2, 3, 4];
 
   /** `null` until the first response, so the template can show skeletons instead of "empty". */
@@ -343,22 +375,41 @@ export class DashboardPageComponent {
   protected readonly intervalLabel = computed(() => formatInterval(this.live.intervalMs()));
 
   /** From the shell's `StatsStore` poll — this page never calls `/stats` itself. */
-  protected readonly cards = computed<StatCard[]>(() => {
+  protected readonly groups = computed<StatGroup[]>(() => {
     const s = this.statsStore.stats();
-    if (!s) {
-      return [];
-    }
     const queues = '/queues';
     const tasks = '/scheduled';
     return [
-      { label: 'Enqueued', value: s.enqueued, desc: `across ${plural(s.queues, 'queue')}`, route: queues, icon: 'Enqueued', tone: 'info' },
-      { label: 'Scheduled', value: s.scheduled, desc: 'delayed messages', route: queues, icon: 'Scheduled', tone: 'secondary' },
-      { label: 'Retrying', value: s.retrying, desc: 'will retry', route: queues, icon: 'Retrying', tone: 'warning' },
-      { label: 'Poison', value: s.poison, desc: 'need attention', route: queues, icon: 'Poison', tone: 'error' },
-      { label: 'Scheduled tasks', value: s.scheduledTasks, desc: `${s.disabledTasks} disabled`, route: tasks, icon: 'tasks', tone: '' },
-      { label: 'Running', value: s.runningTasks, desc: 'tasks running now', route: tasks, icon: 'running', tone: 'info' },
-      { label: 'Failing', value: s.failingTasks, desc: 'last run failed', route: tasks, icon: 'failing', tone: 'error' },
-      { label: 'Active locks', value: s.activeLocks, desc: `${plural(s.servers, 'server')} seen`, route: '/servers', icon: 'locks', tone: '' },
+      {
+        key: 'messages',
+        title: 'Queue messages',
+        desc: s
+          ? `Waiting in ${plural(s.queues, 'queue')} right now — processed messages leave the store`
+          : 'Waiting in the queues right now',
+        cards: s
+          ? [
+              { label: 'Enqueued', value: s.enqueued, desc: 'ready for a worker', hint: 'Visible now, waiting for a worker to pick them up.', route: queues, icon: 'Enqueued', tone: 'info' },
+              { label: 'Scheduled', value: s.scheduled, desc: 'delayed to a later time', hint: 'Added with a future "visible at" date; they become enqueued when it passes.', route: queues, icon: 'Scheduled', tone: 'secondary' },
+              { label: 'Retrying', value: s.retrying, desc: 'failed, will try again', hint: 'Their handler threw; they go back to the queue until the retry limit is reached.', route: queues, icon: 'Retrying', tone: 'warning' },
+              { label: 'Poison', value: s.poison, desc: 'gave up, need a person', hint: 'Out of retries or unreadable. They stay until someone requeues or deletes them.', route: queues, icon: 'Poison', tone: 'error' },
+            ]
+          : [],
+      },
+      {
+        key: 'work',
+        title: 'Scheduled tasks & locks',
+        desc: s
+          ? `Recurring jobs and the locks that keep each one on a single server · ${plural(s.servers, 'server')} seen`
+          : 'Recurring jobs and the locks that keep each one on a single server',
+        cards: s
+          ? [
+              { label: 'Scheduled tasks', value: s.scheduledTasks, desc: `${s.disabledTasks} disabled`, hint: 'Every recurring task that has recorded a run, enabled or not.', route: tasks, icon: 'tasks', tone: '' },
+              { label: 'Running', value: s.runningTasks, desc: 'running right now', hint: 'Tasks whose current run has not finished yet.', route: tasks, icon: 'running', tone: 'info' },
+              { label: 'Failing', value: s.failingTasks, desc: 'last run failed', hint: 'Tasks whose most recent run ended with an error.', route: tasks, icon: 'failing', tone: 'error' },
+              { label: 'Active locks', value: s.activeLocks, desc: 'held by a server', hint: 'Distributed locks that are held and not yet expired.', route: '/servers', icon: 'locks', tone: '' },
+            ]
+          : [],
+      },
     ];
   });
 
