@@ -3,6 +3,11 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Reflection;
 using Indice.Hosting.Data.Models;
+#if NET9_0_OR_GREATER
+using SyncLock = System.Threading.Lock;
+#else
+using SyncLock = System.Object;
+#endif
 
 namespace Indice.Hosting.Diagnostics;
 
@@ -46,7 +51,7 @@ internal sealed class WorkerMetrics : IDisposable
     private readonly ConcurrentDictionary<string, TaskTotals> _tasks = new(StringComparer.Ordinal);
     // Past totals, oldest first, to compute the activity of the last window. The first one is the empty totals of startup.
     private readonly List<Sample> _samples = [];
-    private readonly object _samplesLock = new();
+    private readonly SyncLock _samplesLock = new();
 
     public WorkerMetrics(IMeterFactory? meterFactory = null, TimeProvider? timeProvider = null) {
         _timeProvider = timeProvider ?? TimeProvider.System;
@@ -73,12 +78,7 @@ internal sealed class WorkerMetrics : IDisposable
     /// <returns>The timestamp to pass to <see cref="MessageCompleted"/>.</returns>
     public long MessageStarted(string queue, DateTime visibleAt) {
         var wait = Math.Max(0, (_timeProvider.GetUtcNow().UtcDateTime - visibleAt).TotalSeconds);
-        var totals = _queues.GetOrAdd(queue, static _ => new QueueTotals());
-        lock (totals) {
-            totals.Active++;
-            totals.WaitCount++;
-            totals.WaitSum += wait;
-        }
+        _queues.GetOrAdd(queue, static _ => new QueueTotals()).Started(wait);
         var tags = new TagList { { QueueTag, queue } };
         _messagesActive.Add(1, tags);
         _messageWaitTime.Record(wait, tags);
@@ -91,16 +91,7 @@ internal sealed class WorkerMetrics : IDisposable
     /// <param name="outcome">How the processing ended.</param>
     public void MessageCompleted(string queue, long startTimestamp, MessageOutcome outcome) {
         var duration = _timeProvider.GetElapsedTime(startTimestamp).TotalSeconds;
-        var totals = _queues.GetOrAdd(queue, static _ => new QueueTotals());
-        lock (totals) {
-            totals.Active--;
-            totals.DurationSum += duration;
-            switch (outcome) {
-                case MessageOutcome.Succeeded: totals.Succeeded++; break;
-                case MessageOutcome.Retried: totals.Retried++; break;
-                default: totals.Poisoned++; break;
-            }
-        }
+        _queues.GetOrAdd(queue, static _ => new QueueTotals()).Completed(duration, outcome);
         _messagesActive.Add(-1, new TagList { { QueueTag, queue } });
         var tags = new TagList { { QueueTag, queue }, { OutcomeTag, ToTagValue(outcome) } };
         _messagesProcessed.Add(1, tags);
@@ -111,10 +102,7 @@ internal sealed class WorkerMetrics : IDisposable
     /// <param name="taskId">The task id.</param>
     /// <returns>The timestamp to pass to <see cref="TaskCompleted"/>.</returns>
     public long TaskStarted(string taskId) {
-        var totals = _tasks.GetOrAdd(taskId, static _ => new TaskTotals());
-        lock (totals) {
-            totals.Active++;
-        }
+        _tasks.GetOrAdd(taskId, static _ => new TaskTotals()).Started();
         _taskRunsActive.Add(1, new TagList { { TaskTag, taskId } });
         return _timeProvider.GetTimestamp();
     }
@@ -125,17 +113,7 @@ internal sealed class WorkerMetrics : IDisposable
     /// <param name="failed">Whether the run failed.</param>
     public void TaskCompleted(string taskId, long startTimestamp, bool failed) {
         var duration = _timeProvider.GetElapsedTime(startTimestamp).TotalSeconds;
-        var totals = _tasks.GetOrAdd(taskId, static _ => new TaskTotals());
-        lock (totals) {
-            totals.Active--;
-            totals.DurationSum += duration;
-            totals.LastDuration = duration;
-            if (failed) {
-                totals.Failed++;
-            } else {
-                totals.Succeeded++;
-            }
-        }
+        _tasks.GetOrAdd(taskId, static _ => new TaskTotals()).Completed(duration, failed);
         _taskRunsActive.Add(-1, new TagList { { TaskTag, taskId } });
         var tags = new TagList { { TaskTag, taskId }, { OutcomeTag, failed ? "failed" : "succeeded" } };
         _taskRuns.Add(1, tags);
@@ -235,32 +213,73 @@ internal sealed class WorkerMetrics : IDisposable
 
     private sealed class QueueTotals
     {
-        public long Active;
-        public long Succeeded;
-        public long Retried;
-        public long Poisoned;
-        public double DurationSum;
-        public long WaitCount;
-        public double WaitSum;
+        private readonly SyncLock _lock = new();
+        private long _active;
+        private long _succeeded;
+        private long _retried;
+        private long _poisoned;
+        private double _durationSum;
+        private long _waitCount;
+        private double _waitSum;
+
+        public void Started(double wait) {
+            lock (_lock) {
+                _active++;
+                _waitCount++;
+                _waitSum += wait;
+            }
+        }
+
+        public void Completed(double duration, MessageOutcome outcome) {
+            lock (_lock) {
+                _active--;
+                _durationSum += duration;
+                switch (outcome) {
+                    case MessageOutcome.Succeeded: _succeeded++; break;
+                    case MessageOutcome.Retried: _retried++; break;
+                    default: _poisoned++; break;
+                }
+            }
+        }
 
         public QueueSnapshot Snapshot() {
-            lock (this) {
-                return new QueueSnapshot(Active, Succeeded, Retried, Poisoned, DurationSum, WaitCount, WaitSum);
+            lock (_lock) {
+                return new QueueSnapshot(_active, _succeeded, _retried, _poisoned, _durationSum, _waitCount, _waitSum);
             }
         }
     }
 
     private sealed class TaskTotals
     {
-        public long Active;
-        public long Succeeded;
-        public long Failed;
-        public double DurationSum;
-        public double? LastDuration;
+        private readonly SyncLock _lock = new();
+        private long _active;
+        private long _succeeded;
+        private long _failed;
+        private double _durationSum;
+        private double? _lastDuration;
+
+        public void Started() {
+            lock (_lock) {
+                _active++;
+            }
+        }
+
+        public void Completed(double duration, bool failed) {
+            lock (_lock) {
+                _active--;
+                _durationSum += duration;
+                _lastDuration = duration;
+                if (failed) {
+                    _failed++;
+                } else {
+                    _succeeded++;
+                }
+            }
+        }
 
         public TaskSnapshot Snapshot() {
-            lock (this) {
-                return new TaskSnapshot(Active, Succeeded, Failed, DurationSum, LastDuration);
+            lock (_lock) {
+                return new TaskSnapshot(_active, _succeeded, _failed, _durationSum, _lastDuration);
             }
         }
     }

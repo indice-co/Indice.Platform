@@ -157,10 +157,8 @@ public class WorkerDashboardService : IWorkerDashboardService
                 : queues.ContainsKey(x.Queue.Name))
             .GroupBy(x => x.Queue.Name, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.ToList(), StringComparer.Ordinal);
-        foreach (var name in declarations.Keys) {
-            if (!queues.ContainsKey(name)) {
-                queues[name] = new QueueInfo { Name = name };
-            }
+        foreach (var name in declarations.Keys.Where(name => !queues.ContainsKey(name))) {
+            queues[name] = new QueueInfo { Name = name };
         }
         foreach (var queue in queues.Values) {
             queue.Consumers = 0;
@@ -397,10 +395,8 @@ public class WorkerDashboardService : IWorkerDashboardService
             ids.Add(row.Id);
             infos.Add(ApplyTaskDeclaration(ToInfo(row, new ScheduledTaskInfo()), declarations));
         }
-        foreach (var declaration in declarations.Values) {
-            if (!ids.Contains(declaration.Task.Id)) {
-                infos.Add(FromDeclaration(declaration, new ScheduledTaskInfo()));
-            }
+        foreach (var declaration in declarations.Values.Where(declaration => !ids.Contains(declaration.Task.Id))) {
+            infos.Add(FromDeclaration(declaration, new ScheduledTaskInfo()));
         }
         return infos;
     }
@@ -844,8 +840,8 @@ public class WorkerDashboardService : IWorkerDashboardService
             foreach (var (queue, window) in items) {
                 processing += queue.Processing;
                 if (window > 0) {
-                    processed += queue.RecentProcessed * 60 / window;
-                    failed += queue.RecentFailed * 60 / window;
+                    processed += queue.RecentProcessed * 60d / window;
+                    failed += queue.RecentFailed * 60d / window;
                 }
                 // The averages are weighted by the messages of each worker.
                 if (queue.RecentAverageDuration is { } duration && queue.RecentProcessed > 0) {

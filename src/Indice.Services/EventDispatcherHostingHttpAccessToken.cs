@@ -44,8 +44,9 @@ internal sealed class EventDispatcherHostingHttpTokenProvider
             if (!string.IsNullOrWhiteSpace(_options.Scope)) {
                 form["scope"] = _options.Scope;
             }
-            var httpClient = _httpClientFactory.CreateClient(_tokenHttpClientName);
-            using var response = await httpClient.PostAsync(tokenEndpoint, new FormUrlEncodedContent(form), cancellationToken);
+            var httpClient = _httpClientFactory.CreateClient(_tokenHttpClientName); 
+            using var content = new FormUrlEncodedContent(form);
+            using var response = await httpClient.PostAsync(tokenEndpoint, content, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             if (!response.IsSuccessStatusCode) {
                 throw new HttpRequestException($"Failed to obtain an access token for the workers API from '{tokenEndpoint}'. The token endpoint responded with {(int)response.StatusCode} ({response.StatusCode}): {body}", null, response.StatusCode);
