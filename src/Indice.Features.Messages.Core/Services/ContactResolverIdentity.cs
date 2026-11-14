@@ -162,12 +162,13 @@ public class ContactResolverIdentity : IContactResolver
         if (!string.IsNullOrWhiteSpace(accessToken)) {
             return accessToken;
         }
-        var response = await HttpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest {
+        using var tokenRequest = new ClientCredentialsTokenRequest {
             Address = $"{Options.BaseAddress}connect/token",
             ClientId = Options.ClientId!,
             ClientSecret = Options.ClientSecret,
             Scope = "identity identity:users"
-        });
+        };
+        var response = await HttpClient.RequestClientCredentialsTokenAsync(tokenRequest);
         if (response.IsError) {
             throw response.Exception!;
         }

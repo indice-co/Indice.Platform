@@ -32,8 +32,8 @@ internal static class McpRegistryHandlers
         if (!string.IsNullOrWhiteSpace(search)) {
             query = query.Where(x => x.Name.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase));
         }
-        if (updatedSince.HasValue) {
-            query = query.Where(x => GetLastModified(x) >= updatedSince.Value);
+        if (updatedSince is DateTimeOffset since) {
+            query = query.Where(x => GetLastModified(x) >= since);
         }
         if (!string.IsNullOrWhiteSpace(version)) {
             query = LatestVersion.Equals(version, StringComparison.OrdinalIgnoreCase)

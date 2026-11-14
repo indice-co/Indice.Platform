@@ -56,17 +56,17 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
     public async Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options, SignInLogEntryFilter filter, CancellationToken cancellationToken = default) {
         IQueryable<Data.DbSignInLogEntry> query = _dbContext.SignInLogs;
         if (filter is not null) {
-            if (filter.From.HasValue) {
-                query = query.Where(log => log.CreatedAt >= filter.From.Value);
+            if (filter.From is DateTimeOffset from) {
+                query = query.Where(log => log.CreatedAt >= from);
             }
-            if (filter.To.HasValue) {
-                query = query.Where(log => log.CreatedAt < filter.To.Value.AddDays(1));
+            if (filter.To is DateTimeOffset to) {
+                query = query.Where(log => log.CreatedAt < to.AddDays(1));
             }
-            if (filter.Succeeded.HasValue) {
-                query = query.Where(log => log.Succeeded == filter.Succeeded.Value);
+            if (filter.Succeeded is bool succeeded) {
+                query = query.Where(log => log.Succeeded == succeeded);
             }
-            if (filter.SignInType.HasValue) {
-                query = query.Where(log => log.SignInType == filter.SignInType.Value);
+            if (filter.SignInType is { } signInType) {
+                query = query.Where(log => log.SignInType == signInType);
             }
             if (!string.IsNullOrWhiteSpace(filter.Subject)) {
                 query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);

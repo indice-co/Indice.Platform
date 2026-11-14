@@ -111,9 +111,9 @@ internal class AvatarController : ControllerBase
             "png" => "image/png",
             _ => "image/webp"
         };
-        var data = new MemoryStream();
+        using var data = new MemoryStream();
         AvatarGenerator.Generate(data, firstName, lastName, size ?? 192, contentType, background, foreground, circular);
         var hash = MD5.HashData(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
-        return File(data, contentType, DateTimeOffset.UtcNow, new EntityTagHeaderValue($"\"{hash}\""));
+        return File(data.ToArray(), contentType, DateTimeOffset.UtcNow, new EntityTagHeaderValue($"\"{hash}\""));
     }
 }

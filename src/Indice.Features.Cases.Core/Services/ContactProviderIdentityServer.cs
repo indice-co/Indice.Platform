@@ -79,12 +79,13 @@ internal class ContactProviderIdentityServer : IContactProvider
         if (!string.IsNullOrWhiteSpace(accessToken)) {
             return accessToken;
         }
-        var response = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest {
+        using var tokenRequest = new ClientCredentialsTokenRequest {
             Address = $"{_options.BaseAddress}connect/token",
             ClientId = _options.ClientId!,
             ClientSecret = _options.ClientSecret,
             Scope = "identity identity:users"
-        });
+        };
+        var response = await _httpClient.RequestClientCredentialsTokenAsync(tokenRequest);
         if (response.IsError && response.Exception is not null) {
             throw response.Exception!;
         } else if (response.IsError) {

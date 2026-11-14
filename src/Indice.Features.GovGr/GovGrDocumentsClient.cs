@@ -42,10 +42,11 @@ internal class GovGrDocumentsClient : IDocumentsService
         // populate service name ref
         walletRequest.Document!.Template!.RefName = ServiceName;
 
-        var response = await _httpClient.PostAsync("", new StringContent(
+        using var content = new StringContent(
             JsonSerializer.Serialize(walletRequest, _jsonSerializerOptions),
             Encoding.UTF8,
-            MediaTypeNames.Application.Json));
+            MediaTypeNames.Application.Json);
+        var response = await _httpClient.PostAsync("", content);
 
         var body = await response.Content.ReadAsStringAsync();
 

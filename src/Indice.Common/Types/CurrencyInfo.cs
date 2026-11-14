@@ -153,7 +153,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
     /// <param name="truncate"></param>
     public decimal Round(decimal money, bool truncate = false) {
         if (truncate) {
-            var denominator = Fraction.Denominator > 0 ? Fraction.Denominator : 100;
+            var denominator = Fraction is { Denominator: > 0 } fraction ? fraction.Denominator : 100;
             return Math.Truncate(denominator * money) / denominator;
         }
         return Math.Round(money, Fraction?.DecimalPlaces ?? 2);

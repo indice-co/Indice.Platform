@@ -136,7 +136,7 @@ public class JsonPolymorphicUtils
         if (!string.IsNullOrWhiteSpace(typePropertyName)) {
             discriminator = baseType.GetProperty(typePropertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
         }
-        if (discriminator?.PropertyType.IsEnum == true) {
+        if (discriminator is { PropertyType.IsEnum: true }) {
             options = Enum.GetNames(discriminator.PropertyType);
         }
         foreach (var type in GetTypesInHierarchy(baseType)) {
