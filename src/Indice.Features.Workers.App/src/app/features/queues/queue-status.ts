@@ -27,7 +27,7 @@ export interface StatusTone {
 export const STATUS_TONE: Record<QueueMessageStatus, StatusTone> = {
   Scheduled: { text: 'text-secondary', bar: 'bg-secondary', chip: 'bg-secondary/10 text-secondary' },
   Enqueued: { text: 'text-info', bar: 'bg-info', chip: 'bg-info/10 text-info' },
-  Retrying: { text: 'text-warning', bar: 'bg-warning', chip: 'bg-warning/15 text-warning' },
+  Retrying: { text: 'text-base-content', bar: 'bg-warning', chip: 'bg-warning/15 text-warning' },
   Poison: { text: 'text-error', bar: 'bg-error', chip: 'bg-error/10 text-error' },
   Dequeued: { text: 'text-base-content', bar: 'bg-base-content/30', chip: 'bg-base-content/10 text-base-content/70' },
 };

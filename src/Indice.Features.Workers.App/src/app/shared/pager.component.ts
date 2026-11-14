@@ -23,7 +23,7 @@ export const PAGE_SIZES = [20, 50, 100] as const;
     <div class="flex items-center gap-3">
       <label class="flex items-center gap-2 text-base-content/70">
         <span class="hidden sm:inline">Rows per page</span>
-        <select class="select select-sm w-20" (change)="onSize($event)">
+        <select class="select select-sm w-20" aria-label="Rows per page" (change)="onSize($event)">
           @for (s of sizes; track s) {
             <option [value]="s" [selected]="s === size()">{{ s }}</option>
           }

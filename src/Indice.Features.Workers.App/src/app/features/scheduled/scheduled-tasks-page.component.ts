@@ -189,12 +189,16 @@ function taskChip(task: ScheduledTaskInfo): string {
                         <div
                           class="flex items-center gap-2"
                           [title]="
-                            row.task.lastRunFailed
-                              ? 'Failed ' + (row.task.lastErrorDate | date: 'medium')
-                              : 'Succeeded ' + (row.task.lastExecution | date: 'medium')
+                            row.task.status === 'Running'
+                              ? 'Running since ' + (row.task.lastExecution | date: 'medium')
+                              : row.task.lastRunFailed
+                                ? 'Failed ' + (row.task.lastErrorDate | date: 'medium')
+                                : 'Succeeded ' + (row.task.lastExecution | date: 'medium')
                           "
                         >
-                          @if (row.task.lastRunFailed) {
+                          @if (row.task.status === 'Running') {
+                            <svg lucideCircleDashed class="size-4 shrink-0 text-info" aria-label="Running"></svg>
+                          } @else if (row.task.lastRunFailed) {
                             <svg lucideCircleX class="size-4 shrink-0 text-error" aria-label="Failed"></svg>
                           } @else {
                             <svg lucideCircleCheck class="size-4 shrink-0 text-success" aria-label="Succeeded"></svg>

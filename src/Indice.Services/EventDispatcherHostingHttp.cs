@@ -53,8 +53,7 @@ public class EventDispatcherHostingHttp : IEventDispatcher
         );
         using var response = await _httpClient.PostAsJsonAsync(GetMessagesUri(queueName), request, RequestJsonOptions);
         if (!response.IsSuccessStatusCode) {
-            var body = await response.Content.ReadAsStringAsync();
-            _logger?.LogError("Failed to publish event '{EventType}' to queue '{QueueName}'. The workers API responded with {StatusCode}: {Body}", typeof(TEvent).Name, queueName, (int)response.StatusCode, body);
+            _logger?.LogError("Failed to publish event '{EventType}' to queue '{QueueName}'. The workers API responded with {StatusCode}.", typeof(TEvent).Name, queueName, (int)response.StatusCode);
             throw new HttpRequestException($"Failed to publish event '{typeof(TEvent).Name}' to queue '{queueName}'. The workers API responded with {(int)response.StatusCode} ({response.StatusCode}).", null, response.StatusCode);
         }
     }

@@ -45,6 +45,7 @@ export interface PayloadDialogResult {
               <svg lucideInbox class="size-4 opacity-60"></svg>
               <input
                 class="grow font-mono"
+                aria-label="Queue"
                 list="payload-dialog-queues"
                 required
                 maxlength="400"
@@ -88,6 +89,7 @@ export interface PayloadDialogResult {
               <input
                 type="datetime-local"
                 class="grow tabular-nums"
+                aria-label="Visible at (optional, your local time)"
                 [value]="visibleAt()"
                 (input)="visibleAt.set($any($event.target).value)"
               />

@@ -7,6 +7,7 @@ import {
   LucideArrowLeft,
   LucideCalendarClock,
   LucideCircleCheck,
+  LucideCircleDashed,
   LucideCircleX,
   LucideDatabase,
   LucideTriangleAlert,
@@ -37,6 +38,7 @@ import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
     LucideArrowLeft,
     LucideCalendarClock,
     LucideCircleCheck,
+    LucideCircleDashed,
     LucideCircleX,
     LucideDatabase,
     LucideTriangleAlert,
@@ -113,8 +115,19 @@ import { TaskEnabledToggleComponent } from './task-enabled-toggle.component';
                   <dt class="text-xs text-base-content/70">Last run</dt>
                   <dd class="text-sm">
                     @if (task.lastExecution) {
-                      <span class="flex items-center gap-1.5" [title]="task.lastExecution | date: 'medium'">
-                        @if (task.lastRunFailed) {
+                      <span
+                        class="flex items-center gap-1.5"
+                        [title]="
+                          task.status === 'Running'
+                            ? 'Running since ' + (task.lastExecution | date: 'medium')
+                            : task.lastRunFailed
+                              ? 'Failed ' + (task.lastErrorDate | date: 'medium')
+                              : 'Succeeded ' + (task.lastExecution | date: 'medium')
+                        "
+                      >
+                        @if (task.status === 'Running') {
+                          <svg lucideCircleDashed class="size-4 shrink-0 text-info" aria-label="Running"></svg>
+                        } @else if (task.lastRunFailed) {
                           <svg lucideCircleX class="size-4 shrink-0 text-error" aria-label="Failed"></svg>
                         } @else {
                           <svg lucideCircleCheck class="size-4 shrink-0 text-success" aria-label="Succeeded"></svg>

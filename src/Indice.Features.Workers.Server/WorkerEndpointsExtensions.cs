@@ -65,9 +65,7 @@ public static class WorkerEndpointsExtensions
                 .RequireAssertion(context => HasRequiredScope(context.User, requiredScope) && context.User.CanManageWorkers()));
             authorization.AddPolicy(WorkerPolicies.BeWorkersProducer, policy => policy
                 .RequireAuthenticatedUser()
-                .RequireAssertion(context =>
-                    (HasRequiredScope(context.User, requiredScope) && context.User.CanManageWorkers()) ||
-                    (HasSubScope(context.User, producerScope) && (IsMachineClient(context.User) || context.User.CanManageWorkers()))));
+                .RequireAssertion(context => CanProduce(context.User, requiredScope, producerScope)));
             authorization.AddPolicy(WorkerPolicies.BeWorkersConsumer, policy => policy
                 .RequireAuthenticatedUser()
                 .RequireAssertion(context => HasSubScope(context.User, consumerScope) && IsMachineClient(context.User)));
@@ -85,6 +83,16 @@ public static class WorkerEndpointsExtensions
     // A client credentials token carries no subject. The inbound claim mapping may have renamed 'sub', so both forms are checked.
     private static bool IsMachineClient(ClaimsPrincipal user) =>
         user.FindFirst(BasicClaimTypes.Subject) is null && user.FindFirst(ClaimTypes.NameIdentifier) is null;
+
+    private static bool CanProduce(ClaimsPrincipal user, string? requiredScope, string? producerScope) {
+        if (HasRequiredScope(user, requiredScope) && user.CanManageWorkers()) {
+            return true;
+        }
+        if (!HasSubScope(user, producerScope)) {
+            return false;
+        }
+        return IsMachineClient(user) || user.CanManageWorkers();
+    }
 
 
 

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideSearch, LucideX } from '@lucide/angular';
-import { Subject, debounce, filter, map, timer } from 'rxjs';
+import { EMPTY, Subject, filter, map, switchMap, timer } from 'rxjs';
 
 /**
  * Debounced free-text search box, the same control as the Cases, Messaging and Risk UIs. Emits once the text is empty or
@@ -57,7 +57,7 @@ export class SearchInputComponent {
   readonly search = output<string>();
 
   protected readonly text = signal('');
-  private readonly input$ = new Subject<{ value: string; immediate: boolean }>();
+  private readonly input$ = new Subject<{ value: string; immediate: boolean } | null>();
   /** The last emitted term, until `value` reflects it. */
   private emitted?: string;
 
@@ -70,12 +70,15 @@ export class SearchInputComponent {
       this.emitted = undefined;
       if (!echo) {
         this.text.set(value);
+        this.input$.next(null);
       }
     });
     this.input$
       .pipe(
         // Debounce first so that every keystroke, including too-short ones, cancels a pending obsolete search.
-        debounce(({ immediate }) => timer(immediate ? 0 : this.debounce())),
+        switchMap((input) =>
+          input ? timer(input.immediate ? 0 : this.debounce()).pipe(map(() => input)) : EMPTY,
+        ),
         filter(({ value, immediate }) => immediate || value.length === 0 || value.length >= this.minLength()),
         map(({ value }) => value),
         // Compare with the applied term rather than the last emitted one, which may since have changed from outside.

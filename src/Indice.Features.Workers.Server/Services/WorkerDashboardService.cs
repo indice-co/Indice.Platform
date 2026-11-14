@@ -656,12 +656,16 @@ public class WorkerDashboardService : IWorkerDashboardService
             (exception is DbException or InvalidOperationException) &&
             !cancellationToken.IsCancellationRequested
         ) {
-            if (Interlocked.Exchange(ref _serverTableWarningLogged, 1) == 0) {
-                _logger?.LogWarning(exception, "The workers dashboard cannot read the server table, so it cannot show the live servers and the settings of the queues. Make sure the database has the [work].[Server] table.");
-            }
+            LogServerTableWarningOnce(_logger, exception);
             return null;
         }
         return [.. rows.Select(row => new RegisteredServer(row, IsAlive(row, now)))];
+    }
+
+    private static void LogServerTableWarningOnce(ILogger<WorkerDashboardService>? logger, Exception exception) {
+        if (Interlocked.Exchange(ref _serverTableWarningLogged, 1) == 0) {
+            logger?.LogWarning(exception, "The workers dashboard cannot read the server table, so it cannot show the live servers and the settings of the queues. Make sure the database has the [work].[Server] table.");
+        }
     }
 
     private static bool IsAlive(DbServer server, DateTime now) =>
