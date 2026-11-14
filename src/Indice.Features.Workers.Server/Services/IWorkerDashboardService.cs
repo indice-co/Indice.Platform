@@ -9,7 +9,7 @@ public interface IWorkerDashboardService
     /// <summary>Gets the overall counters.</summary>
     Task<DashboardStats> GetStats(CancellationToken cancellationToken = default);
     
-    /// <summary>Gets the logical queues with their counters, ordered by name.</summary>
+    /// <summary>Gets the logical queues with their counters, ordered by name. The queues the registered workers consume are listed even without messages.</summary>
     Task<List<QueueInfo>> GetQueues(CancellationToken cancellationToken = default);
 
     /// <summary>Gets the counters of one logical queue. A queue without messages has zero counters.</summary>
@@ -48,10 +48,10 @@ public interface IWorkerDashboardService
     /// <returns>The updated message, or <see langword="null"/> when the message is gone.</returns>
     Task<QueueMessageDetails?> UpdateMessage(Guid messageId, string payload, CancellationToken cancellationToken = default);
     
-    /// <summary>Gets the scheduled tasks that have run at least once, ordered by group and name.</summary>
+    /// <summary>Gets the scheduled tasks that have run at least once and the ones the registered workers host, ordered by group and name.</summary>
     Task<List<ScheduledTaskInfo>> GetScheduledTasks(CancellationToken cancellationToken = default);
-    
-    /// <summary>Gets a scheduled task with its errors and state, or <see langword="null"/> when it does not exist.</summary>
+
+    /// <summary>Gets a scheduled task with its errors and state, or <see langword="null"/> when it has never run and no registered worker hosts it.</summary>
     Task<ScheduledTaskDetails?> GetScheduledTask(string taskId, CancellationToken cancellationToken = default);
     
     /// <summary>Enables or disables a scheduled task.</summary>
@@ -65,7 +65,7 @@ public interface IWorkerDashboardService
     /// <param name="taskId">The task id.</param>
     /// <param name="requestedBy">Who requested the run, kept for troubleshooting.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The pending request, or <see langword="null"/> when the task has no row (it has never run). Concurrent requests return the same pending request.</returns>
+    /// <returns>The pending request, or <see langword="null"/> when the task has never run and no live worker hosts it. Concurrent requests return the same pending request.</returns>
     Task<RunScheduledTaskResult?> RunScheduledTask(string taskId, string? requestedBy = null, CancellationToken cancellationToken = default);
     
     /// <summary>Gets the locks, ordered by name.</summary>
@@ -77,6 +77,8 @@ public interface IWorkerDashboardService
     /// <returns><see langword="false"/> when the lock does not exist.</returns>
     Task<bool> ReleaseLock(Guid lockId, CancellationToken cancellationToken = default);
     
-    /// <summary>Gets the workers that have run scheduled tasks, most recently seen first.</summary>
+    /// <summary>
+    /// Gets the registered workers, live first, and the workers that are not registered but have run scheduled tasks, most recently seen first.
+    /// </summary>
     Task<List<WorkerServerInfo>> GetServers(CancellationToken cancellationToken = default);
 }

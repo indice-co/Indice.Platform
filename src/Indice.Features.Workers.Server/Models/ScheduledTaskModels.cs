@@ -13,7 +13,7 @@ public class ScheduledTaskInfo
     public string? Description { get; set; }
     /// <summary>The handler type name, when it can be read from the stored job type; otherwise the stored job type.</summary>
     public string? JobType { get; set; }
-    /// <summary>The cron expression. Only known in the worker process, so it is <see langword="null"/> in the dashboard host.</summary>
+    /// <summary>The cron expression. Only known when a registered worker hosts the task.</summary>
     public string? CronExpression { get; set; }
     /// <summary>The task state.</summary>
     public ScheduledTaskState Status { get; set; }
@@ -21,6 +21,8 @@ public class ScheduledTaskInfo
     public bool Enabled { get; set; }
     /// <summary>Whether the task has run at least once (a database row exists).</summary>
     public bool HasRun { get; set; }
+    /// <summary>Whether a live worker hosts the task, so that it can run now even if it has never run.</summary>
+    public bool IsRegistered { get; set; }
     /// <summary>The fire time of the last execution.</summary>
     public DateTimeOffset? LastExecution { get; set; }
     /// <summary>The next fire time.</summary>
@@ -42,12 +44,16 @@ public class ScheduledTaskInfo
 /// <summary>A scheduled task with its errors and state.</summary>
 public class ScheduledTaskDetails : ScheduledTaskInfo
 {
-    /// <summary>Whether only one worker may run the task at a time. Only known in the worker process.</summary>
+    /// <summary>Whether only one worker may run the task at a time. Only known when a registered worker hosts the task.</summary>
     public bool? Singleton { get; set; }
     /// <summary>The full text of the last error.</summary>
     public string? Errors { get; set; }
     /// <summary>The task state, as a JSON string.</summary>
     public string? State { get; set; }
+    /// <summary>The average run time on the live workers since they started, in milliseconds. <see langword="null"/> when no live worker reports a run.</summary>
+    public double? AverageDuration { get; set; }
+    /// <summary>The time the last run took on a live worker, in milliseconds.</summary>
+    public double? LastDuration { get; set; }
 }
 
 /// <summary>Enables or disables a scheduled task.</summary>

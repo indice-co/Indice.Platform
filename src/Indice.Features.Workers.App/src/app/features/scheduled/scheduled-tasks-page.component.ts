@@ -1,7 +1,21 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import {
+  LucideCalendarClock,
+  LucideCircleCheck,
+  LucideCircleDashed,
+  LucideCircleX,
+  LucideX,
+} from '@lucide/angular';
 import { EMPTY, catchError, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
@@ -10,7 +24,9 @@ import { PermissionsStore } from '../../core/services/permissions.store';
 import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/workers-api.service';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
+import { PAGE_SIZES, PagerComponent } from '../../shared/pager.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
+import { SearchInputComponent } from '../../shared/search-input.component';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
 import { clampProgress, describeCron } from './cron';
 import { RunTaskButtonComponent } from './run-task-button.component';
@@ -21,6 +37,19 @@ interface TaskRow {
   task: ScheduledTaskInfo;
   schedule: string | null;
   progress: number;
+  /** The task icon's tint: red when the last run failed, blue while it runs. */
+  chip: string;
+}
+
+/** Literal class names, so Tailwind's scanner generates them. */
+function taskChip(task: ScheduledTaskInfo): string {
+  if (task.lastRunFailed) {
+    return 'bg-error/10 text-error';
+  }
+  if (task.status === 'Running') {
+    return 'bg-info/10 text-info';
+  }
+  return 'bg-base-content/8 text-base-content/70';
 }
 
 /** Hangfire's "Recurring jobs": every scheduled task with its last/next run and an Enabled switch. */
@@ -29,24 +58,31 @@ interface TaskRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
+    DecimalPipe,
     RouterLink,
+    LucideCalendarClock,
+    LucideCircleCheck,
+    LucideCircleDashed,
+    LucideCircleX,
+    LucideX,
     EmptyStateComponent,
     PageHeaderComponent,
+    PagerComponent,
     RelativeTimePipe,
     RunTaskButtonComponent,
+    SearchInputComponent,
     StatusBadgeComponent,
     TaskEnabledToggleComponent,
   ],
   template: `
     <section class="p-4 sm:p-6">
       <app-page-header title="Scheduled tasks" [subtitle]="subtitle()">
-        <input
-          type="search"
-          class="input input-sm w-56"
+        <app-search-input
+          class="w-full sm:w-64"
           placeholder="Search name or description"
-          aria-label="Search name or description"
+          [debounce]="150"
           [value]="search()"
-          (input)="onSearch($event)"
+          (search)="search.set($event)"
         />
         <select
           class="select select-sm w-auto"
@@ -66,7 +102,8 @@ interface TaskRow {
       }
 
       <!-- A failed first load shows just the alert: an empty card would read as "no tasks". -->
-      <div class="card bg-base-100 shadow-sm" [class.hidden]="tasks() === null && error()">
+      <!-- overflow-hidden: the row hover would otherwise paint past the card's rounded corners. -->
+      <div class="card overflow-hidden bg-base-100 shadow-sm" [class.hidden]="tasks() === null && error()">
         @if (tasks() === null) {
           <div class="flex flex-col gap-2 p-4" aria-busy="true">
             @for (i of skeletonRows; track i) {
@@ -80,8 +117,8 @@ interface TaskRow {
           />
         } @else if (rows().length === 0) {
           <app-empty-state title="No tasks match the filter">
-            <button type="button" class="btn btn-ghost btn-sm" (click)="clearFilters()">
-              Clear filters
+            <button type="button" class="btn btn-sm gap-1.5" (click)="clearFilters()">
+              <svg lucideX class="size-4"></svg>Clear filters
             </button>
           </app-empty-state>
         } @else {
@@ -89,7 +126,7 @@ interface TaskRow {
             <table class="table table-sm">
               <thead>
                 <tr>
-                  <th>Task</th>
+                  <th class="pl-4">Task</th>
                   @if (hasSchedules()) {
                     <th>Schedule</th>
                   }
@@ -97,73 +134,99 @@ interface TaskRow {
                   <th>Next run</th>
                   <th class="text-right">Runs</th>
                   <th>Status</th>
-                  <th>Enabled</th>
+                  <th [class.pr-4]="!canManage()">Enabled</th>
                   @if (canManage()) {
-                    <th><span class="sr-only">Actions</span></th>
+                    <th class="pr-4"><span class="sr-only">Actions</span></th>
                   }
                 </tr>
               </thead>
               <tbody>
-                @for (row of rows(); track row.task.id) {
+                @for (row of pageRows(); track row.task.id) {
                   <tr
-                    class="cursor-pointer hover:bg-base-200"
-                    [class.opacity-60]="!row.task.enabled"
+                    class="cursor-pointer hover:bg-base-200/60"
+                    [class.opacity-70]="!row.task.enabled"
                     (click)="open(row.task)"
                   >
-                    <td class="min-w-56">
-                      <div class="flex flex-wrap items-center gap-1.5">
-                        <a
-                          class="font-medium hover:underline"
-                          [routerLink]="['/scheduled', row.task.id]"
-                          (click)="$event.stopPropagation()"
-                          >{{ row.task.name }}</a
-                        >
-                        @if (row.task.group) {
-                          <span class="badge badge-ghost badge-xs">{{ row.task.group }}</span>
-                        }
+                    <td class="min-w-56 py-2.5 pl-4">
+                      <div class="flex items-center gap-3">
+                        <span class="grid size-8 shrink-0 place-items-center rounded-field" [class]="row.chip">
+                          <svg lucideCalendarClock class="size-4"></svg>
+                        </span>
+                        <div class="min-w-0">
+                          <div class="flex flex-wrap items-center gap-1.5">
+                            <a
+                              class="font-medium hover:underline"
+                              [routerLink]="['/scheduled', row.task.id]"
+                              (click)="$event.stopPropagation()"
+                              >{{ row.task.name }}</a
+                            >
+                            @if (row.task.group) {
+                              <span class="badge badge-ghost badge-xs">{{ row.task.group }}</span>
+                            }
+                          </div>
+                          @if (row.task.description) {
+                            <p class="line-clamp-2 max-w-md text-xs text-base-content/70" [title]="row.task.description">
+                              {{ row.task.description }}
+                            </p>
+                          }
+                        </div>
                       </div>
-                      @if (row.task.description) {
-                        <p class="text-xs text-base-content/60">{{ row.task.description }}</p>
-                      }
                     </td>
                     @if (hasSchedules()) {
                       <td>
                         @if (row.task.cronExpression) {
                           <span class="font-mono text-xs">{{ row.task.cronExpression }}</span>
                           @if (row.schedule) {
-                            <p class="text-xs text-base-content/60">{{ row.schedule }}</p>
+                            <p class="text-xs text-base-content/70">{{ row.schedule }}</p>
                           }
                         } @else {
-                          <span class="text-base-content/40">—</span>
+                          <span class="text-base-content/45">—</span>
                         }
                       </td>
                     }
                     <td class="whitespace-nowrap">
                       @if (row.task.hasRun) {
-                        <span
-                          class="mr-1.5"
-                          [title]="(row.task.lastExecution | date: 'medium') ?? ''"
-                          >{{ row.task.lastExecution | relativeTime }}</span
+                        <div
+                          class="flex items-center gap-2"
+                          [title]="
+                            row.task.status === 'Running'
+                              ? 'Running since ' + (row.task.lastExecution | date: 'medium')
+                              : row.task.lastRunFailed
+                                ? 'Failed ' + (row.task.lastErrorDate | date: 'medium')
+                                : 'Succeeded ' + (row.task.lastExecution | date: 'medium')
+                          "
                         >
-                        @if (row.task.lastRunFailed) {
-                          <app-status-badge
-                            status="Failed"
-                            [title]="'Failed ' + (row.task.lastErrorDate | date: 'medium')"
-                          />
-                        } @else {
-                          <app-status-badge status="Ok" />
-                        }
+                          @if (row.task.status === 'Running') {
+                            <svg lucideCircleDashed class="size-4 shrink-0 text-info" aria-label="Running"></svg>
+                          } @else if (row.task.lastRunFailed) {
+                            <svg lucideCircleX class="size-4 shrink-0 text-error" aria-label="Failed"></svg>
+                          } @else {
+                            <svg lucideCircleCheck class="size-4 shrink-0 text-success" aria-label="Succeeded"></svg>
+                          }
+                          <span>
+                            {{ row.task.lastExecution | relativeTime }}
+                            <span class="block text-xs text-base-content/70">{{
+                              row.task.lastExecution | date: 'MMM d, HH:mm'
+                            }}</span>
+                          </span>
+                        </div>
                       } @else {
-                        <app-status-badge status="NotRun" />
+                        <span class="flex items-center gap-2 text-base-content/70">
+                          <svg lucideCircleDashed class="size-4 shrink-0" aria-hidden="true"></svg>Not run yet
+                        </span>
                       }
                     </td>
-                    <td
-                      class="whitespace-nowrap"
-                      [title]="(row.task.nextExecution | date: 'medium') ?? ''"
-                    >
-                      {{ row.task.nextExecution | relativeTime }}
+                    <td class="whitespace-nowrap" [title]="(row.task.nextExecution | date: 'medium') ?? ''">
+                      @if (row.task.nextExecution) {
+                        {{ row.task.nextExecution | relativeTime }}
+                        <span class="block text-xs text-base-content/70">{{
+                          row.task.nextExecution | date: 'MMM d, HH:mm'
+                        }}</span>
+                      } @else {
+                        <span class="text-base-content/45">—</span>
+                      }
                     </td>
-                    <td class="text-right font-mono">{{ row.task.executionCount }}</td>
+                    <td class="text-right font-medium tabular-nums">{{ row.task.executionCount | number }}</td>
                     <td class="whitespace-nowrap">
                       <div class="flex items-center gap-2">
                         <app-status-badge [status]="row.task.status" />
@@ -177,11 +240,11 @@ interface TaskRow {
                         }
                       </div>
                     </td>
-                    <td (click)="$event.stopPropagation()">
+                    <td [class.pr-4]="!canManage()" (click)="$event.stopPropagation()">
                       <app-task-enabled-toggle [task]="row.task" />
                     </td>
                     @if (canManage()) {
-                      <td class="text-right" (click)="$event.stopPropagation()">
+                      <td class="pr-4 text-right" (click)="$event.stopPropagation()">
                         <app-run-task-button [task]="row.task" size="xs" />
                       </td>
                     }
@@ -190,6 +253,17 @@ interface TaskRow {
               </tbody>
             </table>
           </div>
+          <!-- The endpoint returns every task, so paging happens here; a short list needs none. -->
+          @if (rows().length > pageSizes[0]) {
+            <app-pager
+              class="border-t border-base-content/10 px-4 py-3"
+              [page]="currentPage()"
+              [size]="size()"
+              [count]="rows().length"
+              (pageChange)="page.set($event)"
+              (sizeChange)="setSize($event)"
+            />
+          }
         }
       </div>
     </section>
@@ -208,6 +282,14 @@ export class ScheduledTasksPageComponent {
   protected readonly group = signal('');
 
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
+  protected readonly pageSizes = PAGE_SIZES;
+  protected readonly size = signal<number>(PAGE_SIZES[0]);
+  /** 1-based; back to the first page whenever the filter changes, but not on a poll. */
+  protected readonly page = linkedSignal(() => {
+    this.search();
+    this.group();
+    return 1;
+  });
 
   protected readonly groups = computed(() =>
     [...new Set((this.tasks() ?? []).map((t) => t.group).filter((g): g is string => !!g))].sort(),
@@ -246,7 +328,17 @@ export class ScheduledTasksPageComponent {
         task,
         schedule: describeCron(task.cronExpression),
         progress: clampProgress(task.progress),
+        chip: taskChip(task),
       }));
+  });
+
+  /** The requested page, pulled back when a poll or a bigger page size leaves it past the end. */
+  protected readonly currentPage = computed(() =>
+    Math.min(this.page(), Math.max(1, Math.ceil(this.rows().length / this.size()))),
+  );
+  protected readonly pageRows = computed(() => {
+    const start = (this.currentPage() - 1) * this.size();
+    return this.rows().slice(start, start + this.size());
   });
 
   constructor() {
@@ -273,12 +365,13 @@ export class ScheduledTasksPageComponent {
     this.router.navigate(['/scheduled', task.id]);
   }
 
-  protected onSearch(event: Event): void {
-    this.search.set((event.target as HTMLInputElement).value);
-  }
-
   protected onGroup(event: Event): void {
     this.group.set((event.target as HTMLSelectElement).value);
+  }
+
+  protected setSize(size: number): void {
+    this.size.set(size);
+    this.page.set(1);
   }
 
   protected clearFilters(): void {

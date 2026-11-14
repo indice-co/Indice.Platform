@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { LucideCircleCheck, LucideCircleX, LucideX } from '@lucide/angular';
 
 import { ToastService } from '../core/services/toast.service';
 
@@ -6,23 +7,29 @@ import { ToastService } from '../core/services/toast.service';
 @Component({
   selector: 'app-toast-host',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideCircleCheck, LucideCircleX, LucideX],
   template: `
     <div class="toast toast-end z-50" aria-live="polite">
       @for (toast of toasts.toasts(); track toast.id) {
         <div
           role="status"
-          class="alert"
+          class="alert max-w-sm shadow-lg"
           [class.alert-success]="toast.kind === 'success'"
           [class.alert-error]="toast.kind === 'error'"
         >
-          <span>{{ toast.text }}</span>
+          @if (toast.kind === 'error') {
+            <svg lucideCircleX class="size-5 shrink-0" aria-hidden="true"></svg>
+          } @else {
+            <svg lucideCircleCheck class="size-5 shrink-0" aria-hidden="true"></svg>
+          }
+          <span class="text-sm">{{ toast.text }}</span>
           <button
             type="button"
             class="btn btn-ghost btn-xs btn-circle"
             (click)="toasts.dismiss(toast.id)"
             aria-label="Dismiss"
           >
-            &#10005;
+            <svg lucideX class="size-3.5"></svg>
           </button>
         </div>
       }

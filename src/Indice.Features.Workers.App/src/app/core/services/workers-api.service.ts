@@ -27,6 +27,12 @@ export interface DashboardStats {
   disabledTasks: number;
   activeLocks: number;
   servers: number;
+  /** Messages the live workers are processing now; `null` when no live worker reports metrics. */
+  processing?: number | null;
+  /** Messages processed per minute by the live workers, successfully or not. */
+  processedPerMinute?: number | null;
+  /** Messages that failed per minute (retried or poisoned). */
+  failedPerMinute?: number | null;
 }
 
 export interface QueueInfo {
@@ -40,13 +46,30 @@ export interface QueueInfo {
   total: number;
   /** Min visible-at of Enqueued/Retrying messages — the lag indicator. */
   oldestEnqueuedAt?: string | null;
+  /** A live worker consumes the queue. The settings below come from the registered workers. */
   isRegistered: boolean;
+  /** Live workers that consume the queue; `null` when the server table isn't available. */
+  consumers?: number | null;
+  /** The live consumers have different settings, e.g. during a rolling deployment. */
+  hasConfigurationMismatch: boolean;
   workItemType?: string | null;
   handlerType?: string | null;
   /** Milliseconds. */
   pollingInterval?: number | null;
+  /** Dequeue instances across the live workers. */
   instanceCount?: number | null;
   maxRetryCount?: number | null;
+  /**
+   * Activity measured by the live workers and stored with their heartbeat (about the last minute, up to a heartbeat old).
+   * `null` when no live worker reports metrics for the queue.
+   */
+  processing?: number | null;
+  processedPerMinute?: number | null;
+  failedPerMinute?: number | null;
+  /** Average handler time, milliseconds; `null` when nothing was processed recently. */
+  averageDuration?: number | null;
+  /** Average time in the queue before a worker dequeued the message, milliseconds. */
+  averageWait?: number | null;
 }
 
 export interface QueueMessageListItem {
@@ -91,6 +114,7 @@ export interface ScheduledTaskInfo {
   enabled: boolean;
   /** A DB row exists — the task has run at least once. */
   hasRun: boolean;
+  /** A live worker hosts the task, so it can run now even if it has never run. */
   isRegistered: boolean;
   lastExecution?: string | null;
   nextExecution?: string | null;
@@ -109,6 +133,10 @@ export interface ScheduledTaskDetails extends ScheduledTaskInfo {
   errors?: string | null;
   /** Task state (payload) JSON. */
   state?: string | null;
+  /** Average run time on the live workers since they started, milliseconds. */
+  averageDuration?: number | null;
+  /** Time the last run took on a live worker, milliseconds. */
+  lastDuration?: number | null;
 }
 
 export interface LockInfo {
@@ -119,12 +147,41 @@ export interface LockInfo {
   isExpired: boolean;
 }
 
+/**
+ * `Alive` sends its heartbeat, `Stale` missed its last heartbeats (stopping, hung or gone), and
+ * `Unknown` isn't registered — only seen from the scheduled tasks it ran (e.g. an older worker).
+ */
+export type WorkerServerStatus = 'Alive' | 'Stale' | 'Unknown';
+
 export interface WorkerServerInfo {
+  /** `{machine}:{process}:{random}`, or the machine name when the worker isn't registered. */
   workerId: string;
-  /** Max last execution of its tasks. */
+  machineName: string;
+  status: WorkerServerStatus;
+  processId?: number | null;
+  applicationName?: string | null;
+  version?: string | null;
+  startedAt?: string | null;
+  /** Last heartbeat, or the max last execution of its tasks when the worker isn't registered. */
   lastSeen?: string | null;
+  /** Seconds. */
+  heartbeatInterval?: number | null;
+  /** Queues the worker consumes. */
+  queues: string[];
+  /** Ids of the scheduled tasks the worker hosts. */
+  scheduledTasks: string[];
+  /** Tasks whose last run was on this machine. */
   tasks: number;
   runningTasks: number;
+  /** Messages processed since the worker started; `null` when the worker doesn't report metrics. */
+  processed?: number | null;
+  /** Messages that failed since the worker started. */
+  failed?: number | null;
+  /** Messages being processed now. Live workers only. */
+  processing?: number | null;
+  /** Messages processed per minute recently. Live workers only. */
+  processedPerMinute?: number | null;
+  failedPerMinute?: number | null;
 }
 
 /** What the signed-in user may do. Reading needs the `WorkersReader` role, changing anything `WorkersAdmin`. */

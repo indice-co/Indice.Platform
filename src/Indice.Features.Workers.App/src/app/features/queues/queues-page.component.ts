@@ -7,8 +7,10 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { LucideLayers, LucidePlus } from '@lucide/angular';
 import { EMPTY, catchError, finalize, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
@@ -24,10 +26,23 @@ import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { PayloadDialogComponent, PayloadDialogResult } from '../../shared/payload-dialog.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
-import { COUNT_BADGE, countOf, plural, shortTypeName } from './queue-status';
+import { SearchInputComponent } from '../../shared/search-input.component';
+import { QueueMixComponent } from './queue-mix.component';
+import {
+  STATUS_TONE,
+  countOf,
+  describeActivity,
+  formatDuration,
+  formatPolling,
+  formatRate,
+  plural,
+  queueChip,
+  shortTypeName,
+} from './queue-status';
+import { QueueStatusIconComponent } from './queue-status-icon.component';
 
-/** The status columns, left to right. Dequeued only exists in the obsolete EF store. */
-const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retrying', 'Poison'];
+/** The status columns in lifecycle order, as on the queue page. Dequeued only exists in the obsolete EF store. */
+const COLUMNS: readonly QueueMessageStatus[] = ['Scheduled', 'Enqueued', 'Retrying', 'Poison'];
 
 /**
  * Every logical queue with its waiting messages per status (`orders` and `orders-poison` are one
@@ -37,34 +52,33 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retryi
   selector: 'app-queues-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
+    DecimalPipe,
     RouterLink,
+    LucideLayers,
+    LucidePlus,
     EmptyStateComponent,
     PageHeaderComponent,
     PayloadDialogComponent,
+    QueueMixComponent,
+    QueueStatusIconComponent,
     RelativeTimePipe,
+    SearchInputComponent,
   ],
   template: `
     <section class="space-y-4 p-4 sm:p-6">
       <app-page-header title="Queues" [subtitle]="subtitle()">
-        <label class="input input-sm w-56">
-          <svg viewBox="0 0 24 24" fill="none" class="size-4 opacity-50" aria-hidden="true">
-            <path
-              d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          <input
-            type="search"
-            placeholder="Filter queues"
-            aria-label="Filter queues"
-            [value]="filter()"
-            (input)="filter.set($any($event.target).value)"
-          />
-        </label>
+        <app-search-input
+          class="w-full sm:w-56"
+          placeholder="Filter queues"
+          [debounce]="150"
+          [value]="filter()"
+          (search)="filter.set($event)"
+        />
         @if (canManage()) {
-          <button type="button" class="btn btn-sm" (click)="payloadDialog.open()">Add message</button>
+          <button type="button" class="btn btn-sm btn-primary gap-1.5" (click)="payloadDialog.open()">
+            <svg lucidePlus class="size-4"></svg>Add message
+          </button>
         }
       </app-page-header>
 
@@ -72,60 +86,135 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retryi
         <div role="alert" class="alert alert-error alert-soft">{{ message }}</div>
       }
 
-      <div class="card bg-base-100 shadow-sm">
+      <div class="card overflow-hidden bg-base-100 shadow-sm">
         @if (queues(); as all) {
           @if (visible().length) {
             <div class="overflow-x-auto">
               <table class="table table-sm">
                 <thead>
                   <tr>
-                    <th>Queue</th>
+                    <th class="pl-4">Queue</th>
+                    <th>Messages</th>
                     @for (status of columns; track status) {
-                      <th class="text-right">{{ status }}</th>
+                      <th class="text-right">
+                        <span class="inline-flex items-center gap-1.5">
+                          <app-queue-status-icon class="size-3.5" [class]="tone[status].text" [status]="status" />
+                          {{ status }}
+                        </span>
+                      </th>
                     }
                     <th>Oldest waiting</th>
+                    @if (showActivity()) {
+                      <th>Throughput</th>
+                    }
                     @if (showWorkers()) {
-                      <th>Workers</th>
+                      <th class="pr-4">Workers</th>
                     }
                   </tr>
                 </thead>
                 <tbody>
                   @for (queue of visible(); track queue.name) {
-                    <tr class="cursor-pointer hover:bg-base-200" (click)="open(queue)">
-                      <td class="max-w-xs">
-                        <a
-                          [routerLink]="['/queues', queue.name]"
-                          class="block truncate font-medium"
-                          [title]="queue.name"
-                          (click)="$event.stopPropagation()"
-                          >{{ queue.name }}</a
-                        >
-                        @if (handlerName(queue); as handler) {
-                          <span
-                            class="block truncate font-mono text-xs text-base-content/55"
-                            [title]="queue.handlerType"
-                            >{{ handler }}</span
-                          >
-                        }
+                    <tr class="cursor-pointer hover:bg-base-200/60" (click)="open(queue)">
+                      <td class="max-w-xs py-2.5 pl-4">
+                        <div class="flex min-w-0 items-center gap-3">
+                          <span class="grid size-8 shrink-0 place-items-center rounded-field" [class]="chip(queue)">
+                            <svg lucideLayers class="size-4"></svg>
+                          </span>
+                          <div class="min-w-0">
+                            <a
+                              [routerLink]="['/queues', queue.name]"
+                              class="block truncate font-medium hover:underline"
+                              [title]="queue.name"
+                              (click)="$event.stopPropagation()"
+                              >{{ queue.name }}</a
+                            >
+                            @if (handlerName(queue); as handler) {
+                              <span
+                                class="block truncate font-mono text-xs text-base-content/70"
+                                [title]="queue.handlerType"
+                                >{{ handler }}</span
+                              >
+                            }
+                          </div>
+                        </div>
+                      </td>
+                      <td class="w-36 min-w-32">
+                        <span class="text-sm font-semibold tabular-nums">{{ queue.total | number }}</span>
+                        <app-queue-mix class="mt-1 w-28" [queue]="queue" [thin]="true" />
                       </td>
                       @for (status of columns; track status) {
                         <td class="text-right tabular-nums">
                           @if (count(queue, status); as n) {
-                            <span class="badge badge-sm" [class]="badge[status]">{{ n }}</span>
+                            <a
+                              [routerLink]="['/queues', queue.name]"
+                              [queryParams]="{ status }"
+                              class="font-semibold hover:underline"
+                              [class]="tone[status].text"
+                              [title]="'Open the ' + status.toLowerCase() + ' messages'"
+                              (click)="$event.stopPropagation()"
+                              >{{ n | number }}</a
+                            >
                           } @else {
-                            <span class="text-base-content/40">0</span>
+                            <span class="text-base-content/45">0</span>
                           }
                         </td>
                       }
-                      <td class="whitespace-nowrap text-base-content/70">
-                        {{ queue.oldestEnqueuedAt | relativeTime }}
+                      <td
+                        class="whitespace-nowrap text-base-content/80"
+                        [title]="queue.oldestEnqueuedAt ? (queue.oldestEnqueuedAt | date: 'medium') : ''"
+                      >
+                        @if (queue.oldestEnqueuedAt) {
+                          {{ queue.oldestEnqueuedAt | relativeTime }}
+                        } @else {
+                          <span class="text-base-content/45">—</span>
+                        }
                       </td>
-                      @if (showWorkers()) {
-                        <td class="whitespace-nowrap text-base-content/70">
-                          @if (queue.instanceCount != null && queue.pollingInterval != null) {
-                            {{ queue.instanceCount }} × every {{ queue.pollingInterval }} ms
+                      @if (showActivity()) {
+                        <td class="whitespace-nowrap tabular-nums" [title]="activityTitle(queue)">
+                          @if (queue.processedPerMinute != null) {
+                            <span class="font-medium">{{ rate(queue.processedPerMinute) }}</span>
+                            @if (queue.failedPerMinute) {
+                              <span class="ml-1 text-xs text-error">{{ rate(queue.failedPerMinute) }} failed</span>
+                            }
+                            @if (queue.averageDuration != null || queue.processing) {
+                              <span class="block text-xs text-base-content/70">
+                                @if (queue.averageDuration != null) {
+                                  {{ duration(queue.averageDuration) }} avg
+                                }
+                                @if (queue.averageDuration != null && queue.processing) {
+                                  ·
+                                }
+                                @if (queue.processing) {
+                                  {{ queue.processing | number }} in progress
+                                }
+                              </span>
+                            }
                           } @else {
-                            —
+                            <span class="text-base-content/45">—</span>
+                          }
+                        </td>
+                      }
+                      @if (showWorkers()) {
+                        <td class="whitespace-nowrap pr-4 text-base-content/80">
+                          @if (queue.isRegistered && queue.pollingInterval != null) {
+                            <span [title]="workersTitle(queue)">
+                              {{ queue.instanceCount }} × every {{ polling(queue.pollingInterval) }}
+                            </span>
+                            @if (queue.hasConfigurationMismatch) {
+                              <span
+                                class="badge badge-warning badge-soft badge-xs ml-1"
+                                title="The workers that consume this queue have different settings, e.g. during a rolling deployment."
+                                >mixed settings</span
+                              >
+                            }
+                          } @else if (queue.consumers === 0) {
+                            <span
+                              class="badge badge-warning badge-soft badge-sm"
+                              title="No live worker consumes this queue, so its messages wait until one starts."
+                              >No worker</span
+                            >
+                          } @else {
+                            <span class="text-base-content/45">—</span>
                           }
                         </td>
                       }
@@ -142,7 +231,7 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retryi
         } @else {
           <div class="space-y-2 p-4">
             @for (i of skeletonRows; track i) {
-              <div class="skeleton h-8 w-full"></div>
+              <div class="skeleton h-10 w-full"></div>
             }
           </div>
         }
@@ -155,6 +244,7 @@ const COLUMNS: readonly QueueMessageStatus[] = ['Enqueued', 'Scheduled', 'Retryi
       description="Pick an existing queue or type the name of a queue whose worker has no messages yet."
       hint="It must deserialize into the work item of the queue, or it ends up as poison."
       confirmLabel="Add message"
+      confirmIcon="add"
       [askQueue]="true"
       [queues]="queueNames()"
       [askVisibleAt]="true"
@@ -174,8 +264,13 @@ export class QueuesPageComponent {
   private readonly payloadDialog = viewChild.required<PayloadDialogComponent>('payloadDialog');
 
   protected readonly columns = COLUMNS;
-  protected readonly badge = COUNT_BADGE;
+  protected readonly tone = STATUS_TONE;
   protected readonly count = countOf;
+  protected readonly polling = formatPolling;
+  protected readonly rate = formatRate;
+  protected readonly duration = formatDuration;
+  protected readonly activityTitle = (queue: QueueInfo): string => describeActivity(queue) ?? '';
+  protected readonly chip = queueChip;
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
   protected readonly emptyText =
     'Processed messages are removed from the store, so only waiting, delayed, retrying and ' +
@@ -205,11 +300,16 @@ export class QueuesPageComponent {
   });
 
   /**
-   * Polling settings are only known inside a worker process, and the dashboard normally runs
-   * elsewhere — so the column appears only when some queue actually reports them.
+   * Polling settings come from the workers that register themselves on startup. Older workers
+   * don't, so the column appears only when some queue reports configuration or consumer counts.
    */
   protected readonly showWorkers = computed(() =>
-    (this.queues() ?? []).some((q) => q.instanceCount != null),
+    (this.queues() ?? []).some((q) => q.instanceCount != null || q.consumers != null),
+  );
+
+  /** Throughput is measured by the workers that report metrics, so it appears only when some queue has it. */
+  protected readonly showActivity = computed(() =>
+    (this.queues() ?? []).some((q) => q.processedPerMinute != null),
   );
 
   constructor() {
@@ -234,6 +334,10 @@ export class QueuesPageComponent {
 
   protected handlerName(queue: QueueInfo): string | null {
     return shortTypeName(queue.handlerType);
+  }
+
+  protected workersTitle(queue: QueueInfo): string {
+    return `${plural(queue.consumers ?? 0, 'live worker')}, ${plural(queue.instanceCount ?? 0, 'dequeue instance')} in total`;
   }
 
   protected open(queue: QueueInfo): void {

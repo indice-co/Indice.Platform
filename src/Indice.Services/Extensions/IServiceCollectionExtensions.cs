@@ -439,6 +439,67 @@ public static class IndiceServicesServiceCollectionExtensions
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
     }
 
+    /// <summary>
+    /// Adds <see cref="IEventDispatcher"/> that publishes the events to the queues of a remote workers API over HTTP (<see cref="EventDispatcherHostingHttp"/>).
+    /// The access token is obtained with the client credentials flow, when a <see cref="EventDispatcherHostingHttpOptions.ClientId"/> is configured.
+    /// </summary>
+    /// <remarks>The <see cref="HttpClient"/> is named <see cref="EventDispatcherHostingHttp.HttpClientName"/>, so it can be further configured through <c>services.AddHttpClient(EventDispatcherHostingHttp.HttpClientName)</c>.</remarks>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configure">Configure the available options. Runs after the defaults are read from the configuration.</param>
+    public static IServiceCollection AddEventDispatcherHostingHttp(this IServiceCollection services, Action<IServiceProvider, EventDispatcherHostingHttpOptions>? configure = null) {
+        var httpClientName = EventDispatcherHostingHttp.HttpClientName;
+        AddEventDispatcherHostingHttpClient(services, httpClientName, configure);
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        return services.AddTransient<IEventDispatcher, EventDispatcherHostingHttp>(serviceProvider => CreateEventDispatcherHostingHttp(serviceProvider, httpClientName));
+    }
+
+    /// <summary>
+    /// Adds <see cref="IEventDispatcher"/> that publishes the events to the queues of a remote workers API over HTTP (<see cref="EventDispatcherHostingHttp"/>).
+    /// The access token is obtained with the client credentials flow, when a <see cref="EventDispatcherHostingHttpOptions.ClientId"/> is configured.
+    /// </summary>
+    /// <remarks>The <see cref="HttpClient"/> is named <c>{EventDispatcherHostingHttp.HttpClientName}:{name}</c>, so it can be further configured through <c>services.AddHttpClient(...)</c>.</remarks>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="name">The key under which the specified implementation is registered.</param>
+    /// <param name="configure">Configure the available options. Runs after the defaults are read from the configuration.</param>
+    public static IServiceCollection AddEventDispatcherHostingHttp(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherHostingHttpOptions>? configure = null) {
+        var httpClientName = $"{EventDispatcherHostingHttp.HttpClientName}:{name}";
+        AddEventDispatcherHostingHttpClient(services, httpClientName, configure);
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        return services.AddKeyedTransient<IEventDispatcher, EventDispatcherHostingHttp>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => CreateEventDispatcherHostingHttp(serviceProvider, httpClientName));
+    }
+
+    private static void AddEventDispatcherHostingHttpClient(IServiceCollection services, string httpClientName, Action<IServiceProvider, EventDispatcherHostingHttpOptions>? configure) {
+        var tokenHttpClientName = $"{httpClientName}:token";
+        // The options and the token cache are singletons per HTTP client name.
+        services.AddKeyedSingleton(httpClientName, (serviceProvider, _) => {
+            var configuration = serviceProvider.GetService<IConfiguration>();
+            var secrets = configuration?.GetSecrets();
+            var endpoint = configuration?.TryGetEndpoint("Workers");
+            var options = new EventDispatcherHostingHttpOptions {
+                BaseAddress = string.IsNullOrWhiteSpace(endpoint) ? null : new Uri(endpoint, UriKind.Absolute),
+                Authority = configuration?.GetAuthority(tryInternal: true),
+                ClientId = secrets?.GetValueOrDefault("ClientId"),
+                ClientSecret = secrets?.GetValueOrDefault("ClientSecret")
+            };
+            configure?.Invoke(serviceProvider, options);
+            return options;
+        });
+        services.AddKeyedSingleton(httpClientName, (serviceProvider, serviceKey) => new EventDispatcherHostingHttpTokenProvider(
+            serviceProvider.GetRequiredService<IHttpClientFactory>(),
+            tokenHttpClientName,
+            serviceProvider.GetRequiredKeyedService<EventDispatcherHostingHttpOptions>(serviceKey)
+        ));
+        services.AddHttpClient(tokenHttpClientName);
+        services.AddHttpClient(httpClientName)
+                .AddHttpMessageHandler(serviceProvider => new EventDispatcherHostingHttpTokenHandler(serviceProvider.GetRequiredKeyedService<EventDispatcherHostingHttpTokenProvider>(httpClientName)));
+    }
+
+    private static EventDispatcherHostingHttp CreateEventDispatcherHostingHttp(IServiceProvider serviceProvider, string httpClientName) => new(
+        serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient(httpClientName),
+        serviceProvider.GetRequiredKeyedService<EventDispatcherHostingHttpOptions>(httpClientName),
+        serviceProvider.GetService<ILogger<EventDispatcherHostingHttp>>()
+    );
+
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<object?, IServiceProvider, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>?, EventDispatcherAzureServiceBus> GetEventDispatcherAzureServiceBus = (serviceKey, serviceProvider, configure) => {
         var options = new EventDispatcherAzureServiceBusOptions {

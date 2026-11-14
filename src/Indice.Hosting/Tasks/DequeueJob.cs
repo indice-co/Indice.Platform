@@ -1,4 +1,5 @@
 ﻿using Indice.Hosting.Services;
+using Indice.Hosting.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -9,11 +10,13 @@ internal class DequeueJob<TWorkItem> : IJob where TWorkItem : class
 {
     private readonly IMessageQueue<TWorkItem> _workItemQueue;
     private readonly TaskHandlerActivator _taskHandlerActivator;
+    private readonly WorkerMetrics _metrics;
     private readonly ILogger<DequeueJob<TWorkItem>> _logger;
 
-    public DequeueJob(IMessageQueue<TWorkItem> workItemQueue, TaskHandlerActivator taskHandlerActivator, ILogger<DequeueJob<TWorkItem>> logger) {
+    public DequeueJob(IMessageQueue<TWorkItem> workItemQueue, TaskHandlerActivator taskHandlerActivator, WorkerMetrics metrics, ILogger<DequeueJob<TWorkItem>> logger) {
         _workItemQueue = workItemQueue ?? throw new ArgumentNullException(nameof(workItemQueue));
         _taskHandlerActivator = taskHandlerActivator ?? throw new ArgumentNullException(nameof(taskHandlerActivator));
+        _metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -25,10 +28,15 @@ internal class DequeueJob<TWorkItem> : IJob where TWorkItem : class
         var workItem = await _workItemQueue.Dequeue();
         if (workItem != null) {
             jobDataMap[JobDataKeys.BackoffIndex] = 0;
+            var queueName = jobDataMap.GetString(JobDataKeys.QueueName) ?? workItem.QueueName;
+            var startTimestamp = _metrics.MessageStarted(queueName, workItem.Date);
             try {
                 await _taskHandlerActivator.Invoke(jobHandlerType!, jobDataMap, context.CancellationToken, workItem.Value);
+                _metrics.MessageCompleted(queueName, startTimestamp, MessageOutcome.Succeeded);
             } catch (Exception exception) {
-                if (workItem.DequeueCount < maxRetryCount) {
+                var retry = workItem.DequeueCount < maxRetryCount;
+                _metrics.MessageCompleted(queueName, startTimestamp, retry ? MessageOutcome.Retried : MessageOutcome.Poisoned);
+                if (retry) {
                     await _workItemQueue.ReEnqueue(workItem); // Re-enqueue to retry.
                 } else {
                     await _workItemQueue.MarkPoison(workItem); // Enqueue to poison enqueue.
