@@ -163,8 +163,11 @@ public abstract class BaseLoginModel : BasePageModel
         }
         // Validate username/password against database.
         var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, IdentityUIOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
-        var user = (await UserManager.FindByNameAsync(Input.UserName!)) ?? throw new InvalidOperationException($"User '{Input.UserName}' signed in successfully but could not be found."); ;
+        var user = await UserManager.FindByNameAsync(Input.UserName!);
         if (result.Succeeded) {
+            if (user is null) {
+                throw new InvalidOperationException($"User '{Input.UserName}' signed in successfully but could not be found.");
+            }
             // Replace locale Claim only if it has a different value configured.
             var localeClaim = user.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale);
             if (localeClaim is null) {
