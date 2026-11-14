@@ -1,17 +1,7 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityModel;
-#else
-using IdentityModel;
-#endif
-#if NET9_0_OR_GREATER
+﻿using Duende.IdentityModel;
 using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Hosting;
 using Duende.IdentityServer.ResponseHandling;
-#else
-using IdentityServer4.Extensions;
-using IdentityServer4.Hosting;
-using IdentityServer4.ResponseHandling;
-#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Endpoints.Results;

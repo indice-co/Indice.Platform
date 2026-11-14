@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-using System.Text.Json.Serialization.Metadata;
+﻿using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using Indice.Types;
 using Microsoft.AspNetCore.OpenApi;
@@ -60,4 +59,3 @@ public static class TypeConventionTransformer
         return schema.Type == JsonSchemaType.Object && schema.Properties?.Count > 0 && type is not null && !type.IsPrimitive() && !type.IsDictionary() && type!.Namespace?.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) != true;
     }
 }
-#endif

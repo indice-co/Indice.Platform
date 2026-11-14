@@ -1,11 +1,6 @@
 ﻿using System.Collections.Generic;
-#if NET9_0_OR_GREATER
 using IdSrvModels = Duende.IdentityServer.Models;
 using IdSrvEntities = Duende.IdentityServer.EntityFramework.Entities;
-#else
-using IdSrvModels = IdentityServer4.Models;
-using IdSrvEntities = IdentityServer4.EntityFramework.Entities;
-#endif
 using Indice.Types;
 
 namespace Indice.Features.Identity.Server.Manager.Models;

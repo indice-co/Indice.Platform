@@ -87,7 +87,7 @@ Pull requests always target **`develop`**.
 - 🗄️ **EF Core:** entity is `DbXxx`, DTO is `Xxx`; map with `IEntityTypeConfiguration<T>`; use the `DbContext` directly, no repository layer.
 - 🔐 **Secure by default:** `.RequireAuthorization()` on every route group, reuse existing policy names.
 - 🧩 **DI:** register services with `TryAddTransient` so consumers can override them.
-- 🎯 **All three target frameworks** (`net8.0`, `net9.0`, `net10.0`) must compile.
+- 🎯 **All target frameworks** (currently `net10.0`) must compile.
 - 🚫 **No new NuGet dependencies or new abstractions** without agreeing on them in the issue first.
 
 This is not the complete rulebook. For more, look for the Indice skills (if you have access to them) or read the existing code and follow what it does.

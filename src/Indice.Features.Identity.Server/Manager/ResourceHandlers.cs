@@ -1,11 +1,6 @@
 ﻿using Duende.IdentityModel;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.EntityFramework.Entities;
-#else
-using IdentityServer4;
-using IdentityServer4.EntityFramework.Entities;
-#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -201,11 +196,7 @@ internal static class ResourceHandlers
             Description = apiScope.Description,
             DisplayName = apiScope.DisplayName,
             Emphasize = apiScope.Emphasize,
-#if NET9_0_OR_GREATER
             NonEditable = apiScope.NonEditable,
-#else
-            NonEditable = false,
-#endif
             UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
             ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
             Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
@@ -272,11 +263,9 @@ internal static class ResourceHandlers
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
-#if NET9_0_OR_GREATER
         if (apiScope.NonEditable) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Cannot delete a reserved API scope."));
         }
-#endif
         var isInUse = await configurationDbContext.ApiResources.AnyAsync(x => x.Scopes.Any(s => s.Scope == scopeName));
         if (isInUse) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeName).ToLower(), "Cannot delete API scope as it is in use."));
@@ -398,11 +387,7 @@ internal static class ResourceHandlers
                     Description = result.ApiScope.Description,
                     DisplayName = result.ApiScope.DisplayName,
                     Emphasize = result.ApiScope.Emphasize,
-#if NET9_0_OR_GREATER
                     NonEditable = result.ApiScope.NonEditable,
-#else
-                    NonEditable = false,
-#endif
                     UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                     ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
                     Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(result.ApiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
@@ -679,11 +664,9 @@ internal static class ResourceHandlers
         if (apiScope == null) {
             return TypedResults.NotFound();
         }
-#if NET9_0_OR_GREATER
         if (apiScope.NonEditable) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(scopeId).ToLower(), "Cannot delete a reserved API scope."));
         }
-#endif
         apiResource.Scopes!.Remove(apiResourceScope);
         configurationDbContext.ApiScopes.Remove(apiScope);
         await configurationDbContext.SaveChangesAsync();

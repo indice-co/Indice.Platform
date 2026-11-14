@@ -1,8 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityModel;
-#else
-using IdentityModel;
-#endif
+﻿using Duende.IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 

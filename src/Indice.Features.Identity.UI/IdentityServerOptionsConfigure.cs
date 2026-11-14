@@ -1,5 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.Configuration;
+﻿using Duende.IdentityServer.Configuration;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 
@@ -27,4 +26,3 @@ public class IdentityServerOptionsConfigure(IOptions<IdentityUIOptions> identity
         Configure(null, options);
     }
 }
-#endif

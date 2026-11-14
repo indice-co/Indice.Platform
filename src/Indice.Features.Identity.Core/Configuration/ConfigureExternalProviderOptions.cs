@@ -1,9 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.Infrastructure;
-#else
-using IdentityServer4.Infrastructure;
-using Microsoft.AspNetCore.Http;
-#endif
+﻿using Duende.IdentityServer.Infrastructure;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Distributed;
@@ -64,11 +59,7 @@ internal class ConfigureExternalProviderOptions : IPostConfigureOptions<OpenIdCo
         var secureDataFormat = default(ISecureDataFormat<AuthenticationProperties>);
         // no schemes means configure them all
         if (_schemes.Length == 0 || _schemes.Contains(name)) {
-#if NET9_0_OR_GREATER
             secureDataFormat = new DistributedCacheStateDataFormatter(_serviceProvider, name);
-#else
-            secureDataFormat = new DistributedCacheStateDataFormatter(_serviceProvider.GetRequiredService<IHttpContextAccessor>(), name);
-#endif
         }
 
         if (!warnedInMemory) {

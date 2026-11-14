@@ -1,18 +1,7 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityModel;
-#else
-using IdentityModel;
-using IdentityServer4.Extensions;
-
-#endif
-#if NET9_0_OR_GREATER
+﻿using Duende.IdentityModel;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Extensions;
-#else
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-#endif
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Grants;
 using Indice.Security;

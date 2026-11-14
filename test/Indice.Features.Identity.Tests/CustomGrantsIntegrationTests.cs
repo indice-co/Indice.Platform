@@ -9,21 +9,12 @@ using System.Text.Json.Serialization;
 using Duende.IdentityModel;
 using Duende.IdentityModel.Client;
 
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Events;
-#else
-using IdentityServer4;
-using IdentityServer4.Models;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Services;
-using Indice.Features.Identity.Core.TokenCreation;
-using IdentityServer4.Events;
-#endif
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -285,9 +276,6 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 return new CompositeEventSink(inner, _raisedEvents);
             }, sinkDescriptor.Lifetime));
             services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
-#if !NET9_0_OR_GREATER
-            services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
-#endif
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {

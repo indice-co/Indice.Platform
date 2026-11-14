@@ -1,20 +1,10 @@
 ﻿using System.Net;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Validation;
-#else
-using IdentityServer4;
-using IdentityServer4.Models;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
-using Microsoft.AspNetCore.Authentication;
-#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Grants;
@@ -46,13 +36,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object.</param>
     public ExtendedTokenResponseGenerator(
 
-#if NET9_0_OR_GREATER
         IClock clock,
-#else
-#pragma warning disable CS0618 // Type or member is obsolete
-        ISystemClock clock,
-#pragma warning restore CS0618 // Type or member is obsolete
-#endif
         ITokenService tokenService,
         IRefreshTokenService refreshTokenService,
         IScopeParser scopeParser,
@@ -102,12 +86,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
             if (client is null) {
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
-#if NET9_0_OR_GREATER
             var validatedResources = request.ValidatedRequest.ValidatedResources;
-#else
-            var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RequestedScopes!);
-            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
-#endif
             var tokenRequest = new TokenCreationRequest {
                 Subject = request.ValidatedRequest.Subject,
                 ValidatedResources =  validatedResources,
@@ -144,12 +123,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
             if (client is null) {
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
-#if NET9_0_OR_GREATER
             var validatedResources = request.ValidatedRequest.ValidatedResources;
-#else
-            var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RequestedScopes);
-            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
-#endif
             var tokenRequest = new TokenCreationRequest {
                 Subject = request.ValidatedRequest.Subject,
                 ValidatedResources = validatedResources,

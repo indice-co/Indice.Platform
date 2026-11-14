@@ -1,8 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.EntityFramework.Entities;
-#else
-using IdentityServer4.EntityFramework.Entities;
-#endif
+﻿using Duende.IdentityServer.EntityFramework.Entities;
 
 namespace Indice.Features.Identity.Core.Data.Models;
 

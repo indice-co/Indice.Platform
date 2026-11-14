@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.OpenApi;
@@ -97,4 +96,3 @@ public static class NullableTransformer
         schema.Metadata?.Remove("x-is-nullable-property");
     }
 }
-#endif

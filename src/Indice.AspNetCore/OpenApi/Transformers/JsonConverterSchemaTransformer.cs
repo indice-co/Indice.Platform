@@ -1,5 +1,4 @@
-﻿#if NET10_0_OR_GREATER
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Schema;
 using Indice.Serialization;
 using Microsoft.AspNetCore.OpenApi;
@@ -130,4 +129,3 @@ public static class JsonConverterSchemaTransformer
         return strippedOptions;
     }
 }
-#endif

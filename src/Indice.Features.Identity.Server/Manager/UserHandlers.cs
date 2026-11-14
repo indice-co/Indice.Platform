@@ -1,19 +1,11 @@
 ﻿using System.Security.Claims;
 using Duende.IdentityModel;
-#if NET9_0_OR_GREATER
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Stores.Serialization;
 using Microsoft.AspNetCore.Mvc;
-#else
-using IdentityServer4.Events;
-using IdentityServer4.Extensions;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Stores.Serialization;
-#endif
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -692,14 +684,9 @@ internal static class UserHandlers
     }
 
     internal static async Task<Ok<ResultSet<ServerSideSessionInfo>>> GetUserSessions(
-#if NET9_0_OR_GREATER
         [FromServices]IServerSideSessionStore? sessionStore,
-#endif
         string userId,
         CancellationToken cancellationToken) {
-#if !NET9_0_OR_GREATER
-        return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
-#else
         if (string.IsNullOrWhiteSpace(userId) || sessionStore is null) {
             return TypedResults.Ok(new ResultSet<ServerSideSessionInfo>());
         }
@@ -715,20 +702,14 @@ internal static class UserHandlers
             Expires = x.Expires,
             Ticket = x.Ticket
         }).ToResultSet());
-#endif
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> RemoveUserSession(
-#if NET9_0_OR_GREATER
         [FromServices]ISessionManagementService? sessionManagement,
         [FromServices]ExtendedUserManager<User> userManager,
-#endif
         string userId,
         string sessionId,
         CancellationToken cancellationToken) {
-#if !NET9_0_OR_GREATER
-        return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
-#else
         if (sessionManagement is null) {
             return TypedResults.ValidationProblem(ValidationErrors.Create(), detail: "Not supported");
         }
@@ -741,7 +722,6 @@ internal static class UserHandlers
             SubjectId = userId
         }, cancellationToken);
         return TypedResults.NoContent();
-#endif
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SetUserBlock(

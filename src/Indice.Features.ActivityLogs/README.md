@@ -12,7 +12,7 @@ A comprehensive .NET library for tracking and managing user activity logs in ASP
 - **Extensible Architecture**: Custom enrichers, filters, and event converters for tailored logging behavior
 - **Automatic Cleanup**: Configurable retention policies with background cleanup service
 - **Event Integration**: Convert and adapt domain events into activity log entries
-- **Multi-Target Support**: Compatible with .NET 8, .NET 9, and .NET 10
+- **Target Framework Support**: Compatible with .NET 10
 
 ## Installation
 

@@ -1,12 +1,6 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.EntityFramework.DbContexts;
+﻿using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
 using Duende.IdentityServer.Models;
-#else
-using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.Models;
-using Indice.IdentityServer.EntityFramework.Storage.Mappers;
-#endif
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -92,10 +86,8 @@ public static class ConfigurationExtensions
         if (!context.ApiScopes.Any() && apiScopes != null) {
             foreach (var apiScope in apiScopes) {
                 var apiScopeEntity = apiScope.ToEntity();
-#if NET9_0_OR_GREATER
                 // Make initial system resources non-editable.
                 apiScopeEntity.NonEditable = true;
-#endif
                 context.ApiScopes.Add(apiScopeEntity);
             }
             context.SaveChanges();

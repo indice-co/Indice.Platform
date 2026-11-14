@@ -1,5 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.Services;
+﻿using Duende.IdentityServer.Services;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace Indice.Features.Identity.Core.Cache;
@@ -57,4 +56,3 @@ internal class DuendeHybridCache<T> : ICache<T> where T : class
     }
 }
 
-#endif

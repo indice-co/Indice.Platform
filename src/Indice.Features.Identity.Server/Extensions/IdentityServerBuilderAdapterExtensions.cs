@@ -1,14 +1,7 @@
-﻿#if NET9_0_OR_GREATER
-using Duende.IdentityServer.ResponseHandling;
+﻿using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Validation;
-#else
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
-#endif
 using Indice.Features.Identity.Core.Scopes;
 using Indice.Features.Identity.Server;
 
@@ -240,20 +233,9 @@ public static class IdentityServerBuilderAdapterExtensions
         return builder;
     }
 
-#if !NET9_0_OR_GREATER
-    /// <summary>Adds a custom authorization request parameter store.</summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
-    /// <returns>The builder.</returns>
-    public static IExtendedIdentityServerBuilder AddAuthorizationParametersMessageStore<T>(this IExtendedIdentityServerBuilder builder) where T : class, IAuthorizationParametersMessageStore {
-        IdentityServerBuilderExtensionsAdditional.AddAuthorizationParametersMessageStore<T>(builder);
-        return builder;
-    }
-#endif
 
 
 
-#if NET9_0_OR_GREATER
     /// <summary>
     /// Adds a signing key store.
     /// </summary>
@@ -343,7 +325,6 @@ public static class IdentityServerBuilderAdapterExtensions
         IdentityServerBuilderExtensionsAdditional.AddBackchannelAuthenticationUserNotificationService<T>(builder);
         return builder;
     }
-#endif
 
     /// <summary>Adds the scope metadata endpoint that will resolve the scope display name/description. Default configuration.</summary>
     /// <typeparam name="TScopeMetadataService">The type of provided implementation of <see cref="IParsedScopeMetadataService"/>.</typeparam>

@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
@@ -45,4 +44,3 @@ public static class EndpointSecurityRequirementsTransformer
         return options;
     }
 }
-#endif

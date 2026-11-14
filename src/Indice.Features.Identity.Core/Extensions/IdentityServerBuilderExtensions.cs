@@ -1,17 +1,10 @@
-﻿#if NET9_0_OR_GREATER
-using IdSrvModels = Duende.IdentityServer.Models;
+﻿using IdSrvModels = Duende.IdentityServer.Models;
 using Duende.IdentityServer.EntityFramework.Entities;
 using Duende.IdentityServer.EntityFramework.Options;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.EntityFramework;
 using Indice.Features.Identity.Core.TokenCleanup;
 using Indice.Features.Identity.Core.Cache;
-#else
-using IdSrvModels = IdentityServer4.Models;
-using IdentityServer4.EntityFramework.Entities;
-using IdentityServer4.EntityFramework.Options;
-using IdentityServer4.Services;
-#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
@@ -132,9 +125,7 @@ public static class IdentityServerBuilderExtensions
         options.IdentityResource = new TableConfiguration(nameof(IdentityResource));
         options.IdentityResourceClaim = new TableConfiguration(nameof(IdentityResourceClaim));
         options.IdentityResourceProperty = new TableConfiguration(nameof(IdentityResourceProperty));
-#if NET9_0_OR_GREATER
         options.IdentityProvider = new TableConfiguration(nameof(IdentityProvider));
-#endif
     }
 
     /// <summary>Setup operational store.</summary>
@@ -143,14 +134,11 @@ public static class IdentityServerBuilderExtensions
         options.DefaultSchema = "auth";
         options.PersistedGrants = new TableConfiguration(nameof(PersistedGrant));
         options.DeviceFlowCodes = new TableConfiguration(nameof(IdSrvModels.DeviceCode));
-#if NET9_0_OR_GREATER
         options.ServerSideSessions = new TableConfiguration(nameof(IdSrvModels.ServerSideSession));
         options.Keys = new TableConfiguration(nameof(Key));
         options.PushedAuthorizationRequests = new TableConfiguration(nameof(PushedAuthorizationRequest));
-#endif
     }
 
-#if NET9_0_OR_GREATER
     /// <summary>
     /// Registers an alternative implementation of <see cref="TokenCleanupService"/>   
     /// that user an alternative way to delete records and removes events. 
@@ -173,5 +161,4 @@ public static class IdentityServerBuilderExtensions
         builder.Services.AddTransient(typeof(ICache<>), typeof(DuendeHybridCache<>));
         return builder;
     }
-#endif
 }
