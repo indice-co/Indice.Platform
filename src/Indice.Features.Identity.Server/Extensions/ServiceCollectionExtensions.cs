@@ -207,7 +207,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
 
     // The returned certificate is owned by the IdentityServer signing credential store for the lifetime of the application.
     private static X509Certificate2 LoadSigningCertificate(IConfiguration configuration, IWebHostEnvironment webHostEnvironment) {
-        var path = Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty);
+        var signingPfxFile = configuration["IdentityServer:SigningPfxFile"] ?? string.Empty;
+        var path = Path.IsPathRooted(signingPfxFile)
+            ? signingPfxFile
+            : Path.Combine(webHostEnvironment.ContentRootPath, signingPfxFile);
 #if NET9_0_OR_GREATER
         return X509CertificateLoader.LoadPkcs12FromFile(path, configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
 #else
