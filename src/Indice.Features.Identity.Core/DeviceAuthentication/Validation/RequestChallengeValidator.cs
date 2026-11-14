@@ -30,28 +30,29 @@ internal class RequestChallengeValidator
                 ErrorDescription = "Public key algorithm is not supported."
             };
         }
-        SecurityKey securityKey;
+        bool isValid;
         if (publicKey.IsCertificate()) {
 #if NET9_0_OR_GREATER
-            var certificate = X509CertificateLoader.LoadCertificate(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()));
+            using var certificate = X509CertificateLoader.LoadCertificate(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()));
 #else
-            var certificate = new X509Certificate2(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()));
+            using var certificate = new X509Certificate2(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()));
 #endif
-            securityKey = new X509SecurityKey(certificate);
+            // X509SecurityKey uses its own RSA instance (GetRSAPublicKey), so cached signature providers outlive the disposed certificate safely.
+            isValid = ValidateChallengeAgainstSignature(codeChallenge, signature, new X509SecurityKey(certificate));
         } else {
-            var rsa = RSA.Create();
+            using var rsa = RSA.Create();
             if (publicKey.IsRSAPublicKey()) {
                 rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()), out _);
             } else {
                 rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()), out _);
             }
-            securityKey = new RsaSecurityKey(rsa) {
+            isValid = ValidateChallengeAgainstSignature(codeChallenge, signature, new RsaSecurityKey(rsa) {
                 CryptoProviderFactory = new CryptoProviderFactory {
                     CacheSignatureProviders = false
                 }
-            };
+            });
         }
-        if (!ValidateChallengeAgainstSignature(codeChallenge, signature, securityKey)) {
+        if (!isValid) {
             return new ValidationResult {
                 IsError = true,
                 Error = OidcConstants.TokenErrors.InvalidGrant,

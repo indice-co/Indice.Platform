@@ -191,13 +191,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();
         } else {
-#if NET9_0_OR_GREATER
-
-            var certificate = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
-#else
-            var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
-#endif
-            identityServerBuilder.AddSigningCredential(certificate);
+            identityServerBuilder.AddSigningCredential(LoadSigningCertificate(configuration, webHostEnvironment));
         }
 
 #if NET9_0_OR_GREATER
@@ -209,6 +203,16 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         }
 #endif
         return identityServerBuilder;
+    }
+
+    // The returned certificate is owned by the IdentityServer signing credential store for the lifetime of the application.
+    private static X509Certificate2 LoadSigningCertificate(IConfiguration configuration, IWebHostEnvironment webHostEnvironment) {
+        var path = Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty);
+#if NET9_0_OR_GREATER
+        return X509CertificateLoader.LoadPkcs12FromFile(path, configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#else
+        return new X509Certificate2(path, configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#endif
     }
 
     private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services, IConfiguration configuration) {
