@@ -113,6 +113,22 @@ public class WorkerServerRegistryIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task PruningRespectsEachServersHeartbeatInterval() {
+        var now = DateTime.UtcNow;
+        await UseContext(db => {
+            db.Add(NewServer("slow-heartbeat", now.AddMinutes(-6), heartbeatInterval: 600));
+            db.Add(NewServer("timed-out", now.AddMinutes(-6)));
+            return db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        });
+
+        await _registry.Register(TestContext.Current.CancellationToken);
+
+        var ids = (await GetServers()).Select(x => x.Id).ToList();
+        Assert.Contains("slow-heartbeat", ids);
+        Assert.DoesNotContain("timed-out", ids);
+    }
+
+    [Fact]
     public async Task UnregisterRemovesTheServer() {
         await UseContext(db => {
             db.Add(NewServer("other", DateTime.UtcNow));
@@ -165,13 +181,13 @@ public class WorkerServerRegistryIntegrationTests : IAsyncLifetime
         metrics: _metrics
     );
 
-    private static DbServer NewServer(string id, DateTime lastHeartbeat) => new() {
+    private static DbServer NewServer(string id, DateTime lastHeartbeat, int heartbeatInterval = 30) => new() {
         Id = id,
         MachineName = "OTHER-MACHINE",
         ProcessId = 1,
         StartedAt = lastHeartbeat,
         LastHeartbeat = lastHeartbeat,
-        HeartbeatInterval = 30
+        HeartbeatInterval = heartbeatInterval
     };
 
     private async Task<List<DbServer>> GetServers() {

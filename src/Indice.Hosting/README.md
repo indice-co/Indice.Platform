@@ -87,8 +87,9 @@ services.AddWorkerHost(options => {
 
 With the relational store, each worker registers itself in the `work.Server` table on startup, with the queues it consumes
 (and their settings) and the scheduled tasks it hosts. It refreshes its row with a heartbeat and deletes it on shutdown; every
-worker also deletes the rows that have had no heartbeat for `ServerTimeout`, so a crashed worker goes away on its own. The
-workers dashboard uses the table to show the live servers and the configured queues and tasks.
+worker also deletes rows only after both `ServerTimeout` and three of the peer's advertised heartbeat intervals have elapsed,
+so a crashed worker goes away on its own without pruning a healthy worker that heartbeats less frequently. The workers
+dashboard uses the table to show the live servers and the configured queues and tasks.
 
 ```csharp
 services.AddWorkerHost(options => {

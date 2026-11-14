@@ -57,7 +57,9 @@ internal sealed class EventDispatcherHostingHttpTokenProvider
                 throw new HttpRequestException($"The token endpoint '{tokenEndpoint}' did not return an access token.");
             }
             var expiresIn = document.RootElement.TryGetProperty("expires_in", out var expires) && expires.TryGetInt32(out var seconds) ? seconds : 3600;
-            _token = new CachedToken(accessToken, DateTimeOffset.UtcNow.AddSeconds(expiresIn) - RefreshBeforeExpiration);
+            var now = DateTimeOffset.UtcNow;
+            var refreshMargin = TimeSpan.FromSeconds(Math.Min(RefreshBeforeExpiration.TotalSeconds, Math.Max(expiresIn, 0) / 10d));
+            _token = new CachedToken(accessToken, now.AddSeconds(expiresIn) - refreshMargin);
             return accessToken;
         } finally {
             _lock.Release();

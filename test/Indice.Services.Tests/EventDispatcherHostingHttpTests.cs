@@ -63,6 +63,18 @@ public class EventDispatcherHostingHttpTests
     }
 
     [Fact]
+    public async Task RaiseEvent_Caches_ShortLived_Access_Token() {
+        var handler = new FakeHandler { TokenLifetimeSeconds = 60 };
+        var dispatcher = BuildServiceProvider(handler).GetRequiredService<IEventDispatcher>();
+
+        await dispatcher.RaiseEventAsync(new OrderCreated());
+        await dispatcher.RaiseEventAsync(new OrderCreated());
+
+        Assert.Single(handler.Requests, x => x.Uri.AbsoluteUri == TokenEndpoint);
+        Assert.Equal(2, handler.Requests.Count(x => x.Uri.AbsoluteUri != TokenEndpoint));
+    }
+
+    [Fact]
     public async Task RaiseEvent_Renews_The_Token_And_Retries_Once_On_Unauthorized() {
         var handler = new FakeHandler();
         handler.ApiResponses.Enqueue(HttpStatusCode.Unauthorized);
@@ -167,6 +179,7 @@ public class EventDispatcherHostingHttpTests
         private int _tokens;
         public List<RecordedRequest> Requests { get; } = [];
         public Queue<HttpStatusCode> ApiResponses { get; } = new();
+        public int TokenLifetimeSeconds { get; init; } = 3600;
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
             var body = request.Content is null ? string.Empty : await request.Content.ReadAsStringAsync(cancellationToken);
@@ -176,7 +189,7 @@ public class EventDispatcherHostingHttpTests
             if (request.RequestUri!.AbsoluteUri == TokenEndpoint) {
                 var token = Interlocked.Increment(ref _tokens);
                 return new HttpResponseMessage(HttpStatusCode.OK) {
-                    Content = new StringContent($$"""{"access_token":"token-{{token}}","expires_in":3600,"token_type":"Bearer"}""")
+                    Content = new StringContent($$"""{"access_token":"token-{{token}}","expires_in":{{TokenLifetimeSeconds}},"token_type":"Bearer"}""")
                 };
             }
             var status = ApiResponses.TryDequeue(out var queued) ? queued : HttpStatusCode.Created;

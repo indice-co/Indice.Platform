@@ -36,8 +36,8 @@ public class WorkerHostOptions
     /// </summary>
     public TimeSpan? ServerHeartbeatInterval { get; set; } = TimeSpan.FromSeconds(30);
     /// <summary>
-    /// A server whose last heartbeat is older than this is considered dead (e.g. it crashed) and its row is removed by the other servers. Defaults to 5 minutes.
-    /// Values below three heartbeat intervals are raised to three heartbeat intervals.
+    /// The minimum time since a server's last heartbeat before another server can remove its row. Defaults to 5 minutes.
+    /// Removal also waits for at least three of that server's advertised heartbeat intervals; values below three local heartbeat intervals are raised to three local heartbeat intervals.
     /// </summary>
     public TimeSpan ServerTimeout { get; set; } = TimeSpan.FromMinutes(5);
 }

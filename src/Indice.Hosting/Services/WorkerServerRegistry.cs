@@ -13,7 +13,7 @@ namespace Indice.Hosting.Services;
 
 /// <summary>Settings of the server registration.</summary>
 /// <param name="HeartbeatInterval">How often the server refreshes its row.</param>
-/// <param name="Timeout">A server whose last heartbeat is older than this is removed by the other servers.</param>
+/// <param name="Timeout">The minimum age of a server's last heartbeat before other servers consider removing its row.</param>
 internal sealed record ServerRegistrationSettings(TimeSpan HeartbeatInterval, TimeSpan Timeout);
 
 /// <summary>
@@ -21,12 +21,13 @@ internal sealed record ServerRegistrationSettings(TimeSpan HeartbeatInterval, Ti
 /// so that the workers dashboard can show the live servers, the configuration of the queues and the work of each server.
 /// </summary>
 /// <remarks>
-/// A worker that stops gracefully removes its row. A worker that crashes cannot, so every heartbeat also removes the servers that missed theirs for longer than <see cref="ServerRegistrationSettings.Timeout"/>.
+/// A worker that stops gracefully removes its row. A worker that crashes cannot, so every heartbeat also removes servers whose last heartbeat is older than the local timeout and at least three of their advertised heartbeat intervals.
 /// Failures are logged and never stop the worker: e.g. when the table is missing because the database was not migrated, the next heartbeat simply tries again.
 /// </remarks>
 internal sealed class WorkerServerRegistry
 {
     private const int MaxVersionLength = 128;
+    private const int MissedHeartbeats = 3;
     private static readonly TimeSpan UnregisterTimeout = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan MinMetricsWindow = TimeSpan.FromMinutes(1);
     private readonly IServiceScopeFactory _scopeFactory;
@@ -195,12 +196,22 @@ internal sealed class WorkerServerRegistry
         }
     }
 
-    private Task<int> PruneStaleServers(ITaskDbContext dbContext, DateTime now, CancellationToken cancellationToken) {
+    private async Task<int> PruneStaleServers(ITaskDbContext dbContext, DateTime now, CancellationToken cancellationToken) {
         var staleBefore = now - _settings.Timeout;
         // An index seek on LastHeartbeat that usually deletes nothing.
-        return dbContext.Servers
+        var candidates = await dbContext.Servers
             .Where(x => x.LastHeartbeat < staleBefore && x.Id != ServerId)
-            .ExecuteDeleteAsync(cancellationToken);
+            .Select(x => new { x.Id, x.LastHeartbeat, x.HeartbeatInterval })
+            .ToListAsync(cancellationToken);
+        var staleIds = candidates
+            .Where(x => now - x.LastHeartbeat >= TimeSpan.FromSeconds(Math.Max((long)x.HeartbeatInterval, 1) * MissedHeartbeats))
+            .Select(x => x.Id)
+            .ToArray();
+        return staleIds.Length == 0
+            ? 0
+            : await dbContext.Servers
+                .Where(x => staleIds.Contains(x.Id) && x.LastHeartbeat < staleBefore)
+                .ExecuteDeleteAsync(cancellationToken);
     }
 
     private string? CollectMetrics() {
