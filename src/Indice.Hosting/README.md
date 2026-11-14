@@ -90,6 +90,7 @@ With the relational store, each worker registers itself in the `work.Server` tab
 worker also deletes rows only after both `ServerTimeout` and three of the peer's advertised heartbeat intervals have elapsed,
 so a crashed worker goes away on its own without pruning a healthy worker that heartbeats less frequently. The workers
 dashboard uses the table to show the live servers and the configured queues and tasks.
+Heartbeats run independently of Quartz job capacity and continue while jobs drain during graceful shutdown.
 
 ```csharp
 services.AddWorkerHost(options => {
@@ -132,6 +133,8 @@ configure a view if you need finer buckets.
 With server registration on, each worker also stores a snapshot of these numbers in `work.Server.Metrics` on every heartbeat:
 totals since it started, what it is processing now and the counts and average durations of the last minute. The workers
 dashboard sums them up across the live servers for its throughput and duration figures.
+Queue wait times are weighted by recent message starts, including handlers still running. The last task duration comes
+from the most recently completed run across the reporting workers. Older snapshots retain the previous aggregation fallback.
 
 ---
 

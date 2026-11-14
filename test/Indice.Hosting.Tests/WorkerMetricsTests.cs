@@ -27,6 +27,7 @@ public class WorkerMetricsTests
         Assert.Equal(1, queue.Retried);
         Assert.Equal(1, queue.Poisoned);
         Assert.Equal(3, queue.RecentProcessed);
+        Assert.Equal(3, queue.RecentStarted);
         Assert.Equal(2, queue.RecentFailed);
         Assert.Equal(200, queue.RecentAverageDuration);
         Assert.Equal(2000, queue.RecentAverageWait);
@@ -56,6 +57,7 @@ public class WorkerMetricsTests
         _time.Advance(TimeSpan.FromSeconds(60));
         queue = Assert.Single(metrics.Collect(Window).Queues);
         Assert.Equal(0, queue.RecentProcessed);
+        Assert.Equal(0, queue.RecentStarted);
         Assert.Null(queue.RecentAverageDuration);
         Assert.Null(queue.RecentAverageWait);
         Assert.Equal(2, queue.Succeeded);
@@ -72,11 +74,13 @@ public class WorkerMetricsTests
         var queue = Assert.Single(snapshot.Queues);
         Assert.Equal(1, queue.Processing);
         Assert.Equal(0, queue.RecentProcessed);
+        Assert.Equal(1, queue.RecentStarted);
         Assert.Equal(0, queue.RecentAverageWait);
         var task = Assert.Single(snapshot.Tasks);
         Assert.Equal(1, task.Running);
         Assert.Null(task.AverageDuration);
         Assert.Null(task.LastDuration);
+        Assert.Null(task.LastCompletedAt);
     }
 
     [Fact]
@@ -93,6 +97,26 @@ public class WorkerMetricsTests
         Assert.Equal(1, task.Failed);
         Assert.Equal(3000, task.AverageDuration);
         Assert.Equal(4000, task.LastDuration);
+        Assert.Equal(_time.GetUtcNow().UtcDateTime, task.LastCompletedAt);
+    }
+
+    [Fact]
+    public void RecentWaitsCountStartsRatherThanCompletions() {
+        using var metrics = new WorkerMetrics(timeProvider: _time);
+        var start = metrics.MessageStarted(Queue, _time.GetUtcNow().UtcDateTime.AddSeconds(-2));
+        _time.Advance(Window);
+        metrics.Collect(Window);
+        _time.Advance(TimeSpan.FromSeconds(30));
+        metrics.MessageCompleted(Queue, start, MessageOutcome.Succeeded);
+        metrics.MessageStarted(Queue, _time.GetUtcNow().UtcDateTime.AddSeconds(-4));
+        metrics.MessageStarted(Queue, _time.GetUtcNow().UtcDateTime.AddSeconds(-8));
+        _time.Advance(TimeSpan.FromSeconds(30));
+
+        var queue = Assert.Single(metrics.Collect(Window).Queues);
+
+        Assert.Equal(1, queue.RecentProcessed);
+        Assert.Equal(2, queue.RecentStarted);
+        Assert.Equal(6000, queue.RecentAverageWait);
     }
 
     [Fact]

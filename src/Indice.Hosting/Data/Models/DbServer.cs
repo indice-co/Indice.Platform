@@ -121,6 +121,8 @@ public class DbServerQueueMetrics
     public long Poisoned { get; set; }
     /// <summary>The messages processed in the last <see cref="DbServerMetrics.Window"/>, successfully or not.</summary>
     public long RecentProcessed { get; set; }
+    /// <summary>The messages dequeued in the last <see cref="DbServerMetrics.Window"/>. Null for older workers that do not report this count.</summary>
+    public long? RecentStarted { get; set; }
     /// <summary>The messages that failed in the last <see cref="DbServerMetrics.Window"/>.</summary>
     public long RecentFailed { get; set; }
     /// <summary>The average handler time in the last <see cref="DbServerMetrics.Window"/>, in milliseconds.</summary>
@@ -144,4 +146,6 @@ public class DbServerTaskMetrics
     public double? AverageDuration { get; set; }
     /// <summary>The time the last run took, in milliseconds.</summary>
     public double? LastDuration { get; set; }
+    /// <summary>When the last run completed, in UTC. Null for older workers that do not report this timestamp.</summary>
+    public DateTime? LastCompletedAt { get; set; }
 }

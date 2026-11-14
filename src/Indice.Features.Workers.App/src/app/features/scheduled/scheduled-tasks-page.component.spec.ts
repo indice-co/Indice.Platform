@@ -174,6 +174,15 @@ describe('ScheduledTasksPageComponent', () => {
     expect(runningIcon?.parentElement?.getAttribute('title')).not.toContain('Succeeded');
   });
 
+  it('does not show success while a task is running without a previous failure', async () => {
+    const el = await mount([task({ status: 'Running', lastRunFailed: false })]);
+    const runningIcon = el.querySelector<SVGElement>('svg[aria-label="Running"]');
+
+    expect(runningIcon).not.toBeNull();
+    expect(runningIcon?.parentElement?.getAttribute('title')).toContain('Running since');
+    expect(el.querySelector('svg[aria-label="Succeeded"]')).toBeNull();
+  });
+
   it('gives a reader no actions', async () => {
     canManage.set(false);
     const el = await mount([task()]);

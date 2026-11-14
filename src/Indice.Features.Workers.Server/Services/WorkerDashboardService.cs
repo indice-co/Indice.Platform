@@ -469,7 +469,7 @@ public class WorkerDashboardService : IWorkerDashboardService
     }
 
     /// <summary>Adds the run times of the task, as measured by the live workers that report metrics.</summary>
-    private static void ApplyTaskMetrics(ScheduledTaskDetails details, List<RegisteredServer>? servers) {
+    internal static void ApplyTaskMetrics(ScheduledTaskDetails details, List<RegisteredServer>? servers) {
         var runs = servers?
             .Where(x => x.ReportsMetrics)
             .Select(server => (Server: server, Task: server.Metrics!.Tasks.FirstOrDefault(x => x.Id == details.Id)))
@@ -482,9 +482,11 @@ public class WorkerDashboardService : IWorkerDashboardService
             runs.Sum(x => x.Task!.AverageDuration!.Value * (x.Task.Succeeded + x.Task.Failed)) / runs.Sum(x => x.Task!.Succeeded + x.Task.Failed),
             1
         );
-        // The tasks only know the machine of their last run, so prefer a worker of that machine.
+        // Older workers do not report completion time; retain the machine/startup fallback for those snapshots.
+        var hasCompletionTimes = runs.All(x => x.Task!.LastCompletedAt is not null);
         details.LastDuration = runs
-            .OrderByDescending(x => x.Server.Row.MachineName == details.WorkerId)
+            .OrderByDescending(x => hasCompletionTimes ? x.Task!.LastCompletedAt : null)
+            .ThenByDescending(x => x.Server.Row.MachineName == details.WorkerId)
             .ThenByDescending(x => x.Server.Row.StartedAt)
             .First()
             .Task!.LastDuration;
@@ -807,7 +809,7 @@ public class WorkerDashboardService : IWorkerDashboardService
         public bool? Enabled { get; set; }
     }
 
-    private sealed class RegisteredServer(DbServer row, bool isAlive)
+    internal sealed class RegisteredServer(DbServer row, bool isAlive)
     {
         public DbServer Row { get; } = row;
         public bool IsAlive { get; } = isAlive;
@@ -836,7 +838,7 @@ public class WorkerDashboardService : IWorkerDashboardService
     }
 
     /// <summary>The activity of one or more queues, summed over the workers that report it.</summary>
-    private sealed record QueueActivity(long Processing, double ProcessedPerMinute, double FailedPerMinute, double? AverageDuration, double? AverageWait)
+    internal sealed record QueueActivity(long Processing, double ProcessedPerMinute, double FailedPerMinute, double? AverageDuration, double? AverageWait)
     {
         public static QueueActivity From(IEnumerable<(DbServerQueueMetrics Queue, double Window)> items) {
             long processing = 0;
@@ -852,8 +854,9 @@ public class WorkerDashboardService : IWorkerDashboardService
                     durationSum += duration * queue.RecentProcessed;
                     durationWeight += queue.RecentProcessed;
                 }
-                if (queue.RecentAverageWait is { } wait) {
-                    var weight = Math.Max(queue.RecentProcessed, 1);
+                // Older snapshots lack the start count; keep their previous weighting as a fallback.
+                var weight = queue.RecentStarted ?? Math.Max(queue.RecentProcessed, 1);
+                if (queue.RecentAverageWait is { } wait && weight > 0) {
                     waitSum += wait * weight;
                     waitWeight += weight;
                 }

@@ -9,7 +9,7 @@ using Quartz.Spi;
 namespace Indice.Hosting;
 
 /// <summary>A hosted service that manages the lifetime of configured background tasks.</summary>
-internal class WorkerHostedService : IHostedService
+internal class WorkerHostedService : IHostedService, IDisposable
 {
     private readonly ISchedulerFactory _schedulerFactory;
     private readonly ILogger<WorkerHostedService> _logger;
@@ -19,6 +19,8 @@ internal class WorkerHostedService : IHostedService
     private readonly WorkerLifetimeOptions _workerLifetimeOptions;
     private readonly RunNowSettings? _runNowSettings;
     private readonly WorkerServerRegistry? _serverRegistry;
+    private CancellationTokenSource? _heartbeatCancellation;
+    private Task? _heartbeatTask;
 
     /// <summary>Creates a new instance of <see cref="WorkerHostedService"/>.</summary>
     /// <param name="schedulerFactory">Provides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
@@ -112,28 +114,26 @@ internal class WorkerHostedService : IHostedService
             await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
         }
         await ScheduleRunNowJob(Scheduler, cancellationToken);
-        await ScheduleServerHeartbeatJob(Scheduler, cancellationToken);
+        if (_serverRegistry is not null) {
+            await _serverRegistry.Register(cancellationToken);
+        }
         await Scheduler.Start(cancellationToken);
+        if (_serverRegistry is not null) {
+            _heartbeatCancellation = new CancellationTokenSource();
+            _heartbeatTask = RunServerHeartbeat(_heartbeatCancellation.Token);
+        }
     }
 
-    private async Task ScheduleServerHeartbeatJob(IScheduler scheduler, CancellationToken cancellationToken) {
-        if (_serverRegistry is null) {
-            return;
+    private async Task RunServerHeartbeat(CancellationToken cancellationToken) {
+        using var timer = new PeriodicTimer(_serverRegistry!.HeartbeatInterval);
+        try {
+            while (await timer.WaitForNextTickAsync(cancellationToken)) {
+                // Independent of Quartz capacity, including while application jobs drain on shutdown.
+                await _serverRegistry.Heartbeat(cancellationToken);
+            }
+        } catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
+            // The scheduler has finished shutting down.
         }
-        // Failures are logged inside and retried by the heartbeat, so a database without the server tables never stops the worker.
-        await _serverRegistry.Register(cancellationToken);
-        var heartbeatJob = JobBuilder.Create<ServerHeartbeatJob>()
-                                     .StoreDurably()
-                                     .WithIdentity(name: nameof(ServerHeartbeatJob), group: JobGroups.InternalJobsGroup)
-                                     .Build();
-        await scheduler.AddJob(heartbeatJob, replace: true, cancellationToken);
-        var heartbeatTrigger = TriggerBuilder.Create()
-                                             .ForJob(heartbeatJob)
-                                             .WithIdentity(name: $"{nameof(ServerHeartbeatJob)}Trigger", group: JobGroups.InternalJobsGroup)
-                                             .StartAt(DateTimeOffset.UtcNow + _serverRegistry.HeartbeatInterval)
-                                             .WithSimpleSchedule(x => x.WithInterval(_serverRegistry.HeartbeatInterval).RepeatForever())
-                                             .Build();
-        await scheduler.ScheduleJob(heartbeatTrigger, cancellationToken);
     }
 
     private async Task ScheduleRunNowJob(IScheduler scheduler, CancellationToken cancellationToken) {
@@ -169,10 +169,27 @@ internal class WorkerHostedService : IHostedService
     /// <inheritdoc />
     public async Task StopAsync(CancellationToken cancellationToken) {
         _logger.LogInformation("Queued Hosted Service is stopping.");
-        await Scheduler?.Shutdown(_workerLifetimeOptions.WaitJobsToCompleteOnShutdown, cancellationToken)!;
-        // After the shutdown, so the server stays listed while its jobs complete.
-        if (_serverRegistry is not null) {
-            await _serverRegistry.Unregister();
+        try {
+            if (Scheduler is not null) {
+                await Scheduler.Shutdown(_workerLifetimeOptions.WaitJobsToCompleteOnShutdown, cancellationToken);
+            }
+        } finally {
+            if (_heartbeatCancellation is not null) {
+                await _heartbeatCancellation.CancelAsync();
+                await _heartbeatTask!;
+                _heartbeatCancellation.Dispose();
+                _heartbeatCancellation = null;
+            }
+            // After the shutdown, so the server stays listed while its jobs complete.
+            if (_serverRegistry is not null) {
+                await _serverRegistry.Unregister();
+            }
         }
+    }
+
+    /// <inheritdoc />
+    public void Dispose() {
+        _heartbeatCancellation?.Cancel();
+        _heartbeatCancellation?.Dispose();
     }
 }

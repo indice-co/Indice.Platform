@@ -47,7 +47,6 @@ public static class WorkerHostConfiguration
             var serverTimeout = workerHostOptions.ServerTimeout < heartbeatInterval * 3 ? heartbeatInterval * 3 : workerHostOptions.ServerTimeout;
             services.AddSingleton(new ServerRegistrationSettings(heartbeatInterval, serverTimeout));
             services.AddSingleton<WorkerServerRegistry>();
-            services.AddTransient<ServerHeartbeatJob>();
         }
         services.Configure<WorkerLifetimeOptions>(options => options.WaitJobsToCompleteOnShutdown = workerHostOptions.WaitJobsToCompleteOnShutdown);
         // https://www.quartz-scheduler.net/documentation/quartz-3.x/configuration/reference.html

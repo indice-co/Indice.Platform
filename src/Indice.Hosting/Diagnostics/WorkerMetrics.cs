@@ -113,7 +113,7 @@ internal sealed class WorkerMetrics : IDisposable
     /// <param name="failed">Whether the run failed.</param>
     public void TaskCompleted(string taskId, long startTimestamp, bool failed) {
         var duration = _timeProvider.GetElapsedTime(startTimestamp).TotalSeconds;
-        _tasks.GetOrAdd(taskId, static _ => new TaskTotals()).Completed(duration, failed);
+        _tasks.GetOrAdd(taskId, static _ => new TaskTotals()).Completed(duration, failed, _timeProvider.GetUtcNow().UtcDateTime);
         _taskRunsActive.Add(-1, new TagList { { TaskTag, taskId } });
         var tags = new TagList { { TaskTag, taskId }, { OutcomeTag, failed ? "failed" : "succeeded" } };
         _taskRuns.Add(1, tags);
@@ -175,6 +175,7 @@ internal sealed class WorkerMetrics : IDisposable
             Retried = current.Retried,
             Poisoned = current.Poisoned,
             RecentProcessed = processed,
+            RecentStarted = waited,
             RecentFailed = current.Failed - baseline.Failed,
             RecentAverageDuration = processed > 0 ? ToMilliseconds((current.DurationSum - baseline.DurationSum) / processed) : null,
             RecentAverageWait = waited > 0 ? ToMilliseconds((current.WaitSum - baseline.WaitSum) / waited) : null
@@ -189,7 +190,8 @@ internal sealed class WorkerMetrics : IDisposable
             Succeeded = current.Succeeded,
             Failed = current.Failed,
             AverageDuration = runs > 0 ? ToMilliseconds(current.DurationSum / runs) : null,
-            LastDuration = current.LastDuration is { } last ? ToMilliseconds(last) : null
+            LastDuration = current.LastDuration is { } last ? ToMilliseconds(last) : null,
+            LastCompletedAt = current.LastCompletedAt
         };
     }
 
@@ -209,7 +211,7 @@ internal sealed class WorkerMetrics : IDisposable
         public long Processed => Succeeded + Retried + Poisoned;
     }
 
-    private readonly record struct TaskSnapshot(long Active, long Succeeded, long Failed, double DurationSum, double? LastDuration);
+    private readonly record struct TaskSnapshot(long Active, long Succeeded, long Failed, double DurationSum, double? LastDuration, DateTime? LastCompletedAt);
 
     private sealed class QueueTotals
     {
@@ -257,6 +259,7 @@ internal sealed class WorkerMetrics : IDisposable
         private long _failed;
         private double _durationSum;
         private double? _lastDuration;
+        private DateTime? _lastCompletedAt;
 
         public void Started() {
             lock (_lock) {
@@ -264,11 +267,14 @@ internal sealed class WorkerMetrics : IDisposable
             }
         }
 
-        public void Completed(double duration, bool failed) {
+        public void Completed(double duration, bool failed, DateTime completedAt) {
             lock (_lock) {
                 _active--;
                 _durationSum += duration;
-                _lastDuration = duration;
+                if (_lastCompletedAt is null || completedAt >= _lastCompletedAt) {
+                    _lastDuration = duration;
+                    _lastCompletedAt = completedAt;
+                }
                 if (failed) {
                     _failed++;
                 } else {
@@ -279,7 +285,7 @@ internal sealed class WorkerMetrics : IDisposable
 
         public TaskSnapshot Snapshot() {
             lock (_lock) {
-                return new TaskSnapshot(_active, _succeeded, _failed, _durationSum, _lastDuration);
+                return new TaskSnapshot(_active, _succeeded, _failed, _durationSum, _lastDuration, _lastCompletedAt);
             }
         }
     }

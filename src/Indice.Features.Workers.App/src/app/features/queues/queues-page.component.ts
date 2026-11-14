@@ -301,10 +301,10 @@ export class QueuesPageComponent {
 
   /**
    * Polling settings come from the workers that register themselves on startup. Older workers
-   * don't, so the column appears only when some queue actually reports them.
+   * don't, so the column appears only when some queue reports configuration or consumer counts.
    */
   protected readonly showWorkers = computed(() =>
-    (this.queues() ?? []).some((q) => q.instanceCount != null),
+    (this.queues() ?? []).some((q) => q.instanceCount != null || q.consumers != null),
   );
 
   /** Throughput is measured by the workers that report metrics, so it appears only when some queue has it. */
