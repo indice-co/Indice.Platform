@@ -41,6 +41,15 @@ public sealed class OmniMessagingUrlShortenerTests
     [InlineData("No links here.", "No links here.")]
     [InlineData("Existing {url} placeholder and www.example.com.", "Existing {url} placeholder and www.example.com.")]
     [InlineData("Visit ftp://example.com/file.", "Visit ftp://example.com/file.")]
+    [InlineData("Visit {https://example.com}.", "Visit {https://example.com}.")]
+    [InlineData("Visit {https://example.com} and https://example.org.", "Visit {https://example.com} and {https://example.org}.")]
+    [InlineData("https://example.com/wiki/Function_(mathematics)", "{https://example.com/wiki/Function_(mathematics)}")]
+    [InlineData("(https://example.com/wiki/Function_(mathematics)).", "({https://example.com/wiki/Function_(mathematics)}).")]
+    [InlineData("[https://example.com]", "[{https://example.com}]")]
+    [InlineData("https://example.com/a_(b_(c))!", "{https://example.com/a_(b_(c))}!")]
+    [InlineData("https://example.com/?items[0]=1", "{https://example.com/?items[0]=1}")]
+    [InlineData("{https://example.com/a_(b)}", "{https://example.com/a_(b)}")]
+    [InlineData("\"https://example.com\" <https://example.org>", "\"{https://example.com}\" <{https://example.org}>")]
     public async Task SendAsync_UrlShortenerEnabled_FormatsText(string message, string expectedText) {
         using var payload = await SendAsync(message, SmsServiceOmniMessagingMode.ViberWithSmsFallback, enableUrlShortener: true);
 

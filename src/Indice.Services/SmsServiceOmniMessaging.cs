@@ -348,7 +348,7 @@ internal sealed class SmsServiceOmniRequest
         var useFallback = mode is SmsServiceOmniMessagingMode.ViberWithSmsFallback;
 
         if (enableUrlShortener) {
-            message = Regex.Replace(message, @"https?://[^\s""<>]*[^\s""<>.,!?)]", match => $"{{{match.Value}}}");
+            message = Regex.Replace(message, @"https?://[^\s""<>{}]+", match => WrapUrl(message, match));
         }
 
         return new SmsServiceOmniRequest {
@@ -393,6 +393,33 @@ internal sealed class SmsServiceOmniRequest
                     : null
             }
         };
+    }
+
+    private static string WrapUrl(string message, Match match) {
+        var delimiters = new Stack<char>();
+        var length = 0;
+        foreach (var character in match.Value) {
+            if (character is '(' or '[') {
+                delimiters.Push(character);
+            } else if (character is ')' or ']') {
+                var opening = character == ')' ? '(' : '[';
+                if (delimiters.Count == 0 || delimiters.Peek() != opening) {
+                    break;
+                }
+                delimiters.Pop();
+            }
+            length++;
+        }
+        while (length > 0 && match.Value[length - 1] is '.' or ',' or '!' or '?' or ';' or ':') {
+            length--;
+        }
+
+        var end = match.Index + length;
+        if (match.Index > 0 && message[match.Index - 1] == '{' && end < message.Length && message[end] == '}') {
+            return match.Value;
+        }
+
+        return $"{{{match.Value[..length]}}}{match.Value[length..]}";
     }
 
     /// <summary>
