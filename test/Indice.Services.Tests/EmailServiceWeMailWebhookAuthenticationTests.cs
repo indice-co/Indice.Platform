@@ -180,11 +180,11 @@ public sealed class EmailServiceWeMailWebhookAuthenticationTests
         Assert.Empty(result.Events);
     }
 
-    private static Task<WebhookHttpResult> ParseAsync(EmailServiceWeMailSettings settings, Dictionary<string, StringValues> headers, string payload = Payload) {
+    private static async Task<WebhookHttpResult> ParseAsync(EmailServiceWeMailSettings settings, Dictionary<string, StringValues> headers, string payload = Payload) {
         var options = new Mock<IOptions<EmailServiceWeMailSettings>>();
         options.Setup(x => x.Value).Returns(settings);
         var handler = new WeMailWebhookHttpHandler(options.Object);
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(payload));
-        return handler.ParseAsync(headers, [], stream, TestContext.Current.CancellationToken);
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(payload));
+        return await handler.ParseAsync(headers, [], stream, TestContext.Current.CancellationToken);
     }
 }

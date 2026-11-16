@@ -417,7 +417,7 @@ public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings
                   ?? GetString(item, "date")
                   ?? GetString(item, "data.timestamp");
 
-        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0) {
+        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0 && epoch <= DateTimeOffset.MaxValue.ToUnixTimeMilliseconds()) {
             return epoch > 9_999_999_999
                 ? DateTimeOffset.FromUnixTimeMilliseconds(epoch)
                 : DateTimeOffset.FromUnixTimeSeconds(epoch);
