@@ -55,7 +55,7 @@ public abstract class BasePasswordExpiredModel : BasePageModel
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Info(message)
         });
-        Input.ReturnUrl = returnUrl;
+        Input.ReturnUrl = SanitizeReturnUrl(returnUrl);
         return Page();
     }
 

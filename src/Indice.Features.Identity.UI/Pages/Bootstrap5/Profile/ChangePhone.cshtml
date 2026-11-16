@@ -1,0 +1,87 @@
+@page "/manage/phone"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/mfa-challenge")]
+
+@model BaseChangePhoneModel
+
+@inject CallingCodesProvider callingCodesProvider
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_ProfileLayout";
+    ViewData["Title"] = Localizer.ChangePhone_PageTitle;
+    var mfaChallenge = Model.MfaChallenge;
+}
+
+<section class="data-card data-card--form" inert="@(mfaChallenge is not null)">
+    <a class="data-card__back" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
+    <header class="data-card__header">
+        <h1 class="data-card__title">@Localizer.ChangePhone_PageTitle</h1>
+    </header>
+    <partial name="_ValidationSummary" />
+    <form method="post" class="auth-form" novalidate>
+        @if (Model.IdentityUiOptions.EnablePhoneNumberCallingCodes)
+        {
+            <div class="field">
+                <label asp-for="Input.CallingCode" class="field__label">@Localizer.Profile_Calling_Code</label>
+                <select class="form-select field__control" asp-for="Input.CallingCode" required aria-describedby="Input_CallingCode-error">
+                    <option value="">@Localizer.Profile_Choose</option>
+                    @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                    {
+                        <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.CallingCode" class="field__error" id="Input_CallingCode-error"></span>
+            </div>
+        }
+        <div class="field">
+            <label asp-for="Input.PhoneNumber" class="field__label">@Localizer.Profile_Phone_Number</label>
+            <input class="form-control field__control" type="tel" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" autocomplete="tel" aria-describedby="Input_PhoneNumberWithCallingCode-error" autofocus />
+            <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="field__error" id="Input_PhoneNumberWithCallingCode-error"></span>
+        </div>
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.Profile_Save</button>
+        </div>
+    </form>
+</section>
+
+@if (Model.CodeSent)
+{
+    <div class="verify-dialog" role="dialog" aria-modal="true" aria-labelledby="verify-dialog-title">
+        <div class="verify-dialog__box">
+            <a class="verify-dialog__close" asp-page="/Profile" aria-label="@Localizer.ChangeEmail_Close">&times;</a>
+            <h2 class="verify-dialog__title" id="verify-dialog-title">@Localizer.ChangeEmail_VerifyTitle</h2>
+            <p class="verify-dialog__text">@Localizer.ChangePhone_VerifyOtpPrompt(Model.Verify.PhoneNumber ?? string.Empty)</p>
+            <form method="post" asp-page-handler="Verify" class="auth-form" novalidate>
+                <input type="hidden" asp-for="Verify.PhoneNumber" />
+                <div class="field">
+                    <label asp-for="Verify.Code" class="field__label">@Localizer.ChangeEmail_OtpCode</label>
+                    <input class="form-control field__control otp-field__input" data-otp-length="6" type="text" inputmode="numeric" autocomplete="one-time-code" asp-for="Verify.Code" value="" aria-describedby="Verify_Code-error" autofocus />
+                    <span asp-validation-for="Verify.Code" class="field__error" id="Verify_Code-error"></span>
+                </div>
+                <p class="otp-field__resend">
+                    <button type="submit" id="otp-resend" name="Verify.OtpResend" value="true" formnovalidate class="otp-field__resend-btn">
+                        <span class="otp-field__resend-text">@Localizer.VerifyPhone_Resend</span>
+                        <span class="otp-field__wait">@Localizer.Mfa_ResendAvailableIn <span class="countdown otp-field__countdown"></span></span>
+                    </button>
+                </p>
+                <div class="verify-dialog__actions">
+                    <button class="btn btn-primary" type="submit">@Localizer.ChangeEmail_Verify</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (mfaChallenge is not null)
+{
+    <partial name="_ProfileMfaChallenge" model="mfaChallenge" />
+}
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    @if (Model.CodeSent || mfaChallenge?.CanEnterCode == true)
+    {
+        <script type="text/javascript" src="~/js/otp.js" csp-nonce="true"></script>
+        <script type="text/javascript" src="~/js/otp-field.js" csp-nonce="true"></script>
+    }
+}

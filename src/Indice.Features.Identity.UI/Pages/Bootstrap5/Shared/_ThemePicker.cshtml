@@ -1,0 +1,32 @@
+﻿<environment include="Development">
+    <div class="m-2">
+        <select id="idui-theme-picker" class="form-select form-select-sm w-auto shadow-sm" aria-label="Theme">
+            @foreach (var theme in Indice.Features.Identity.UI.IdentityUIThemes.All) {
+                <option value="@theme">@theme</option>
+            }
+        </select>
+    </div>
+    <script type="text/javascript" csp-nonce="true">
+        (function () {
+            var storageKey = 'idui-theme';
+            var html = document.documentElement;
+            var picker = document.getElementById('idui-theme-picker');
+            var hasOption = function (value) {
+                return Array.prototype.some.call(picker.options, function (o) { return o.value === value; });
+            };
+            var saved = null;
+            try { saved = localStorage.getItem(storageKey); } catch (e) { }
+            if (saved && hasOption(saved)) {
+                html.setAttribute('data-theme', saved);
+            }
+            var current = html.getAttribute('data-theme');
+            if (current && hasOption(current)) {
+                picker.value = current;
+            }
+            picker.addEventListener('change', function () {
+                html.setAttribute('data-theme', picker.value);
+                try { localStorage.setItem(storageKey, picker.value); } catch (e) { }
+            });
+        })();
+    </script>
+</environment>

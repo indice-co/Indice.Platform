@@ -45,14 +45,11 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var alert = user.EmailConfirmed
-            ? UserManager.MessageDescriber.MfaAddEmailValidationEmailAlreadyConfirmed
-            : UserManager.MessageDescriber.MfaAddEmailValidationEmailEmpty;
-        TempData.Put(TempDataKey, AlertModel.Info(alert));
+        TempData.Remove(TempDataKey);
         Input = View = new EnableMfaEmailViewModel {
             Email = user.Email,
             EmailConfirmed = user.EmailConfirmed,
-            ReturnUrl = returnUrl
+            ReturnUrl = SanitizeReturnUrl(returnUrl)
         };
         return Page();
     }
@@ -82,9 +79,9 @@ public abstract class BaseMfaOnboardingAddEmailModel : BasePageModel
             return Page();
         }
 
-        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddEmailSuccessMessage));
-        View.EmailConfirmed = user.EmailConfirmed;
-        return Page();
+        TempData.Remove(TempDataKey);
+        TempData.Put(BaseMfaOnboardingCompleteModel.TempDataKey, MfaOnboardingCompleteViewModel.Create(AuthenticationMethodType.Email, user.Email, Input.ReturnUrl ?? returnUrl));
+        return RedirectToPage("/MfaOnboardingComplete", routeValues: new { returnUrl = Input.ReturnUrl ?? returnUrl });
     }
 }
 

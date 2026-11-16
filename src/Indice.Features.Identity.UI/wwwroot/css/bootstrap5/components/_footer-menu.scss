@@ -1,0 +1,59 @@
+@use '../abstracts/tokens' as t;
+
+// "More links" (⋮) menu at the end of the footer links. Rendered when there are more than
+// 4 footer links. Colours come from the --idui-footer-menu-* chrome variables; see abstracts/_theme.scss.
+
+.footer-menu {
+    display: inline-flex;
+    align-items: center;
+
+    &__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: var(--idui-footer-menu-toggle-bg);
+        color: var(--idui-footer-menu-toggle-color);
+        font-size: t.$font-size-xs;
+        text-shadow: none;
+        cursor: pointer;
+        transition: background-color t.$transition-fast;
+
+        &:hover,
+        &[aria-expanded="true"] {
+            background: var(--idui-footer-menu-toggle-hover-bg);
+        }
+    }
+
+    &__menu {
+        min-width: 10rem;
+        padding: .25rem;
+        border: 0;
+        border-radius: var(--idui-radius);
+        background: var(--idui-footer-menu-bg);
+        box-shadow: var(--idui-footer-menu-shadow);
+        backdrop-filter: blur(8px);
+    }
+
+    &__item {
+        padding: .35rem .65rem;
+        border-radius: var(--idui-radius-sm);
+        color: var(--idui-footer-menu-item-color);
+        font-size: t.$font-size-sm;
+        text-decoration: none;
+        text-shadow: none;
+        white-space: nowrap;
+
+        &:hover,
+        &:focus-visible,
+        &.active,
+        &:active {
+            background: var(--idui-footer-menu-item-active-bg);
+            color: var(--idui-footer-menu-item-active-color);
+        }
+    }
+}

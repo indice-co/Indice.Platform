@@ -150,6 +150,8 @@ public class IdentityMessageDescriber
     public virtual string ProfileExternalLoginAddedSuccessMessage => IdentityResources.ProfileExternalLoginAddedSuccessMessage;
     /// <summary>Registration phone confriamtion message prompt</summary>
     public virtual string RegisterPhoneConfirmationPrompt => IdentityResources.RegisterPhoneConfirmationPrompt;
+    /// <summary>Registration phone confriamtion message prompt</summary>
+    public virtual string RegisterPhoneConfirmationFailed => IdentityResources.RegisterPhoneConfirmationFailed;
 
     /// <summary>Mfa message subject</summary>
     public virtual string MfaSmsSubject => IdentityResources.MfaSmsSubject;

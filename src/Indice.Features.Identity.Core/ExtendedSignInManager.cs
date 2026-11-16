@@ -171,7 +171,7 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
         // Microsoft Entra Id authentication provider is also considered as a safe provider since it can be configured to require MFA.
         var mfaImplicitlyPassed = loginProvider is not null && MfaImplicitLoginProviders.Contains(loginProvider);
 
-        if (!bypassTwoFactor && !mfaImplicitlyPassed && await IsTfaEnabled(user)) {
+        if (!bypassTwoFactor && !mfaImplicitlyPassed && await IsTwoFactorEnabledAsync(user)) {
             if (result.Warning == SignInWarning.ImpossibleTravel || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, ClaimsPrincipalFromTwoFactorInfo(userId, deviceId, loginProvider));
@@ -293,6 +293,7 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
         // Check if authentication scheme is registered before trying to sign out, to avoid errors.
         var schemes = new string[] {
             ExtendedIdentityConstants.ExtendedValidationScheme,
+            ExtendedIdentityConstants.ProfileMfaChallengeScheme,
             IdentityServerConstants.ExternalCookieAuthenticationScheme
         };
         foreach (var scheme in schemes) {
@@ -444,7 +445,10 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
     public Task<bool> ShouldSignInForExtendedValidationAsync(TUser user) =>
         _userRequirementProvider.RequiresValidationAsync(Context!, user);
 
-    private async Task<bool> IsTfaEnabled(TUser user)
+    /// <summary>Determines whether two-factor authentication is active for the user, using the same rule applied during sign in.</summary>
+    /// <param name="user">The user to check.</param>
+    /// <returns>True when the store supports two-factor, the user has it enabled and at least one valid two-factor provider exists.</returns>
+    public async Task<bool> IsTwoFactorEnabledAsync(TUser user)
         => ExtendedUserManager.SupportsUserTwoFactor && user.TwoFactorEnabled && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
 
     private static ClaimsPrincipal ClaimsPrincipalFromValidationInfo(string userId, MfaDeviceIdentifier deviceId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string? firstName, string? lastName, string userName, string[] authenticationMethods) {

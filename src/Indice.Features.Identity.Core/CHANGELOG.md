@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - next major
+### Added
+- `ExtendedSignInManager.IsTwoFactorEnabledAsync(user)` is now public. It tells whether the user has MFA enabled and
+  at least one valid two-factor provider.
+- Constants for the Identity UI profile MFA challenge: `ExtendedIdentityConstants.ProfileMfaChallengeScheme`,
+  `ExtendedIdentityConstants.ProfileMfaChallengeCookieName`, `TotpConstants.TokenGenerationPurpose.ProfileMfaChallenge` and
+  `RateLimiterPolicies.ProfileMfaChallengePage` (`manage/mfa-challenge`, included in `RateLimiterPolicies.All`).
+- `ExtendedUserManager.GetTwoFactorPreferenceAsync(user)` returns the preferred MFA method saved by `SetTwoFactorAsync`.
+- `ExtendedUserManager.ReplaceAuthenticatorKeyAsync(user, key, code)` stores a new authenticator key only when `code`
+  is valid for it (fails with `InvalidToken` otherwise) and updates the security stamp.
+- `IAuthenticationMethodProvider.GetMfaMethodsAsync()` (default interface member) returns the enabled methods that
+  support MFA.
+- `AuthenticationMethod.MatchesPreference(preference)` and `IEnumerable<AuthenticationMethod>.SelectPreferred(preference)`.
+### Changed
+- `ExtendedSignInManager.SignOutAsync` also signs out the profile MFA challenge scheme when it is registered.
+- `AuthenticationMethodProviderInMemory.FindMethodForUserOrDefaultAsync` now uses the user's MFA preference to choose
+  between methods of the same (highest) security level. The preference never selects a lower security level than
+  before.
+### Fixed
+- `ExtendedUserManager.SetTwoFactorAsync` now saves the preferred method also when MFA is already enabled.
+
 ## [8.62.0]
 ### Changed
 - Improved the performance of the Admin UI dashboard (`/api/dashboard/metrics`). The user counts (blocked, locked out, two factor enabled, email/phone confirmed, password expired) no longer scan the whole `[auth].[User]` table. They now use a narrow covering index, `IX_User_DashboardFlags`.

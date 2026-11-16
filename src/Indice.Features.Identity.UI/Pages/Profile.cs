@@ -99,12 +99,21 @@ public abstract class BaseProfileModel : BasePageModel
 
     /// <summary>Profile page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        // Account fields (user name, email, phone) are updated through their dedicated pages.
+        foreach (var key in AccountFieldKeys) {
+            ModelState.Remove(key);
+        }
+        _ = PhoneNumber.TryParse(user.PhoneNumber!, out var currentPhoneNumber);
+        Input.UserName = user.UserName ?? string.Empty;
+        Input.Email = user.Email ?? string.Empty;
+        Input.PhoneNumber = currentPhoneNumber.Number;
+        Input.CallingCode = currentPhoneNumber.CallingCode;
         View = await BuildProfileViewModelAsync(Input);
         if (!ModelState.IsValid) {
             return Page();
         }
 
-        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         IdentityResult result;
         if (!View.DisableEditGivenName) {
             result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName ?? string.Empty);
@@ -128,28 +137,17 @@ public abstract class BaseProfileModel : BasePageModel
             result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.ZoneInfo, Input.ZoneInfo);
             AddModelErrors(result);
         }
-        if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
-            EmailChangeRequested = true;
-            if (!string.IsNullOrWhiteSpace(Input.Email)) {
-                if (!await SendChangeEmailConfirmationEmail(user, Input.Email)) {
-                    ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LimitAttemptsReached);
-                    ProfileSuccessfullyChanged = false;
-                    return Page();
-                }
-            }
-        }
-        if (!UserManager.EmailAsUserName && user.UserName != Input.UserName) {
-            result = await UserManager.SetUserNameAsync(user, Input.UserName);
-            AddModelErrors(result);
-        }
-        _ = PhoneNumber.TryParse(Input!.PhoneNumberWithCallingCode!, out var phoneNumber);
-        user.PhoneNumber = phoneNumber;
-        result = await UserManager.UpdateAsync(user);
-        AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;
         return Page();
     }
 
+    private static readonly string[] AccountFieldKeys = [
+        $"{nameof(Input)}.{nameof(ProfileInputModel.UserName)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.Email)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.CallingCode)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumber)}",
+        $"{nameof(Input)}.{nameof(ProfileInputModel.PhoneNumberWithCallingCode)}"
+    ];
 
     /// <summary>Profile page remove external login POST handler.</summary>
     public virtual async Task<IActionResult> OnPostRemoveLoginAsync() {
@@ -270,7 +268,7 @@ public abstract class BaseProfileModel : BasePageModel
         var canEditTin = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.Tin)?.UserEditable ?? false;
         var canEditFamilyName = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
         var canEditGivenName = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
-        return new ProfileViewModel {
+        var viewModel = new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             DisableEditTin = !canEditTin,
@@ -292,8 +290,27 @@ public abstract class BaseProfileModel : BasePageModel
             UserName = user.UserName ?? string.Empty,
             ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
             Locale = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.Locale)?.Value,
-            CallingCode = phoneNumber.CallingCode
+            CallingCode = phoneNumber.CallingCode,
+            CreateDate = user.CreateDate,
+            LastSignInDate = user.LastSignInDate
         };
+        await PopulateTwoFactorAsync(viewModel, user);
+        return viewModel;
+    }
+
+    private async Task PopulateTwoFactorAsync(ProfileViewModel viewModel, User user) {
+        viewModel.TwoFactorEnabled = await UserManager.GetTwoFactorEnabledAsync(user);
+        var provider = ServiceProvider.GetService<IAuthenticationMethodProvider>();
+        if (provider is null) {
+            return;
+        }
+        var methods = await ManageMfaMethods.GetManageableMethodsAsync(provider);
+        viewModel.CanManageMfa = !IdentityUIOptions.DisableMfaEdit && methods.Length > 0;
+        if (!viewModel.TwoFactorEnabled) {
+            return;
+        }
+        var method = await ManageMfaMethods.FindCurrentMethodAsync(provider, UserManager, user, methods) ?? await provider.FindMethodForUserOrDefaultAsync(user);
+        viewModel.TwoFactorMethodName = method?.DisplayName;
     }
 
     private async Task<ProfileViewModel> BuildProfileViewModelAsync(ProfileInputModel model) {
@@ -308,7 +325,7 @@ public abstract class BaseProfileModel : BasePageModel
         var canEditTin = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.Tin)?.UserEditable ?? false;
         var canEditFamilyName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
         var canEditGivenName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
-        return new ProfileViewModel {
+        var viewModel = new ProfileViewModel {
             BirthDate = model.BirthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             DisableEditTin = !canEditTin,
@@ -330,7 +347,12 @@ public abstract class BaseProfileModel : BasePageModel
             UserName = model.UserName,
             ZoneInfo = model.ZoneInfo ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.ZoneInfo)?.ClaimValue,
             Locale = model.Locale ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.Locale)?.ClaimValue,
+            CallingCode = model.CallingCode,
+            CreateDate = user.CreateDate,
+            LastSignInDate = user.LastSignInDate
         };
+        await PopulateTwoFactorAsync(viewModel, user);
+        return viewModel;
     }
 }
 

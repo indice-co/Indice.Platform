@@ -1,0 +1,158 @@
+@use '../abstracts/tokens' as t;
+
+// Two-factor authentication management (profile): status, method list and recovery codes.
+
+.mfa-manage {
+    &__status {
+        display: flex;
+        align-items: center;
+        gap: t.$space-3;
+        margin: 0 0 t.$space-5;
+        padding: t.$space-3 t.$space-4;
+        border-radius: var(--idui-radius);
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-text);
+        font-size: t.$font-size-sm;
+    }
+
+    &__status-icon {
+        flex: 0 0 auto;
+        font-size: 1.25rem;
+        color: var(--idui-color-text-muted);
+    }
+
+    &__status--on &__status-icon {
+        color: var(--idui-color-success);
+    }
+
+    &__heading {
+        margin: 0 0 t.$space-3;
+        font-size: t.$font-size-lg;
+        font-weight: t.$font-weight-medium;
+        color: var(--idui-color-ink);
+    }
+
+    &__text {
+        margin: 0 0 t.$space-4;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+    }
+
+    &__warning {
+        display: flex;
+        align-items: baseline;
+        gap: t.$space-2;
+        margin: t.$space-3 0 0;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+
+        i {
+            color: var(--idui-color-warning);
+        }
+    }
+
+    &__section {
+        margin-top: t.$space-6;
+        padding-top: t.$space-5;
+        border-top: 1px solid var(--idui-color-border);
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: t.$space-3;
+    }
+}
+
+.mfa-methods {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--idui-color-border);
+}
+
+.mfa-method {
+    display: flex;
+    align-items: center;
+    gap: t.$space-3;
+    padding: t.$space-4 0;
+    border-bottom: 1px solid var(--idui-color-border);
+
+    &__icon {
+        flex: 0 0 2.25rem;
+        width: 2.25rem;
+        font-size: 1.5rem;
+        line-height: 1;
+        text-align: center;
+        color: var(--idui-color-ink);
+    }
+
+    &__body {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &__name {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: t.$space-2;
+        font-weight: t.$font-weight-medium;
+        color: var(--idui-color-ink);
+    }
+
+    &__badge {
+        padding: .125rem t.$space-2;
+        border-radius: t.$radius-pill;
+        background: var(--idui-color-ink);
+        color: var(--idui-color-surface);
+        font-size: t.$font-size-xs;
+        font-weight: t.$font-weight-medium;
+    }
+
+    &__detail {
+        margin-top: .125rem;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+        overflow-wrap: anywhere;
+    }
+
+    &__link {
+        margin-left: t.$space-1;
+        color: var(--idui-color-ink);
+        font-weight: t.$font-weight-medium;
+    }
+
+    &__action {
+        flex: 0 0 auto;
+
+        form {
+            margin: 0;
+        }
+    }
+
+    &--unavailable &__icon,
+    &--unavailable &__name {
+        color: var(--idui-color-text-muted);
+    }
+}
+
+// Account row status (profile): On/Off with the current method.
+.account-row {
+    &__status {
+        font-weight: t.$font-weight-medium;
+    }
+
+    &__status--on {
+        color: var(--idui-color-success);
+    }
+
+    &__detail {
+        margin-left: t.$space-2;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+    }
+}

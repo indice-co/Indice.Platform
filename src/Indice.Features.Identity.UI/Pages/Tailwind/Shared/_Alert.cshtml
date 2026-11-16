@@ -1,8 +1,0 @@
-﻿@model AlertModel
-
-@if (!Model.IsEmpty())
-{
-    <div class="alert alert-@($"{Model.AlertType}".ToLower())">
-        @Model.Message
-    </div>
-}

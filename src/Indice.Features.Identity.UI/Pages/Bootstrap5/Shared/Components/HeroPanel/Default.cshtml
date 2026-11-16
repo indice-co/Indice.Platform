@@ -1,0 +1,8 @@
+@model HeroViewModel
+
+<aside class="site-hero">
+    <div class="site-hero__content">
+        <p class="site-hero__title">@Model.Title</p>
+        <p indice-if="!string.IsNullOrWhiteSpace(Model.Subtitle?.ToString())" class="site-hero__subtitle">@Model.Subtitle</p>
+    </div>
+</aside>

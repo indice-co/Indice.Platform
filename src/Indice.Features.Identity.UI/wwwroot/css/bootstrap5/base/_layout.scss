@@ -1,0 +1,72 @@
+﻿@use '../abstracts/tokens' as t;
+@use '../abstracts/mixins' as m;
+
+// Page skeleton shared by every shell and theme:
+//   .site > .site-header + .site-body (> .site-hero? + .site-main) + .site-footer
+// Below the lg breakpoint this is a plain stacked column on every theme. From lg up the
+// anonymous shells turn .site into a grid driven by the theme's layout variables
+// (see layouts/_anonymous-shell.scss and abstracts/_tokens.scss).
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--idui-page-bg);
+}
+
+.site {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.site-body {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+}
+
+.site-main {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: t.$space-4 var(--idui-page-gutter) t.$space-6;
+
+    // Phones: the cards span the full width.
+    @include m.mq-down(sm) {
+        padding-right: 0;
+        padding-left: 0;
+    }
+}
+
+// The hero aside only shows on themes that use it, from the lg breakpoint up.
+.site-hero {
+    display: none;
+}
+
+// Accessible "skip to content" link: visible only when focused.
+.skip-link {
+    position: absolute;
+    top: t.$space-3;
+    left: t.$space-3;
+    z-index: t.$z-skip-link;
+    padding: t.$space-2 t.$space-4;
+    background: var(--idui-color-ink);
+    color: var(--idui-color-on-dark);
+    border-radius: var(--idui-radius-sm);
+    text-decoration: none;
+    transform: translateY(-200%);
+    transition: transform t.$transition-fast;
+
+    &:focus {
+        transform: none;
+    }
+}

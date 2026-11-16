@@ -745,6 +745,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The code is not valid..
+        /// </summary>
+        internal static string RegisterPhoneConfirmationFailed {
+            get {
+                return ResourceManager.GetString("RegisterPhoneConfirmationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please enter the code that you have received at your mobile phone..
         /// </summary>
         internal static string RegisterPhoneConfirmationPrompt {

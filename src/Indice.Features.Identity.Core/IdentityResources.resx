@@ -575,4 +575,7 @@
   <data name="LimitAttemptsReached" xml:space="preserve">
     <value>You have exceeded the maximum number of failed attempts.</value>
   </data>
+  <data name="RegisterPhoneConfirmationFailed" xml:space="preserve">
+    <value>The code is not valid.</value>
+  </data>
 </root>

@@ -53,6 +53,9 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     public Task<AuthenticationMethod[]> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods.Select(e => e.Method).ToArray());
 
     /// <inheritdoc />
+    public Task<AuthenticationMethod[]> GetMfaMethodsAsync() => Task.FromResult(_authenticationMethods.Where(e => e.SupportsMfa && e.Enabled).Select(e => e.Method).ToArray());
+
+    /// <inheritdoc />
     /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/>, <see cref="TrustedDeviceAuthenticationMethod"/> and <see cref="AuthenticatorAppAuthenticationMethod"/>.</remarks>
     public async Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, string? code = null) {
         var userMethods = await GetAllMethodsForUserAsync(user);
@@ -62,7 +65,10 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
                 return byCode;
             }
         }
-        return userMethods.FirstOrDefault();
+        if (userMethods.Length < 2) {
+            return userMethods.FirstOrDefault();
+        }
+        return userMethods.SelectPreferred(await _userManager.GetTwoFactorPreferenceAsync(user));
     }
 
     /// <inheritdoc />
