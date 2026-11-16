@@ -190,6 +190,16 @@ public sealed class EmailServiceWeMailSettings
 /// <inheritdoc/>
 public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings> options) : IWebhookHttpHandler
 {
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "queued",
+        "sent",
+        "delivered",
+        "opened",
+        "clicked",
+        "unsubscribed",
+        "resubscribed"
+    };
+
     private readonly EmailServiceWeMailSettings _settings = options.Value;
 
     /// <inheritdoc/>
@@ -252,241 +262,86 @@ public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings
             return false;
         }
 
-        var tolerance = _settings.WebhookReplayTolerance > TimeSpan.Zero
+        if (!TryParseSignatureHeader(signatureHeader, out var timestampRaw, out var signatures)) {
+            return false;
+        }
+
+        if (timestampRaw is null) {
+            var timestampHeaderName = string.IsNullOrWhiteSpace(_settings.WebhookTimestampHeaderName)
+                ? "X-Wemail-Timestamp"
+                : _settings.WebhookTimestampHeaderName;
+            if (!TryGetHeaderValue(requestHeaders, timestampHeaderName, out var timestampHeaderValue) || string.IsNullOrWhiteSpace(timestampHeaderValue)) {
+                return false;
+            }
+            timestampRaw = timestampHeaderValue;
+        }
+
+        if (!long.TryParse(timestampRaw, NumberStyles.None, CultureInfo.InvariantCulture, out var timestampSeconds)) {
+            return false;
+        }
+
+        DateTimeOffset timestamp;
+        try {
+            timestamp = DateTimeOffset.FromUnixTimeSeconds(timestampSeconds);
+        } catch (ArgumentOutOfRangeException) {
+            return false;
+        }
+
+        var maxAge = _settings.WebhookReplayTolerance > TimeSpan.Zero
             ? _settings.WebhookReplayTolerance
             : TimeSpan.FromMinutes(5);
-
-        if (IsHmacAuthorized(payloadBytes, signatureHeader, _settings.WebhookSigningSecret!, tolerance)) {
-            return true;
-        }
-
-        if (!TryParseSignatureHeader(signatureHeader, out var timestampRaw, out var signatures, out _)) {
-            return false;
-        }
-
-        if (!string.IsNullOrWhiteSpace(timestampRaw)) {
-            return false;
-        }
-
-        var timestampHeaderName = string.IsNullOrWhiteSpace(_settings.WebhookTimestampHeaderName)
-            ? "X-Wemail-Timestamp"
-            : _settings.WebhookTimestampHeaderName;
-        if (!TryGetHeaderValue(requestHeaders, timestampHeaderName, out var timestampHeaderValue) || string.IsNullOrWhiteSpace(timestampHeaderValue)) {
-            return false;
-        }
-
-        var syntheticHeader = string.Join(',', signatures.Select(signature => $"v1={signature}"));
-        syntheticHeader = $"t={timestampHeaderValue},{syntheticHeader}";
-        return IsHmacAuthorized(payloadBytes, syntheticHeader, _settings.WebhookSigningSecret!, tolerance);
-    }
-
-    public static bool IsHmacAuthorized(
-        byte[] rawBody,
-        string? signatureHeader,
-        string secret,
-        TimeSpan? tolerance = null) {
-        if (rawBody is null || rawBody.Length == 0 || string.IsNullOrWhiteSpace(signatureHeader) || string.IsNullOrWhiteSpace(secret)) {
-            return false;
-        }
-
-        if (!TryParseSignatureHeader(signatureHeader, out var timestampRaw, out var signatures, out _)) {
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(timestampRaw) || !TryParseTimestamp(timestampRaw, out var timestamp)) {
-            return false;
-        }
-
-        var maxAge = tolerance ?? TimeSpan.FromMinutes(5);
         if ((DateTimeOffset.UtcNow - timestamp).Duration() > maxAge) {
             return false;
         }
 
-        var payloadCandidates = BuildSigningPayloadCandidates(rawBody, timestampRaw.Trim(), timestamp);
-        var secretCandidates = BuildSecretCandidates(secret).ToList();
+        var timestampPrefix = Encoding.UTF8.GetBytes($"{timestampRaw}.");
+        var signedPayload = new byte[timestampPrefix.Length + payloadBytes.Length];
+        Buffer.BlockCopy(timestampPrefix, 0, signedPayload, 0, timestampPrefix.Length);
+        Buffer.BlockCopy(payloadBytes, 0, signedPayload, timestampPrefix.Length, payloadBytes.Length);
 
-        foreach (var signatureValue in signatures) {
-            if (!TryDecodeSignatureToBytes(signatureValue, out var providedSignature)) {
+        var secretBytes = Encoding.UTF8.GetBytes(_settings.WebhookSigningSecret);
+        var expectedSignature = HMACSHA256.HashData(secretBytes, signedPayload);
+        foreach (var signature in signatures) {
+            if (signature.Length != 64 || !signature.All(Uri.IsHexDigit)) {
                 continue;
             }
 
-            foreach (var payload in payloadCandidates) {
-                foreach (var secretCandidate in secretCandidates) {
-                    foreach (var digest in BuildDigests(secretCandidate, payload)) {
-                        if (CryptographicOperations.FixedTimeEquals(digest, providedSignature)) {
-                            return true;
-                        }
-                    }
-                }
+            var providedSignature = Convert.FromHexString(signature);
+            if (CryptographicOperations.FixedTimeEquals(expectedSignature, providedSignature)) {
+                return true;
             }
         }
 
         return false;
     }
 
-    private static IEnumerable<byte[]> BuildSigningPayloadCandidates(byte[] payloadBytes, string timestampRaw, DateTimeOffset timestamp) {
-        var rawTimestampBytes = Encoding.UTF8.GetBytes(timestampRaw);
-        var timestampSecondsBytes = Encoding.UTF8.GetBytes(timestamp.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture));
-        var timestampMillisecondsBytes = Encoding.UTF8.GetBytes(timestamp.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture));
-        var dot = new byte[] { (byte)'.' };
-        var newline = new byte[] { (byte)'\n' };
-
-        foreach (var ts in new[] { rawTimestampBytes, timestampSecondsBytes, timestampMillisecondsBytes }) {
-            yield return BuildSignedPayload(ts, payloadBytes, dot);
-            yield return BuildSignedPayload(ts, payloadBytes, newline);
-            yield return BuildSignedPayload(ts, payloadBytes, []);
-            yield return BuildSignedPayload(payloadBytes, ts, dot);
-            yield return BuildSignedPayload(payloadBytes, ts, newline);
-            yield return BuildSignedPayload(payloadBytes, ts, []);
-        }
-    }
-
-    private static IEnumerable<byte[]> BuildSecretCandidates(string secret) {
-        yield return Encoding.UTF8.GetBytes(secret);
-
-        const string Prefix = "whsec_";
-        if (!secret.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase)) {
-            yield break;
-        }
-
-        var suffix = secret[Prefix.Length..];
-        if (string.IsNullOrWhiteSpace(suffix)) {
-            yield break;
-        }
-
-        yield return Encoding.UTF8.GetBytes(suffix);
-        if (TryDecodeSignatureToBytes(suffix, out var decoded)) {
-            yield return decoded;
-        }
-    }
-
-    private static IEnumerable<byte[]> BuildDigests(byte[] secretBytes, byte[] payloadBytes) {
-        yield return HMACSHA256.HashData(secretBytes, payloadBytes);
-        yield return HMACSHA512.HashData(secretBytes, payloadBytes);
-    }
-
-    private static byte[] BuildSignedPayload(byte[] left, byte[] right, byte[] separator) {
-        var payload = new byte[left.Length + separator.Length + right.Length];
-        Buffer.BlockCopy(left, 0, payload, 0, left.Length);
-        if (separator.Length > 0) {
-            Buffer.BlockCopy(separator, 0, payload, left.Length, separator.Length);
-        }
-        Buffer.BlockCopy(right, 0, payload, left.Length + separator.Length, right.Length);
-        return payload;
-    }
-
-    private static bool TryParseSignatureHeader(string signatureHeader, out string? timestamp, out List<string> signatures, out string? keyId) {
+    private static bool TryParseSignatureHeader(string signatureHeader, out string? timestamp, out List<string> signatures) {
         timestamp = null;
-        keyId = null;
         signatures = [];
+        var hasTimestamp = false;
 
-        var segments = signatureHeader.Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        foreach (var segment in segments) {
+        foreach (var segment in signatureHeader.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)) {
             var separatorIndex = segment.IndexOf('=');
-            if (separatorIndex <= 0 || separatorIndex >= segment.Length) {
+            if (separatorIndex <= 0 || separatorIndex == segment.Length - 1) {
                 continue;
             }
 
-            var key = segment[..separatorIndex].Trim();
-            var value = NormalizeSignatureValue(segment[(separatorIndex + 1)..].Trim());
-            if (string.IsNullOrWhiteSpace(value)) {
-                continue;
-            }
-
-            if (key.Equals("t", StringComparison.OrdinalIgnoreCase) ||
-                key.Equals("ts", StringComparison.OrdinalIgnoreCase) ||
-                key.Equals("timestamp", StringComparison.OrdinalIgnoreCase)) {
+            var key = segment[..separatorIndex];
+            var value = segment[(separatorIndex + 1)..];
+            if (key.Equals("t", StringComparison.OrdinalIgnoreCase)) {
+                if (hasTimestamp) {
+                    timestamp = null;
+                    signatures.Clear();
+                    return false;
+                }
                 timestamp = value;
-                continue;
-            }
-
-            if (key.Equals("kid", StringComparison.OrdinalIgnoreCase) ||
-                key.Equals("keyid", StringComparison.OrdinalIgnoreCase)) {
-                keyId = value;
-                continue;
-            }
-
-            if (key.Equals("v1", StringComparison.OrdinalIgnoreCase) ||
-                key.Equals("sig", StringComparison.OrdinalIgnoreCase) ||
-                key.Equals("signature", StringComparison.OrdinalIgnoreCase) ||
-                key.Equals("hmac", StringComparison.OrdinalIgnoreCase)) {
+                hasTimestamp = true;
+            } else if (key.Equals("v1", StringComparison.OrdinalIgnoreCase)) {
                 signatures.Add(value);
             }
         }
 
-        if (signatures.Count == 0) {
-            var fallback = NormalizeSignatureValue(signatureHeader);
-            if (!string.IsNullOrWhiteSpace(fallback)) {
-                signatures.Add(fallback);
-            }
-        }
-
         return signatures.Count > 0;
-    }
-
-    private static string NormalizeSignatureValue(string value) {
-        var normalized = value.Trim();
-        if (normalized.Length >= 2 &&
-            ((normalized[0] == '"' && normalized[^1] == '"') ||
-             (normalized[0] == '\'' && normalized[^1] == '\''))) {
-            normalized = normalized[1..^1];
-        }
-
-        const string Prefix = "sha256=";
-        if (normalized.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase)) {
-            normalized = normalized[Prefix.Length..];
-        }
-
-        return normalized;
-    }
-
-    private static bool TryDecodeSignatureToBytes(string signature, out byte[] bytes) {
-        bytes = [];
-        if (string.IsNullOrWhiteSpace(signature)) {
-            return false;
-        }
-
-        var normalized = NormalizeSignatureValue(signature);
-        if (normalized.Length % 2 == 0 && normalized.All(Uri.IsHexDigit)) {
-            try {
-                bytes = Convert.FromHexString(normalized);
-                return true;
-            } catch (FormatException) {
-            }
-        }
-
-        if (TryDecodeBase64(normalized, out bytes)) {
-            return true;
-        }
-
-        var base64Url = normalized.Replace('-', '+').Replace('_', '/');
-        var padding = base64Url.Length % 4;
-        if (padding != 0) {
-            base64Url = base64Url.PadRight(base64Url.Length + (4 - padding), '=');
-        }
-
-        return TryDecodeBase64(base64Url, out bytes);
-    }
-
-    private static bool TryDecodeBase64(string value, out byte[] bytes) {
-        try {
-            bytes = Convert.FromBase64String(value);
-            return true;
-        } catch (FormatException) {
-            bytes = [];
-            return false;
-        }
-    }
-
-    private static bool TryParseTimestamp(string timestampRaw, out DateTimeOffset timestamp) {
-        if (long.TryParse(timestampRaw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch) && epoch > 0) {
-            timestamp = epoch > 9_999_999_999
-                ? DateTimeOffset.FromUnixTimeMilliseconds(epoch)
-                : DateTimeOffset.FromUnixTimeSeconds(epoch);
-            return true;
-        }
-
-        return DateTimeOffset.TryParse(timestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out timestamp);
     }
 
     private static bool TryGetHeaderValue(IDictionary<string, StringValues> headers, string headerName, out string value) {
@@ -499,6 +354,11 @@ public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings
 
         value = string.Empty;
         return false;
+    }
+
+    //TODO: Use when we implement the webhook event filtering based on the event type.
+    private static bool EventSucceeded(string eventType) {
+        return SucceededStatuses.Contains(eventType);
     }
 
     private static IEnumerable<WebhookEvent> ParseEvents(JsonNode payload) {

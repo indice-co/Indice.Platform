@@ -98,28 +98,62 @@ public sealed class EmailServiceWeMailWebhookAuthenticationTests
     }
 
     [Fact]
-    public async Task HmacAuthentication_Base64SignatureWithKid_IsAccepted() {
+    public async Task HmacAuthentication_NonDocumentedFormat_IsRejected() {
         var secret = "whsec_test_secret";
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-        var payloadToSign = $"{Payload}{timestamp}";
-        var digest = HMACSHA512.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(payloadToSign));
+        var digest = HMACSHA512.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes($"{timestamp}.{Payload}"));
         var signature = Convert.ToBase64String(digest);
-
         var settings = new EmailServiceWeMailSettings {
             WebhookAuthenticationMethod = EmailServiceWeMailWebhookAuthenticationMethod.Hmac,
-            WebhookSigningSecret = secret,
-            WebhookSignatureHeaderName = "X-Wemail-Signature",
-            WebhookReplayTolerance = TimeSpan.FromMinutes(5)
+            WebhookSigningSecret = secret
         };
-
         var headers = new Dictionary<string, StringValues> {
             ["X-Wemail-Signature"] = $"t={timestamp},v1={signature},kid=sk_test"
         };
 
         var result = await ParseAsync(settings, headers);
 
-        Assert.True(result.Success);
-        Assert.Single(result.Events);
+        Assert.False(result.Success);
+        Assert.Equal(403, result.Status);
+    }
+
+    [Fact]
+    public async Task HmacAuthentication_StaleTimestamp_IsRejected() {
+        var secret = "whsec_test_secret";
+        var timestamp = DateTimeOffset.UtcNow.AddMinutes(-6).ToUnixTimeSeconds().ToString();
+        var digest = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes($"{timestamp}.{Payload}"));
+        var signature = Convert.ToHexString(digest).ToLowerInvariant();
+        var settings = new EmailServiceWeMailSettings {
+            WebhookAuthenticationMethod = EmailServiceWeMailWebhookAuthenticationMethod.Hmac,
+            WebhookSigningSecret = secret
+        };
+        var headers = new Dictionary<string, StringValues> {
+            ["X-Wemail-Signature"] = $"t={timestamp},v1={signature}"
+        };
+
+        var result = await ParseAsync(settings, headers);
+
+        Assert.False(result.Success);
+        Assert.Equal(403, result.Status);
+    }
+
+    [Fact]
+    public async Task HmacAuthentication_WrongSecret_IsRejected() {
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+        var digest = HMACSHA256.HashData(Encoding.UTF8.GetBytes("whsec_wrong_secret"), Encoding.UTF8.GetBytes($"{timestamp}.{Payload}"));
+        var signature = Convert.ToHexString(digest).ToLowerInvariant();
+        var settings = new EmailServiceWeMailSettings {
+            WebhookAuthenticationMethod = EmailServiceWeMailWebhookAuthenticationMethod.Hmac,
+            WebhookSigningSecret = "whsec_current_secret"
+        };
+        var headers = new Dictionary<string, StringValues> {
+            ["X-Wemail-Signature"] = $"t={timestamp},v1={signature}"
+        };
+
+        var result = await ParseAsync(settings, headers);
+
+        Assert.False(result.Success);
+        Assert.Equal(403, result.Status);
     }
 
     private static Task<WebhookHttpResult> ParseAsync(EmailServiceWeMailSettings settings, Dictionary<string, StringValues> headers) {
