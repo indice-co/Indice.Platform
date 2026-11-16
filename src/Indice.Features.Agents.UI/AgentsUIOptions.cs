@@ -19,6 +19,9 @@ public class AgentsUIOptions : SpaUIOptions
     /// <summary>The display name of the assistant, shown wherever the UI names it (brand, greetings, input placeholder, browser tab). Defaults to <b>Dex</b>.</summary>
     public string? AssistantName { get; set; }
 
+    /// <summary>The embeddable chat widget (<c>widget.js</c> + the <c>/embed</c> route): which sites may frame it.</summary>
+    public AgentsWidgetOptions Widget { get; } = new();
+
     /// <summary>Creates a new instance <see cref="AgentsUIOptions"/>.</summary>
     public AgentsUIOptions() {
         ClientId = "dex-ui";
@@ -36,6 +39,8 @@ public class AgentsUIOptions : SpaUIOptions
 var theme = string.IsNullOrWhiteSpace(Theme) ? "dex" : Theme.Trim().ToLowerInvariant();
 theme = System.Text.RegularExpressions.Regex.Replace(theme, "[^a-z0-9_-]", string.Empty);
 args[$"%({nameof(Theme)})"] = string.IsNullOrEmpty(theme) ? "dex" : theme;
+            // The parent origins the /embed page may talk to over postMessage (validated in UseAgentsUI).
+            args["%(WidgetOrigins)"] = System.Net.WebUtility.HtmlEncode(string.Join(' ', Widget.Origins));
         };
     }
 }
