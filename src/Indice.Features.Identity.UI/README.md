@@ -346,6 +346,15 @@ but no code-based method are blocked; users without MFA are not affected. Reques
 render `<partial name="_ProfileMfaChallenge" model="Model.MfaChallenge" />`. The username page is unavailable when
 `DisableEmailEdit` is set or the email is used as the username (`IdentityOptions:User:EmailAsUserName`).
 
+#### Profile MFA management
+`/ManageMfa` (`/manage/mfa`) is linked from the *Two-factor authentication* row of `/Profile`. Users can turn MFA on,
+change the preferred method (SMS on a confirmed phone, email on a confirmed email, or authenticator app), set up a new
+authenticator app (the new key is stored only after a valid code) and regenerate recovery codes (authenticator app only).
+Turning MFA off or resetting it is not offered; those remain admin actions. When MFA is already on, every change needs
+the profile MFA challenge. Moving from the authenticator app to SMS or email removes the authenticator key and its
+recovery codes. The preferred method only chooses between methods of the same security level, so the authenticator app
+would otherwise still be used. Set `IdentityUIOptions.DisableMfaEdit` to hide the page.
+
 ### Multi-Factor Authentication
 - `/Mfa` - MFA challenge page
 - `/MfaOnboarding` - MFA setup wizard

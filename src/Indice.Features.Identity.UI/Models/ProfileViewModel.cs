@@ -31,4 +31,10 @@ public class ProfileViewModel : ProfileInputModel
     public bool ShowFullName { get { return DisableEditFamilyName && DisableEditGivenName; } }
     /// <summary>Indicates whether the user has enabled Developer TOTP.</summary>
     public bool HasDeveloperTotp { get; set; }
+    /// <summary>Indicates whether two-factor authentication is enabled for the user.</summary>
+    public bool TwoFactorEnabled { get; set; }
+    /// <summary>The display name (not localized) of the two-factor authentication method the user signs in with, when two-factor authentication is enabled.</summary>
+    public string? TwoFactorMethodName { get; set; }
+    /// <summary>Indicates whether the user can manage two-factor authentication in the profile pages.</summary>
+    public bool CanManageMfa { get; set; }
 }

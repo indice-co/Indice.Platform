@@ -105,7 +105,10 @@ public class ProfileMfaChallengeService : IProfileMfaChallengeService
                 return selected;
             }
         }
-        return methods.FirstOrDefault();
+        if (methods.Length < 2) {
+            return methods.FirstOrDefault();
+        }
+        return methods.SelectPreferred(await _userManager.GetTwoFactorPreferenceAsync(user));
     }
 
     /// <inheritdoc />

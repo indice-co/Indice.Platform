@@ -1007,6 +1007,49 @@ public class IdentityUILocalizer
     public virtual HtmlString ProfileMfaChallenge_Blocked => new HtmlString(IdentityLabels.ProfileMfaChallenge_Blocked);
     /// <summary>Gets the localized string for "Cancel".</summary>
     public virtual HtmlString ProfileMfaChallenge_Cancel => new HtmlString(IdentityLabels.ProfileMfaChallenge_Cancel);
+    /// <summary>Gets the localized string for "Two-factor authentication" (profile account row).</summary>
+    public virtual HtmlString Profile_TwoFactor => new HtmlString(IdentityLabels.Profile_TwoFactor);
+    /// <summary>Gets the localized string for "On".</summary>
+    public virtual HtmlString Profile_TwoFactorOn => new HtmlString(IdentityLabels.Profile_TwoFactorOn);
+    /// <summary>Gets the localized string for "Off".</summary>
+    public virtual HtmlString Profile_TwoFactorOff => new HtmlString(IdentityLabels.Profile_TwoFactorOff);
+    /// <summary>Gets the localized string for "Two-factor authentication" (management page title).</summary>
+    public virtual HtmlString ManageMfa_PageTitle => new HtmlString(IdentityLabels.ManageMfa_PageTitle);
+    /// <summary>Gets the localized description of the two-factor authentication management page.</summary>
+    public virtual HtmlString ManageMfa_Description => new HtmlString(IdentityLabels.ManageMfa_Description);
+    /// <summary>Gets the localized status displayed when two-factor authentication is on, including the current method.</summary>
+    /// <param name="methodName">The display name of the current method.</param>
+    public virtual HtmlString ManageMfa_StatusOn(string methodName) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ManageMfa_StatusOn, System.Net.WebUtility.HtmlEncode(methodName)));
+    /// <summary>Gets the localized status displayed when two-factor authentication is off.</summary>
+    public virtual HtmlString ManageMfa_StatusOff => new HtmlString(IdentityLabels.ManageMfa_StatusOff);
+    /// <summary>Gets the localized string for "Methods".</summary>
+    public virtual HtmlString ManageMfa_Methods => new HtmlString(IdentityLabels.ManageMfa_Methods);
+    /// <summary>Gets the localized string for "Current".</summary>
+    public virtual HtmlString ManageMfa_Current => new HtmlString(IdentityLabels.ManageMfa_Current);
+    /// <summary>Gets the localized string for "Use".</summary>
+    public virtual HtmlString ManageMfa_Use => new HtmlString(IdentityLabels.ManageMfa_Use);
+    /// <summary>Gets the localized string for "Set up".</summary>
+    public virtual HtmlString ManageMfa_SetUp => new HtmlString(IdentityLabels.ManageMfa_SetUp);
+    /// <summary>Gets the localized string for "Set up a new app".</summary>
+    public virtual HtmlString ManageMfa_SetUpAgain => new HtmlString(IdentityLabels.ManageMfa_SetUpAgain);
+    /// <summary>Gets the localized hint displayed when a verified phone number is needed.</summary>
+    public virtual HtmlString ManageMfa_PhoneRequired => new HtmlString(IdentityLabels.ManageMfa_PhoneRequired);
+    /// <summary>Gets the localized hint displayed when a verified email address is needed.</summary>
+    public virtual HtmlString ManageMfa_EmailRequired => new HtmlString(IdentityLabels.ManageMfa_EmailRequired);
+    /// <summary>Gets the localized warning that switching method removes the authenticator app and recovery codes.</summary>
+    public virtual HtmlString ManageMfa_AuthenticatorRemoved => new HtmlString(IdentityLabels.ManageMfa_AuthenticatorRemoved);
+    /// <summary>Gets the localized string for "Recovery codes".</summary>
+    public virtual HtmlString ManageMfa_RecoveryCodes => new HtmlString(IdentityLabels.ManageMfa_RecoveryCodes);
+    /// <summary>Gets the localized description of the recovery codes section.</summary>
+    public virtual HtmlString ManageMfa_RecoveryCodesDescription => new HtmlString(IdentityLabels.ManageMfa_RecoveryCodesDescription);
+    /// <summary>Gets the localized string for "Generate new codes".</summary>
+    public virtual HtmlString ManageMfa_RegenerateRecoveryCodes => new HtmlString(IdentityLabels.ManageMfa_RegenerateRecoveryCodes);
+    /// <summary>Gets the localized message displayed when the authenticator app setup has expired.</summary>
+    public virtual HtmlString ManageMfa_SetupExpired => new HtmlString(IdentityLabels.ManageMfa_SetupExpired);
+    /// <summary>Gets the localized message displayed when the selected method cannot be used.</summary>
+    public virtual HtmlString ManageMfa_MethodUnavailable => new HtmlString(IdentityLabels.ManageMfa_MethodUnavailable);
+    /// <summary>Gets the localized message displayed after the two-factor authentication settings are updated.</summary>
+    public virtual HtmlString ManageMfa_Updated => new HtmlString(IdentityLabels.ManageMfa_Updated);
 
     /// <summary>
     /// Label for Manage Profile action.

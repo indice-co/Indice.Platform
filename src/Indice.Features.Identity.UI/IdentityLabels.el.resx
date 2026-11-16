@@ -1337,4 +1337,25 @@
 <data name="ChangeUserName_PageTitle" xml:space="preserve"><value>Αλλαγή ονόματος χρήστη</value></data>
 <data name="ChangeUserName_Description" xml:space="preserve"><value>Θα χρησιμοποιείτε το νέο όνομα χρήστη για να συνδέεστε.</value></data>
 <data name="ChangeUserName_Succeeded" xml:space="preserve"><value>Το όνομα χρήστη σας άλλαξε επιτυχώς.</value></data>
+<data name="Profile_TwoFactor" xml:space="preserve"><value>Έλεγχος ταυτότητας δύο παραγόντων</value></data>
+<data name="Profile_TwoFactorOn" xml:space="preserve"><value>Ενεργός</value></data>
+<data name="Profile_TwoFactorOff" xml:space="preserve"><value>Ανενεργός</value></data>
+<data name="ManageMfa_PageTitle" xml:space="preserve"><value>Έλεγχος ταυτότητας δύο παραγόντων</value></data>
+<data name="ManageMfa_Description" xml:space="preserve"><value>Επιλέξτε πώς θα επιβεβαιώνετε την ταυτότητά σας κατά τη σύνδεση.</value></data>
+<data name="ManageMfa_StatusOn" xml:space="preserve"><value>Ο έλεγχος ταυτότητας δύο παραγόντων είναι ενεργός. Τρέχουσα μέθοδος: {0}.</value></data>
+<data name="ManageMfa_StatusOff" xml:space="preserve"><value>Ο έλεγχος ταυτότητας δύο παραγόντων είναι ανενεργός. Επιλέξτε μια μέθοδο για να τον ενεργοποιήσετε.</value></data>
+<data name="ManageMfa_Methods" xml:space="preserve"><value>Μέθοδοι</value></data>
+<data name="ManageMfa_Current" xml:space="preserve"><value>Τρέχουσα</value></data>
+<data name="ManageMfa_Use" xml:space="preserve"><value>Χρήση</value></data>
+<data name="ManageMfa_SetUp" xml:space="preserve"><value>Ρύθμιση</value></data>
+<data name="ManageMfa_SetUpAgain" xml:space="preserve"><value>Ρύθμιση νέας εφαρμογής</value></data>
+<data name="ManageMfa_PhoneRequired" xml:space="preserve"><value>Προσθέστε και επιβεβαιώστε έναν αριθμό τηλεφώνου για να χρησιμοποιήσετε αυτή τη μέθοδο.</value></data>
+<data name="ManageMfa_EmailRequired" xml:space="preserve"><value>Επιβεβαιώστε τη διεύθυνση email σας για να χρησιμοποιήσετε αυτή τη μέθοδο.</value></data>
+<data name="ManageMfa_AuthenticatorRemoved" xml:space="preserve"><value>Η αλλαγή σε άλλη μέθοδο αφαιρεί την εφαρμογή επαλήθευσης και τους κωδικούς ανάκτησης.</value></data>
+<data name="ManageMfa_RecoveryCodes" xml:space="preserve"><value>Κωδικοί ανάκτησης</value></data>
+<data name="ManageMfa_RecoveryCodesDescription" xml:space="preserve"><value>Χρησιμοποιήστε έναν κωδικό ανάκτησης για να συνδεθείτε αν χάσετε την πρόσβαση στην εφαρμογή επαλήθευσης. Οι νέοι κωδικοί αντικαθιστούν τους παλιούς.</value></data>
+<data name="ManageMfa_RegenerateRecoveryCodes" xml:space="preserve"><value>Δημιουργία νέων κωδικών</value></data>
+<data name="ManageMfa_SetupExpired" xml:space="preserve"><value>Η ρύθμιση έληξε. Ξεκινήστε ξανά.</value></data>
+<data name="ManageMfa_MethodUnavailable" xml:space="preserve"><value>Αυτή η μέθοδος δεν μπορεί να χρησιμοποιηθεί.</value></data>
+<data name="ManageMfa_Updated" xml:space="preserve"><value>Οι ρυθμίσεις ελέγχου ταυτότητας δύο παραγόντων ενημερώθηκαν.</value></data>
 </root>

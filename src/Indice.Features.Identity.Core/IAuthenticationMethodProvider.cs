@@ -17,10 +17,16 @@ public interface IAuthenticationMethodProvider
     /// <summary>Gets a list of all available authentication methods supported by the identity system.</summary>
     /// <remarks>This is used by the MFA Onboarding screens</remarks>
     Task<AuthenticationMethod[]> GetAllMethodsAsync();
+    /// <summary>Gets the authentication methods that are enabled and can be used for multi-factor authentication, regardless of the user.</summary>
+    /// <remarks>This is used by the profile MFA management page. The default implementation returns <see cref="GetAllMethodsAsync"/>.</remarks>
+    Task<AuthenticationMethod[]> GetMfaMethodsAsync() => GetAllMethodsAsync();
     /// <summary>Get the authentication method that must be applied to the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="code">The <see cref="AuthenticationMethod.Code"/> of the desired method (optional).</param>
-    /// <remarks>This is used on actual MFA screens</remarks>
+    /// <remarks>
+    /// This is used on actual MFA screens. Without a (permitted) <paramref name="code"/> the most secure method is returned; among methods of the same security level
+    /// the user's two-factor preference (see <see cref="ExtendedUserManager{TUser}.SetTwoFactorAsync"/>) wins.
+    /// </remarks>
     Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, string? code = null);
     /// <summary>Gets the authentication methods supported for the user.</summary>
     /// <param name="user">The user instance.</param>

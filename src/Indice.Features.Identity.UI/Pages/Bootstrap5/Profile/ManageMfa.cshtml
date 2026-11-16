@@ -1,0 +1,200 @@
+@page "/manage/mfa"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/mfa-challenge")]
+
+@model BaseManageMfaModel
+@using Indice.Features.Identity.Core.Models
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_ProfileLayout";
+    ViewData["Title"] = Localizer.ManageMfa_PageTitle;
+    var mfaChallenge = Model.MfaChallenge;
+    var current = Model.View.CurrentMethod;
+    var setup = Model.Setup;
+    var recoveryCodes = Model.RecoveryCodes;
+    var codeError = ViewContext.ModelState["code"]?.Errors.FirstOrDefault()?.ErrorMessage;
+}
+
+<section class="data-card data-card--form" inert="@(mfaChallenge is not null)">
+    <a class="data-card__back" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
+    <header class="data-card__header">
+        <h1 class="data-card__title">@Localizer.ManageMfa_PageTitle</h1>
+        <p class="data-card__lead">@Localizer.ManageMfa_Description</p>
+    </header>
+    <partial name="_ValidationSummary" />
+
+    @if (recoveryCodes is not null)
+    {
+        <div class="mfa-manage">
+            <h2 class="mfa-manage__heading">@Localizer.MfaOnBoardingRecoveryCodes_PageHeader</h2>
+            <div class="alert alert-warning" role="alert">@Localizer.MfaOnBoardingRecoveryCodes_SaveWarning</div>
+            <ul class="mfa__codes">
+                @foreach (var code in recoveryCodes.RecoveryCodes)
+                {
+                    <li><code>@code</code></li>
+                }
+            </ul>
+            <form method="post" asp-page-handler="RecoveryCodesDone" class="auth-form" novalidate>
+                <div class="auth-form__actions mfa-manage__actions">
+                    <a asp-page-handler="DownloadRecoveryCodes" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-download" aria-hidden="true"></i> @Localizer.MfaOnBoardingRecoveryCodes_Download
+                    </a>
+                    <button class="btn btn-primary" type="submit">@Localizer.MfaOnBoardingRecoveryCodes_Continue</button>
+                </div>
+            </form>
+        </div>
+    }
+    else if (setup is not null)
+    {
+        <div class="mfa-manage">
+            <h2 class="mfa-manage__heading">@Localizer.MfaOnBoardingSetupAuthenticator_PageHeader</h2>
+            <p class="mfa-manage__text">@Localizer.MfaOnBoardingSetupAuthenticator_ScanQrCode</p>
+            <div class="mfa__qr">
+                <div id="qrCode" role="img" aria-label="QR"></div>
+            </div>
+            <div id="qrCodeData" data-url="@setup.AuthenticatorUri" hidden></div>
+            <p class="mfa-manage__text">@Localizer.MfaOnBoardingSetupAuthenticator_OrEnterManually</p>
+            <p class="mfa__key">@setup.FormattedSharedKey</p>
+            <form method="post" asp-page-handler="VerifyAuthenticator" class="auth-form" novalidate>
+                <input type="hidden" name="protectedKey" value="@setup.ProtectedKey" />
+                <div class="field">
+                    <label for="code" class="field__label">@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode</label>
+                    <input id="code"
+                           name="code"
+                           class="form-control field__control otp-field__input"
+                           data-otp-length="@setup.AuthenticatorDigits"
+                           placeholder="@Localizer.MfaOnBoardingSetupAuthenticator_VerificationCode"
+                           autocomplete="one-time-code"
+                           inputmode="numeric"
+                           maxlength="@setup.AuthenticatorDigits"
+                           autofocus
+                           aria-invalid="@(codeError is null ? "false" : "true")"
+                           aria-describedby="code-error" />
+                    <span class="field__error" id="code-error">@codeError</span>
+                </div>
+                <div class="auth-form__actions mfa-manage__actions">
+                    <a class="btn btn-outline-secondary" asp-page="/ManageMfa">@Localizer.ProfileMfaChallenge_Cancel</a>
+                    <button class="btn btn-primary" type="submit">@Localizer.MfaOnBoardingSetupAuthenticator_Verify</button>
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="mfa-manage">
+            <p class="mfa-manage__status @(Model.View.TwoFactorEnabled ? "mfa-manage__status--on" : null)" role="status">
+                <i class="mfa-manage__status-icon fa-solid @(Model.View.TwoFactorEnabled ? "fa-shield-halved" : "fa-circle-info")" aria-hidden="true"></i>
+                @if (Model.View.TwoFactorEnabled && current is not null)
+                {
+                    @Localizer.ManageMfa_StatusOn(Localizer.GetGeneric(current.DisplayName).Value!)
+                }
+                else if (Model.View.TwoFactorEnabled)
+                {
+                    @Localizer.Profile_TwoFactorOn
+                }
+                else
+                {
+                    @Localizer.ManageMfa_StatusOff
+                }
+            </p>
+
+            <h2 class="mfa-manage__heading">@Localizer.ManageMfa_Methods</h2>
+            <ul class="mfa-methods">
+                @foreach (var method in Model.View.Methods)
+                {
+                    var isAuthenticator = method.Type == AuthenticationMethodType.AuthenticatorApp;
+                    <li class="mfa-method @(method.IsCurrent ? "mfa-method--current" : null) @(method.IsAvailable ? null : "mfa-method--unavailable")">
+                        <i class="mfa-method__icon @GetIcon(method.Code)" aria-hidden="true"></i>
+                        <div class="mfa-method__body">
+                            <span class="mfa-method__name">
+                                @Localizer.GetGeneric(method.DisplayName)
+                                @if (method.IsCurrent)
+                                {
+                                    <span class="mfa-method__badge">@Localizer.ManageMfa_Current</span>
+                                }
+                            </span>
+                            @if (!string.IsNullOrWhiteSpace(method.Detail))
+                            {
+                                <span class="mfa-method__detail">@method.Detail</span>
+                            }
+                            else if (!method.IsAvailable)
+                            {
+                                var canEdit = method.Type == AuthenticationMethodType.PhoneNumber ? !Model.IdentityUiOptions.DisablePhoneEdit : !Model.IdentityUiOptions.DisableEmailEdit;
+                                <span class="mfa-method__detail">
+                                    @(method.Type == AuthenticationMethodType.PhoneNumber ? Localizer.ManageMfa_PhoneRequired : Localizer.ManageMfa_EmailRequired)
+                                    @if (canEdit)
+                                    {
+                                        <a class="mfa-method__link" asp-page="@(method.Type == AuthenticationMethodType.PhoneNumber ? "/ChangePhone" : "/ChangeEmail")">@Localizer.Profile_Edit</a>
+                                    }
+                                </span>
+                            }
+                        </div>
+                        <div class="mfa-method__action">
+                            @if (isAuthenticator)
+                            {
+                                <form method="post" asp-page-handler="SetupAuthenticator" novalidate>
+                                    <button class="btn btn-sm @(method.IsCurrent ? "btn-outline-secondary" : "btn-primary")" type="submit">@(method.IsCurrent ? Localizer.ManageMfa_SetUpAgain : Localizer.ManageMfa_SetUp)</button>
+                                </form>
+                            }
+                            else if (!method.IsCurrent && method.IsAvailable)
+                            {
+                                <form method="post" asp-page-handler="SelectMethod" novalidate>
+                                    <button class="btn btn-sm btn-primary" type="submit" name="method" value="@method.Type">@Localizer.ManageMfa_Use</button>
+                                </form>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+            @if (current?.Type == AuthenticationMethodType.AuthenticatorApp && Model.View.Methods.Any(method => !method.IsCurrent && method.IsAvailable && method.Type != AuthenticationMethodType.AuthenticatorApp))
+            {
+                <p class="mfa-manage__warning">
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    @Localizer.ManageMfa_AuthenticatorRemoved
+                </p>
+            }
+
+            @if (Model.View.CanRegenerateRecoveryCodes)
+            {
+                <div class="mfa-manage__section">
+                    <h2 class="mfa-manage__heading">@Localizer.ManageMfa_RecoveryCodes</h2>
+                    <p class="mfa-manage__text">@Localizer.ManageMfa_RecoveryCodesDescription</p>
+                    <form method="post" asp-page-handler="RegenerateRecoveryCodes" novalidate>
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fa-solid fa-rotate" aria-hidden="true"></i> @Localizer.ManageMfa_RegenerateRecoveryCodes
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+@if (mfaChallenge is not null)
+{
+    <partial name="_ProfileMfaChallenge" model="mfaChallenge" />
+}
+
+@section scripts {
+    @if (setup is not null)
+    {
+        <script type="text/javascript" src="~/lib/qrcodejs2/qrcode.min.js" csp-nonce="true"></script>
+        <script type="text/javascript" src="~/js/qr.js" csp-nonce="true"></script>
+    }
+    @if (setup is not null || mfaChallenge?.CanEnterCode == true)
+    {
+        <script type="text/javascript" src="~/js/otp.js" csp-nonce="true"></script>
+        <script type="text/javascript" src="~/js/otp-field.js" csp-nonce="true"></script>
+    }
+}
+
+@functions {
+    private static string GetIcon(string code) => code.ToLowerInvariant() switch {
+        "viber" => "fa-brands fa-viber",
+        "sms" => "fa-regular fa-message",
+        "email" => "fa-regular fa-envelope",
+        "authenticatorapp" => "fa-solid fa-shield-halved",
+        _ => "fa-solid fa-key"
+    };
+}

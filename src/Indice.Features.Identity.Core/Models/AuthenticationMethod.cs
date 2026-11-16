@@ -47,6 +47,33 @@ public abstract class AuthenticationMethod
 
     /// <summary>Gets the token provider associated with this authentication method, if applicable.</summary>
     public string? GetTokenProvider() => SupportsTokenProvider() ? ((IAuthenticationMethodWithTokenProvider)this).TokenProvider : default;
+
+    /// <summary>Determines whether a stored two-factor preference refers to this method. The preference may be an <see cref="AuthenticationMethodType"/> name or a <see cref="Code"/>.</summary>
+    /// <param name="preference">The two-factor preference of the user.</param>
+    public bool MatchesPreference(string? preference) =>
+        !string.IsNullOrWhiteSpace(preference) &&
+        (string.Equals(Type.ToString(), preference, StringComparison.OrdinalIgnoreCase) || string.Equals(Code, preference, StringComparison.OrdinalIgnoreCase));
+}
+
+/// <summary>Extension methods for collections of <see cref="AuthenticationMethod"/>.</summary>
+public static class AuthenticationMethodCollectionExtensions
+{
+    /// <summary>
+    /// Selects the default method of a user: the most secure one. Among methods of the same, highest security level, the method that matches the
+    /// <paramref name="preference"/> wins. A preference never selects a less secure method.
+    /// </summary>
+    /// <param name="methods">The methods available to the user.</param>
+    /// <param name="preference">The two-factor preference of the user.</param>
+    public static AuthenticationMethod? SelectPreferred(this IEnumerable<AuthenticationMethod> methods, string? preference) {
+        ArgumentNullException.ThrowIfNull(methods);
+        var list = methods as IReadOnlyList<AuthenticationMethod> ?? methods.ToList();
+        if (list.Count == 0) {
+            return null;
+        }
+        var highest = list.Max(method => method.SecurityLevel);
+        var candidates = list.Where(method => method.SecurityLevel == highest).ToList();
+        return candidates.FirstOrDefault(method => method.MatchesPreference(preference)) ?? candidates[0];
+    }
 }
 
 /// <summary>Authentication method that contains a delivery channel.</summary>

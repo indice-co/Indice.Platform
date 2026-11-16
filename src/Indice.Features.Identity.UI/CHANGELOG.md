@@ -28,6 +28,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   challenge. It is unavailable (redirects to `/Profile`) when `DisableEmailEdit` is set or
   `IdentityOptions:User:EmailAsUserName` is enabled. New labels `ChangeUserName_PageTitle`, `ChangeUserName_Description`
   and `ChangeUserName_Succeeded`.
+### Added (profile MFA management)
+- New **Manage MFA** page `/ManageMfa` (`/manage/mfa`, `BaseManageMfaModel`, view models `ManageMfaViewModel`,
+  `ManageMfaMethodViewModel` and `ManageMfaSetupAuthenticatorViewModel`), linked from a new *Two-factor authentication*
+  row in the Account section of `/Profile`. Users can:
+  - turn MFA on by choosing a method (SMS on a confirmed phone, email on a confirmed email, or authenticator app);
+  - change the preferred method;
+  - set up a new authenticator app. The new key is stored only after a valid code; until then the current key keeps
+    working. The pending key is kept in a protected form field for 10 minutes;
+  - regenerate recovery codes (authenticator app users only), shown once with a download option.
+  Users cannot turn MFA off or reset it; those remain admin actions. Every change needs the profile MFA challenge
+  (when MFA is already on) and uses the `manage/mfa-challenge` rate limiter policy.
+- Changing the method from the authenticator app to SMS or email removes the authenticator key (and so the recovery
+  codes). The authenticator app would otherwise still win, because it has a higher security level. The page warns about this.
+- New option `IdentityUIOptions.DisableMfaEdit` (default `false`) hides the link and makes the page unavailable.
+- New labels `Profile_TwoFactor*` and `ManageMfa_*` (English and Greek) and Bootstrap5 styles `mfa-manage`,
+  `mfa-methods`, `mfa-method` and `account-row__status`/`__detail`.
 ### Changed
 - **Breaking:** the inline username editor on `/Profile` is replaced by a link to `/ChangeUserName`. The
   `BaseProfileModel.OnPostUpdateUserNameAsync` handler, the `AccountFieldEmail` / `AccountFieldPhone` /

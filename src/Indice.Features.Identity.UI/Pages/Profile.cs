@@ -268,7 +268,7 @@ public abstract class BaseProfileModel : BasePageModel
         var canEditTin = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.Tin)?.UserEditable ?? false;
         var canEditFamilyName = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
         var canEditGivenName = profileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
-        return new ProfileViewModel {
+        var viewModel = new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             DisableEditTin = !canEditTin,
@@ -294,6 +294,23 @@ public abstract class BaseProfileModel : BasePageModel
             CreateDate = user.CreateDate,
             LastSignInDate = user.LastSignInDate
         };
+        await PopulateTwoFactorAsync(viewModel, user);
+        return viewModel;
+    }
+
+    private async Task PopulateTwoFactorAsync(ProfileViewModel viewModel, User user) {
+        viewModel.TwoFactorEnabled = await UserManager.GetTwoFactorEnabledAsync(user);
+        var provider = ServiceProvider.GetService<IAuthenticationMethodProvider>();
+        if (provider is null) {
+            return;
+        }
+        var methods = await ManageMfaMethods.GetManageableMethodsAsync(provider);
+        viewModel.CanManageMfa = !IdentityUIOptions.DisableMfaEdit && methods.Length > 0;
+        if (!viewModel.TwoFactorEnabled) {
+            return;
+        }
+        var method = await ManageMfaMethods.FindCurrentMethodAsync(provider, UserManager, user, methods) ?? await provider.FindMethodForUserOrDefaultAsync(user);
+        viewModel.TwoFactorMethodName = method?.DisplayName;
     }
 
     private async Task<ProfileViewModel> BuildProfileViewModelAsync(ProfileInputModel model) {
@@ -308,7 +325,7 @@ public abstract class BaseProfileModel : BasePageModel
         var canEditTin = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.Tin)?.UserEditable ?? false;
         var canEditFamilyName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.FamilyName)?.UserEditable ?? false;
         var canEditGivenName = porfileEditableClaimsList.FirstOrDefault(x => x.Name == BasicClaimTypes.GivenName)?.UserEditable ?? false;
-        return new ProfileViewModel {
+        var viewModel = new ProfileViewModel {
             BirthDate = model.BirthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             DisableEditTin = !canEditTin,
@@ -334,6 +351,8 @@ public abstract class BaseProfileModel : BasePageModel
             CreateDate = user.CreateDate,
             LastSignInDate = user.LastSignInDate
         };
+        await PopulateTwoFactorAsync(viewModel, user);
+        return viewModel;
     }
 }
 

@@ -106,6 +106,24 @@
             <span class="account-row__value">@Model.View.UserName</span>
             <a indice-if="canEditUserName" asp-page="/ChangeUserName" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Username"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
         </div>
+        <div class="account-row">
+            <span class="account-row__label">@Localizer.Profile_TwoFactor</span>
+            <span class="account-row__value">
+                @if (Model.View.TwoFactorEnabled)
+                {
+                    <span class="account-row__status account-row__status--on">@Localizer.Profile_TwoFactorOn</span>
+                    @if (!string.IsNullOrWhiteSpace(Model.View.TwoFactorMethodName))
+                    {
+                        <span class="account-row__detail">@Localizer.GetGeneric(Model.View.TwoFactorMethodName)</span>
+                    }
+                }
+                else
+                {
+                    <span class="account-row__status">@Localizer.Profile_TwoFactorOff</span>
+                }
+            </span>
+            <a indice-if="Model.View.CanManageMfa" asp-page="/ManageMfa" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_TwoFactor"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
+        </div>
     </div>
 </section>
 

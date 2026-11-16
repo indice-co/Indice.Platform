@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security;
+using System.Security.Claims;
 #if NET9_0_OR_GREATER
 using Duende.IdentityModel;
 #else
@@ -787,26 +789,60 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
 
 
     /// <summary>
-    /// Resets the two-factor authentication for the specified user by disabling it, clearing any two-factor preferences, and resetting the authenticator key.
+    /// Enables two-factor authentication for the specified user and sets the preferred authentication method.
     /// </summary>
     /// <param name="user">The user instance</param>
-    /// <param name="authenticationMethodCode">The authentication method code</param>
+    /// <param name="authenticationMethodCode">The preferred authentication method. Either an <see cref="AuthenticationMethodType"/> name or an <see cref="AuthenticationMethod.Code"/>.</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
     public async Task<IdentityResult> SetTwoFactorAsync(TUser user, string authenticationMethodCode, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentException.ThrowIfNullOrWhiteSpace(authenticationMethodCode);
+        cancellationToken.ThrowIfCancellationRequested();
+        var extendedStore = GetUserStore();
+        // The store does not save the preference on its own; it is saved together with the two-factor flag (also when two-factor authentication is already enabled).
+        await extendedStore!.SetTwoFactorPreferenceAsync(user, authenticationMethodCode, cancellationToken).ConfigureAwait(false);
         var result = await SetTwoFactorEnabledAsync(user, true);
         if (!result.Succeeded) {
             return result;
         }
-        cancellationToken.ThrowIfCancellationRequested();
-        var extendedStore = GetUserStore();
-        cancellationToken.ThrowIfCancellationRequested();
-        await extendedStore!.SetTwoFactorPreferenceAsync(user, authenticationMethodCode).ConfigureAwait(false);
         await _eventService.Publish(new TwoFactorPreferenceChangedEvent(UserEventContext.InitializeFromUser(user), authenticationMethodCode));
         return result;
+    }
+
+    /// <summary>Gets the preferred two-factor authentication method of the user, as set by <see cref="SetTwoFactorAsync"/>.</summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>An <see cref="AuthenticationMethodType"/> name, an <see cref="AuthenticationMethod.Code"/> or null.</returns>
+    public virtual Task<string?> GetTwoFactorPreferenceAsync(TUser user, CancellationToken cancellationToken = default) {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        return GetUserStore()!.GetTwoFactorPreferenceAsync(user, cancellationToken);
+    }
+
+    /// <summary>
+    /// Replaces the authenticator key of the user, after checking that <paramref name="code"/> was produced by an authenticator app set up with <paramref name="authenticatorKey"/>.
+    /// The current key keeps working until the new one is verified, so users can move to another authenticator app without losing access.
+    /// </summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="authenticatorKey">The new Base32 key, as created by <see cref="UserManager{TUser}.GenerateNewAuthenticatorKey"/>.</param>
+    /// <param name="code">The 6 digit code shown by the authenticator app.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>An <see cref="IdentityResult"/>. Fails with <see cref="IdentityErrorDescriber.InvalidToken"/> when the code is not valid for the key.</returns>
+    public virtual async Task<IdentityResult> ReplaceAuthenticatorKeyAsync(TUser user, string authenticatorKey, string? code, CancellationToken cancellationToken = default) {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authenticatorKey);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (Store is not IUserAuthenticatorKeyStore<TUser> authenticatorKeyStore) {
+            throw new NotSupportedException($"Store does not implement {nameof(IUserAuthenticatorKeyStore<TUser>)}.");
+        }
+        if (!IsValidAuthenticatorCode(authenticatorKey, code)) {
+            return IdentityResult.Failed(base.ErrorDescriber.InvalidToken());
+        }
+        await authenticatorKeyStore.SetAuthenticatorKeyAsync(user, authenticatorKey, cancellationToken).ConfigureAwait(false);
+        return await UpdateSecurityStampAsync(user).ConfigureAwait(false);
     }
 
 
@@ -836,6 +872,41 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     }
 
     #region Helper Methods
+    // Same algorithm as the ASP.NET Core Identity AuthenticatorTokenProvider: 30 second steps, 6 digits, codes accepted up to 2 steps in each direction.
+    private static bool IsValidAuthenticatorCode(string authenticatorKey, string? code) {
+        var sanitizedCode = code?.Replace(" ", string.Empty).Replace("-", string.Empty);
+        if (sanitizedCode is not { Length: 6 } || !int.TryParse(sanitizedCode, NumberStyles.None, CultureInfo.InvariantCulture, out var numericCode)) {
+            return false;
+        }
+        var keyBytes = FromBase32(authenticatorKey);
+        if (keyBytes is not { Length: > 0 }) {
+            return false;
+        }
+        return new Rfc6238AuthenticationService(timestep: 0.5, codeLength: 6).ValidateCode(keyBytes, numericCode);
+    }
+
+    // RFC 4648 Base32 decoding (the encoding of authenticator keys). Returns null for invalid input.
+    private static byte[]? FromBase32(string input) {
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        var value = input.Replace(" ", string.Empty).TrimEnd('=').ToUpperInvariant();
+        var output = new byte[value.Length * 5 / 8];
+        int buffer = 0, bitCount = 0, index = 0;
+        foreach (var character in value) {
+            var digit = alphabet.IndexOf(character);
+            if (digit < 0) {
+                return null;
+            }
+            buffer = (buffer << 5) | digit;
+            bitCount += 5;
+            if (bitCount >= 8) {
+                bitCount -= 8;
+                output[index++] = (byte)(buffer >> bitCount);
+                buffer &= (1 << bitCount) - 1;
+            }
+        }
+        return output;
+    }
+
     private IExtendedUserStore<TUser>? GetUserStore(bool throwOnFail = true) {
         var cast = Store as IExtendedUserStore<TUser>;
         if (throwOnFail && cast is null) {

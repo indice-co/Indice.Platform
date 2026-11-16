@@ -3857,5 +3857,194 @@ namespace Indice.Features.Identity.UI {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to Two-factor authentication.
+        /// </summary>
+        public static string Profile_TwoFactor {
+            get {
+                return ResourceManager.GetString("Profile_TwoFactor", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to On.
+        /// </summary>
+        public static string Profile_TwoFactorOn {
+            get {
+                return ResourceManager.GetString("Profile_TwoFactorOn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        public static string Profile_TwoFactorOff {
+            get {
+                return ResourceManager.GetString("Profile_TwoFactorOff", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Two-factor authentication.
+        /// </summary>
+        public static string ManageMfa_PageTitle {
+            get {
+                return ResourceManager.GetString("ManageMfa_PageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose how you confirm it is you when you sign in..
+        /// </summary>
+        public static string ManageMfa_Description {
+            get {
+                return ResourceManager.GetString("ManageMfa_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Two-factor authentication is on. Current method: {0}..
+        /// </summary>
+        public static string ManageMfa_StatusOn {
+            get {
+                return ResourceManager.GetString("ManageMfa_StatusOn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Two-factor authentication is off. Choose a method to turn it on..
+        /// </summary>
+        public static string ManageMfa_StatusOff {
+            get {
+                return ResourceManager.GetString("ManageMfa_StatusOff", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Methods.
+        /// </summary>
+        public static string ManageMfa_Methods {
+            get {
+                return ResourceManager.GetString("ManageMfa_Methods", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Current.
+        /// </summary>
+        public static string ManageMfa_Current {
+            get {
+                return ResourceManager.GetString("ManageMfa_Current", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use.
+        /// </summary>
+        public static string ManageMfa_Use {
+            get {
+                return ResourceManager.GetString("ManageMfa_Use", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Set up.
+        /// </summary>
+        public static string ManageMfa_SetUp {
+            get {
+                return ResourceManager.GetString("ManageMfa_SetUp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Set up a new app.
+        /// </summary>
+        public static string ManageMfa_SetUpAgain {
+            get {
+                return ResourceManager.GetString("ManageMfa_SetUpAgain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add and verify a phone number to use this method..
+        /// </summary>
+        public static string ManageMfa_PhoneRequired {
+            get {
+                return ResourceManager.GetString("ManageMfa_PhoneRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify your email address to use this method..
+        /// </summary>
+        public static string ManageMfa_EmailRequired {
+            get {
+                return ResourceManager.GetString("ManageMfa_EmailRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Switching to another method removes your authenticator app and recovery codes..
+        /// </summary>
+        public static string ManageMfa_AuthenticatorRemoved {
+            get {
+                return ResourceManager.GetString("ManageMfa_AuthenticatorRemoved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recovery codes.
+        /// </summary>
+        public static string ManageMfa_RecoveryCodes {
+            get {
+                return ResourceManager.GetString("ManageMfa_RecoveryCodes", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use a recovery code to sign in if you lose access to your authenticator app. New codes replace the old ones..
+        /// </summary>
+        public static string ManageMfa_RecoveryCodesDescription {
+            get {
+                return ResourceManager.GetString("ManageMfa_RecoveryCodesDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Generate new codes.
+        /// </summary>
+        public static string ManageMfa_RegenerateRecoveryCodes {
+            get {
+                return ResourceManager.GetString("ManageMfa_RegenerateRecoveryCodes", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The setup has expired. Please start again..
+        /// </summary>
+        public static string ManageMfa_SetupExpired {
+            get {
+                return ResourceManager.GetString("ManageMfa_SetupExpired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This method cannot be used..
+        /// </summary>
+        public static string ManageMfa_MethodUnavailable {
+            get {
+                return ResourceManager.GetString("ManageMfa_MethodUnavailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your two-factor authentication settings were updated..
+        /// </summary>
+        public static string ManageMfa_Updated {
+            get {
+                return ResourceManager.GetString("ManageMfa_Updated", resourceCulture);
+            }
+        }
+
     }
 }

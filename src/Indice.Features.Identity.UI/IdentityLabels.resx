@@ -1338,4 +1338,25 @@
 <data name="ChangeUserName_PageTitle" xml:space="preserve"><value>Change username</value></data>
 <data name="ChangeUserName_Description" xml:space="preserve"><value>You will use your new username to sign in.</value></data>
 <data name="ChangeUserName_Succeeded" xml:space="preserve"><value>Your username has been changed successfully.</value></data>
+<data name="Profile_TwoFactor" xml:space="preserve"><value>Two-factor authentication</value></data>
+<data name="Profile_TwoFactorOn" xml:space="preserve"><value>On</value></data>
+<data name="Profile_TwoFactorOff" xml:space="preserve"><value>Off</value></data>
+<data name="ManageMfa_PageTitle" xml:space="preserve"><value>Two-factor authentication</value></data>
+<data name="ManageMfa_Description" xml:space="preserve"><value>Choose how you confirm it is you when you sign in.</value></data>
+<data name="ManageMfa_StatusOn" xml:space="preserve"><value>Two-factor authentication is on. Current method: {0}.</value></data>
+<data name="ManageMfa_StatusOff" xml:space="preserve"><value>Two-factor authentication is off. Choose a method to turn it on.</value></data>
+<data name="ManageMfa_Methods" xml:space="preserve"><value>Methods</value></data>
+<data name="ManageMfa_Current" xml:space="preserve"><value>Current</value></data>
+<data name="ManageMfa_Use" xml:space="preserve"><value>Use</value></data>
+<data name="ManageMfa_SetUp" xml:space="preserve"><value>Set up</value></data>
+<data name="ManageMfa_SetUpAgain" xml:space="preserve"><value>Set up a new app</value></data>
+<data name="ManageMfa_PhoneRequired" xml:space="preserve"><value>Add and verify a phone number to use this method.</value></data>
+<data name="ManageMfa_EmailRequired" xml:space="preserve"><value>Verify your email address to use this method.</value></data>
+<data name="ManageMfa_AuthenticatorRemoved" xml:space="preserve"><value>Switching to another method removes your authenticator app and recovery codes.</value></data>
+<data name="ManageMfa_RecoveryCodes" xml:space="preserve"><value>Recovery codes</value></data>
+<data name="ManageMfa_RecoveryCodesDescription" xml:space="preserve"><value>Use a recovery code to sign in if you lose access to your authenticator app. New codes replace the old ones.</value></data>
+<data name="ManageMfa_RegenerateRecoveryCodes" xml:space="preserve"><value>Generate new codes</value></data>
+<data name="ManageMfa_SetupExpired" xml:space="preserve"><value>The setup has expired. Please start again.</value></data>
+<data name="ManageMfa_MethodUnavailable" xml:space="preserve"><value>This method cannot be used.</value></data>
+<data name="ManageMfa_Updated" xml:space="preserve"><value>Your two-factor authentication settings were updated.</value></data>
 </root>
