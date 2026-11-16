@@ -1,9 +1,8 @@
-import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  computed,
+  afterRenderEffect,
   inject,
   signal,
   viewChild,
@@ -11,76 +10,58 @@ import {
 import { RouterOutlet } from '@angular/router';
 
 import { AuthGuestService } from '../auth/auth-guest.service';
+import { AppSidebarComponent } from '../layout/app-sidebar.component';
 import { assistantName, brandLogo } from '../models/brand';
 import { ConversationsStore } from '../services/conversations.store';
 import { EmbedBridgeService } from './embed-bridge.service';
 
-/** How many recent chats the header menu lists. */
-const RECENT_LIMIT = 20;
-
 /**
- * The chat widget's frame (`/embed`): a compact header — brand, recent chats, new chat, close — over the chat page.
- * Guests only, so there is no sign-in, no account and no rail. Closing asks `widget.js` on the hosting page to collapse
- * the panel; the frame itself stays alive.
+ * The chat widget's frame (`/embed`): the full UI's mobile layout — a bar with the burger, brand and new chat, and the
+ * conversation rail as a drawer — plus a close button. Guests only, so there is no sign-in and no account. Closing asks
+ * `widget.js` on the hosting page to collapse the panel; the frame itself stays alive.
  */
 @Component({
   selector: 'app-embed-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterOutlet],
+  imports: [RouterOutlet, AppSidebarComponent],
   host: {
     '(document:keydown.escape)': 'onEscape()',
-    '(document:click)': 'onDocumentClick($event)',
   },
   template: `
     <div class="flex h-dvh flex-col bg-base-200">
+      <!-- The full UI's mobile bar, plus the widget's close button. -->
       <header
-        class="relative flex h-12 shrink-0 items-center gap-1 border-b border-base-300 bg-base-100 pl-3 pr-1.5"
+        class="flex h-14 shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-3"
+        [attr.inert]="drawerOpen() ? '' : null"
       >
-        <img [src]="logo()" alt="" class="size-7 shrink-0 rounded-full" />
-        <span class="ml-1.5 min-w-0 truncate text-sm font-semibold tracking-tight text-base-content">
-          {{ assistantName }}
+        <button
+          #burger
+          type="button"
+          class="btn btn-ghost btn-sm btn-circle text-base-content/70"
+          (click)="drawerOpen.set(true)"
+          aria-label="Open conversations"
+          [attr.aria-expanded]="drawerOpen()"
+        >
+          <svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+
+        <span class="flex min-w-0 items-center gap-2">
+          <img [src]="logo()" alt="" class="size-7 shrink-0 rounded-full" />
+          <span class="truncate text-base font-semibold tracking-tight text-base-content">{{ assistantName }}</span>
         </span>
 
-        <div class="ml-auto flex items-center" #menuHost>
-          @if (recent().length > 0) {
-            <button
-              #menuButton
-              type="button"
-              class="btn btn-ghost btn-sm btn-circle text-base-content/60"
-              (click)="toggleMenu()"
-              aria-label="Recent chats"
-              title="Recent chats"
-              aria-haspopup="true"
-              [attr.aria-expanded]="menuOpen()"
-              aria-controls="dex-embed-recent"
-            >
-              <svg viewBox="0 0 24 24" fill="none" class="size-[1.15rem]" aria-hidden="true">
-                <path
-                  d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 7v5l3 2"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
-          }
+        <div class="ml-auto flex shrink-0 items-center gap-1.5">
           <button
             type="button"
-            class="btn btn-ghost btn-sm btn-circle text-base-content/60"
+            class="btn btn-primary btn-sm btn-circle shadow-sm"
             (click)="newChat()"
-            [disabled]="!store.activeId()"
             aria-label="New chat"
             title="New chat"
           >
-            <svg viewBox="0 0 24 24" fill="none" class="size-[1.15rem]" aria-hidden="true">
-              <path
-                d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+            <svg viewBox="0 0 24 24" fill="none" class="size-4" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             </svg>
           </button>
           @if (bridge.framed) {
@@ -96,44 +77,42 @@ const RECENT_LIMIT = 20;
               </svg>
             </button>
           }
-
-          @if (menuOpen()) {
-            <div
-              id="dex-embed-recent"
-              class="absolute right-2 top-full z-30 mt-1 max-h-[60vh] w-72 max-w-[calc(100vw-1rem)] overflow-y-auto
-                     rounded-box border border-base-300 bg-base-100 p-1.5 shadow-lg"
-            >
-              <p class="px-2.5 pb-1 pt-1.5 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-base-content/45">
-                Recent chats
-              </p>
-              <ul class="flex flex-col">
-                @for (session of recent(); track session.id) {
-                  <li>
-                    <button
-                      type="button"
-                      class="flex w-full items-baseline gap-2 rounded-field px-2.5 py-2 text-left text-sm
-                             transition hover:bg-base-200"
-                      [class.bg-base-200]="session.id === store.activeId()"
-                      [class.font-medium]="session.id === store.activeId()"
-                      [attr.aria-current]="session.id === store.activeId() ? 'true' : null"
-                      (click)="openConversation(session.id!)"
-                    >
-                      <span class="min-w-0 flex-1 truncate text-base-content">{{ session.title || 'New chat' }}</span>
-                      <span class="shrink-0 text-xs text-base-content/45">
-                        {{ session.lastActivityAt ?? session.createdAt | date: 'MMM d' }}
-                      </span>
-                    </button>
-                  </li>
-                }
-              </ul>
-            </div>
-          }
         </div>
       </header>
 
-      <main class="min-h-0 flex-1">
+      <main class="min-h-0 flex-1" [attr.inert]="drawerOpen() ? '' : null">
         <router-outlet />
       </main>
+
+      <!-- Conversations drawer: the full UI's rail, without the account anchor. -->
+      @if (drawerOpen()) {
+        <div class="fixed inset-0 z-40 bg-black/40" (click)="closeDrawer()" aria-hidden="true"></div>
+      }
+      <div
+        #drawer
+        class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-base-300 shadow-xl
+               transition-transform duration-200"
+        [class.-translate-x-full]="!drawerOpen()"
+        [attr.inert]="drawerOpen() ? null : ''"
+        [attr.aria-modal]="drawerOpen() ? 'true' : null"
+        tabindex="-1"
+        role="dialog"
+        aria-label="Conversations"
+      >
+        <app-sidebar
+          [sessions]="store.sessions()"
+          [activeId]="store.activeId()"
+          [loading]="store.loading()"
+          [error]="store.error()"
+          [collapsed]="false"
+          [embed]="true"
+          (select)="store.select($event)"
+          (removed)="store.remove($event)"
+          (create)="store.startNew()"
+          (dismissError)="store.clearError()"
+          (navigated)="closeDrawer()"
+        />
+      </div>
     </div>
   `,
 })
@@ -147,14 +126,26 @@ export class EmbedShellComponent {
   protected readonly bridge = inject(EmbedBridgeService);
   protected readonly store = inject(ConversationsStore);
 
-  /** Whether the recent chats menu is showing. */
-  protected readonly menuOpen = signal(false);
-  protected readonly recent = computed(() => this.store.sessions().slice(0, RECENT_LIMIT));
+  /** Whether the conversations drawer is showing. */
+  protected readonly drawerOpen = signal(false);
 
-  private readonly menuHost = viewChild.required<ElementRef<HTMLElement>>('menuHost');
-  private readonly menuButton = viewChild<ElementRef<HTMLButtonElement>>('menuButton');
+  private readonly drawer = viewChild.required<ElementRef<HTMLElement>>('drawer');
+  private readonly burger = viewChild.required<ElementRef<HTMLButtonElement>>('burger');
+  /** Guards the restore so the first render doesn't yank focus to the burger. */
+  private drawerWasOpen = false;
 
   constructor() {
+    // afterRender, not effect: the `inert` attribute must be off the drawer before we focus into it.
+    afterRenderEffect(() => {
+      const open = this.drawerOpen();
+      if (open) {
+        this.drawer().nativeElement.focus();
+      } else if (this.drawerWasOpen) {
+        this.burger().nativeElement.focus();
+      }
+      this.drawerWasOpen = open;
+    });
+
     // A visitor who has not chatted yet has no list (and no credential to fetch one); the chat page refreshes the
     // store once the first turn has minted the guest.
     if (inject(AuthGuestService).isActive) {
@@ -162,35 +153,24 @@ export class EmbedShellComponent {
     }
   }
 
-  protected toggleMenu(): void {
-    this.menuOpen.update((open) => !open);
-  }
-
-  protected openConversation(id: string): void {
-    this.store.select(id);
-    this.menuOpen.set(false);
+  protected closeDrawer(): void {
+    this.drawerOpen.set(false);
   }
 
   protected newChat(): void {
     this.store.startNew();
-    this.menuOpen.set(false);
+    this.closeDrawer();
   }
 
-  /** Escape closes the menu first, then the widget — unless a modal (a delete confirmation) is claiming the key. */
+  /** Escape closes the drawer first, then the widget — unless a modal (a delete confirmation) is claiming the key. */
   protected onEscape(): void {
-    if (this.menuOpen()) {
-      this.menuOpen.set(false);
-      this.menuButton()?.nativeElement.focus();
+    if (document.querySelector('dialog[open]')) {
       return;
     }
-    if (!document.querySelector('dialog[open]')) {
-      this.bridge.close();
+    if (this.drawerOpen()) {
+      this.closeDrawer();
+      return;
     }
-  }
-
-  protected onDocumentClick(event: MouseEvent): void {
-    if (this.menuOpen() && !this.menuHost().nativeElement.contains(event.target as Node)) {
-      this.menuOpen.set(false);
-    }
+    this.bridge.close();
   }
 }
