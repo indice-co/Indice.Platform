@@ -145,13 +145,14 @@ public class OnBehalfOfHttpHandler : DelegatingHandler
             parameters = [new("scope", _options.Scope),
                           new("token", userToken!)];
         }
-        var response = await httpClient.RequestTokenAsync(new TokenRequest {
+        using var tokenRequest = new TokenRequest {
             Address = _options.TokenEndpoint,
             ClientId = _options.ClientId,
             ClientSecret = _options.ClientSecret,
             GrantType = grantType,
             Parameters = parameters
-        });
+        };
+        var response = await httpClient.RequestTokenAsync(tokenRequest);
         if (response.IsError) {
             throw new OnBehalfOfHttpHandlerException(response.Error, response.Exception);
         }

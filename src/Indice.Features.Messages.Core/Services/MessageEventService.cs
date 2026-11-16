@@ -36,17 +36,17 @@ public class MessageEventService : IMessageEventService
             Success = x.Success
         });
         if (options.Filter is not null) {
-            if (options.Filter.CampaignId.HasValue) {
-                query = query.Where(x => x.CampaignId == options.Filter.CampaignId.Value);
+            if (options.Filter.CampaignId is Guid campaignId) {
+                query = query.Where(x => x.CampaignId == campaignId);
             }
-            if (options.Filter.MessageId.HasValue) {
-                query = query.Where(x => x.MessageId == options.Filter.MessageId.Value);
+            if (options.Filter.MessageId is Guid messageId) {
+                query = query.Where(x => x.MessageId == messageId);
             }
-            if (options.Filter.RangeStart.HasValue) {
-                query = query.Where(x => x.CreatedOn >= options.Filter.RangeStart.Value);
+            if (options.Filter.RangeStart is DateTimeOffset rangeStart) {
+                query = query.Where(x => x.CreatedOn >= rangeStart);
             }
-            if (options.Filter.RangeEnd.HasValue) {
-                query = query.Where(x => x.CreatedOn < options.Filter.RangeEnd.Value);
+            if (options.Filter.RangeEnd is DateTimeOffset rangeEnd) {
+                query = query.Where(x => x.CreatedOn < rangeEnd);
             }
             if (options.Filter.Channel?.Length > 0) {
                 var channels = options.Filter.Channel.Select(x => x.ToString());

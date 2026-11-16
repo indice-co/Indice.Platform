@@ -77,8 +77,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
 
     private async Task<Contact> GetCampaignContactWithPreferences(ResolveMessageEvent @event, CampaignCreatedEvent campaign) {
         Contact? contact = null;
-        var contactNotUpdatedAWhileNow = !@event.Contact!.LastResolutionDate.HasValue
-                                       || (DateTimeOffset.UtcNow - @event.Contact.LastResolutionDate.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
+        var contactNotUpdatedAWhileNow = @event.Contact!.LastResolutionDate is not DateTimeOffset lastResolutionDate
+                                       || (DateTimeOffset.UtcNow - lastResolutionDate) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
             contact = await ContactService.GetByRecipientId(@event.Contact.RecipientId);
             if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {

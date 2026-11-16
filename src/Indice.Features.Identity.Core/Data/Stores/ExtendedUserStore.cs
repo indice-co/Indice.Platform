@@ -296,14 +296,14 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
 
     /// <inheritdoc/>
     public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256, CancellationToken cancellationToken = default) {
-        (var outputStream, var contentType, var errors) = await SetUserPictureInternalAsync(inputStream, sideSize, scale, translateX, translateY, viewPortSize, cancellationToken);
+        (var outputData, var contentType, var errors) = await SetUserPictureInternalAsync(inputStream, sideSize, scale, translateX, translateY, viewPortSize, cancellationToken);
         if (errors.Count > 0) {
             return IdentityResult.Failed([.. errors]);
         }
         if (StorePictureAsClaim) {
             var data = new StringBuilder();
             data.AppendFormat("data:{0};base64,", contentType!);
-            data.Append(Convert.ToBase64String(outputStream!.ToArray()));
+            data.Append(Convert.ToBase64String(outputData!));
 
             var result = await ReplaceClaimAsync(user, IUserPictureStore<TUser>.PictureDataClaimType, data.ToString(), cancellationToken);
             return result;
@@ -316,9 +316,9 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
             UserId = user.Id,
             PictureKey = user.Id.ToSha256Hex(),
             ContentType = contentType,
-            ContentLength = (int)outputStream!.Length,
+            ContentLength = outputData!.Length,
             CreatedDate = DateTimeOffset.UtcNow,
-            Data = outputStream.ToArray(),
+            Data = outputData,
 
         };
         UserPictureSet.Add(picture);
@@ -346,14 +346,14 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
                 }
                 var base64 = match.Groups["Data"].Value;
                 var savedContentType = match.Groups["ContentType"].Value;
-                return await GetUserPictureInternalAsync(savedContentType, new MemoryStream(Convert.FromBase64String(base64)), contentType, size, cancellationToken);
+                return await GetUserPictureInternalAsync(savedContentType, Convert.FromBase64String(base64), contentType, size, cancellationToken);
             }
         } else {
             var picture = await UserPictureSet.Where(x => x.UserId == user.Id).FirstOrDefaultAsync(cancellationToken);
             if (picture is null) {
                 return (null, string.Empty);
             }
-            return await GetUserPictureInternalAsync(picture.ContentType, new MemoryStream(picture.Data), contentType, size, cancellationToken);
+            return await GetUserPictureInternalAsync(picture.ContentType, picture.Data, contentType, size, cancellationToken);
         }
         return (null, string.Empty);
     }
@@ -390,12 +390,12 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         if (picture is null) {
             return (Stream: null, ContentType: string.Empty, Exists: true);
         }
-        (var outStream, var outType) = await GetUserPictureInternalAsync(picture.ContentType, new MemoryStream(picture.Data), contentType, size, cancellationToken);
+        (var outStream, var outType) = await GetUserPictureInternalAsync(picture.ContentType, picture.Data, contentType, size, cancellationToken);
         return (outStream, outType, Exists: true);
     }
 
 
-    private static async Task<(MemoryStream? OutputStream, string ContentType, List<IdentityError> Errors)> SetUserPictureInternalAsync(Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256, CancellationToken cancellationToken = default) {
+    private static async Task<(byte[]? OutputData, string ContentType, List<IdentityError> Errors)> SetUserPictureInternalAsync(Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256, CancellationToken cancellationToken = default) {
         using var image = Image.Load(inputStream);
         // manipulate image resize to max side size.
         var maxSide = Math.Max(image.Width, image.Height);
@@ -408,7 +408,7 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
             errors.Add(new IdentityError() { Code = nameof(sideSize), Description = "Side size of the target imagage cannot be less that 24 pxels." });
         }
         if (errors.Count > 0) {
-            return (OutputStream: null, ContentType: contentType, Errors: errors);
+            return (OutputData: null, ContentType: contentType, Errors: errors);
         }
         if (scale > 1) {
             // convert pan X and Y to my coord system.
@@ -428,7 +428,7 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
                 image.Mutate(i => i.Crop(cropOptions).Resize(resizeOptions));
             } catch {
                 errors.Add(new() { Code = "Crop", Description = "Scale and translate out of bounds." });
-                return (OutputStream: null, ContentType: contentType, Errors: errors);
+                return (OutputData: null, ContentType: contentType, Errors: errors);
             }
         } else {
             var factor = (double)sideSize / maxSide;
@@ -438,16 +438,16 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
             image.Mutate(i => i.Resize(resizeOptions));
         }
 
-        var outputStream = new MemoryStream();
+        using var outputStream = new MemoryStream();
         await image.SaveAsWebpAsync(outputStream);
-        outputStream.Seek(0, SeekOrigin.Begin);
-        return (OutputStream: outputStream, ContentType: contentType, Errors: errors);
+        return (OutputData: outputStream.ToArray(), ContentType: contentType, Errors: errors);
     }
 
-    private static async Task<(Stream? Stream, string ContentType)> GetUserPictureInternalAsync(string originalContentType, MemoryStream originalStream, string? contentType = null, int? size = null, CancellationToken cancellationToken = default) {
+    private static async Task<(Stream? Stream, string ContentType)> GetUserPictureInternalAsync(string originalContentType, byte[] originalData, string? contentType = null, int? size = null, CancellationToken cancellationToken = default) {
         if (!size.HasValue && string.IsNullOrEmpty(contentType)) {
-            return (Stream: originalStream, ContentType: originalContentType);
+            return (Stream: CreatePictureStream(originalData), ContentType: originalContentType);
         }
+        using var originalStream = new MemoryStream(originalData);
         using var image = Image.Load(originalStream);
         var format = image.Metadata.DecodedImageFormat!;
         var resizeOptions = new ResizeOptions() {
@@ -455,7 +455,7 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
             Mode = ResizeMode.Pad
         };
         image.Mutate(i => i.Resize(resizeOptions));
-        var outputStream = new MemoryStream();
+        using var outputStream = new MemoryStream();
         contentType ??= format.DefaultMimeType;
         switch (contentType) {
             case "image/png":
@@ -468,9 +468,11 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
                 await image.SaveAsWebpAsync(outputStream, cancellationToken);
                 break;
         }
-        outputStream.Seek(0, SeekOrigin.Begin);
-        return (Stream: outputStream, ContentType: contentType);
+        return (Stream: CreatePictureStream(outputStream.ToArray()), ContentType: contentType);
     }
+
+    // The returned stream is owned (and disposed) by the caller of the public picture retrieval APIs.
+    private static MemoryStream CreatePictureStream(byte[] data) => new(data);
 
 
     /// <inheritdoc/>

@@ -44,7 +44,7 @@ public class MySqlPasswordHasher<TUser> : PasswordHasher<TUser> where TUser : cl
     
     private static string HashPasswordMySql(string password) {
         var keyArray = Encoding.UTF8.GetBytes(password);
-        var enc = SHA1.Create();
+        using var enc = SHA1.Create();
         var encodedKey = enc.ComputeHash(enc.ComputeHash(keyArray));
         var builder = new StringBuilder(encodedKey.Length);
         foreach (var b in encodedKey) {

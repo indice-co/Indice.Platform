@@ -73,10 +73,10 @@ public class GeoPoint
     /// zero.</returns>
     public double TravelSpeed(GeoPoint geoPoint, DateTimeOffset from, DateTimeOffset to) {
         var distance = Distance(geoPoint); // In kilometers.
-        var hours = Math.Abs((to - from).TotalHours);
-        if (hours == 0) {
+        if (from == to) {
             return double.MaxValue;
         }
+        var hours = Math.Abs((to - from).TotalHours);
         return distance / hours; // In km/h.
     }
 
