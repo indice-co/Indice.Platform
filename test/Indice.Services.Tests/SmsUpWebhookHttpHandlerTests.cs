@@ -27,7 +27,7 @@ public class SmsUpWebhookHttpHandlerTests {
 
     [Theory]
     [InlineData("DELIVRD", true)]
-    [InlineData("ACCEPTD", false)]
+    [InlineData("ACCEPTD", true)]
     [InlineData("EXPIRED", false)]
     [InlineData("DELETED", false)]
     [InlineData("UNDELIV", false)]
