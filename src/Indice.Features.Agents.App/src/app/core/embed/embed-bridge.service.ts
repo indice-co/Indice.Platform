@@ -25,6 +25,9 @@ interface StoredChat extends WidgetTopic {
 /** Per tab, like the guest credential the chat belongs to. */
 const CHAT_STORAGE_KEY = 'dex.embed.chat';
 
+/** How long a chat that starts by itself waits for the hosting page's `identify` before going ahead without a name. */
+const CONFIGURE_TIMEOUT_MS = 500;
+
 /**
  * The `/embed` frame's side of the widget: the `postMessage` channel with `widget.js` on the hosting page, and which
  * chat to resume when the visitor moves to another page of that site (the frame is created anew on every page).
@@ -51,18 +54,33 @@ export class EmbedBridgeService {
   /** What was last persisted, so a page without a topic keeps the topic the chat was started on. */
   private stored: StoredChat | null = readStoredChat();
 
+  private markConfigured!: () => void;
+  /**
+   * Settles once the hosting page has said who the visitor is — its `identify` answer to `ready`, sent even when it
+   * has no name. A chat that starts by itself waits for this, because the name only counts on the create that mints
+   * the guest. Settles at once outside a frame, and after `CONFIGURE_TIMEOUT_MS` when the parent never answers.
+   */
+  readonly configured = new Promise<void>((resolve) => (this.markConfigured = resolve));
+
   constructor() {
     this.restoreChat();
+    if (this.framed) {
+      const timer = setTimeout(() => this.markConfigured(), CONFIGURE_TIMEOUT_MS);
+      inject(DestroyRef).onDestroy(() => clearTimeout(timer));
+    } else {
+      this.markConfigured();
+    }
 
-    // Remember the open chat for the next page. A new, unsent chat (or a cleared guest) forgets it.
+    // Remember the open chat for the next page, with the topic it actually has — never this page's topic by default:
+    // a chat picked from the recent list on order B's page is not about order B. A new, unsent chat (or a cleared
+    // guest) forgets it.
     effect(() => {
       const id = this.store.activeId();
       if (!id) {
         this.persist(null);
         return;
       }
-      const topic = this.topic.refId ? this.topic : this.stored?.id === id ? this.stored : { refId: null, refType: null };
-      this.persist({ id, refId: topic.refId, refType: topic.refType });
+      this.persist({ id, ...this.topicOf(id) });
     });
 
     const onMessage = (event: MessageEvent) => this.receive(event);
@@ -95,6 +113,18 @@ export class EmbedBridgeService {
     this.store.select(stored.id);
   }
 
+  /**
+   * The topic a chat really has, as far as the frame knows: the one it was stored with (a resumed chat), or the one
+   * this page created it on. A chat opened from the recent list has none — its record is unknown here.
+   */
+  private topicOf(id: string): WidgetTopic {
+    if (this.stored?.id === id) {
+      return { refId: this.stored.refId, refType: this.stored.refType };
+    }
+    const created = this.store.topicOf(id);
+    return { refId: created?.referenceId ?? null, refType: created?.referenceType ?? null };
+  }
+
   private receive(event: MessageEvent): void {
     if (!this.framed || event.source !== window.parent || !isWidgetMessage(event.data)) {
       return;
@@ -107,6 +137,7 @@ export class EmbedBridgeService {
     switch (event.data.type) {
       case 'identify':
         this.guest.displayName = (event.data.payload as { name?: string } | undefined)?.name;
+        this.markConfigured();
         break;
     }
   }

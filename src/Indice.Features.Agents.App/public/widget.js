@@ -156,8 +156,9 @@
     }
   }
 
+  /** Sent even when there is no name: a null payload clears a name the frame was given earlier. */
   function sendIdentity() {
-    if (frameReady && identity) {
+    if (frameReady) {
       post('identify', identity);
     }
   }

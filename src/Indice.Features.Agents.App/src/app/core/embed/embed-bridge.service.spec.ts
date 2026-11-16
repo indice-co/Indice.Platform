@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { AuthGuestService } from '../auth/auth-guest.service';
 import { ConversationsStore } from '../services/conversations.store';
+import { ChatTopic } from '../services/dex-api.service';
 import { EmbedBridgeService } from './embed-bridge.service';
 import { WIDGET_ORIGINS } from './embed-mode';
 
@@ -10,13 +11,29 @@ const CHAT_KEY = 'dex.embed.chat';
 
 describe('EmbedBridgeService', () => {
   let guest: { isActive: boolean; displayName: string | null };
-  let store: { activeId: ReturnType<typeof signal<string | null>>; select: (id: string) => void };
+  let store: {
+    activeId: ReturnType<typeof signal<string | null>>;
+    select: (id: string) => void;
+    adopt: (id: string, topic?: ChatTopic | null) => void;
+    topicOf: (id: string) => ChatTopic | null;
+  };
 
   function create(search = '', guestActive = true): EmbedBridgeService {
     history.replaceState(null, '', `${location.pathname}${search}`);
     guest = { isActive: guestActive, displayName: null };
     const activeId = signal<string | null>(null);
-    store = { activeId, select: (id: string) => activeId.set(id) };
+    const topics = new Map<string, ChatTopic>();
+    store = {
+      activeId,
+      select: (id: string) => activeId.set(id),
+      adopt: (id: string, topic: ChatTopic | null = null) => {
+        if (topic?.referenceId) {
+          topics.set(id, topic);
+        }
+        activeId.set(id);
+      },
+      topicOf: (id: string) => topics.get(id) ?? null,
+    };
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
@@ -69,16 +86,43 @@ describe('EmbedBridgeService', () => {
     expect(stored()).toBeNull();
   });
 
-  it('remembers the open chat with the page topic, and forgets it on a new chat', () => {
+  it('remembers a chat created on the page topic with that topic, and forgets it on a new chat', () => {
     create('?refid=order-7&reftype=order');
 
-    store.activeId.set('c-9');
+    store.adopt('c-9', new ChatTopic({ referenceId: 'order-7', referenceType: 'order' }));
     TestBed.tick();
     expect(stored()).toEqual({ id: 'c-9', refId: 'order-7', refType: 'order' });
 
     store.activeId.set(null);
     TestBed.tick();
     expect(stored()).toBeNull();
+  });
+
+  it('does not attach the page topic to a chat opened from the recent list', () => {
+    create('?refid=order-2&reftype=order');
+
+    store.select('c-order-1');
+    TestBed.tick();
+    expect(stored()).toEqual({ id: 'c-order-1', refId: null, refType: null });
+  });
+
+  it('does not resume a chat opened from the recent list when its page is reloaded', () => {
+    create('?refid=order-2&reftype=order');
+    store.select('c-order-1');
+    TestBed.tick();
+
+    TestBed.resetTestingModule();
+    create('?refid=order-2&reftype=order');
+    expect(store.activeId()).toBeNull();
+    expect(stored()).toBeNull();
+  });
+
+  it('does not attach the page topic to a chat created without one', () => {
+    create('?refid=order-7&reftype=order');
+
+    store.adopt('c-10');
+    TestBed.tick();
+    expect(stored()).toEqual({ id: 'c-10', refId: null, refType: null });
   });
 
   it('keeps the original topic when the chat is resumed on a page without one', () => {
@@ -107,5 +151,67 @@ describe('EmbedBridgeService', () => {
 
     send(location.origin, window.parent, identify('Maria'));
     expect(guest.displayName).toBe('Maria');
+  });
+
+  it('is configured at once outside a frame, on identify or after a timeout inside one', async () => {
+    jasmine.clock().install();
+    try {
+      const bridge = create();
+      let configured = false;
+      void bridge.configured.then(() => (configured = true));
+      await Promise.resolve();
+
+      if (!bridge.framed) {
+        expect(configured).toBeTrue();
+        return;
+      }
+      expect(configured).toBeFalse();
+      jasmine.clock().tick(499);
+      await Promise.resolve();
+      expect(configured).toBeFalse();
+      jasmine.clock().tick(1);
+      await Promise.resolve();
+      expect(configured).toBeTrue();
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
+  it('is configured by the parent identify, even one without a name', async () => {
+    const bridge = create();
+    if (!bridge.framed) {
+      pending('needs the spec runner to run in a frame');
+      return;
+    }
+    let configured = false;
+    void bridge.configured.then(() => (configured = true));
+    await Promise.resolve();
+    expect(configured).toBeFalse();
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: location.origin,
+        source: window.parent,
+        data: { dexWidget: 1, type: 'identify', payload: null },
+      }),
+    );
+    await Promise.resolve();
+    expect(configured).toBeTrue();
+  });
+
+  it('clears the name on an identify with no payload', () => {
+    const bridge = create();
+    if (!bridge.framed) {
+      pending('needs the spec runner to run in a frame');
+      return;
+    }
+    const send = (data: unknown) =>
+      window.dispatchEvent(new MessageEvent('message', { origin: location.origin, source: window.parent, data }));
+
+    send({ dexWidget: 1, type: 'identify', payload: { name: 'Maria' } });
+    expect(guest.displayName as string | null | undefined).toBe('Maria');
+
+    send({ dexWidget: 1, type: 'identify', payload: null });
+    expect(guest.displayName ?? null).toBeNull();
   });
 });
