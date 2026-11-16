@@ -46,26 +46,28 @@ public class BancappAuthorizationMessageHandler : DelegatingHandler
 
         var refreshToken = await _cache.GetStringAsync(RefreshTokenKey);
         if (!string.IsNullOrWhiteSpace(refreshToken)) {
-            var refreshTokenResponse = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
+            using var refreshTokenRequest = new RefreshTokenRequest {
                 RefreshToken = refreshToken,
                 Scope = Scope,
                 Address = AuthUrl,
                 GrantType = OidcConstants.GrantTypes.RefreshToken,
                 Resource = new[] { _options.ClientId! },
                 Parameters = new Parameters { { OidcConstants.TokenRequest.ClientId, _options.ClientId! } }
-            });
+            };
+            var refreshTokenResponse = await _httpClient.RequestRefreshTokenAsync(refreshTokenRequest);
 
             return await TryGetAccessToken(refreshTokenResponse);
         }
 
-        var passwordTokenResponse = await _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest {
+        using var passwordTokenRequest = new PasswordTokenRequest {
             UserName = _options.Username!,
             Password = _options.Password,
             Scope = Scope,
             Address = AuthUrl,
             GrantType = OidcConstants.GrantTypes.Password,
             Parameters = new Parameters { { OidcConstants.TokenRequest.ClientId, _options.ClientId! } }
-        });
+        };
+        var passwordTokenResponse = await _httpClient.RequestPasswordTokenAsync(passwordTokenRequest);
 
         return await TryGetAccessToken(passwordTokenResponse);
     }

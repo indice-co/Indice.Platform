@@ -11,6 +11,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LucidePlay } from '@lucide/angular';
 import { finalize } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
@@ -21,13 +22,13 @@ import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/worker
 /**
  * "Run now" of a scheduled task, shared by the list and the detail page. The API only records the
  * request; a worker that hosts the task picks it up on its next poll, so until then the button
- * reads "Run requested". A task without a row (never run) can't be requested — no worker has
- * claimed it yet.
+ * reads "Run requested". A task that has never run can only be requested while a live worker
+ * hosts it (`isRegistered`), otherwise no worker would pick the request up.
  */
 @Component({
   selector: 'app-run-task-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe],
+  imports: [DatePipe, LucidePlay],
   template: `
     @if (requestedAt(); as at) {
       <span
@@ -41,15 +42,17 @@ import { ScheduledTaskInfo, WorkersApiService } from '../../core/services/worker
     } @else {
       <button
         type="button"
-        class="btn btn-soft whitespace-nowrap"
+        class="btn btn-soft btn-primary gap-1.5 whitespace-nowrap"
         [class.btn-xs]="size() === 'xs'"
         [class.btn-sm]="size() === 'sm'"
-        [disabled]="!task().hasRun || busy()"
+        [disabled]="!canRun() || busy()"
         [title]="title()"
         (click)="$event.stopPropagation(); run()"
       >
         @if (busy()) {
           <span class="loading loading-spinner loading-xs" aria-hidden="true"></span>
+        } @else {
+          <svg lucidePlay [class]="size() === 'xs' ? 'size-3.5' : 'size-4'"></svg>
         }
         Run now
       </button>
@@ -69,10 +72,12 @@ export class RunTaskButtonComponent {
   /** Follows the server; set at once on success, so the button doesn't flash back until the next poll. */
   protected readonly requestedAt = linkedSignal(() => this.task().runRequestedAt ?? null);
 
+  protected readonly canRun = computed(() => this.task().hasRun || this.task().isRegistered);
+
   protected readonly title = computed(() => {
     const task = this.task();
-    if (!task.hasRun) {
-      return 'Available after the first run';
+    if (!this.canRun()) {
+      return 'Available once a running worker hosts the task';
     }
     return task.enabled
       ? 'Run once now, outside the schedule'
@@ -97,7 +102,7 @@ export class RunTaskButtonComponent {
           this.toasts.show(
             'error',
             e instanceof HttpErrorResponse && e.status === 404
-              ? 'The task has no record yet — it can run on demand after its first run.'
+              ? 'No running worker hosts the task and it has no record yet.'
               : describeError(e),
           ),
       });

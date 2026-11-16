@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Server registration: each worker process registers itself in the new `work.Server` table on startup, sends a heartbeat and removes its row on shutdown. The row describes the node (machine, process, application, version, start time) and what it hosts: the queues it consumes with their settings (handler, work item, polling interval, instances, retries, cleanup) and the scheduled tasks with their cron expressions. The workers dashboard uses it to show live, stale and unknown servers, queues without consumers, settings that differ between nodes (e.g. during a rolling deployment) and scheduled tasks that have never run. Relational store only.
+  - `WorkerHostOptions.ServerHeartbeatInterval` (default 30 seconds, `null` or zero to disable registration).
+  - `WorkerHostOptions.ServerTimeout` (default 5 minutes, at least three local heartbeats): a node removes a peer only after both this timeout and three of the peer's advertised heartbeat intervals have elapsed.
+  - Registration never stops the worker: while the table is missing, the worker logs a warning and runs as before.
+- Worker metrics: the workers publish the `Indice.Hosting` meter (`WorkerDiagnostics.MeterName`) with `System.Diagnostics.Metrics`, so the throughput, handler time, queue wait time and in-flight work of every node can be exported with OpenTelemetry or watched with `dotnet-counters`. See the README for the instruments.
+  - The server heartbeat also stores a snapshot of these metrics in the `Metrics` column of `work.Server` (totals since startup and the activity of the last minute), so the workers dashboard can show the throughput, failures, handler time and wait time of each queue, server and scheduled task without querying the nodes.
+
+**Add a migration** to the context that holds the worker tables, or run the script below on existing databases.
+
+SQL Server: run this migration script to update the database.
+```tsql
+IF OBJECT_ID(N'[work].[Server]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [work].[Server] (
+        [Id] nvarchar(256) NOT NULL,
+        [MachineName] nvarchar(128) NOT NULL,
+        [ProcessId] int NOT NULL,
+        [ApplicationName] nvarchar(256) NULL,
+        [Version] nvarchar(128) NULL,
+        [StartedAt] datetime2 NOT NULL,
+        [LastHeartbeat] datetime2 NOT NULL,
+        [HeartbeatInterval] int NOT NULL,
+        [Queues] nvarchar(max) NULL,
+        [ScheduledTasks] nvarchar(max) NULL,
+        [Metrics] nvarchar(max) NULL,
+        CONSTRAINT [PK_Server] PRIMARY KEY ([Id])
+    );
+    CREATE INDEX [IX_Server_LastHeartbeat] ON [work].[Server]([LastHeartbeat]);
+END;
+GO
+```
+
+PostgreSQL: run this migration script to update the database.
+```sql
+CREATE TABLE IF NOT EXISTS work."Server" (
+    "Id" character varying(256) NOT NULL,
+    "MachineName" character varying(128) NOT NULL,
+    "ProcessId" integer NOT NULL,
+    "ApplicationName" character varying(256) NULL,
+    "Version" character varying(128) NULL,
+    "StartedAt" timestamp with time zone NOT NULL,
+    "LastHeartbeat" timestamp with time zone NOT NULL,
+    "HeartbeatInterval" integer NOT NULL,
+    "Queues" text NULL,
+    "ScheduledTasks" text NULL,
+    "Metrics" text NULL,
+    CONSTRAINT "PK_Server" PRIMARY KEY ("Id")
+);
+CREATE INDEX IF NOT EXISTS "IX_Server_LastHeartbeat" ON work."Server" ("LastHeartbeat");
+```
+
 ## [8.64.0]
 ### Added
 - Run now for scheduled tasks: a worker picks up requests left in the `$run-now:{taskId}` queue (e.g. by the workers dashboard) and runs the task once, even when it is disabled. Relational store only. Configure with `WorkerHostOptions.RunNowPollingInterval` (default 15 seconds, `null` to disable) and `WorkerHostOptions.RunNowExpiration` (default 10 minutes).

@@ -90,7 +90,7 @@ const NAV: NavSection[] = [
         @for (section of nav; track $index) {
           <div>
             @if (section.label) {
-              <p class="mb-1.5 px-3 text-[0.7rem] font-semibold tracking-wider uppercase opacity-55">
+              <p class="mb-1.5 px-3 text-[0.7rem] font-semibold tracking-wider uppercase opacity-70">
                 {{ section.label }}
               </p>
             }

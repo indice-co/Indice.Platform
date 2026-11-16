@@ -16,13 +16,13 @@ and registers its own `ITaskDbContext` and `ILockDbContext`.
 
 | Page | Contents |
 | --- | --- |
-| **Dashboard** | Counters (enqueued, scheduled, retrying, poison, scheduled tasks, running, failing, active locks), a live queue-depth chart sampled in the browser, the busiest queues and the tasks that need attention. |
-| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status and the age of the oldest waiting message. **Add message** enqueues a new message into any queue. |
+| **Dashboard** | Counters (enqueued, scheduled, retrying, poison, scheduled tasks, running, failing, active locks), the messages processed per minute, a live queue-depth chart sampled in the browser, the busiest queues and the tasks that need attention. |
+| **Queues** | One row per logical queue — `orders` and `orders-poison` are one row — with a counter per status, the age of the oldest waiting message and its throughput (processed and failed per minute, average handler time, in progress). Queues the live workers consume appear even when empty, with their polling settings; a queue no live worker consumes, or whose workers have different settings, is flagged. **Add message** enqueues a new message into any queue. |
 | **Queue detail** | The messages of a queue by status: **Enqueued**, **Scheduled** (delayed), **Retrying**, **Poison**. Select messages to **requeue** them (poison → back to the queue, scheduled → visible now, retrying → attempts reset) or **delete** them. **Add message** enqueues a new message, now or at a later date. |
 | **Message detail** | Status, attempts, visibility date and the JSON payload. **Edit & requeue** fixes the payload of a message (typically a poison one) and puts it back in its queue. |
-| **Scheduled tasks** | Every task that has run at least once: last run and its outcome, next run, run count, status, progress, an **Enabled** switch and **Run now**. |
-| **Scheduled task detail** | Handler, worker of the last run, the last error (full exception text) and the persisted state. |
-| **Servers & locks** | The workers seen running scheduled tasks, and the distributed locks. **Release** force-deletes a lock left behind by a worker that died. |
+| **Scheduled tasks** | Every task that has run at least once or that a live worker hosts: cron expression, last run and its outcome, next run, run count, status, progress, an **Enabled** switch and **Run now**. |
+| **Scheduled task detail** | Handler, worker of the last run, average and last run duration, the last error (full exception text) and the persisted state. |
+| **Servers & locks** | The registered workers — **Alive** while they send their heartbeat, **Stale** when they miss it — with their process, version, uptime, queues, scheduled tasks and messages processed (per minute and since start), plus older workers seen only running scheduled tasks (**Unknown**). Then the distributed locks: **Release** force-deletes a lock left behind by a worker that died. |
 
 All pages refresh by polling (30 s, 1 min, 2 min or 5 min; default 30 s). Polling pauses when the browser tab is hidden and can
 be paused by hand. The overall counters (`GET stats`) are cached on the server for `StatsCacheDuration` (10 s), so many open
@@ -55,11 +55,15 @@ Run now needs workers on a version of `Indice.Hosting` that has it, using the re
 Everything comes from the database, and the database keeps only what is pending:
 
 - **No history of processed messages.** The relational queue store deletes a message when a worker dequeues it, so there is
-  no Processing / Succeeded / Deleted list and no throughput graph. A message that disappears while you look at it was most
-  most likely processed.
-- **No cron expressions, polling settings or retry limits.**
-  database. A scheduled task appears **after its first run** (that run creates its row), with its next fire time.
-- **Workers that only process queues don't appear under Servers.** Servers are derived from the scheduled task rows.
+  no Processing / Succeeded / Deleted list. A message that disappears while you look at it was most likely processed. The
+  throughput and duration figures come from the workers themselves (see [Server registration](#server-registration)):
+  they cover the last minute of the live workers only, not past days.
+- **No cron expressions, polling settings or retry limits without server registration.** They live in the worker process;
+  each worker writes them to the `work.Server` table when it starts (see below). Workers on older versions of
+  `Indice.Hosting` don't, so their queues show no settings and a scheduled task appears **after its first run** (that run
+  creates its row).
+- **Servers that don't register** (older workers) appear under Servers only through the scheduled tasks they ran, and
+  workers that only process queues don't appear at all.
 - **Locks kept outside the database** (`UseLockManagerAzure()`, `UseLockManagerInMemory()`) are not visible.
 - **A task stuck in Running** means a worker stopped in the middle of a run. It is shown as it is stored.
 
@@ -131,16 +135,26 @@ that registration is reused and `ConfigureDbContext` is ignored.
    - allowed scopes `openid profile role email workers`.
 3. The roles **`WorkersReader`** and **`WorkersAdmin`** (`BasicRoleNames.WorkersReader` / `BasicRoleNames.WorkersAdmin`), given
    to the users that operate the workers. The role claim must reach the API (the `role` scope / API resource claims).
+4. *Optional, for machine-to-machine publishing:* the API scope **`workers:producer`** (`WorkerScopes.Producer`), and a client with
+   grant type client credentials that is allowed it. The scope **`workers:consumer`** (`WorkerScopes.Consumer`) is reserved for the
+   future dequeue endpoints and grants nothing yet.
 
-The API requires an authenticated user with the `workers` scope (`WorkerEndpointsOptions.RequiredScope`) **and** a role:
+The dashboard requires an authenticated user with the `workers` scope (`WorkerEndpointsOptions.RequiredScope`) **and** a role:
 
 | Policy | Who | Allows |
 | --- | --- | --- |
 | `WorkerPolicies.BeWorkersReader` | `WorkersReader`, `WorkersAdmin` or an administrator (`IsAdmin()`) | Every `GET` — all pages, read only. |
 | `WorkerPolicies.BeWorkersAdmin` | `WorkersAdmin` or an administrator (`IsAdmin()`) | Every change: enable/disable, run now, requeue, edit, delete, enqueue, release lock. |
+| `WorkerPolicies.BeWorkersProducer` | `BeWorkersAdmin`, **or** the `workers:producer` scope | `POST queues/{queueName}/messages` (enqueue). |
+| `WorkerPolicies.BeWorkersConsumer` | A machine client with the `workers:consumer` scope | Reserved for the dequeue endpoints, not available yet. |
 
-Anyone else gets `403`; a client that only has the scope (e.g. a machine client) is not enough. The SPA asks `GET me` for the
+Anyone else gets `403`; a client that only has the `workers` scope (e.g. a machine client) is not enough. The SPA asks `GET me` for the
 permissions of the user and hides the actions of a reader.
+
+**Machine-to-machine publishing.** A client credentials token (no `sub` claim) with the `workers:producer` sub-scope is enough to
+enqueue messages — no role is needed. A *user* token with the sub-scope still needs the `WorkersAdmin` role. The sub-scope grants
+nothing else: reading the queues and messages, scheduled tasks, locks, servers, requeue, edit and delete stay with the dashboard users.
+Publish from another service with `AddEventDispatcherHostingHttp()` of `Indice.Services`. Set `ProducerScope` to `null` to turn this off.
 
 > **Who gets in.** The `workers-ui` client requests the `workers` scope for everyone who signs in through it; the roles decide
 > what each user can do. Set `WorkerEndpointsOptions.RequiredScope = null` to check the roles only.
@@ -167,6 +181,8 @@ The SPA reads the identity server address and its own public address from the ho
 | `PathPrefix` | `/api/workers` | Route prefix of the API. Must match `WorkerUIOptions.ApiBase`. |
 | `GroupName` | `workers` | OpenAPI document (group) name of the endpoints. |
 | `RequiredScope` | `workers` | Scope that the caller must have, on top of the role (see above). Set it to `null` to check the roles only. |
+| `ProducerScope` | `workers:producer` | Sub-scope that lets a machine client enqueue messages (`BeWorkersProducer`). `null` disables it. |
+| `ConsumerScope` | `workers:consumer` | Sub-scope reserved for the future dequeue endpoints (`BeWorkersConsumer`). `null` disables it. |
 | `StatsCacheDuration` | 10 s | How long the overall counters (`GET stats`) are cached. |
 | `MaxPayloadLength` | 1,000,000 | The maximum length, in characters, of a payload enqueued or edited from the dashboard. |
 | `ConfigureDbContext` | SQL Server, connection string `WorkerDb` | Configures the database that holds the worker tables. Ignored when the host already registered the context type. |
@@ -218,6 +234,26 @@ builder.Services.AddHealthChecks()
 `Indice.Hosting` now indexes the queue table on `(QueueName, Date)` including `State` and `DequeueCount` (SQL Server), replacing
 the index on `QueueName`. It serves both the dequeue query of the workers and the counters of the dashboard. Add a migration to
 the context that holds the worker tables to apply it.
+
+## Server registration
+
+Each worker (`AddWorkerHost()` with `UseStoreRelational()`) registers itself in the `work.Server` table on startup, refreshes
+its row every `WorkerHostOptions.ServerHeartbeatInterval` (30 s) and deletes it on shutdown. Every worker also deletes the
+rows that have had no heartbeat for `WorkerHostOptions.ServerTimeout` (5 min), so a crashed worker goes away on its own.
+The dashboard shows a server as **Stale** once it misses three heartbeats.
+
+The row holds the queues the worker consumes with their settings and the scheduled tasks it hosts, so the dashboard can show
+empty queues, queues no live worker consumes, settings that differ between workers (e.g. during a rolling deployment) and
+scheduled tasks that have never run — which can also **Run now**. When workers declare different settings for a queue or
+a scheduled task, the dashboard shows those of the most recently started live worker, i.e. the newest deployment. Add a
+migration to the context that holds the worker tables to create the table (the `Indice.Hosting` changelog has the scripts).
+Until then the dashboard works as before.
+
+With every heartbeat the worker also stores a snapshot of its own metrics (the `Indice.Hosting` meter): messages processed
+and failed since it started and in the last minute, messages in progress, average handler time and wait, and scheduled task
+run durations. The dashboard sums them up across the live workers and shows throughput on the dashboard, the queues and the
+servers, and run durations on the scheduled task page. The figures are as fresh as the last heartbeat; export the meter to
+your monitoring system (OpenTelemetry) for history and alerts.
 
 ---
 

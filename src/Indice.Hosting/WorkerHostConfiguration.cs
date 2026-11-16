@@ -1,6 +1,8 @@
 ﻿using System.Collections.Specialized;
+using System.Diagnostics.Metrics;
 using Indice.Hosting;
 using Indice.Hosting.Data;
+using Indice.Hosting.Diagnostics;
 using Indice.Hosting.Services;
 using Indice.Hosting.Tasks;
 using Indice.Services;
@@ -34,10 +36,17 @@ public static class WorkerHostConfiguration
         };
         configureAction?.Invoke(workerHostOptions);
         services.AddSingleton(workerHostOptions.JsonOptions);
+        services.TryAddSingleton(serviceProvider => new WorkerMetrics(serviceProvider.GetService<IMeterFactory>(), serviceProvider.GetService<TimeProvider>()));
+        var hasRelationalStore = services.Any(sd => sd.ServiceType == typeof(ITaskDbContext));
         // Run now requests are read from the queue table, so they need the relational store.
-        if (workerHostOptions.RunNowPollingInterval > TimeSpan.Zero && services.Any(sd => sd.ServiceType == typeof(ITaskDbContext))) {
+        if (workerHostOptions.RunNowPollingInterval > TimeSpan.Zero && hasRelationalStore) {
             services.AddSingleton(new RunNowSettings(workerHostOptions.RunNowPollingInterval.Value, workerHostOptions.RunNowExpiration));
             services.AddTransient<RunNowJob>();
+        }
+        if (workerHostOptions.ServerHeartbeatInterval is { } heartbeatInterval && heartbeatInterval > TimeSpan.Zero && hasRelationalStore) {
+            var serverTimeout = workerHostOptions.ServerTimeout < heartbeatInterval * 3 ? heartbeatInterval * 3 : workerHostOptions.ServerTimeout;
+            services.AddSingleton(new ServerRegistrationSettings(heartbeatInterval, serverTimeout));
+            services.AddSingleton<WorkerServerRegistry>();
         }
         services.Configure<WorkerLifetimeOptions>(options => options.WaitJobsToCompleteOnShutdown = workerHostOptions.WaitJobsToCompleteOnShutdown);
         // https://www.quartz-scheduler.net/documentation/quartz-3.x/configuration/reference.html

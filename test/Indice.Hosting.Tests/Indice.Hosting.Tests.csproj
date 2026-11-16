@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Hosting\Indice.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Workers.Server\Indice.Features.Workers.Server.csproj" />
   </ItemGroup>
 </Project>

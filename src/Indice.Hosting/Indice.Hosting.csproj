@@ -20,4 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Hosting.Tests" />
+  </ItemGroup>
 </Project>

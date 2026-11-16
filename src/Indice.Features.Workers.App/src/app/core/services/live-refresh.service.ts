@@ -44,9 +44,14 @@ export class LiveRefreshService {
   readonly lastUpdated = signal<Date | null>(null);
 
   private readonly manual$ = new Subject<void>();
+  /**
+   * Reads `document.hidden` per subscriber and per change. `startWith(!document.hidden)` would capture it once, when the
+   * service is created: a tab loaded in the background would then make every page opened later wait for the next
+   * visibility change before its first load (stuck skeletons).
+   */
   private readonly visible$ = fromEvent(document, 'visibilitychange').pipe(
+    startWith(null),
     map(() => !document.hidden),
-    startWith(!document.hidden),
   );
 
   /**

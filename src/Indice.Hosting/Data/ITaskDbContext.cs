@@ -29,6 +29,8 @@ public interface ITaskDbContext
     DbSet<DbQMessage> Queue => Set<DbQMessage>();
     /// <summary>Tasks.</summary>
     DbSet<DbScheduledTask> Tasks => Set<DbScheduledTask>();
+    /// <summary>The worker processes (cluster nodes) that are alive, with the queues and scheduled tasks they host.</summary>
+    DbSet<DbServer> Servers => Set<DbServer>();
     /// <inheritdoc cref="DbContext.Database"/>
     DatabaseFacade Database { get; }
     /// <inheritdoc cref="DbContext.Add{TEntity}"/>

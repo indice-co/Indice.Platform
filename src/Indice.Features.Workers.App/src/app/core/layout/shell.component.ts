@@ -63,7 +63,7 @@ import { ThemeMode, ThemeService } from './theme.service';
             <svg lucideMenu class="size-5"></svg>
           </button>
 
-          <p class="min-w-0 flex-1 truncate font-mono text-xs text-base-content/55">
+          <p class="min-w-0 flex-1 truncate font-mono text-xs text-base-content/70">
             <span class="hidden sm:inline">
               @if (agoSeconds() !== null) {
                 Updated {{ agoSeconds() }} s ago

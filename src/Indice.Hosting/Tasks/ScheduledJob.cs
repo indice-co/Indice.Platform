@@ -1,5 +1,6 @@
 ﻿using Indice.Hosting.Models;
 using Indice.Hosting.Services;
+using Indice.Hosting.Diagnostics;
 using Indice.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -15,13 +16,15 @@ internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : cl
     private readonly IScheduledTaskStore<TState> _scheduledTaskStore;
     private readonly IConfiguration _configuration;
     private readonly ILockManager _lockManager;
+    private readonly WorkerMetrics _metrics;
 
-    public ScheduledJob(TaskHandlerActivator taskHandlerActivator, IScheduledTaskStore<TState> scheduledTaskStore, ILogger<ScheduledJob<TTaskHandler, TState>> logger, IConfiguration configuration, ILockManager lockManager) {
+    public ScheduledJob(TaskHandlerActivator taskHandlerActivator, IScheduledTaskStore<TState> scheduledTaskStore, ILogger<ScheduledJob<TTaskHandler, TState>> logger, IConfiguration configuration, ILockManager lockManager, WorkerMetrics metrics) {
         _taskHandlerActivator = taskHandlerActivator ?? throw new ArgumentNullException(nameof(taskHandlerActivator));
         _scheduledTaskStore = scheduledTaskStore ?? throw new ArgumentNullException(nameof(scheduledTaskStore));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _lockManager = lockManager ?? throw new ArgumentNullException(nameof(lockManager));
+        _metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
     }
 
     public async Task Execute(IJobExecutionContext context) {
@@ -68,13 +71,17 @@ internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : cl
         scheduledTask.Status = ScheduledTaskStatus.Running;
         scheduledTask.WorkerId = Environment.MachineName;
         await _scheduledTaskStore.Save(scheduledTask);
+        var startTimestamp = _metrics.TaskStarted(scheduledTask.Id);
+        var failed = false;
         try {
             await _taskHandlerActivator.Invoke(jobHandlerType, scheduledTask.State, cancellationToken ?? context.CancellationToken);
         } catch (Exception exception) {
+            failed = true;
             scheduledTask.Errors = exception.ToString();
             scheduledTask.LastErrorDate = DateTimeOffset.UtcNow;
             _logger.LogError("An error occurred while executing task '{TaskHandlerName}'. Exception is: {Exception}", jobHandlerType.Name, exception);
         } finally {
+            _metrics.TaskCompleted(scheduledTask.Id, startTimestamp, failed);
             scheduledTask.Status = ScheduledTaskStatus.Idle;
             await _scheduledTaskStore.Save(scheduledTask);
         }

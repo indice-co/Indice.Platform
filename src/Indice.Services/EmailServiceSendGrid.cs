@@ -84,7 +84,8 @@ public class EmailServiceSendGrid : IEmailService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
 
-        var response = await HttpClient.PostAsync("mail/send", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
+        using var requestContent = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
+        var response = await HttpClient.PostAsync("mail/send", requestContent);
         if (!response.IsSuccessStatusCode) {
             var content = await response.Content.ReadAsStringAsync();
             throw new EmailServiceException($"SendGrid service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.");

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Indice.Features.Workers.Server;
 using Indice.Features.Workers.Server.Services;
 using Indice.Hosting.Data;
@@ -54,18 +55,44 @@ public static class WorkerEndpointsExtensions
         services.AddAuthorization();
         services.AddOptions<AuthorizationOptions>().Configure<IOptions<WorkerEndpointsOptions>>((authorization, endpointOptions) => {
             var requiredScope = endpointOptions.Value.RequiredScope;
+            var producerScope = endpointOptions.Value.ProducerScope;
+            var consumerScope = endpointOptions.Value.ConsumerScope;
             authorization.AddPolicy(WorkerPolicies.BeWorkersReader, policy => policy
                 .RequireAuthenticatedUser()
                 .RequireAssertion(context => HasRequiredScope(context.User, requiredScope) && context.User.CanReadWorkers()));
             authorization.AddPolicy(WorkerPolicies.BeWorkersAdmin, policy => policy
                 .RequireAuthenticatedUser()
                 .RequireAssertion(context => HasRequiredScope(context.User, requiredScope) && context.User.CanManageWorkers()));
+            authorization.AddPolicy(WorkerPolicies.BeWorkersProducer, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => CanProduce(context.User, requiredScope, producerScope)));
+            authorization.AddPolicy(WorkerPolicies.BeWorkersConsumer, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => HasSubScope(context.User, consumerScope) && IsMachineClient(context.User)));
         });
         return services;
     }
 
-    private static bool HasRequiredScope(System.Security.Claims.ClaimsPrincipal user, string? requiredScope) =>
+    private static bool HasRequiredScope(ClaimsPrincipal user, string? requiredScope) =>
         string.IsNullOrEmpty(requiredScope) || user.HasScope(requiredScope);
+
+    // Unlike the required scope, a sub-scope that is not configured grants nothing.
+    private static bool HasSubScope(ClaimsPrincipal user, string? subScope) =>
+        !string.IsNullOrEmpty(subScope) && user.HasScope(subScope);
+
+    // A client credentials token carries no subject. The inbound claim mapping may have renamed 'sub', so both forms are checked.
+    private static bool IsMachineClient(ClaimsPrincipal user) =>
+        user.FindFirst(BasicClaimTypes.Subject) is null && user.FindFirst(ClaimTypes.NameIdentifier) is null;
+
+    private static bool CanProduce(ClaimsPrincipal user, string? requiredScope, string? producerScope) {
+        if (HasRequiredScope(user, requiredScope) && user.CanManageWorkers()) {
+            return true;
+        }
+        if (!HasSubScope(user, producerScope)) {
+            return false;
+        }
+        return IsMachineClient(user) || user.CanManageWorkers();
+    }
 
 
 

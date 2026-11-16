@@ -212,6 +212,25 @@
 .tabs-box {
   background-color: color-mix(in oklab, var(--color-base-content) 7%, transparent);
 }
+/*
+ * Soft, outline and ghost primary buttons write their label in the primary colour while at rest; amber is too light
+ * for that, so they take the ink shade. Hover fills the button and uses the primary content colour as usual.
+ */
+.btn-primary {
+  --btn-rest-fg: var(--color-primary-ink);
+}
+/*
+ * Tables: daisyUI's header text (60%) and row lines (5%) wash out on white and on the dark cards; a firmer header and
+ * hairline keep long lists scannable.
+ */
+.table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--color-base-content) 72%, transparent);
+}
+.table :where(thead tr, tbody tr:not(:last-child)) {
+  border-bottom-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+}
 /* Thin, refined scrollbar that keeps long lists and payloads quiet. */
 .app-scroll {
   scrollbar-width: thin;

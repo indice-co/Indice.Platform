@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -114,7 +115,8 @@ public sealed class SmsServiceOmniMessaging : ISmsService
             Options.Channel,
             Options.ViberValidity,
             Options.SmsValidity,
-            Options.UseUtf8);
+            Options.UseUtf8,
+            Options.EnableUrlShortener);
 
         using var request = new HttpRequestMessage {
             Method = HttpMethod.Post,
@@ -273,6 +275,11 @@ public sealed class SmsServiceOmniMessagingSettings
     public bool UseUtf8 { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether HTTP and HTTPS URLs in SMS and Viber text are wrapped in braces for URL shortening. Defaults to false.
+    /// </summary>
+    public bool EnableUrlShortener { get; set; }
+
+    /// <summary>
     /// Gets or sets the optional shared secret used to validate incoming Omni webhooks.
     /// If empty, webhook authentication validation is skipped.
     /// </summary>
@@ -334,10 +341,15 @@ internal sealed class SmsServiceOmniRequest
     SmsServiceOmniMessagingMode mode,
     int viberValidity,
     int smsValidity,
-    bool useUtf8) {
+    bool useUtf8,
+    bool enableUrlShortener) {
         var useSms = mode is SmsServiceOmniMessagingMode.SmsOnly or SmsServiceOmniMessagingMode.ViberWithSmsFallback;
         var useViber = mode is SmsServiceOmniMessagingMode.ViberOnly or SmsServiceOmniMessagingMode.ViberWithSmsFallback;
         var useFallback = mode is SmsServiceOmniMessagingMode.ViberWithSmsFallback;
+
+        if (enableUrlShortener) {
+            message = Regex.Replace(message, @"https?://[^\s""<>{}]+", match => WrapUrl(message, match));
+        }
 
         return new SmsServiceOmniRequest {
             Name = sender,
@@ -381,6 +393,33 @@ internal sealed class SmsServiceOmniRequest
                     : null
             }
         };
+    }
+
+    private static string WrapUrl(string message, Match match) {
+        var delimiters = new Stack<char>();
+        var length = 0;
+        foreach (var character in match.Value) {
+            if (character is '(' or '[') {
+                delimiters.Push(character);
+            } else if (character is ')' or ']') {
+                var opening = character == ')' ? '(' : '[';
+                if (delimiters.Count == 0 || delimiters.Peek() != opening) {
+                    break;
+                }
+                delimiters.Pop();
+            }
+            length++;
+        }
+        while (length > 0 && match.Value[length - 1] is '.' or ',' or '!' or '?' or ';' or ':') {
+            length--;
+        }
+
+        var end = match.Index + length;
+        if (match.Index > 0 && message[match.Index - 1] == '{' && end < message.Length && message[end] == '}') {
+            return match.Value;
+        }
+
+        return $"{{{match.Value[..length]}}}{match.Value[length..]}";
     }
 
     /// <summary>

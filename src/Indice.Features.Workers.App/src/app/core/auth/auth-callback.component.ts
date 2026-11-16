@@ -8,7 +8,7 @@ import { AuthService } from '@indice/ng-auth';
   template: `
     <div class="flex min-h-screen flex-col items-center justify-center gap-4 bg-base-200">
       <span class="loading loading-dots loading-lg text-primary"></span>
-      <p class="text-base-content/60">Signing you in…</p>
+      <p class="text-base-content/70">Signing you in…</p>
     </div>
   `,
 })

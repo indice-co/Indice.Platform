@@ -36,6 +36,7 @@ const QUEUE: QueueInfo = {
   dequeued: 0,
   total: 47,
   isRegistered: false,
+  hasConfigurationMismatch: false,
 };
 
 /** A poll clock that ticks once per subscriber, so each stream loads exactly once. */

@@ -93,7 +93,8 @@ public class EmailServiceSparkPost : IEmailService
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
-        var response = await HttpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
+        using var requestContent = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
+        var response = await HttpClient.PostAsync("transmissions", requestContent);
         if (!response.IsSuccessStatusCode) {
             var content = await response.Content.ReadAsStringAsync();
             Logger.LogError("SparkPost service could not send email to recipients '{recipients}'. Error is: '{content}'.", string.Join(", ", recipients), content);
