@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -114,7 +115,8 @@ public sealed class SmsServiceOmniMessaging : ISmsService
             Options.Channel,
             Options.ViberValidity,
             Options.SmsValidity,
-            Options.UseUtf8);
+            Options.UseUtf8,
+            Options.EnableUrlShortener);
 
         using var request = new HttpRequestMessage {
             Method = HttpMethod.Post,
@@ -273,6 +275,11 @@ public sealed class SmsServiceOmniMessagingSettings
     public bool UseUtf8 { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether HTTP and HTTPS URLs in SMS and Viber text are wrapped in braces for URL shortening. Defaults to false.
+    /// </summary>
+    public bool EnableUrlShortener { get; set; }
+
+    /// <summary>
     /// Gets or sets the optional shared secret used to validate incoming Omni webhooks.
     /// If empty, webhook authentication validation is skipped.
     /// </summary>
@@ -334,10 +341,15 @@ internal sealed class SmsServiceOmniRequest
     SmsServiceOmniMessagingMode mode,
     int viberValidity,
     int smsValidity,
-    bool useUtf8) {
+    bool useUtf8,
+    bool enableUrlShortener) {
         var useSms = mode is SmsServiceOmniMessagingMode.SmsOnly or SmsServiceOmniMessagingMode.ViberWithSmsFallback;
         var useViber = mode is SmsServiceOmniMessagingMode.ViberOnly or SmsServiceOmniMessagingMode.ViberWithSmsFallback;
         var useFallback = mode is SmsServiceOmniMessagingMode.ViberWithSmsFallback;
+
+        if (enableUrlShortener) {
+            message = Regex.Replace(message, @"https?://[^\s""<>]*[^\s""<>.,!?)]", match => $"{{{match.Value}}}");
+        }
 
         return new SmsServiceOmniRequest {
             Name = sender,
