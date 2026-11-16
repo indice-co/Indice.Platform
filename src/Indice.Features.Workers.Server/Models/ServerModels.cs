@@ -15,15 +15,48 @@ public class LockInfo
     public bool IsExpired { get; set; }
 }
 
-/// <summary>A worker, as seen from the scheduled tasks it has run.</summary>
+/// <summary>A worker process (a node of the cluster).</summary>
+/// <remarks>
+/// Workers register themselves in the server table on startup, with the queues they consume and the scheduled tasks they host.
+/// Workers that are not registered (<see cref="WorkerServerStatus.Unknown"/>) are only seen from the scheduled tasks they have run.
+/// </remarks>
 public class WorkerServerInfo
 {
-    /// <summary>The worker id (machine name).</summary>
+    /// <summary>The server id, <c>{machine}:{process}:{random}</c>, or the machine name when the worker is not registered.</summary>
     public string WorkerId { get; set; } = null!;
-    /// <summary>The latest execution of its tasks.</summary>
+    /// <summary>The machine name. Matches <see cref="ScheduledTaskInfo.WorkerId"/>.</summary>
+    public string MachineName { get; set; } = null!;
+    /// <summary>The status of the worker.</summary>
+    public WorkerServerStatus Status { get; set; }
+    /// <summary>The process id. Only known for a registered worker.</summary>
+    public int? ProcessId { get; set; }
+    /// <summary>The application name of the host. Only known for a registered worker.</summary>
+    public string? ApplicationName { get; set; }
+    /// <summary>The version of the application. Only known for a registered worker.</summary>
+    public string? Version { get; set; }
+    /// <summary>When the worker started. Only known for a registered worker.</summary>
+    public DateTimeOffset? StartedAt { get; set; }
+    /// <summary>The last heartbeat of a registered worker, otherwise the latest execution of its tasks.</summary>
     public DateTimeOffset? LastSeen { get; set; }
-    /// <summary>The tasks whose last run was on this worker.</summary>
+    /// <summary>The heartbeat interval in seconds. Only known for a registered worker.</summary>
+    public int? HeartbeatInterval { get; set; }
+    /// <summary>The queues the worker consumes. Empty when the worker is not registered.</summary>
+    public List<string> Queues { get; set; } = [];
+    /// <summary>The ids of the scheduled tasks the worker hosts. Empty when the worker is not registered.</summary>
+    public List<string> ScheduledTasks { get; set; } = [];
+    /// <summary>The tasks whose last run was on the machine of this worker.</summary>
     public int Tasks { get; set; }
-    /// <summary>The tasks currently running on this worker.</summary>
+    /// <summary>The tasks currently running on the machine of this worker.</summary>
     public int RunningTasks { get; set; }
+    /// <summary>The messages the worker processed since it started, successfully or not.</summary>
+    /// <remarks>The metrics below are measured by the worker and stored with its heartbeat. They are <see langword="null"/> when the worker does not report metrics.</remarks>
+    public long? Processed { get; set; }
+    /// <summary>The messages that failed on the worker since it started (retried or poisoned).</summary>
+    public long? Failed { get; set; }
+    /// <summary>The messages the worker is processing now. Only known for a live worker.</summary>
+    public long? Processing { get; set; }
+    /// <summary>The messages the worker processed per minute recently, successfully or not. Only known for a live worker.</summary>
+    public double? ProcessedPerMinute { get; set; }
+    /// <summary>The messages that failed per minute recently. Only known for a live worker.</summary>
+    public double? FailedPerMinute { get; set; }
 }

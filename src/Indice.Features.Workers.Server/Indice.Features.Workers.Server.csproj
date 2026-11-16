@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Hosting\Indice.Hosting.csproj" />
+    <InternalsVisibleTo Include="Indice.Hosting.Tests" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../../docs/Workers-Product.md" Pack="true" PackagePath="docs\" />

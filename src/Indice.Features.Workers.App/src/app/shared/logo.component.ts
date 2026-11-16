@@ -4,8 +4,8 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
  * "Workers UI by INDICE" brand: a rounded tile carrying a gear (the worker) and a status
  * dot, followed by the wordmark. It matches `favicon.svg` and `assets/images/branding/logo.svg` as a single SVG
  * so the layout never shifts, but takes its colors from theme tokens (`--color-primary`, `--color-primary-content`,
- * `--color-neutral`, `--color-neutral-content`) and the text from `currentColor`, so it follows the active theme
- * and the surface it sits on. `mark` renders the tile alone, for tight spots such as the collapsed rail.
+ * `--color-accent`, `--color-accent-content`) and the text from `currentColor`, so it follows the active theme
+ * and the surface it sits on. `mark` renders the tile alone, for tight spots.
  */
 @Component({
   selector: 'app-logo',
@@ -26,18 +26,18 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
         fill-rule="evenodd"
         style="fill: var(--color-primary-content)"
       />
-      <circle cx="26" cy="6" r="4.5" stroke-width="2" [style.fill]="'var(--color-neutral)'" [style.stroke]="ring()" />
+      <circle cx="26" cy="6" r="4.5" stroke-width="2" [style.fill]="'var(--color-accent)'" [style.stroke]="ring()" />
       @if (!mark()) {
         <text x="38" y="19.5" font-size="18" font-weight="700" fill="currentColor" letter-spacing="-0.3">Workers</text>
-        <rect x="111" y="6" width="22" height="15" rx="4" style="fill: var(--color-neutral)" />
+        <rect x="111" y="6" width="22" height="15" rx="4" style="fill: var(--color-accent)" />
         <text
           x="122"
           y="17.5"
           text-anchor="middle"
           font-size="10"
-          font-weight="700"
+          font-weight="800"
           letter-spacing="0.3"
-          style="fill: var(--color-neutral-content)"
+          style="fill: var(--color-accent-content)"
         >UI</text>
         <text x="38.5" y="28.5" font-size="6.5" font-weight="500" fill="currentColor" fill-opacity="0.55" letter-spacing="0.4">by <tspan font-weight="700" letter-spacing="0.9">INDICE</tspan></text>
       }

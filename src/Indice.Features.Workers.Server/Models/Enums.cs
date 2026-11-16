@@ -27,3 +27,15 @@ public enum ScheduledTaskState
     /// <summary>Currently running.</summary>
     Running
 }
+
+/// <summary>The status of a worker server.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<WorkerServerStatus>))]
+public enum WorkerServerStatus
+{
+    /// <summary>Registered and sending its heartbeat.</summary>
+    Alive,
+    /// <summary>Registered, but it missed its last heartbeats: it is stopping, hung or gone. The other servers remove it once it times out.</summary>
+    Stale,
+    /// <summary>Not registered: only seen from the scheduled tasks it has run, e.g. a worker of an older version or without the server table.</summary>
+    Unknown
+}

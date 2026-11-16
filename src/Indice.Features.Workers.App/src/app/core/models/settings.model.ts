@@ -1,6 +1,6 @@
 /** Resolved application settings, built once at startup by `createAppSettings()` in settings.ts. */
 export interface IAppSettings {
-  /** Theme the app started with: session storage `theme` (fed by the `?uitheme=` query string argument), else the host's `<html data-theme>` (`WorkerDashboardUIOptions.Theme`), else `indice`. */
+  /** Theme the app started with: session storage `theme` (fed by the `?uitheme=` query string argument), else the host's `<html data-theme>` (`WorkerUIOptions.Theme`), else `workers`. Only `workers` follows the user's light/dark choice. */
   theme: string;
   api_url: string;
   auth_settings: IAuthSettings;

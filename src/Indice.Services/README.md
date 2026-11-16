@@ -297,6 +297,7 @@ Dispatch events asynchronously using queue-based messaging:
 |----------------|---------------|
 | `EventDispatcherAzure` | Azure Queue Storage |
 | `EventDispatcherAzureServiceBus` | Azure Service Bus |
+| `EventDispatcherHostingHttp` | A remote workers API (`Indice.Features.Workers.Server`) over HTTP — publish only |
 | `EventDispatcherInMemory` | In-memory (for testing) |
 
 ```csharp
@@ -305,6 +306,37 @@ services.AddEventDispatcherAzure(configuration);
 // Raise events
 await eventDispatcher.RaiseEventAsync(new OrderCreatedEvent { OrderId = orderId });
 ```
+
+#### Publishing to a remote workers API
+
+`AddEventDispatcherHostingHttp()` posts each event to `POST {BaseAddress}/workers/queues/{queueName}/messages` of a remote workers API,
+so it lands in the same relational queue that `EventDispatcherHosting` uses in-process, and is consumed by the workers hosted along with that API.
+It authenticates with the client credentials flow; the client must be allowed the `workers:producer` scope.
+
+```csharp
+services.AddEventDispatcherHostingHttp((sp, options) => {
+    options.BaseAddress = new Uri("https://workers.indice.gr/api"); // Default: General:Endpoints:Workers
+    options.Authority = "https://identity.indice.gr";                // Default: General:AuthorityInternal or General:Authority
+    options.ClientId = "my-service";                                 // Default: General:Api:Secrets:ClientId
+    options.ClientSecret = "...";                                    // Default: General:Api:Secrets:ClientSecret
+});
+// Or keyed: services.AddEventDispatcherHostingHttp("workers", (sp, options) => ...);
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `BaseAddress` | `General:Endpoints:Workers` | The base address of the workers API. |
+| `PathPrefix` | `workers` | The path of the workers endpoints relative to `BaseAddress`. |
+| `Authority` / `TokenEndpoint` | `General:Authority` / `{Authority}/connect/token` | Where the access token is requested. |
+| `ClientId` / `ClientSecret` | `General:Api:Secrets` | The machine client. No token is attached when `ClientId` is empty. |
+| `Scope` | `workers:producer` | The scope requested. |
+| `Enabled` | `true` | Turns dispatching off. |
+| `JsonSerializerOptions` | Same as the workers | Serializes the payload. |
+
+The event is sent as is (no envelope), the way the workers read it, so `wrap`, `prependEnvironmentInQueueName` and `sessionId` are ignored.
+The queue name defaults to the kebab-case name of the event type (`OrderCreatedEvent` → `order-created-event`): name the worker queue the same,
+or pass `queueName`. A failed request throws an `HttpRequestException`. The HTTP client is named `EventDispatcherHostingHttp.HttpClientName`
+(`{HttpClientName}:{name}` when keyed), so you can add handlers to it. Retrying a `POST` that reached the server may enqueue the message twice.
 
 ### 🔒 Distributed Locking
 

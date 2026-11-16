@@ -1,24 +1,49 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { LucideLock, LucideLockOpen, LucideServer } from '@lucide/angular';
+import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
+import { ToastService } from '../../core/services/toast.service';
 import {
   LockInfo,
   WorkerServerInfo,
+  WorkerServerStatus,
   WorkersApiService,
 } from '../../core/services/workers-api.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
+import { formatRate } from '../queues/queue-status';
 
-/** Hangfire's "Servers": the workers seen running scheduled tasks, and the distributed locks. */
+/** Hangfire's "Servers": the workers that registered themselves (or ran scheduled tasks), and the distributed locks. */
 @Component({
   selector: 'app-servers-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, EmptyStateComponent, PageHeaderComponent, RelativeTimePipe],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    LucideLock,
+    LucideLockOpen,
+    LucideServer,
+    ConfirmDialogComponent,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    RelativeTimePipe,
+  ],
   template: `
     <section class="p-4 sm:p-6">
       <app-page-header title="Servers & locks" [subtitle]="subtitle()" />
@@ -30,15 +55,18 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
       <div class="flex flex-col gap-4">
         <div class="card bg-base-100 shadow-sm">
           <div class="card-body">
-            <h2 class="card-title text-base">Servers</h2>
-            <p class="text-xs text-base-content/60">
-              Derived from scheduled task runs. Workers that only process queues don't appear here.
+            <h2 class="card-title text-base">
+              <svg lucideServer class="size-4 text-base-content/70"></svg>Servers
+            </h2>
+            <p class="text-sm text-base-content/70">
+              Each worker registers itself on startup and sends a heartbeat. Workers that don't register
+              (older versions) appear once they have run a scheduled task.
             </p>
             @if (servers(); as servers) {
               @if (servers.length === 0) {
                 <app-empty-state
                   title="No servers yet"
-                  text="A worker shows up here once it has run a scheduled task."
+                  text="A worker shows up here once it starts, or once it has run a scheduled task."
                 />
               } @else {
                 <div class="overflow-x-auto">
@@ -46,31 +74,106 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                     <thead>
                       <tr>
                         <th>Worker</th>
+                        <th>Status</th>
+                        <th>Started</th>
                         <th>Last seen</th>
+                        <th class="text-right">Queues</th>
+                        <th class="text-right">Scheduled tasks</th>
                         <th class="text-right">Tasks last run here</th>
                         <th class="text-right">Running now</th>
+                        @if (showActivity()) {
+                          <th class="text-right">Messages</th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
                       @for (server of servers; track server.workerId) {
-                        <tr>
-                          <td class="font-mono break-all">{{ server.workerId }}</td>
-                          <td
-                            class="whitespace-nowrap"
-                            [title]="(server.lastSeen | date: 'medium') ?? ''"
-                          >
-                            {{ server.lastSeen | relativeTime }}
+                        <tr class="hover:bg-base-200/60" [class.opacity-70]="server.status === 'Stale'">
+                          <td class="py-2.5">
+                            <div class="flex items-center gap-3">
+                              <span
+                                class="grid size-8 shrink-0 place-items-center rounded-field"
+                                [class]="
+                                  server.runningTasks > 0
+                                    ? 'bg-info/10 text-info'
+                                    : 'bg-base-content/8 text-base-content/70'
+                                "
+                              >
+                                <svg lucideServer class="size-4"></svg>
+                              </span>
+                              <div class="min-w-0">
+                                <span class="font-mono break-all" [title]="server.workerId">{{
+                                  server.machineName
+                                }}</span>
+                                @if (describe(server); as details) {
+                                  <span class="block text-xs text-base-content/70">{{ details }}</span>
+                                }
+                              </div>
+                            </div>
                           </td>
-                          <td class="text-right font-mono">{{ server.tasks }}</td>
-                          <td class="text-right">
-                            @if (server.runningTasks > 0) {
-                              <span class="badge badge-warning badge-sm">{{
-                                server.runningTasks
+                          <td>
+                            <span
+                              class="badge badge-soft badge-sm"
+                              [class]="STATUS_BADGE[server.status]"
+                              [title]="statusTitle(server)"
+                              >{{ server.status }}</span
+                            >
+                          </td>
+                          <td class="whitespace-nowrap" [title]="(server.startedAt | date: 'medium') ?? ''">
+                            @if (server.startedAt) {
+                              {{ server.startedAt | relativeTime }}
+                              <span class="block text-xs text-base-content/70">{{
+                                server.startedAt | date: 'MMM d, HH:mm'
                               }}</span>
                             } @else {
-                              <span class="font-mono text-base-content/40">0</span>
+                              <span class="text-base-content/45">—</span>
                             }
                           </td>
+                          <td class="whitespace-nowrap" [title]="(server.lastSeen | date: 'medium') ?? ''">
+                            {{ server.lastSeen | relativeTime }}
+                            <span class="block text-xs text-base-content/70">{{
+                              server.lastSeen | date: 'MMM d, HH:mm:ss'
+                            }}</span>
+                          </td>
+                          <td class="text-right tabular-nums" [title]="server.queues.join(', ')">
+                            {{ server.queues.length }}
+                          </td>
+                          <td class="text-right tabular-nums" [title]="server.scheduledTasks.join(', ')">
+                            {{ server.scheduledTasks.length }}
+                          </td>
+                          <td class="text-right font-medium tabular-nums">{{ server.tasks }}</td>
+                          <td class="text-right tabular-nums">
+                            @if (server.runningTasks > 0) {
+                              <span class="inline-flex items-center gap-1.5 font-semibold text-info">
+                                <span class="loading loading-spinner loading-xs" aria-hidden="true"></span>
+                                {{ server.runningTasks }}
+                              </span>
+                            } @else {
+                              <span class="text-base-content/45">0</span>
+                            }
+                          </td>
+                          @if (showActivity()) {
+                            <td class="whitespace-nowrap text-right tabular-nums" [title]="activityTitle(server)">
+                              @if (server.processed != null) {
+                                @if (server.processedPerMinute != null) {
+                                  <span class="font-medium">{{ rate(server.processedPerMinute) }}</span>
+                                  @if (server.failedPerMinute) {
+                                    <span class="ml-1 text-xs text-error"
+                                      >{{ rate(server.failedPerMinute) }} failed</span
+                                    >
+                                  }
+                                }
+                                <span class="block text-xs text-base-content/70">
+                                  {{ server.processed | number }} since start
+                                  @if (server.failed) {
+                                    · <span class="text-error">{{ server.failed | number }} failed</span>
+                                  }
+                                </span>
+                              } @else {
+                                <span class="text-base-content/45">—</span>
+                              }
+                            </td>
+                          }
                         </tr>
                       }
                     </tbody>
@@ -88,8 +191,10 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 
         <div class="card bg-base-100 shadow-sm">
           <div class="card-body">
-            <h2 class="card-title text-base">Locks</h2>
-            <p class="text-xs text-base-content/60">
+            <h2 class="card-title text-base">
+              <svg lucideLock class="size-4 text-base-content/70"></svg>Locks
+            </h2>
+            <p class="text-sm text-base-content/70">
               Distributed locks held by singleton scheduled tasks. Expired locks are cleaned up
               lazily.
             </p>
@@ -104,24 +209,66 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
                         <th>Name</th>
                         <th>Expires</th>
                         <th class="text-right">Lease</th>
+                        @if (canManage()) {
+                          <th><span class="sr-only">Actions</span></th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
                       @for (lock of locks; track lock.id) {
-                        <tr [class.opacity-60]="lock.isExpired">
-                          <td class="font-mono break-all">{{ lock.name }}</td>
-                          <td
-                            class="whitespace-nowrap"
-                            [title]="(lock.expirationDate | date: 'medium') ?? ''"
-                          >
-                            {{ lock.expirationDate | relativeTime }}
-                            @if (lock.isExpired) {
-                              <span class="badge badge-ghost badge-sm ml-1">expired</span>
-                            }
+                        <tr class="hover:bg-base-200/60">
+                          <td class="py-2.5">
+                            <div class="flex items-center gap-3">
+                              <span
+                                class="grid size-8 shrink-0 place-items-center rounded-field"
+                                [class]="
+                                  lock.isExpired
+                                    ? 'bg-base-content/8 text-base-content/55'
+                                    : 'bg-warning/15 text-warning'
+                                "
+                              >
+                                @if (lock.isExpired) {
+                                  <svg lucideLockOpen class="size-4"></svg>
+                                } @else {
+                                  <svg lucideLock class="size-4"></svg>
+                                }
+                              </span>
+                              <span class="font-mono break-all" [class.text-base-content/70]="lock.isExpired">{{
+                                lock.name
+                              }}</span>
+                            </div>
                           </td>
-                          <td class="text-right font-mono whitespace-nowrap">
+                          <td class="whitespace-nowrap" [title]="(lock.expirationDate | date: 'medium') ?? ''">
+                            <span class="inline-flex items-center gap-1.5">
+                              {{ lock.expirationDate | relativeTime }}
+                              @if (lock.isExpired) {
+                                <span class="badge badge-ghost badge-sm">expired</span>
+                              }
+                            </span>
+                            <span class="block text-xs text-base-content/70">{{
+                              lock.expirationDate | date: 'MMM d, HH:mm:ss'
+                            }}</span>
+                          </td>
+                          <td class="whitespace-nowrap text-right tabular-nums">
                             {{ lock.durationSeconds }} s
                           </td>
+                          @if (canManage()) {
+                            <td class="text-right">
+                              <button
+                                type="button"
+                                class="btn btn-soft btn-error btn-xs gap-1"
+                                [disabled]="releasing() === lock.id"
+                                (click)="askRelease(lock)"
+                              >
+                                @if (releasing() === lock.id) {
+                                  <span class="loading loading-spinner loading-xs" aria-hidden="true"></span>
+                                } @else {
+                                  <svg lucideLockOpen class="size-3.5"></svg>
+                                }
+                                Release
+                              </button>
+                            </td>
+                          }
                         </tr>
                       }
                     </tbody>
@@ -138,16 +285,45 @@ import { RelativeTimePipe } from '../../shared/relative-time.pipe';
         </div>
       </div>
     </section>
+
+    <app-confirm-dialog
+      #releaseDialog
+      title="Release lock?"
+      [message]="releaseMessage()"
+      confirmLabel="Release"
+      (confirmed)="release()"
+    />
   `,
 })
 export class ServersPageComponent {
   private readonly api = inject(WorkersApiService);
   private readonly live = inject(LiveRefreshService);
+  private readonly toasts = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly canManage = inject(PermissionsStore).canManage;
+  private readonly releaseDialog = viewChild.required<ConfirmDialogComponent>('releaseDialog');
+
+  /** The lock the confirm dialog is about. */
+  private readonly pending = signal<LockInfo | null>(null);
+  /** Id of the lock being released, for the button spinner. */
+  protected readonly releasing = signal<string | null>(null);
+  protected readonly releaseMessage = computed(() => {
+    const lock = this.pending();
+    return lock
+      ? `Force-release "${lock.name}". If its task is still running, it is cancelled at its next lease renewal, and another worker may take the lock right away. Only do this for a lock left behind by a worker that died.`
+      : '';
+  });
 
   /** `null` until the first response, so the template can show skeletons instead of "empty". */
   protected readonly servers = signal<WorkerServerInfo[] | null>(null);
   protected readonly locks = signal<LockInfo[] | null>(null);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly STATUS_BADGE = STATUS_BADGE;
+  protected readonly rate = formatRate;
+
+  /** Message counts come from the workers' own metrics, so the column appears only when some worker reports them. */
+  protected readonly showActivity = computed(() => (this.servers() ?? []).some((s) => s.processed != null));
 
   protected readonly subtitle = computed(() => {
     const servers = this.servers();
@@ -156,8 +332,53 @@ export class ServersPageComponent {
       return null;
     }
     const active = locks.filter((l) => !l.isExpired).length;
-    return `${plural(servers.length, 'server')} · ${plural(active, 'active lock')}`;
+    const alive = servers.filter((s) => s.status === 'Alive').length;
+    const head =
+      alive > 0 || servers.every((s) => s.status !== 'Unknown')
+        ? `${plural(alive, 'live server')}`
+        : plural(servers.length, 'server');
+    return `${head} · ${plural(active, 'active lock')}`;
   });
+
+  /** The worker's own message counts in a sentence, for the tooltip. */
+  protected activityTitle(server: WorkerServerInfo): string {
+    if (server.processed == null) {
+      return 'This worker does not report metrics.';
+    }
+    const parts = [
+      server.processedPerMinute != null
+        ? `${formatRate(server.processedPerMinute)} processed in the last minute`
+        : 'No recent rate, the worker is not live',
+    ];
+    if (server.processing) {
+      parts.push(`${plural(server.processing, 'message')} in progress`);
+    }
+    parts.push(`${server.processed} processed and ${server.failed ?? 0} failed since it started`);
+    return `${parts.join('; ')}. Run-now messages are not counted.`;
+  }
+
+  /** Process, application and version — whatever the worker reported. */
+  protected describe(server: WorkerServerInfo): string | null {
+    const parts = [
+      server.processId != null ? `pid ${server.processId}` : null,
+      server.applicationName,
+      server.version ? `v${server.version}` : null,
+    ].filter((part): part is string => !!part);
+    return parts.length ? parts.join(' · ') : null;
+  }
+
+  protected statusTitle(server: WorkerServerInfo): string {
+    switch (server.status) {
+      case 'Alive':
+        return server.heartbeatInterval
+          ? `Sends a heartbeat every ${server.heartbeatInterval} s.`
+          : 'Sends a heartbeat.';
+      case 'Stale':
+        return 'Missed its last heartbeats: it is stopping, hung or gone. Its row is removed after the server timeout.';
+      default:
+        return "Not registered (e.g. an older worker) — seen only from the scheduled tasks it ran.";
+    }
+  }
 
   constructor() {
     // One poll for both cards. Each request fails on its own, so one card keeps its last good data
@@ -188,6 +409,39 @@ export class ServersPageComponent {
       });
   }
 
+  protected askRelease(lock: LockInfo): void {
+    this.pending.set(lock);
+    this.releaseDialog().open();
+  }
+
+  protected release(): void {
+    const lock = this.pending();
+    if (!lock) {
+      return;
+    }
+    this.releasing.set(lock.id);
+    this.api
+      .releaseLock(lock.id)
+      .pipe(
+        finalize(() => this.releasing.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.toasts.show('success', `Lock ${lock.name} released.`);
+          this.live.refreshNow();
+        },
+        error: (e: unknown) => {
+          if (e instanceof HttpErrorResponse && e.status === 404) {
+            this.toasts.show('success', `Lock ${lock.name} was already released.`);
+            this.live.refreshNow();
+          } else {
+            this.toasts.show('error', describeError(e));
+          }
+        },
+      });
+  }
+
   /** Turns an error into a value, so `forkJoin` still emits the call that succeeded. */
   private orFailure<T>(source: Observable<T>): Observable<{ value: T } | { failure: string }> {
     return source.pipe(
@@ -196,6 +450,12 @@ export class ServersPageComponent {
     );
   }
 }
+
+const STATUS_BADGE: Record<WorkerServerStatus, string> = {
+  Alive: 'badge-success',
+  Stale: 'badge-warning',
+  Unknown: 'badge-ghost',
+};
 
 function plural(count: number, noun: string): string {
   return `${count} ${noun}${count === 1 ? '' : 's'}`;

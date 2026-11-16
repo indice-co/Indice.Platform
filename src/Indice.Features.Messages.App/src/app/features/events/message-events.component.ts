@@ -47,6 +47,17 @@ const EVENT_TYPES: Record<string, { label: string; badge: string }> = {
         }
       </div>
 
+      <div class="join" role="group" [attr.aria-label]="'Events.Success' | translate">
+        @for (option of outcomes; track option.value) {
+          <button type="button" class="join-item btn btn-sm" [class.btn-active]="success() === option.value" [attr.aria-pressed]="success() === option.value"
+            (click)="setSuccess(option.value)">
+            @if (option.value === 'true') { <svg lucideCircleCheck class="size-4 text-success"></svg> }
+            @if (option.value === 'false') { <svg lucideCircleX class="size-4 text-error"></svg> }
+            {{ option.label | translate }}
+          </button>
+        }
+      </div>
+
       <div class="join">
         <label class="input input-sm join-item">
           <span class="label">{{ 'Events.From' | translate }}</span>
@@ -161,6 +172,11 @@ export class MessageEventsComponent implements OnInit {
   private readonly _api = inject(MessagesApiClient);
 
   protected readonly channelKinds = CHANNEL_KINDS;
+  protected readonly outcomes = [
+    { value: '', label: 'Events.AllOutcomes' },
+    { value: 'true', label: 'Events.Succeeded' },
+    { value: 'false', label: 'Events.Failed' }
+  ];
   protected readonly list = new ListState<MessageEvent>({
     pageSize: 20,
     sort: 'createdOn',
@@ -170,6 +186,7 @@ export class MessageEventsComponent implements OnInit {
       const channels = query.filters.filter(f => f.member === 'channel').map(f => f.value as MessageChannelKind);
       const from = value('from');
       const to = value('to');
+      const success = value('success');
       return this._api.getEventsList(
         query.page,
         query.pageSize,
@@ -180,7 +197,8 @@ export class MessageEventsComponent implements OnInit {
         from ? new Date(`${from}T00:00:00`) : undefined,
         to ? new Date(`${to}T23:59:59.999`) : undefined,
         channels.length ? channels : undefined,
-        query.search || undefined // recipient
+        query.search || undefined, // recipient
+        success ? success === 'true' : undefined
       );
     }
   });
@@ -188,6 +206,7 @@ export class MessageEventsComponent implements OnInit {
   protected readonly channels = computed(() => this.list.filters().filter(f => f.member === 'channel').map(f => f.value as string));
   protected readonly from = computed(() => this.list.filters().find(f => f.member === 'from')?.value ?? '');
   protected readonly to = computed(() => this.list.filters().find(f => f.member === 'to')?.value ?? '');
+  protected readonly success = computed(() => `${this.list.filters().find(f => f.member === 'success')?.value ?? ''}`);
 
   public ngOnInit(): void {
     this.list.start();
@@ -203,6 +222,11 @@ export class MessageEventsComponent implements OnInit {
     this.list.setFilters(exists
       ? filters.filter(f => !(f.member === 'channel' && f.value === kind))
       : [...filters, new FilterClause('channel', kind)]);
+  }
+
+  protected setSuccess(value: string): void {
+    const filters = this.list.filters().filter(f => f.member !== 'success');
+    this.list.setFilters(value ? [...filters, new FilterClause('success', value)] : filters);
   }
 
   protected setDate(member: 'from' | 'to', value: string): void {

@@ -5,12 +5,12 @@ namespace Indice.Hosting.UI;
 /// <summary>Options for the workers dashboard single page application.</summary>
 public class WorkerUIOptions : SpaUIOptions
 {
-    private const string DefaultTheme = "indice";
+    private const string DefaultTheme = "workers";
 
     /// <summary>The html application language.</summary>
     public string? Lang { get; set; }
 
-    /// <summary>The daisyUI theme name. Defaults to <b>indice</b>.</summary>
+    /// <summary>The daisyUI theme name. Defaults to <b>workers</b>, which follows the user's light/dark choice; any other theme is applied as-is.</summary>
     public string? Theme { get; set; }
 
     /// <summary>Creates a new instance of <see cref="WorkerUIOptions"/>.</summary>

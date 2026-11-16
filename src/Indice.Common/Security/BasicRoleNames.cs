@@ -27,7 +27,9 @@ public static class BasicRoleNames
     public const string CasesUser = nameof(CasesUser);
     /// <summary>Administrator of the Agents feature.</summary>
     public const string AgentsAdmin = nameof(AgentsAdmin);
-    /// <summary>Administrator of the Workers feature.</summary>
+    /// <summary>Administrator of the Workers feature. Can view and operate queues, scheduled tasks and locks.</summary>
     public const string WorkersAdmin = nameof(WorkersAdmin);
+    /// <summary>A user that can view the queues, scheduled tasks and locks of the Workers feature.</summary>
+    public const string WorkersReader = nameof(WorkersReader);
 
 }

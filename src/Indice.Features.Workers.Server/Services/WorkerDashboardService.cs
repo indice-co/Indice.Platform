@@ -1,10 +1,16 @@
+using System.Data;
+using System.Data.Common;
+using System.Text.Json;
 using Indice.Features.Workers.Server.Services;
 using Indice.Features.Workers.Server.Models;
 using Indice.Hosting;
 using Indice.Hosting.Data;
+using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Workers.Server.Services;
 
@@ -12,47 +18,94 @@ namespace Indice.Features.Workers.Server.Services;
 /// Reads the worker tables through <see cref="ITaskDbContext"/> and <see cref="ILockDbContext"/>.
 /// The dashboard runs in a host without <c>AddWorkerHost()</c>, so everything it shows comes from the database.
 /// </summary>
+/// <remarks>
+/// The workers use the same tables in real time, so they come first: the aggregations and lists of the queue table run in <see cref="IsolationLevel.ReadUncommitted"/>.
+/// They take no shared locks and never block a dequeue, at the cost of counters that may include messages of uncommitted transactions.
+/// <para>
+/// The workers register themselves in the server table (<see cref="ITaskDbContext.Servers"/>) with the queues they consume and the scheduled tasks they host.
+/// That is where the settings of the queues, the cron expressions and the tasks that have never run come from.
+/// When the table is not available (e.g. the database was not migrated), the dashboard shows what it can read from the other tables.
+/// </para>
+/// </remarks>
 public class WorkerDashboardService : IWorkerDashboardService
 {
     private const int PayloadPreviewLength = 200;
     private const int MaxPageSize = 500;
+    /// <summary>A registered server is alive until it misses this many heartbeats.</summary>
+    private const int MissedHeartbeats = 3;
+    private static int _serverTableWarningLogged;
     private readonly ITaskDbContext _taskDb;
     private readonly ILockDbContext _lockDb;
+    private readonly ILogger<WorkerDashboardService>? _logger;
 
     /// <summary>Creates a new instance of <see cref="WorkerDashboardService"/>.</summary>
-    public WorkerDashboardService(ITaskDbContext taskDb, ILockDbContext lockDb) {
+    public WorkerDashboardService(ITaskDbContext taskDb, ILockDbContext lockDb, ILogger<WorkerDashboardService>? logger = null) {
         _taskDb = taskDb ?? throw new ArgumentNullException(nameof(taskDb));
         _lockDb = lockDb ?? throw new ArgumentNullException(nameof(lockDb));
+        _logger = logger;
     }
 
     /// <inheritdoc />
     public async Task<DashboardStats> GetStats(CancellationToken cancellationToken = default) {
-        var queues = await GetQueues(cancellationToken);
-        var tasks = await GetScheduledTasks(cancellationToken);
-        var locks = await GetLocks(cancellationToken);
-        var servers = await GetServers(cancellationToken);
+        var now = DateTime.UtcNow;
+        var servers = await GetRegisteredServers(now, cancellationToken);
+        var queues = await QueryQueues(null, servers, cancellationToken);
+        var rows = await GetScheduledTaskRows(cancellationToken);
+        var activeLocks = await _lockDb.Locks.AsNoTracking().CountAsync(x => x.ExpirationDate >= now, cancellationToken);
+        var taskInfos = ToScheduledTaskInfos(rows, servers);
+        var reporting = servers?.Where(x => x.ReportsMetrics).ToList() ?? [];
+        var activity = reporting.Count > 0
+            ? QueueActivity.From(reporting.SelectMany(server => server.Metrics!.Queues.Select(queue => (queue, server.Metrics.Window))))
+            : null;
         return new DashboardStats {
-            ServerTimeUtc = DateTime.UtcNow,
+            ServerTimeUtc = now,
             Queues = queues.Count,
             Enqueued = queues.Sum(x => x.Enqueued),
             Scheduled = queues.Sum(x => x.Scheduled),
             Retrying = queues.Sum(x => x.Retrying),
             Poison = queues.Sum(x => x.Poison),
             Dequeued = queues.Sum(x => x.Dequeued),
-            ScheduledTasks = tasks.Count,
-            RunningTasks = tasks.Count(x => x.Status == ScheduledTaskState.Running),
-            FailingTasks = tasks.Count(x => x.LastRunFailed),
-            DisabledTasks = tasks.Count(x => !x.Enabled),
-            ActiveLocks = locks.Count(x => !x.IsExpired),
-            Servers = servers.Count
+            ScheduledTasks = taskInfos.Count,
+            RunningTasks = taskInfos.Count(x => x.Status == ScheduledTaskState.Running),
+            FailingTasks = taskInfos.Count(x => x.LastRunFailed),
+            DisabledTasks = taskInfos.Count(x => !x.Enabled),
+            ActiveLocks = activeLocks,
+            // Before any worker registers (e.g. while older workers are still deployed), count the workers seen running tasks.
+            Servers = servers is { Count: > 0 }
+                ? servers.Count(x => x.IsAlive)
+                : taskInfos.Where(x => x.WorkerId is not null).Select(x => x.WorkerId).Distinct(StringComparer.Ordinal).Count(),
+            Processing = activity?.Processing,
+            ProcessedPerMinute = activity?.ProcessedPerMinute,
+            FailedPerMinute = activity?.FailedPerMinute
         };
     }
 
     /// <inheritdoc />
     public async Task<List<QueueInfo>> GetQueues(CancellationToken cancellationToken = default) {
+        var servers = await GetRegisteredServers(DateTime.UtcNow, cancellationToken);
+        return await QueryQueues(null, servers, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<QueueInfo> GetQueue(string queueName, CancellationToken cancellationToken = default) {
+        ArgumentNullException.ThrowIfNull(queueName);
+        var servers = await GetRegisteredServers(DateTime.UtcNow, cancellationToken);
+        var queues = await QueryQueues(queueName, servers, cancellationToken);
+        return queues.First();
+    }
+
+    private async Task<List<QueueInfo>> QueryQueues(string? queueName, List<RegisteredServer>? servers, CancellationToken cancellationToken) {
         var now = DateTime.UtcNow;
-        var rows = await _taskDb.Queue
-            .AsNoTracking()
+        var query = _taskDb.Queue.AsNoTracking();
+        if (queueName is null) {
+            query = query.Where(x => !x.QueueName.StartsWith(HostingConventions.RunNowQueuePrefix));
+        } else {
+            // Two index seeks instead of a scan of every queue.
+            var poisonQueueName = queueName + HostingConventions.PoisonSuffix;
+            query = query.Where(x => x.QueueName == queueName || x.QueueName == poisonQueueName);
+        }
+        // Covered by the (QueueName, Date) INCLUDE (State, DequeueCount) index, so the payloads are never read.
+        var rows = await ReadUncommitted(_taskDb.Database, () => query
             .GroupBy(x => x.QueueName)
             .Select(g => new {
                 QueueName = g.Key,
@@ -64,7 +117,7 @@ public class WorkerDashboardService : IWorkerDashboardService
                 Enqueued = g.Sum(x => x.State == QMessageState.New && x.Date <= now && x.DequeueCount == 0 ? 1 : 0),
                 OldestEnqueuedAt = g.Min(x => x.State == QMessageState.New && x.Date <= now ? (DateTime?)x.Date : null)
             })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(cancellationToken), cancellationToken);
         var queues = new Dictionary<string, QueueInfo>(StringComparer.Ordinal);
         foreach (var row in rows) {
             var name = QueueMessageStatusRules.GetLogicalQueueName(row.QueueName);
@@ -84,7 +137,78 @@ public class WorkerDashboardService : IWorkerDashboardService
             queue.Enqueued += row.Enqueued;
             queue.OldestEnqueuedAt = AsUtc(row.OldestEnqueuedAt);
         }
+        if (queueName is not null && queues.Count == 0) {
+            // A queue without messages has no rows at all, which reads as zero everywhere.
+            queues[queueName] = new QueueInfo { Name = queueName };
+        }
+        if (servers is not null) {
+            ApplyQueueDeclarations(queues, servers, queueName);
+            ApplyQueueMetrics(queues, servers);
+        }
         return [.. queues.Values.OrderBy(x => x.Name, StringComparer.Ordinal)];
+    }
+
+    /// <summary>Adds the settings of the queues from the workers that consume them, and the queues that are consumed but have no messages.</summary>
+    private static void ApplyQueueDeclarations(Dictionary<string, QueueInfo> queues, List<RegisteredServer> servers, string? queueName) {
+        var declarations = servers
+            .SelectMany(server => server.Queues.Select(queue => (Server: server, Queue: queue)))
+            .Where(x => queueName is null
+                ? !x.Queue.Name.StartsWith(HostingConventions.RunNowQueuePrefix, StringComparison.Ordinal)
+                : queues.ContainsKey(x.Queue.Name))
+            .GroupBy(x => x.Queue.Name, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.ToList(), StringComparer.Ordinal);
+        foreach (var name in declarations.Keys.Where(name => !queues.ContainsKey(name))) {
+            queues[name] = new QueueInfo { Name = name };
+        }
+        foreach (var queue in queues.Values) {
+            queue.Consumers = 0;
+            if (!declarations.TryGetValue(queue.Name, out var items)) {
+                continue;
+            }
+            var live = items.Where(x => x.Server.IsAlive).Select(x => x.Queue).ToList();
+            // The settings of the newest deployment, preferably of a live worker.
+            var settings = items
+                .Where(x => live.Count == 0 || x.Server.IsAlive)
+                .OrderByDescending(x => x.Server.Row.StartedAt)
+                .ThenByDescending(x => x.Server.Row.LastHeartbeat)
+                .First()
+                .Queue;
+            queue.IsRegistered = live.Count > 0;
+            queue.Consumers = live.Count;
+            queue.HasConfigurationMismatch = live
+                .DistinctBy(x => (x.WorkItemType, x.HandlerType, x.PollingInterval, x.MaxPollingInterval, x.InstanceCount, x.MaxRetryCount, x.CleanupInterval, x.CleanupBatchSize))
+                .Skip(1)
+                .Any();
+            queue.WorkItemType = settings.WorkItemType;
+            queue.HandlerType = settings.HandlerType;
+            queue.PollingInterval = settings.PollingInterval;
+            queue.MaxRetryCount = settings.MaxRetryCount;
+            queue.InstanceCount = live.Sum(x => x.InstanceCount);
+        }
+    }
+
+    /// <summary>Adds the activity of the queues, as measured by the live workers that report metrics.</summary>
+    private static void ApplyQueueMetrics(Dictionary<string, QueueInfo> queues, List<RegisteredServer> servers) {
+        var reporting = servers.Where(x => x.ReportsMetrics).ToList();
+        if (reporting.Count == 0) {
+            return;
+        }
+        foreach (var queue in queues.Values) {
+            var items = reporting
+                .Select(server => (Queue: server.GetQueueMetrics(queue.Name), server.Metrics!.Window))
+                .Where(x => x.Queue is not null)
+                .Select(x => (x.Queue!, x.Window))
+                .ToList();
+            if (items.Count == 0) {
+                continue;
+            }
+            var activity = QueueActivity.From(items);
+            queue.Processing = activity.Processing;
+            queue.ProcessedPerMinute = activity.ProcessedPerMinute;
+            queue.FailedPerMinute = activity.FailedPerMinute;
+            queue.AverageDuration = activity.AverageDuration;
+            queue.AverageWait = activity.AverageWait;
+        }
     }
 
     /// <inheritdoc />
@@ -104,7 +228,7 @@ public class WorkerDashboardService : IWorkerDashboardService
                 : query.Where(x => x.Payload.Contains(search));
         }
         // options.Sort is ignored: messages are always listed in the order they become visible.
-        var page = await query
+        var page = await ReadUncommitted(_taskDb.Database, () => query
             .OrderBy(x => x.Date)
             .ThenBy(x => x.Id)
             .Select(x => new {
@@ -115,7 +239,7 @@ public class WorkerDashboardService : IWorkerDashboardService
                 x.DequeueCount,
                 PayloadPreview = x.Payload.Length > PayloadPreviewLength ? x.Payload.Substring(0, PayloadPreviewLength) : x.Payload
             })
-            .ToResultSetAsync(Math.Max(options.Page ?? 1, 1), Math.Clamp(options.Size ?? ListOptions.DEFAULT_SIZE, 0, MaxPageSize), cancellationToken);
+            .ToResultSetAsync(Math.Max(options.Page ?? 1, 1), Math.Clamp(options.Size ?? ListOptions.DEFAULT_SIZE, 0, MaxPageSize), cancellationToken), cancellationToken);
         var items = page.Items.Select(x => new QueueMessageListItem {
             Id = x.Id,
             QueueName = x.QueueName,
@@ -129,22 +253,20 @@ public class WorkerDashboardService : IWorkerDashboardService
 
     /// <inheritdoc />
     public async Task<QueueMessageDetails?> GetMessage(Guid messageId, CancellationToken cancellationToken = default) {
-        var now = DateTime.UtcNow;
         var message = await _taskDb.Queue.AsNoTracking().SingleOrDefaultAsync(x => x.Id == messageId, cancellationToken);
-        if (message is null) {
-            return null;
-        }
-        return new QueueMessageDetails {
-            Id = message.Id,
-            QueueName = message.QueueName,
-            LogicalQueueName = QueueMessageStatusRules.GetLogicalQueueName(message.QueueName),
-            Status = QueueMessageStatusRules.Classify(message.QueueName, message.State, message.Date, message.DequeueCount, now),
-            Date = DateTime.SpecifyKind(message.Date, DateTimeKind.Utc),
-            DequeueCount = message.DequeueCount,
-            PayloadPreview = message.Payload?.Length > PayloadPreviewLength ? message.Payload[..PayloadPreviewLength] : message.Payload,
-            Payload = message.Payload
-        };
+        return message is null ? null : ToDetails(message, DateTime.UtcNow);
     }
+
+    private static QueueMessageDetails ToDetails(DbQMessage message, DateTime now) => new() {
+        Id = message.Id,
+        QueueName = message.QueueName,
+        LogicalQueueName = QueueMessageStatusRules.GetLogicalQueueName(message.QueueName),
+        Status = QueueMessageStatusRules.Classify(message.QueueName, message.State, message.Date, message.DequeueCount, now),
+        Date = DateTime.SpecifyKind(message.Date, DateTimeKind.Utc),
+        DequeueCount = message.DequeueCount,
+        PayloadPreview = message.Payload?.Length > PayloadPreviewLength ? message.Payload[..PayloadPreviewLength] : message.Payload,
+        Payload = message.Payload
+    };
 
     /// <inheritdoc />
     public async Task<int> RequeueMessages(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default) {
@@ -179,9 +301,109 @@ public class WorkerDashboardService : IWorkerDashboardService
     }
 
     /// <inheritdoc />
+    public async Task<QueueMessageDetails> EnqueueMessage(string queueName, string payload, DateTime? visibleAt, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(payload);
+        var now = DateTime.UtcNow;
+        // A date without an offset is taken as UTC, like every date of the API.
+        var visibleAtUtc = visibleAt is { Kind: DateTimeKind.Unspecified } ? DateTime.SpecifyKind(visibleAt.Value, DateTimeKind.Utc) : visibleAt?.ToUniversalTime();
+        var message = new DbQMessage {
+            Id = Guid.NewGuid(),
+            QueueName = queueName,
+            Payload = payload,
+            Date = visibleAtUtc > now ? visibleAtUtc.Value : now,
+            DequeueCount = 0,
+            State = QMessageState.New
+        };
+        _taskDb.Add(message);
+        await _taskDb.SaveChangesAsync(cancellationToken);
+        return ToDetails(message, now);
+    }
+
+    /// <inheritdoc />
+    public async Task<QueueMessageDetails?> UpdateMessage(Guid messageId, string payload, CancellationToken cancellationToken = default) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(payload);
+        var message = await _taskDb.Queue.AsNoTracking().SingleOrDefaultAsync(x => x.Id == messageId, cancellationToken);
+        if (message is null) {
+            return null;
+        }
+        var now = DateTime.UtcNow;
+        var queueName = message.QueueName.EndsWith(HostingConventions.PoisonSuffix)
+            ? message.QueueName[..^HostingConventions.PoisonSuffix.Length]
+            : message.QueueName;
+        // A message that a worker has dequeued is gone (deleted), so this cannot overwrite a message in progress.
+        var affected = await _taskDb.Queue
+            .Where(x => x.Id == messageId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(x => x.Payload, payload)
+                .SetProperty(x => x.QueueName, x =>
+                    x.QueueName.EndsWith(HostingConventions.PoisonSuffix)
+                        ? x.QueueName.Substring(0, x.QueueName.Length - HostingConventions.PoisonSuffix.Length)
+                        : x.QueueName
+                )
+                .SetProperty(x => x.State, QMessageState.New)
+                .SetProperty(x => x.DequeueCount, 0)
+                .SetProperty(x => x.Date, now), cancellationToken);
+        if (affected == 0) {
+            return null;
+        }
+        message.QueueName = queueName;
+        message.Payload = payload;
+        message.Date = now;
+        message.State = QMessageState.New;
+        message.DequeueCount = 0;
+        return ToDetails(message, now);
+    }
+
+    /// <inheritdoc />
     public async Task<List<ScheduledTaskInfo>> GetScheduledTasks(CancellationToken cancellationToken = default) {
+        var servers = await GetRegisteredServers(DateTime.UtcNow, cancellationToken);
+        var rows = await GetScheduledTaskRows(cancellationToken);
+        // A range seek on the (QueueName, Date) index: the run now queues share a prefix.
+        var runRequests = await _taskDb.Queue
+            .AsNoTracking()
+            .Where(x => x.QueueName.StartsWith(HostingConventions.RunNowQueuePrefix))
+            .Select(x => new { x.QueueName, x.Date, x.Payload })
+            .ToListAsync(cancellationToken);
+        var requestedAtByQueue = runRequests
+            .GroupBy(x => x.QueueName, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => {
+                    var request = group.MinBy(x => x.Date)!;
+                    return GetRunRequestedAt(request.Payload, request.Date);
+                },
+                StringComparer.Ordinal
+            );
+        return [
+            .. ToScheduledTaskInfos(rows, servers)
+                .Select(info => {
+                    info.RunRequestedAt = requestedAtByQueue.TryGetValue(HostingConventions.GetRunNowQueueName(info.Id), out var requestedAt) ? AsUtc(requestedAt) : null;
+                    return info;
+                })
+                .OrderBy(x => x.Group, StringComparer.Ordinal)
+                .ThenBy(x => x.Name, StringComparer.Ordinal)
+        ];
+    }
+
+    /// <summary>The tasks that have run, and the tasks the registered workers host but that have never run.</summary>
+    private static List<ScheduledTaskInfo> ToScheduledTaskInfos(List<ScheduledTaskRow> rows, List<RegisteredServer>? servers) {
+        var declarations = GetTaskDeclarations(servers);
+        var infos = new List<ScheduledTaskInfo>(rows.Count + declarations.Count);
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var row in rows) {
+            ids.Add(row.Id);
+            infos.Add(ApplyTaskDeclaration(ToInfo(row, new ScheduledTaskInfo()), declarations));
+        }
+        foreach (var declaration in declarations.Values.Where(declaration => !ids.Contains(declaration.Task.Id))) {
+            infos.Add(FromDeclaration(declaration, new ScheduledTaskInfo()));
+        }
+        return infos;
+    }
+
+    private Task<List<ScheduledTaskRow>> GetScheduledTaskRows(CancellationToken cancellationToken) =>
         // Payload and Errors can be large, so the list leaves them out.
-        var rows = await _taskDb.Tasks
+        _taskDb.Tasks
             .AsNoTracking()
             .Select(x => new ScheduledTaskRow {
                 Id = x.Id,
@@ -199,43 +421,75 @@ public class WorkerDashboardService : IWorkerDashboardService
                 Enabled = x.Enabled
             })
             .ToListAsync(cancellationToken);
-        return [
-            .. rows.Select(row => ToInfo(row, new ScheduledTaskInfo()))
-                .OrderBy(x => x.Group, StringComparer.Ordinal)
-                .ThenBy(x => x.Name, StringComparer.Ordinal)
-        ];
-    }
 
     /// <inheritdoc />
     public async Task<ScheduledTaskDetails?> GetScheduledTask(string taskId, CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(taskId);
-        
+        var servers = await GetRegisteredServers(DateTime.UtcNow, cancellationToken);
+        var declarations = GetTaskDeclarations(servers);
         var task = await _taskDb.Tasks.AsNoTracking().SingleOrDefaultAsync(x => x.Id == taskId, cancellationToken);
+        ScheduledTaskDetails details;
         if (task is null) {
-            return null;
+            // Hosted by a worker, but it has never run.
+            if (!declarations.TryGetValue(taskId, out var declaration)) {
+                return null;
+            }
+            details = FromDeclaration(declaration, new ScheduledTaskDetails());
+        } else {
+            var row = new ScheduledTaskRow {
+                Id = task.Id,
+                WorkerId = task.WorkerId,
+                Group = task.Group,
+                Description = task.Description,
+                Type = task.Type,
+                LastExecution = task.LastExecution,
+                NextExecution = task.NextExecution,
+                ExecutionCount = task.ExecutionCount,
+                Status = task.Status,
+                LastErrorDate = task.LastErrorDate,
+                HasErrors = task.Errors != null,
+                Progress = task.Progress,
+                Enabled = task.Enabled
+            };
+            details = ApplyTaskDeclaration(ToInfo(row, new ScheduledTaskDetails()), declarations);
+            details.Errors = task.Errors;
+            details.State = task.Payload;
         }
-        
-        var row = new ScheduledTaskRow {
-            Id = task.Id,
-            WorkerId = task.WorkerId,
-            Group = task.Group,
-            Description = task.Description,
-            Type = task.Type,
-            LastExecution = task.LastExecution,
-            NextExecution = task.NextExecution,
-            ExecutionCount = task.ExecutionCount,
-            Status = task.Status,
-            LastErrorDate = task.LastErrorDate,
-            HasErrors = task.Errors != null,
-            Progress = task.Progress,
-            Enabled = task.Enabled
-        };
-        
-        var details = ToInfo(row, new ScheduledTaskDetails());
-        details.Errors = task.Errors;
-        details.State = task.Payload;
-        
+        var runNowQueueName = HostingConventions.GetRunNowQueueName(taskId);
+        var runRequest = await _taskDb.Queue
+            .AsNoTracking()
+            .Where(x => x.QueueName == runNowQueueName)
+            .OrderBy(x => x.Date)
+            .Select(x => new { x.Date, x.Payload })
+            .FirstOrDefaultAsync(cancellationToken);
+        details.RunRequestedAt = runRequest is null ? null : AsUtc(GetRunRequestedAt(runRequest.Payload, runRequest.Date));
+        ApplyTaskMetrics(details, servers);
+
         return details;
+    }
+
+    /// <summary>Adds the run times of the task, as measured by the live workers that report metrics.</summary>
+    internal static void ApplyTaskMetrics(ScheduledTaskDetails details, List<RegisteredServer>? servers) {
+        var runs = servers?
+            .Where(x => x.ReportsMetrics)
+            .Select(server => (Server: server, Task: server.Metrics!.Tasks.FirstOrDefault(x => x.Id == details.Id)))
+            .Where(x => x.Task?.AverageDuration is not null)
+            .ToList();
+        if (runs is not { Count: > 0 }) {
+            return;
+        }
+        details.AverageDuration = Math.Round(
+            runs.Sum(x => x.Task!.AverageDuration!.Value * (x.Task.Succeeded + x.Task.Failed)) / runs.Sum(x => x.Task!.Succeeded + x.Task.Failed),
+            1
+        );
+        // Older workers do not report completion time; retain the machine/startup fallback for those snapshots.
+        var hasCompletionTimes = runs.All(x => x.Task!.LastCompletedAt is not null);
+        details.LastDuration = runs
+            .OrderByDescending(x => hasCompletionTimes ? x.Task!.LastCompletedAt : null)
+            .ThenByDescending(x => x.Server.Row.MachineName == details.WorkerId)
+            .ThenByDescending(x => x.Server.Row.StartedAt)
+            .First()
+            .Task!.LastDuration;
     }
 
     /// <inheritdoc />
@@ -248,6 +502,73 @@ public class WorkerDashboardService : IWorkerDashboardService
                 s.SetProperty(x => x.Enabled, enabled), cancellationToken);
         
         return affected > 0;
+    }
+
+    /// <inheritdoc />
+    public async Task<RunScheduledTaskResult?> RunScheduledTask(string taskId, string? requestedBy = null, CancellationToken cancellationToken = default) {
+        ArgumentNullException.ThrowIfNull(taskId);
+        var queueName = HostingConventions.GetRunNowQueueName(taskId);
+        // A live worker that hosts the task can run it, even if it has never run. Read before the transaction, so it takes no range locks on the server table.
+        var isHosted = GetTaskDeclarations(await GetRegisteredServers(DateTime.UtcNow, cancellationToken)).TryGetValue(taskId, out var declaration) && declaration.IsRegistered;
+        try {
+            await using var transaction = await _taskDb.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+            if (!isHosted && !await _taskDb.Tasks.AnyAsync(x => x.Id == taskId, cancellationToken)) {
+                return null;
+            }
+            var pending = await _taskDb.Queue
+                .AsNoTracking()
+                .Where(x => x.QueueName == queueName)
+                .OrderBy(x => x.Date)
+                .Select(x => new { x.Id, x.Date, x.Payload })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (pending is not null) {
+                await transaction.CommitAsync(cancellationToken);
+                return new RunScheduledTaskResult { RequestId = pending.Id, RequestedAt = GetRunRequestedAt(pending.Payload, pending.Date) };
+            }
+            var now = DateTime.UtcNow;
+            var request = new DbQMessage {
+                Id = Guid.NewGuid(),
+                QueueName = queueName,
+                // The worker only needs the queue name; the payload is kept for troubleshooting.
+                Payload = JsonSerializer.Serialize(new { taskId, requestedBy, requestedAt = now }),
+                Date = now,
+                DequeueCount = 0,
+                State = QMessageState.New
+            };
+            _taskDb.Add(request);
+            await _taskDb.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return new RunScheduledTaskResult { RequestId = request.Id, RequestedAt = now };
+        } catch (Exception exception) when (
+            (exception is DbUpdateException or System.Data.Common.DbException) &&
+            !cancellationToken.IsCancellationRequested
+        ) {
+            // Serializable transactions can reject one concurrent insert (notably with PostgreSQL).
+            // If the other request committed, return it instead of surfacing a duplicate-run failure.
+            var pending = await _taskDb.Queue
+                .AsNoTracking()
+                .Where(x => x.QueueName == queueName)
+                .OrderBy(x => x.Date)
+                .Select(x => new { x.Id, x.Date, x.Payload })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (pending is null) {
+                throw;
+            }
+            return new RunScheduledTaskResult { RequestId = pending.Id, RequestedAt = GetRunRequestedAt(pending.Payload, pending.Date) };
+        }
+    }
+
+    private static DateTime GetRunRequestedAt(string payload, DateTime fallback) {
+        try {
+            using var document = JsonDocument.Parse(payload);
+            return document.RootElement.ValueKind == JsonValueKind.Object &&
+                document.RootElement.TryGetProperty("requestedAt", out var value) &&
+                value.TryGetDateTime(out var requestedAt)
+                ? DateTime.SpecifyKind(requestedAt, DateTimeKind.Utc)
+                : DateTime.SpecifyKind(fallback, DateTimeKind.Utc);
+        } catch (JsonException) {
+            return DateTime.SpecifyKind(fallback, DateTimeKind.Utc);
+        }
     }
 
     /// <inheritdoc />
@@ -267,20 +588,137 @@ public class WorkerDashboardService : IWorkerDashboardService
     }
 
     /// <inheritdoc />
+    public async Task<bool> ReleaseLock(Guid lockId, CancellationToken cancellationToken = default) =>
+        await _lockDb.Locks.Where(x => x.Id == lockId).ExecuteDeleteAsync(cancellationToken) > 0;
+
+    /// <inheritdoc />
     public async Task<List<WorkerServerInfo>> GetServers(CancellationToken cancellationToken = default) {
-        var servers = await _taskDb.Tasks
+        var servers = await GetRegisteredServers(DateTime.UtcNow, cancellationToken) ?? [];
+        // The tasks know the machine that ran them, not the process.
+        var machines = await _taskDb.Tasks
             .AsNoTracking()
             .Where(x => x.WorkerId != null)
             .GroupBy(x => x.WorkerId)
-            .Select(g => new WorkerServerInfo {
+            .Select(g => new {
                 WorkerId = g.Key!,
                 LastSeen = g.Max(x => (DateTimeOffset?)x.LastExecution),
                 Tasks = g.Count(),
                 RunningTasks = g.Sum(x => x.Status == ScheduledTaskStatus.Running ? 1 : 0)
             })
             .ToListAsync(cancellationToken);
-        
-        return [.. servers.OrderByDescending(x => x.LastSeen)];
+        var machinesByName = machines.ToDictionary(x => x.WorkerId, StringComparer.Ordinal);
+        var registeredMachines = new HashSet<string>(StringComparer.Ordinal);
+        var result = new List<WorkerServerInfo>(servers.Count + machines.Count);
+        foreach (var server in servers) {
+            registeredMachines.Add(server.Row.MachineName);
+            machinesByName.TryGetValue(server.Row.MachineName, out var machine);
+            var metrics = server.Metrics;
+            var activity = server.ReportsMetrics ? QueueActivity.From(metrics!.Queues.Select(queue => (queue, metrics.Window))) : null;
+            result.Add(new WorkerServerInfo {
+                WorkerId = server.Row.Id,
+                MachineName = server.Row.MachineName,
+                Status = server.IsAlive ? WorkerServerStatus.Alive : WorkerServerStatus.Stale,
+                ProcessId = server.Row.ProcessId,
+                ApplicationName = server.Row.ApplicationName,
+                Version = server.Row.Version,
+                StartedAt = AsUtcOffset(server.Row.StartedAt),
+                LastSeen = AsUtcOffset(server.Row.LastHeartbeat),
+                HeartbeatInterval = server.Row.HeartbeatInterval,
+                Queues = [.. server.Queues.Select(x => x.Name).Order(StringComparer.Ordinal)],
+                ScheduledTasks = [.. server.ScheduledTasks.Select(x => x.Id).Order(StringComparer.Ordinal)],
+                Tasks = machine?.Tasks ?? 0,
+                RunningTasks = machine?.RunningTasks ?? 0,
+                Processed = metrics?.Queues.Sum(x => x.Succeeded + x.Retried + x.Poisoned),
+                Failed = metrics?.Queues.Sum(x => x.Retried + x.Poisoned),
+                Processing = activity?.Processing,
+                ProcessedPerMinute = activity?.ProcessedPerMinute,
+                FailedPerMinute = activity?.FailedPerMinute
+            });
+        }
+        result.AddRange(machines
+            .Where(x => !registeredMachines.Contains(x.WorkerId))
+            .Select(x => new WorkerServerInfo {
+                WorkerId = x.WorkerId,
+                MachineName = x.WorkerId,
+                Status = WorkerServerStatus.Unknown,
+                LastSeen = x.LastSeen,
+                Tasks = x.Tasks,
+                RunningTasks = x.RunningTasks
+            }));
+        return [.. result.OrderBy(x => x.Status).ThenByDescending(x => x.LastSeen).ThenBy(x => x.WorkerId, StringComparer.Ordinal)];
+    }
+
+    /// <summary>Reads the server table. Returns <see langword="null"/> when the table is not available, e.g. the database was not migrated.</summary>
+    private async Task<List<RegisteredServer>?> GetRegisteredServers(DateTime now, CancellationToken cancellationToken) {
+        List<DbServer> rows;
+        try {
+            rows = await _taskDb.Servers.AsNoTracking().ToListAsync(cancellationToken);
+        } catch (Exception exception) when (
+            // A missing table, or a custom context whose model does not include the server entity.
+            (exception is DbException or InvalidOperationException) &&
+            !cancellationToken.IsCancellationRequested
+        ) {
+            LogServerTableWarningOnce(_logger, exception);
+            return null;
+        }
+        return [.. rows.Select(row => new RegisteredServer(row, IsAlive(row, now)))];
+    }
+
+    private static void LogServerTableWarningOnce(ILogger<WorkerDashboardService>? logger, Exception exception) {
+        if (Interlocked.Exchange(ref _serverTableWarningLogged, 1) == 0) {
+            logger?.LogWarning(exception, "The workers dashboard cannot read the server table, so it cannot show the live servers and the settings of the queues. Make sure the database has the [work].[Server] table.");
+        }
+    }
+
+    private static bool IsAlive(DbServer server, DateTime now) =>
+        server.LastHeartbeat >= now - TimeSpan.FromSeconds(Math.Max(server.HeartbeatInterval, 1) * MissedHeartbeats);
+
+    /// <summary>The scheduled tasks of the registered workers by id, with the declaration of the latest started worker, preferably a live one.</summary>
+    private static Dictionary<string, TaskDeclaration> GetTaskDeclarations(List<RegisteredServer>? servers) {
+        if (servers is null) {
+            return [];
+        }
+        return servers
+            .SelectMany(server => server.ScheduledTasks.Select(task => (Server: server, Task: task)))
+            .GroupBy(x => x.Task.Id, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => {
+                    var isHosted = group.Any(x => x.Server.IsAlive);
+                    var latest = group
+                        .Where(x => x.Server.IsAlive == isHosted)
+                        .OrderByDescending(x => x.Server.Row.StartedAt)
+                        .ThenByDescending(x => x.Server.Row.LastHeartbeat)
+                        .First();
+                    return new TaskDeclaration(latest.Task, isHosted);
+                },
+                StringComparer.Ordinal
+            );
+    }
+
+    private static TInfo ApplyTaskDeclaration<TInfo>(TInfo info, Dictionary<string, TaskDeclaration> declarations) where TInfo : ScheduledTaskInfo {
+        if (!declarations.TryGetValue(info.Id, out var declaration)) {
+            return info;
+        }
+        info.CronExpression = declaration.Task.CronExpression;
+        info.IsRegistered = declaration.IsRegistered;
+        if (info is ScheduledTaskDetails details) {
+            details.Singleton = declaration.Task.Singleton;
+        }
+        return info;
+    }
+
+    private static TInfo FromDeclaration<TInfo>(TaskDeclaration declaration, TInfo info) where TInfo : ScheduledTaskInfo {
+        var task = declaration.Task;
+        info.Id = task.Id;
+        info.Name = GetTaskName(task.Id, task.Group);
+        info.Group = task.Group;
+        info.Description = task.Description;
+        info.JobType = task.HandlerType;
+        info.Status = ScheduledTaskState.Idle;
+        info.Enabled = true;
+        info.HasRun = false;
+        return ApplyTaskDeclaration(info, new Dictionary<string, TaskDeclaration>(StringComparer.Ordinal) { [task.Id] = declaration });
     }
 
     private static TInfo ToInfo<TInfo>(ScheduledTaskRow row, TInfo info) where TInfo : ScheduledTaskInfo {
@@ -338,6 +776,22 @@ public class WorkerDashboardService : IWorkerDashboardService
 
     private static DateTime? AsUtc(DateTime? date) => date.HasValue ? DateTime.SpecifyKind(date.Value, DateTimeKind.Utc) : null;
 
+    private static DateTimeOffset AsUtcOffset(DateTime date) => new(DateTime.SpecifyKind(date, DateTimeKind.Utc));
+
+    /// <summary>Runs a read in <see cref="IsolationLevel.ReadUncommitted"/>, so that it takes no shared locks on the rows the workers dequeue.</summary>
+    internal static async Task<T> ReadUncommitted<T>(DatabaseFacade database, Func<Task<T>> query, CancellationToken cancellationToken) {
+        if (!database.IsRelational() || database.CurrentTransaction is not null) {
+            return await query();
+        }
+        // A retrying execution strategy only allows a user initiated transaction inside the strategy.
+        return await database.CreateExecutionStrategy().ExecuteAsync(async () => {
+            await using var transaction = await database.BeginTransactionAsync(IsolationLevel.ReadUncommitted, cancellationToken);
+            var result = await query();
+            await transaction.CommitAsync(cancellationToken);
+            return result;
+        });
+    }
+
     private sealed class ScheduledTaskRow
     {
         public string Id { get; set; } = null!;
@@ -354,4 +808,70 @@ public class WorkerDashboardService : IWorkerDashboardService
         public double Progress { get; set; }
         public bool? Enabled { get; set; }
     }
+
+    internal sealed class RegisteredServer(DbServer row, bool isAlive)
+    {
+        public DbServer Row { get; } = row;
+        public bool IsAlive { get; } = isAlive;
+        public IReadOnlyList<DbServerQueue> Queues { get; } = row.GetQueues();
+        public IReadOnlyList<DbServerScheduledTask> ScheduledTasks { get; } = row.GetScheduledTasks();
+        public DbServerMetrics? Metrics { get; } = Normalize(row.GetMetrics());
+        /// <summary>Whether the server is alive and reports metrics: the activity of a stale server is outdated.</summary>
+        public bool ReportsMetrics => IsAlive && Metrics is not null;
+
+        /// <summary>The metrics of a queue. A queue the server consumes but is missing from its metrics processed nothing yet.</summary>
+        public DbServerQueueMetrics? GetQueueMetrics(string queueName) {
+            if (Metrics is null) {
+                return null;
+            }
+            return Metrics.Queues.FirstOrDefault(x => x.Name == queueName)
+                ?? (Queues.Any(x => x.Name == queueName) ? new DbServerQueueMetrics { Name = queueName } : null);
+        }
+
+        private static DbServerMetrics? Normalize(DbServerMetrics? metrics) {
+            if (metrics is not null) {
+                metrics.Queues ??= [];
+                metrics.Tasks ??= [];
+            }
+            return metrics;
+        }
+    }
+
+    /// <summary>The activity of one or more queues, summed over the workers that report it.</summary>
+    internal sealed record QueueActivity(long Processing, double ProcessedPerMinute, double FailedPerMinute, double? AverageDuration, double? AverageWait)
+    {
+        public static QueueActivity From(IEnumerable<(DbServerQueueMetrics Queue, double Window)> items) {
+            long processing = 0;
+            double processed = 0, failed = 0, durationSum = 0, durationWeight = 0, waitSum = 0, waitWeight = 0;
+            foreach (var (queue, window) in items) {
+                processing += queue.Processing;
+                if (window > 0) {
+                    processed += queue.RecentProcessed * 60d / window;
+                    failed += queue.RecentFailed * 60d / window;
+                }
+                // The averages are weighted by the messages of each worker.
+                if (queue.RecentAverageDuration is { } duration && queue.RecentProcessed > 0) {
+                    durationSum += duration * queue.RecentProcessed;
+                    durationWeight += queue.RecentProcessed;
+                }
+                // Older snapshots lack the start count; keep their previous weighting as a fallback.
+                var weight = queue.RecentStarted ?? Math.Max(queue.RecentProcessed, 1);
+                if (queue.RecentAverageWait is { } wait && weight > 0) {
+                    waitSum += wait * weight;
+                    waitWeight += weight;
+                }
+            }
+            return new QueueActivity(
+                processing,
+                Math.Round(processed, 2),
+                Math.Round(failed, 2),
+                durationWeight > 0 ? Math.Round(durationSum / durationWeight, 1) : null,
+                waitWeight > 0 ? Math.Round(waitSum / waitWeight, 1) : null
+            );
+        }
+    }
+
+    /// <param name="Task">The declaration of the task.</param>
+    /// <param name="IsRegistered">Whether a live worker hosts the task.</param>
+    private sealed record TaskDeclaration(DbServerScheduledTask Task, bool IsRegistered);
 }

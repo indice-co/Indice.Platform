@@ -181,7 +181,8 @@ export class UsersComponent implements OnInit {
     load: query => this._api.getUsers(
       query.page, query.pageSize, toApiSort(query), query.search || undefined, undefined, undefined, undefined,
       toBool(query.params['blocked']), toBool(query.params['lockedOut']), toBool(query.params['emailConfirmed']),
-      toBool(query.params['phoneNumberConfirmed']), toBool(query.params['twoFactorEnabled']), toBool(query.params['admin'])
+      toBool(query.params['phoneNumberConfirmed']), toBool(query.params['twoFactorEnabled']), toBool(query.params['admin']),
+      toBool(query.params['passwordExpired']), toBool(query.params['signedIn'])
     )
   });
 

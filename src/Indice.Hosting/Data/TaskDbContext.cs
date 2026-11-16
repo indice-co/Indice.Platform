@@ -21,6 +21,8 @@ public class TaskDbContext : DbContext, ITaskDbContext, ILockDbContext
     public DbSet<DbScheduledTask> Tasks { get; set; }
     /// <summary>Locks.</summary>
     public DbSet<DbLock> Locks { get; set; }
+    /// <summary>The worker processes (cluster nodes) that are alive, with the queues and scheduled tasks they host.</summary>
+    public DbSet<DbServer> Servers { get; set; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder) {

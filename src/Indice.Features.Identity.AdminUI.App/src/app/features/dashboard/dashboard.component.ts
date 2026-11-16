@@ -375,11 +375,11 @@ export class DashboardComponent {
         },
         {
           label: this._translate.instant('Dashboard.Attention.ExpiredPasswords'), hint: this._translate.instant('Dashboard.Attention.ExpiredPasswordsHint'),
-          value: value(users.passwordExpired), icon: LucideClockAlert, tone: 'bg-info/10 text-info'
+          value: value(users.passwordExpired), icon: LucideClockAlert, tone: 'bg-info/10 text-info', link: '/users', queryParams: { passwordExpired: 'true' }
         },
         {
           label: this._translate.instant('Dashboard.Attention.NeverSignedIn'), hint: this._translate.instant('Dashboard.Attention.NeverSignedInHint'),
-          value: value(users.neverSignedIn), icon: LucideUserX, tone: 'bg-base-200 text-base-content/70'
+          value: value(users.neverSignedIn), icon: LucideUserX, tone: 'bg-base-200 text-base-content/70', link: '/users', queryParams: { signedIn: 'false' }
         }
       );
     }

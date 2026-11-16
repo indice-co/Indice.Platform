@@ -9,10 +9,10 @@ import { settings } from '../models/settings';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LucideHeart],
   template: `
-    <p class="flex items-center gap-1 px-3 text-xs opacity-55">
+    <p class="flex items-center gap-1 px-3 text-xs opacity-60">
       Powered by <a class="link link-hover" href="https://www.indice.gr" target="_blank" rel="noopener">Indice</a>
       <svg lucideHeart class="size-3 fill-current text-error"></svg>
-      <span class="ml-auto">v{{ version }}</span>
+      <span class="ml-auto tabular-nums">v{{ version }}</span>
     </p>
   `,
 })

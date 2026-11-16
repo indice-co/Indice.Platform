@@ -6,27 +6,51 @@ import {
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
+import {
+  LucideArrowLeft,
+  LucideBraces,
+  LucideCheck,
+  LucideCopy,
+  LucidePencil,
+  LucidePlay,
+  LucideRotateCcw,
+  LucideTrash2,
+} from '@lucide/angular';
 import { EMPTY, Observable, catchError, combineLatest, finalize, map, of, switchMap } from 'rxjs';
 
 import { describeError } from '../../core/services/api-error';
 import { LiveRefreshService } from '../../core/services/live-refresh.service';
+import { PermissionsStore } from '../../core/services/permissions.store';
 import { ToastService } from '../../core/services/toast.service';
 import {
   BulkActionResult,
   QueueMessageDetails,
+  QueueMessageStatus,
   WorkersApiService,
 } from '../../core/services/workers-api.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { JsonViewComponent } from '../../shared/json-view.component';
+import { PayloadDialogComponent, PayloadDialogResult } from '../../shared/payload-dialog.component';
 import { RelativeTimePipe } from '../../shared/relative-time.pipe';
 import { StatusBadgeComponent } from '../../shared/status-badge.component';
-import { describeBulkResult } from './queue-status';
+import { STATUS_TONE, describeBulkResult } from './queue-status';
+import { QueueStatusIconComponent } from './queue-status-icon.component';
+
+/** The attempts meter, in the colour of the status. Literal class names for Tailwind's scanner. */
+const PROGRESS: Record<QueueMessageStatus, string> = {
+  Scheduled: 'progress-secondary',
+  Enqueued: 'progress-info',
+  Retrying: 'progress-warning',
+  Poison: 'progress-error',
+  Dequeued: '',
+};
 
 /** How long the "Copied" confirmation stays on the id button. */
 const COPIED_MS = 1500;
@@ -42,9 +66,19 @@ const COPIED_MS = 1500;
   imports: [
     DatePipe,
     RouterLink,
+    LucideArrowLeft,
+    LucideBraces,
+    LucideCheck,
+    LucideCopy,
+    LucidePencil,
+    LucidePlay,
+    LucideRotateCcw,
+    LucideTrash2,
     ConfirmDialogComponent,
     EmptyStateComponent,
     JsonViewComponent,
+    PayloadDialogComponent,
+    QueueStatusIconComponent,
     RelativeTimePipe,
     StatusBadgeComponent,
   ],
@@ -71,78 +105,121 @@ const COPIED_MS = 1500;
             text="It was most likely processed — processed messages are removed from the store."
           >
             @if (queueName(); as queue) {
-              <a [routerLink]="['/queues', queue]" class="btn btn-sm">Back to {{ queue }}</a>
+              <a [routerLink]="['/queues', queue]" class="btn btn-sm gap-1.5">
+                <svg lucideArrowLeft class="size-4"></svg>Back to {{ queue }}
+              </a>
             } @else {
-              <a routerLink="/queues" class="btn btn-sm">Back to Queues</a>
+              <a routerLink="/queues" class="btn btn-sm gap-1.5">
+                <svg lucideArrowLeft class="size-4"></svg>Back to Queues
+              </a>
             }
           </app-empty-state>
         </div>
       } @else if (message(); as m) {
         <header class="flex flex-wrap items-start justify-between gap-3">
-          <div class="min-w-0 space-y-1">
-            <div class="flex flex-wrap items-center gap-2">
-              <h1 class="text-2xl font-semibold tracking-tight text-base-content">Message</h1>
-              <app-status-badge [status]="m.status" />
+          <div class="flex min-w-0 items-center gap-3">
+            <span class="grid size-11 shrink-0 place-items-center rounded-box" [class]="tone[m.status].chip">
+              <app-queue-status-icon class="size-5" [status]="m.status" />
+            </span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h1 class="text-2xl font-semibold tracking-tight text-base-content">Message</h1>
+                <app-status-badge [status]="m.status" />
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="break-all font-mono text-sm text-base-content/70">{{ m.id }}</span>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs gap-1"
+                  (click)="copyId(m.id)"
+                  [attr.aria-label]="copied() ? 'Copied' : 'Copy message id'"
+                >
+                  @if (copied()) {
+                    <svg lucideCheck class="size-3.5 text-success"></svg>Copied
+                  } @else {
+                    <svg lucideCopy class="size-3.5"></svg>Copy
+                  }
+                </button>
+              </div>
             </div>
-            <div class="flex items-center gap-1">
-              <span class="break-all font-mono text-sm text-base-content/60">{{ m.id }}</span>
+          </div>
+          @if (canManage()) {
+            <div class="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                class="btn btn-ghost btn-xs"
-                (click)="copyId(m.id)"
-                [attr.aria-label]="copied() ? 'Copied' : 'Copy message id'"
+                class="btn btn-primary btn-sm gap-1.5"
+                [disabled]="busy()"
+                (click)="requeue(m)"
               >
-                {{ copied() ? 'Copied' : 'Copy' }}
+                @if (m.status === 'Scheduled') {
+                  <svg lucidePlay class="size-4"></svg>Enqueue now
+                } @else {
+                  <svg lucideRotateCcw class="size-4"></svg>Requeue
+                }
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm gap-1.5"
+                [disabled]="busy()"
+                (click)="payloadDialog.open(m.payload)"
+              >
+                <svg lucidePencil class="size-4"></svg>Edit &amp; requeue
+              </button>
+              <button
+                type="button"
+                class="btn btn-soft btn-error btn-sm gap-1.5"
+                [disabled]="busy()"
+                (click)="deleteDialog.open()"
+              >
+                <svg lucideTrash2 class="size-4"></svg>Delete
               </button>
             </div>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              class="btn btn-primary btn-sm"
-              [disabled]="busy()"
-              (click)="requeue(m)"
-            >
-              {{ m.status === 'Scheduled' ? 'Enqueue now' : 'Requeue' }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-error btn-outline btn-sm"
-              [disabled]="busy()"
-              (click)="deleteDialog.open()"
-            >
-              Delete
-            </button>
-          </div>
+          }
         </header>
 
         <div class="card bg-base-100 shadow-sm">
-          <div class="card-body">
-            <h2 class="card-title text-base">Overview</h2>
-            <dl class="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr]">
-              <dt class="text-base-content/60">Queue</dt>
-              <dd class="break-all font-mono">{{ m.queueName }}</dd>
-
-              <dt class="text-base-content/60">Status</dt>
-              <dd><app-status-badge [status]="m.status" /></dd>
-
-              <dt class="text-base-content/60">Available at</dt>
-              <dd>
-                {{ m.date | date: 'yyyy-MM-dd HH:mm:ss' : 'UTC' }} UTC
-                <span class="text-base-content/60">({{ m.date | relativeTime }})</span>
-              </dd>
-
-              <dt class="text-base-content/60">Attempts</dt>
-              <dd class="tabular-nums">
-                {{ m.dequeueCount }}{{ m.maxRetryCount != null ? ' of ' + m.maxRetryCount : '' }}
-              </dd>
+          <div class="card-body p-4">
+            <dl class="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-4">
+              <div class="min-w-0">
+                <dt class="text-xs text-base-content/70">Queue</dt>
+                <dd class="truncate font-mono text-sm" [title]="m.queueName">
+                  <a [routerLink]="['/queues', m.logicalQueueName]" class="link link-hover">{{ m.queueName }}</a>
+                </dd>
+              </div>
+              <div class="min-w-0">
+                <dt class="text-xs text-base-content/70">Status</dt>
+                <dd class="text-sm font-semibold" [class]="tone[m.status].text">{{ m.status }}</dd>
+              </div>
+              <div class="min-w-0" [title]="(m.date | date: 'yyyy-MM-dd HH:mm:ss' : 'UTC') + ' UTC'">
+                <dt class="text-xs text-base-content/70">Available</dt>
+                <dd class="text-sm">
+                  {{ m.date | relativeTime }}
+                  <span class="block text-xs text-base-content/70">{{ m.date | date: 'MMM d, y, HH:mm:ss' }}</span>
+                </dd>
+              </div>
+              <div class="min-w-0">
+                <dt class="text-xs text-base-content/70">Attempts</dt>
+                <dd class="text-sm tabular-nums">
+                  {{ m.dequeueCount }}{{ m.maxRetryCount != null ? ' of ' + m.maxRetryCount : '' }}
+                  @if (m.maxRetryCount && m.dequeueCount) {
+                    <progress
+                      class="progress mt-1 block h-1 w-24"
+                      [class]="progress[m.status]"
+                      [value]="m.dequeueCount"
+                      [max]="m.maxRetryCount"
+                    ></progress>
+                  }
+                </dd>
+              </div>
             </dl>
           </div>
         </div>
 
         <div class="card bg-base-100 shadow-sm">
           <div class="card-body">
-            <h2 class="card-title text-base">Payload</h2>
+            <h2 class="card-title text-base">
+              <svg lucideBraces class="size-4 text-base-content/70"></svg>Payload
+            </h2>
             <app-json-view [json]="m.payload" />
           </div>
         </div>
@@ -162,6 +239,15 @@ const COPIED_MS = 1500;
       confirmLabel="Delete"
       (confirmed)="delete()"
     />
+    <app-payload-dialog
+      #payloadDialog
+      title="Edit payload and requeue"
+      description="The message becomes visible now with its attempts reset; a poison message moves back to its queue."
+      hint="It must still deserialize into the work item of the queue."
+      confirmLabel="Save and requeue"
+      [busy]="busy()"
+      (submitted)="saveAndRequeue($event)"
+    />
   `,
 })
 export class MessageDetailPageComponent {
@@ -170,6 +256,10 @@ export class MessageDetailPageComponent {
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly canManage = inject(PermissionsStore).canManage;
+  protected readonly tone = STATUS_TONE;
+  protected readonly progress = PROGRESS;
+  private readonly payloadDialog = viewChild.required<PayloadDialogComponent>('payloadDialog');
 
   /** Route param `:id`. */
   readonly id = input.required<string>();
@@ -248,6 +338,37 @@ export class MessageDetailPageComponent {
       this.toasts.show('success', describeBulkResult('deleted', affected, 1));
       this.router.navigate(queue ? ['/queues', queue] : ['/queues']);
     });
+  }
+
+  protected saveAndRequeue(result: PayloadDialogResult): void {
+    const id = this.message()?.id;
+    if (!id) {
+      return;
+    }
+    this.busy.set(true);
+    this.api
+      .updateMessage(id, result.payload)
+      .pipe(
+        finalize(() => this.busy.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (message) => {
+          this.payloadDialog().close();
+          this.message.set(message);
+          this.toasts.show('success', 'Payload saved and message requeued.');
+          this.live.refreshNow();
+        },
+        error: (e: unknown) => {
+          if (e instanceof HttpErrorResponse && e.status === 404) {
+            this.payloadDialog().close();
+            this.toasts.show('error', 'The message is gone — it was processed or deleted meanwhile.');
+            this.live.refreshNow();
+            return;
+          }
+          this.toasts.show('error', describeError(e));
+        },
+      });
   }
 
   private run(call: Observable<BulkActionResult>, done: (affected: number) => void): void {

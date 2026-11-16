@@ -59,7 +59,7 @@ export function inputDateToClaim(value: string | null | undefined): string {
 
 export interface StatusFilter {
   /** Query param (and API filter) name. */
-  param: 'admin' | 'blocked' | 'lockedOut' | 'emailConfirmed' | 'phoneNumberConfirmed' | 'twoFactorEnabled';
+  param: 'admin' | 'blocked' | 'lockedOut' | 'emailConfirmed' | 'phoneNumberConfirmed' | 'twoFactorEnabled' | 'passwordExpired' | 'signedIn';
   /** Translation keys. */
   label: string;
   yes: string;
@@ -75,5 +75,7 @@ export const STATUS_FILTERS: StatusFilter[] = [
   { param: 'lockedOut', label: 'Users.Filters.LockedOut', yes: 'Users.Status.LockedOut', no: 'Users.Status.NotLockedOut', yesTone: 'warning', noTone: 'neutral' },
   { param: 'emailConfirmed', label: 'Users.Filters.Email', yes: 'Users.Status.EmailVerified', no: 'Users.Status.EmailUnverified', yesTone: 'success', noTone: 'warning' },
   { param: 'phoneNumberConfirmed', label: 'Users.Filters.Phone', yes: 'Users.Status.PhoneVerified', no: 'Users.Status.PhoneUnverified', yesTone: 'success', noTone: 'warning' },
-  { param: 'twoFactorEnabled', label: 'Users.Filters.Mfa', yes: 'Users.Status.MfaEnabled', no: 'Users.Status.MfaDisabled', yesTone: 'success', noTone: 'neutral' }
+  { param: 'twoFactorEnabled', label: 'Users.Filters.Mfa', yes: 'Users.Status.MfaEnabled', no: 'Users.Status.MfaDisabled', yesTone: 'success', noTone: 'neutral' },
+  { param: 'passwordExpired', label: 'Users.Filters.PasswordExpired', yes: 'Users.Status.PasswordExpired', no: 'Users.Status.PasswordNotExpired', yesTone: 'info', noTone: 'neutral' },
+  { param: 'signedIn', label: 'Users.Filters.SignedIn', yes: 'Users.Status.HasSignedIn', no: 'Users.Status.NeverSignedIn', yesTone: 'success', noTone: 'neutral' }
 ];

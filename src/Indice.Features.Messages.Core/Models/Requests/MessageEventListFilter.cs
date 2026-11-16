@@ -23,4 +23,7 @@ public class MessageEventListFilter
     /// <summary>The recipient "to" to filter events by.</summary>
     [Description("The recipient \"to\" to filter events by.")]
     public string? Recipient { get; set; }
+    /// <summary>Filters events by their outcome. If provided, only successful (<see langword="true"/>) or failed (<see langword="false"/>) events will be included in the results.</summary>
+    [Description("Filters events by their outcome. If provided, only successful (true) or failed (false) events will be included in the results.")]
+    public bool? Success { get; set; }
 }

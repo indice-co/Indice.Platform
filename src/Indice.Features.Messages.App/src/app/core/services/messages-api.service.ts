@@ -36,7 +36,7 @@ export interface IMessagesApiClient {
      * @param recipient (optional) The recipient "to" to filter events by.
      * @return OK
      */
-    getEventsList(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | null | undefined): Observable<MessageEventResultSet>;
+    getEventsList(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | null | undefined, success?: boolean | null | undefined): Observable<MessageEventResultSet>;
     /**
      * Gets a result set of events.
      * @param eventType (optional) 
@@ -470,7 +470,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param recipient (optional) The recipient "to" to filter events by.
      * @return OK
      */
-    getEventsList(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | null | undefined): Observable<MessageEventResultSet> {
+    getEventsList(page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | null | undefined, success?: boolean | null | undefined): Observable<MessageEventResultSet> {
         let url_ = this.baseUrl + "/analytics/events?";
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
@@ -502,6 +502,8 @@ export class MessagesApiClient implements IMessagesApiClient {
             channel && channel.forEach(item => { url_ += "Channel=" + encodeURIComponent("" + item) + "&"; });
         if (recipient !== undefined && recipient !== null)
             url_ += "Recipient=" + encodeURIComponent("" + recipient) + "&";
+        if (success !== undefined && success !== null)
+            url_ += "Success=" + encodeURIComponent("" + success) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

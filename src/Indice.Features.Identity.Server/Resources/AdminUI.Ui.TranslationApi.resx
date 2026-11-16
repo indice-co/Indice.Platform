@@ -2795,6 +2795,12 @@
   <data name="Users.Filters.Phone" xml:space="preserve">
     <value>Phone</value>
   </data>
+  <data name="Users.Filters.PasswordExpired" xml:space="preserve">
+    <value>Password expired</value>
+  </data>
+  <data name="Users.Filters.SignedIn" xml:space="preserve">
+    <value>Has signed in</value>
+  </data>
   <data name="Users.List.Any" xml:space="preserve">
     <value>Any</value>
   </data>
@@ -3097,6 +3103,18 @@
   </data>
   <data name="Users.Status.PhoneVerified" xml:space="preserve">
     <value>Phone verified</value>
+  </data>
+  <data name="Users.Status.PasswordExpired" xml:space="preserve">
+    <value>Password expired</value>
+  </data>
+  <data name="Users.Status.PasswordNotExpired" xml:space="preserve">
+    <value>Password not expired</value>
+  </data>
+  <data name="Users.Status.HasSignedIn" xml:space="preserve">
+    <value>Has signed in</value>
+  </data>
+  <data name="Users.Status.NeverSignedIn" xml:space="preserve">
+    <value>Never signed in</value>
   </data>
   <data name="Users.Toasts.UserUpdated" xml:space="preserve">
     <value>User updated</value>

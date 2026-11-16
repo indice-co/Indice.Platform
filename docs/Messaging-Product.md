@@ -437,6 +437,8 @@ The transport between the API host and the worker, and the worker's own trigger 
 // API host — choose the dispatcher
 // options.UseEventDispatcherAzure();            // Azure Storage Queues (gzip envelopes)
 // options.UseEventDispatcherAzureServiceBus();  // Azure Service Bus
+// options.UseEventDispatcherHosting();          // Indice.Hosting queues, jobs in the same process
+// options.UseEventDispatcherHostingHttp();      // Indice.Hosting queues of a remote workers API (M2M, scope workers:producer)
 
 // Worker (Azure Functions) — host.json queue tuning
 "extensions": {
@@ -445,6 +447,9 @@ The transport between the API host and the worker, and the worker's own trigger 
 ```
 
 - **Two transports, one code path** — Storage Queues for simplicity, Service Bus for higher scale / ordering needs.
+- **Remote Indice.Hosting workers** — `UseEventDispatcherHostingHttp()` posts each event to
+  `POST {General:Endpoints:Workers}/workers/queues/{queueName}/messages` of the host that runs `AddMessageJobs()` with the workers API.
+  It authenticates with client credentials (`General:Api:Secrets:ClientId` / `ClientSecret`) and needs the `workers:producer` scope.
 - **Two worker models** — Azure Functions (serverless) or an in-process hosted worker; same handlers.
 
 ### 🔗 Contact resolution & retention

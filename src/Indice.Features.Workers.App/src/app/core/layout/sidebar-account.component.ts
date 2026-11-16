@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService, ImgUserPictureDirective } from '@indice/ng-auth';
 import { LucideChevronsUpDown, LucideLogOut } from '@lucide/angular';
@@ -13,28 +13,19 @@ import { LucideChevronsUpDown, LucideLogOut } from '@lucide/angular';
   imports: [ImgUserPictureDirective, LucideChevronsUpDown, LucideLogOut],
   template: `
     <div class="dropdown dropdown-top w-full">
-      <button
-        type="button"
-        tabindex="0"
-        class="flex w-full items-center gap-3 rounded-field px-3 py-2 text-left transition hover:bg-base-200"
-        [class.justify-center]="collapsed()"
-        [attr.aria-label]="collapsed() ? userName() + ' — account menu' : null"
-        [title]="userName()"
-      >
+      <button type="button" tabindex="0" class="nav-link w-full text-left" [title]="userName()">
         <span class="avatar">
-          <span class="size-8 overflow-hidden rounded-full bg-base-300">
+          <span class="size-8 overflow-hidden rounded-full" style="background: var(--app-sidebar-hover)">
             @if (userId()) {
               <img [userPicture]="userId()!" [displayName]="userName()" [size]="64" alt="" />
             }
           </span>
         </span>
-        @if (!collapsed()) {
-          <span class="min-w-0 flex-1">
-            <span class="block truncate font-medium text-base-content">{{ userName() }}</span>
-            <span class="block truncate text-xs opacity-70">{{ userEmail() }}</span>
-          </span>
-          <svg lucideChevronsUpDown class="size-4 shrink-0 opacity-60"></svg>
-        }
+        <span class="min-w-0 flex-1">
+          <span class="block truncate font-semibold" style="color: var(--app-sidebar-content-strong)">{{ userName() }}</span>
+          <span class="block truncate text-xs opacity-70">{{ userEmail() }}</span>
+        </span>
+        <svg lucideChevronsUpDown class="size-4 shrink-0 opacity-60"></svg>
       </button>
       <ul
         tabindex="0"
@@ -50,8 +41,6 @@ import { LucideChevronsUpDown, LucideLogOut } from '@lucide/angular';
 export class SidebarAccountComponent {
   private readonly auth = inject(AuthService);
 
-  /** Render avatar-only, for the collapsed icon rail. */
-  readonly collapsed = input(false);
   /** Raised when a menu item was picked — the shell closes the mobile drawer on it. */
   readonly navigated = output<void>();
 

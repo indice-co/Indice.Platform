@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
+import { LucideCheck, LucideCopy } from '@lucide/angular';
 
 /** How long the "Copied" confirmation stays on the button. */
 const COPIED_MS = 1500;
@@ -7,20 +8,26 @@ const COPIED_MS = 1500;
 @Component({
   selector: 'app-json-view',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideCheck, LucideCopy],
   template: `
     <div class="relative">
       @if (text()) {
         <button
           type="button"
-          class="btn btn-ghost btn-xs absolute right-2 top-2"
+          class="btn btn-xs absolute right-2 top-2 gap-1 border-base-300 bg-base-100 shadow-sm"
           (click)="copy()"
           [attr.aria-label]="copied() ? 'Copied' : 'Copy JSON'"
         >
-          {{ copied() ? 'Copied' : 'Copy' }}
+          @if (copied()) {
+            <svg lucideCheck class="size-3.5 text-success"></svg>Copied
+          } @else {
+            <svg lucideCopy class="size-3.5"></svg>Copy
+          }
         </button>
       }
       <pre
-        class="app-scroll max-h-[28rem] overflow-auto rounded-box bg-base-200 p-4 font-mono text-xs"
+        class="app-scroll max-h-[28rem] overflow-auto rounded-box border border-base-300 bg-base-200/70 p-4 font-mono
+               text-xs leading-relaxed"
       >{{ text() || '—' }}</pre>
     </div>
   `,

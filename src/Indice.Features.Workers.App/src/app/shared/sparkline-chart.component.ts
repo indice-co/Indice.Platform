@@ -36,7 +36,14 @@ const PAD = 2;
           vector-effect="non-scaling-stroke"
         />
       }
-      @for (line of lines(); track line.label) {
+      <!--
+        Drawn last-series-first, so where lines coincide (an idle board sits at zero) the first, calmest one shows
+        rather than the alarming red. Only the first series gets an area wash; stacked washes turn muddy.
+      -->
+      @if (lines()[0]?.area; as area) {
+        <polygon [attr.points]="area" [attr.fill]="lines()[0].color" fill-opacity="0.08" stroke="none" />
+      }
+      @for (line of drawOrder(); track line.label) {
         <polyline
           fill="none"
           stroke-width="2"
@@ -77,7 +84,7 @@ export class SparklineChartComponent {
   protected readonly lines = computed(() => {
     const h = this.height();
     const max = this.max();
-    return this.series().map((s) => {
+    return this.series().map((s, index) => {
       const n = s.values.length;
       const step = n > 1 ? WIDTH / (n - 1) : 0;
       const points = s.values
@@ -87,9 +94,13 @@ export class SparklineChartComponent {
           return `${round(x)},${round(y)}`;
         })
         .join(' ');
-      return { label: s.label, color: s.color, points, last: n ? s.values[n - 1] : 0 };
+      const baseline = round(h - PAD);
+      const area = index === 0 && n ? `${n > 1 ? 0 : WIDTH},${baseline} ${points} ${WIDTH},${baseline}` : '';
+      return { label: s.label, color: s.color, points, area, last: n ? s.values[n - 1] : 0 };
     });
   });
+
+  protected readonly drawOrder = computed(() => [...this.lines()].reverse());
 
   protected readonly ariaLabel = computed(() =>
     this.lines()

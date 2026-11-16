@@ -21,4 +21,8 @@ public class UserListFilter
     public bool? TwoFactorEnabled { get; set; }
     /// <summary>Filters users by whether they are global administrators.</summary>
     public bool? Admin { get; set; }
+    /// <summary>Filters users by whether their password has expired and must be changed at next sign in.</summary>
+    public bool? PasswordExpired { get; set; }
+    /// <summary>Filters users by whether they have ever signed in.</summary>
+    public bool? SignedIn { get; set; }
 }

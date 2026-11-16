@@ -12,18 +12,21 @@ export type BadgeStatus =
   | 'Disabled'
   | 'NotRun';
 
-/** Hangfire's status colours, expressed as daisyUI badge variants so they follow the theme. */
+/**
+ * Status colours as daisyUI badge variants so they follow the theme. Only problems are solid (Retrying, Poison,
+ * Failed); normal activity is a soft tint — blue for work in flight (Enqueued, Running) — so a busy board stays calm.
+ */
 const STYLES: Record<BadgeStatus, { cls: string; label: string }> = {
-  Enqueued: { cls: 'badge-info', label: 'Enqueued' },
+  Enqueued: { cls: 'badge-info badge-soft', label: 'Enqueued' },
   Scheduled: { cls: 'badge-secondary badge-soft', label: 'Scheduled' },
   Retrying: { cls: 'badge-warning', label: 'Retrying' },
   Poison: { cls: 'badge-error', label: 'Poison' },
   Dequeued: { cls: 'badge-ghost', label: 'Dequeued' },
   Idle: { cls: 'badge-ghost', label: 'Idle' },
-  Running: { cls: 'badge-warning', label: 'Running' },
+  Running: { cls: 'badge-info badge-soft', label: 'Running' },
   Failed: { cls: 'badge-error', label: 'Failed' },
   Ok: { cls: 'badge-success badge-soft', label: 'Ok' },
-  Disabled: { cls: 'badge-neutral badge-outline', label: 'Disabled' },
+  Disabled: { cls: 'badge-outline opacity-75', label: 'Disabled' },
   NotRun: { cls: 'badge-ghost', label: 'Not run' },
 };
 

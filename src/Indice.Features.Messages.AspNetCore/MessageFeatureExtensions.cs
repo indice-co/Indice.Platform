@@ -281,6 +281,19 @@ public static class MessageFeatureExtensions
     }
 
     /// <summary>
+    /// Adds <see cref="IEventDispatcher"/> that publishes the messaging events over HTTP to a remote workers API (<c>Indice.Features.Workers.Server</c>),
+    /// whose host runs the message jobs (<c>AddMessageJobs()</c>) on the same Indice.Hosting queue store.
+    /// </summary>
+    /// <remarks>
+    /// The access token is obtained with the client credentials flow and the client must be allowed the <c>workers:producer</c> scope.
+    /// By default the base address is read from <c>General:Endpoints:Workers</c>, the authority from <c>General:Authority</c> and the client from <c>General:Api:Secrets</c> (<c>ClientId</c> / <c>ClientSecret</c>).
+    /// </remarks>
+    /// <param name="options">Options used to configure the Campaigns API feature.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static void UseEventDispatcherHostingHttp(this MessageEndpointOptions options, Action<IServiceProvider, EventDispatcherHostingHttpOptions>? configure = null) =>
+        options.Services!.AddEventDispatcherHostingHttp(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey, configure);
+
+    /// <summary>
     /// Pushes a personalized real time notification through SignalR to the recipient (using the <i>SignalR proxy</i> infrastructure) every time a new inbox message is created.
     /// Use this when the message jobs are hosted in the same process as the api (i.e. <c>UseEventDispatcherHosting()</c>).
     /// </summary>
