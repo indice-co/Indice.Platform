@@ -239,7 +239,8 @@ public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings
     private bool IsBasicAuthorized(IDictionary<string, StringValues> requestHeaders) {
         var hasUsername = !string.IsNullOrWhiteSpace(_settings.WebhookUsername);
         var hasPassword = !string.IsNullOrWhiteSpace(_settings.WebhookPassword);
-        if (hasUsername != hasPassword) {
+        var incompleteCredentials = hasUsername != hasPassword;
+        if (incompleteCredentials) {
             return false;
         }
 
@@ -371,9 +372,7 @@ public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings
         foreach (var item in items) {
             var messageId = GetString(item, "message_id")
                             ?? GetString(item, "messageId")
-                            ?? GetString(item, "id")
-                            ?? GetString(item, "data.message_id")
-                            ?? GetString(item, "data.id");
+                            ?? GetString(item, "data.message_id");
 
             if (string.IsNullOrWhiteSpace(messageId)) {
                 continue;

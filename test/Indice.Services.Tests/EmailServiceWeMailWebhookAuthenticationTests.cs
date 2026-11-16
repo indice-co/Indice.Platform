@@ -156,11 +156,35 @@ public sealed class EmailServiceWeMailWebhookAuthenticationTests
         Assert.Equal(403, result.Status);
     }
 
-    private static Task<WebhookHttpResult> ParseAsync(EmailServiceWeMailSettings settings, Dictionary<string, StringValues> headers) {
+    [Fact]
+    public async Task ParseEvents_NestedMessageId_IsPreferredOverEventId() {
+        const string payload = """
+            {"id":"evt_123","event":"delivered","data":{"message_id":"msg_123"}}
+            """;
+
+        var result = await ParseAsync(new EmailServiceWeMailSettings(), new Dictionary<string, StringValues>(), payload);
+
+        Assert.True(result.Success);
+        var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal("msg_123", webhookEvent.MessageId);
+        Assert.Equal("evt_123", webhookEvent.EventId);
+    }
+
+    [Theory]
+    [InlineData("{\"id\":\"evt_123\",\"event\":\"delivered\"}")]
+    [InlineData("{\"event\":\"delivered\",\"data\":{\"id\":\"evt_123\"}}")]
+    public async Task ParseEvents_WithoutMessageId_DoesNotUseAmbiguousId(string payload) {
+        var result = await ParseAsync(new EmailServiceWeMailSettings(), new Dictionary<string, StringValues>(), payload);
+
+        Assert.True(result.Success);
+        Assert.Empty(result.Events);
+    }
+
+    private static Task<WebhookHttpResult> ParseAsync(EmailServiceWeMailSettings settings, Dictionary<string, StringValues> headers, string payload = Payload) {
         var options = new Mock<IOptions<EmailServiceWeMailSettings>>();
         options.Setup(x => x.Value).Returns(settings);
         var handler = new WeMailWebhookHttpHandler(options.Object);
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(Payload));
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes(payload));
         return handler.ParseAsync(headers, [], stream, TestContext.Current.CancellationToken);
     }
 }
