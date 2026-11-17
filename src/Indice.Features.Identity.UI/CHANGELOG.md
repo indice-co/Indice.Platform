@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Security
+- `/forgot-password` sends at most `IdentityOptions:ActionRateLimiter:MaxAttempts` reset emails per user within
+  `IdentityOptions:ActionRateLimiter:Window` (default 5 per 24 hours). Requests over the limit show the usual "request sent" message
+  and log a warning, but no email is sent.
+
 ## [8.59.0]
 ### Added
 - Added support for selecting the captcha provider through `appsettings.json` via `Recaptcha:Provider`.
