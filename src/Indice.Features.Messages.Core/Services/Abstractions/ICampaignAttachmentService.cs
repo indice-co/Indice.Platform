@@ -17,8 +17,13 @@ public interface ICampaignAttachmentService
     /// <param name="attachmentId">The id of the attachment.</param>
     Task Delete(Guid campaignId, Guid attachmentId);
     /// <summary>Retrieves an attachment associated with a campaign.</summary>
-    /// <param name="campaignId"></param>
-    /// <param name="attachmentId"></param>
+    /// <param name="campaignId">The id of the campaign.</param>
+    /// <param name="attachmentId">The id of the attachment.</param>
     /// <returns></returns>
     Task<FileAttachment?> GetFile(Guid campaignId, Guid attachmentId);
+    /// <summary>Checks if the attachment file belongs to the current user.</summary>
+    /// <param name="userCode">The code of the current user.</param>
+    /// <param name="attachmentId">The id of the attachment.</param>
+    /// <returns></returns>
+    Task<FileAttachment?> GetRecipientFile(string userCode, Guid attachmentId);
 }

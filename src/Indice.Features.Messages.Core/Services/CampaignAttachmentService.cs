@@ -7,6 +7,7 @@ using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
+
 namespace Indice.Features.Messages.Core.Services;
 
 /// <summary>An implementation of <see cref="ICampaignAttachmentService"/> for Entity Framework Core.</summary>
@@ -62,7 +63,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
             .Where(x => x.Id == attachmentId)
             .SingleOrDefaultAsync()
             ?? throw MessageExceptions.AttachmentNotFound(attachmentId);
-        var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+        var campaign = await DbContext.Campaigns.FirstOrDefaultAsync(c => c.Id == campaignId && c.AttachmentId == attachmentId);
         if (campaign is null) {
             throw MessageExceptions.CampaignNotFound(campaignId);
         }
@@ -78,7 +79,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
     public async Task<FileAttachment?> GetFile(Guid campaignId, Guid attachmentId) {
         var dbAttachment = await DbContext
             .Campaigns
-            .Where(x => x.Id == campaignId)
+            .Where(x => x.Id == campaignId && x.AttachmentId == attachmentId)
             .Select(x => x.Attachment)
             .SingleOrDefaultAsync();
         if (dbAttachment is null) {
@@ -97,6 +98,25 @@ public class CampaignAttachmentService : ICampaignAttachmentService
             Guid = dbAttachment.Guid,
             Id = dbAttachment.Id,
             Name = dbAttachment.Name
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<FileAttachment?> GetRecipientFile(string recipientId, Guid fileGuid) {
+        var dbAttachment = await DbContext.Campaigns.AsNoTracking()
+            .Where(c => c.Published && c.Attachment != null && c.Attachment.Guid == fileGuid
+                     && c.MessageChannelKind.HasFlag(MessageChannelKind.Inbox))
+            .Where(c => c.IsGlobal
+                ? !DbContext.Messages.Any(m => m.CampaignId == c.Id && m.RecipientId == recipientId && m.IsDeleted)
+                : DbContext.Messages.Any(m => m.CampaignId == c.Id && m.RecipientId == recipientId && !m.IsDeleted))
+            .Select(c => c.Attachment!)
+            .FirstOrDefaultAsync();
+        if (dbAttachment is null) return null;
+        var data = await FileService.GetAsync(dbAttachment.GetPath());
+        return data is null ? null : new FileAttachment {
+            Data = data, Name = dbAttachment.Name, FileExtension = dbAttachment.FileExtension,
+            ContentType = dbAttachment.ContentType, ContentLength = dbAttachment.ContentLength,
+            Guid = dbAttachment.Guid, Id = dbAttachment.Id
         };
     }
 }

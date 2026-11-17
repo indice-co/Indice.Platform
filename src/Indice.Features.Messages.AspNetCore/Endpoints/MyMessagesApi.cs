@@ -70,11 +70,10 @@ internal static class MyMessagesApi
              .WithSummary("Marks the specified message as deleted.")
              .WithDescription(MyMessagesHandlers.DELETE_MESSAGE_DESCRIPTION);
 
-        group.MapGet("messages/attachments/{fileGuid}.{format}", MyMessagesHandlers.GetMessageAttachment)
+        group.MapGet("my/messages/attachments/{fileGuid}.{format}", MyMessagesHandlers.GetMessageAttachment)
              .WithName(nameof(MyMessagesHandlers.GetMessageAttachment))
              .WithSummary("Gets the attachment associated with a campaign.")
-             .WithDescription(MyMessagesHandlers.GET_MESSAGE_ATTACHMENT_DESCRIPTION)
-             .ExcludeFromDescription();
+             .WithDescription(MyMessagesHandlers.GET_MESSAGE_ATTACHMENT_DESCRIPTION);
 
         group.MapGet("messages/types", MyMessagesHandlers.GetInboxMessageTypes)
             .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))

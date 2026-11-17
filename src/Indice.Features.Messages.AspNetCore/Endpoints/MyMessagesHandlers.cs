@@ -1,4 +1,6 @@
-﻿using Indice.Features.Messages.Core;
+﻿using System.Net.Mime;
+using System.Security.Claims;
+using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
@@ -9,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Security.Claims;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -126,11 +127,17 @@ internal static class MyMessagesHandlers
     }
 
     public static async Task<Results<FileContentHttpResult, NotFound>> GetMessageAttachment(
-        IFileServiceFactory fileServiceFactory,
-        Base64Id fileGuid,
-        string format) {
-        var fileResult = await CampaignsHandlers.GetFile(fileServiceFactory, "campaigns", fileGuid, format);
-        return fileResult;
+         ICampaignAttachmentService campaignAttachmentService,
+         IOptions<MessageInboxOptions> options,
+         Base64Id fileGuid,
+         string format,
+         ClaimsPrincipal currentUser) {
+        var userCode = currentUser.FindFirstValue(options.Value.UserClaimType)!;
+        var file = await campaignAttachmentService.GetRecipientFile(userCode, fileGuid);
+        if (file is null || !string.Equals(file.FileExtension.TrimStart('.'), format, StringComparison.OrdinalIgnoreCase)) {
+            return TypedResults.NotFound();
+        }
+        return TypedResults.File(file.Data!, MediaTypeNames.Application.Octet, file.Name);
     }
     public static async Task<Ok<ContactPreference>> GetMyCommunicationPreferences(
         IContactService contactService,

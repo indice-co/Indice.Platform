@@ -288,7 +288,7 @@ public class MessageService : IMessageService
             } : null,
             ActivePeriod = x.Campaign.ActivePeriod,
             AttachmentUrl = x.Campaign.Attachment != null
-                ? $"{CampaignInboxOptions.PathPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name)!.TrimStart('.')}"
+                ? $"{CampaignInboxOptions.PathPrefix}/my/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name)!.TrimStart('.')}"
                 : null,
             // TODO: Fix substitution when message is null.
             Title = x.Message != null && x.Message.Content.ContainsKey(channelKindKey)
