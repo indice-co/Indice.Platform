@@ -61,7 +61,8 @@ public class LockManagerAzure : ILockManager
         await BlobContainer.CreateIfNotExistsAsync();
         var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
         try {
-            await lockFileBlob.UploadAsync(new MemoryStream(Encoding.ASCII.GetBytes("0")), overwrite: true);
+            using var lockFileContent = new MemoryStream(Encoding.ASCII.GetBytes("0"));
+            await lockFileBlob.UploadAsync(lockFileContent, overwrite: true);
             var lockFileLease = lockFileBlob.GetBlobLeaseClient();
             var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30), cancellationToken: cancellationToken);
             return new LockLease(leaseResponse.Value.LeaseId, name, this);

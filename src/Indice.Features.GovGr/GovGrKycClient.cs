@@ -80,11 +80,12 @@ internal class GovGrKycClient : IKycService
         certificatePemString = certificatePemString.Replace("-----BEGIN CERTIFICATE-----", null).Replace("-----END CERTIFICATE-----", null);
         var certificateByteArray = Convert.FromBase64String(certificatePemString);
 #if NET9_0_OR_GREATER
-        var certificate = X509CertificateLoader.LoadCertificate(certificateByteArray);
+        using var certificate = X509CertificateLoader.LoadCertificate(certificateByteArray);
 #else
-        var certificate = new X509Certificate2(certificateByteArray);
+        using var certificate = new X509Certificate2(certificateByteArray);
 #endif
         // use X509 certificate to create a signatureProvider
+        // X509SecurityKey uses its own RSA instance (GetRSAPublicKey), so cached signature providers outlive the disposed certificate safely.
         var securityKey = new X509SecurityKey(certificate);
         var cryptoProviderFactory = securityKey.CryptoProviderFactory;
         var signatureProvider = cryptoProviderFactory.CreateForVerifying(securityKey, "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
@@ -104,13 +105,14 @@ internal class GovGrKycClient : IKycService
 
     /// <summary>Get Access Token from EGovKyc Identity server</summary>
     private async Task<string> GetAccessToken(string code) {
-        var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
+        using var tokenRequest = new AuthorizationCodeTokenRequest {
             Address = $"{BaseAddress}/oauth/token",
             ClientId = _settings.ClientId!,
             ClientSecret = _settings.ClientSecret,
             RedirectUri = _settings.RedirectUri!,
             Code = code,
-        });
+        };
+        var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(tokenRequest);
         if (tokenResponse.IsError) {
             throw new GovGrServiceException(tokenResponse.Error!);
         }

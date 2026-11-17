@@ -424,21 +424,9 @@ internal static class ClientHandlers
         if (request?.File == null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Please upload a certificate."));
         }
-        var memoryStream = new MemoryStream();
-        X509Certificate2 certificate;
-        try {
-            await request.File.CopyToAsync(memoryStream);
-            var certificateBytes = memoryStream.ToArray();
-#if NET9_0_OR_GREATER
-            certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
-#else
-            certificate = new X509Certificate2(certificateBytes, request.Password);
-#endif
-
-        } catch (CryptographicException) {
+        using var certificate = await LoadUploadedCertificate(request);
+        if (certificate is null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
-        } finally {
-            await memoryStream.DisposeAsync();
         }
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
@@ -466,20 +454,9 @@ internal static class ClientHandlers
         if (request?.File == null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Please upload a certificate."));
         }
-        var memoryStream = new MemoryStream();
-        X509Certificate2 certificate;
-        try {
-            await request.File.CopyToAsync(memoryStream);
-            var certificateBytes = memoryStream.ToArray();
-#if NET9_0_OR_GREATER
-            certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
-#else
-            certificate = new X509Certificate2(certificateBytes, request.Password);
-#endif
-        } catch (CryptographicException) {
+        using var certificate = await LoadUploadedCertificate(request);
+        if (certificate is null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
-        } finally {
-            await memoryStream.DisposeAsync();
         }
         var secretInfo = new SecretInfoBase {
             Description = certificate.Subject,
@@ -488,6 +465,21 @@ internal static class ClientHandlers
             Type = IdentityServerConstants.SecretTypes.X509CertificateBase64
         };
         return TypedResults.Ok(secretInfo);
+    }
+
+    private static async Task<X509Certificate2?> LoadUploadedCertificate(CertificateUploadRequest request) {
+        using var memoryStream = new MemoryStream();
+        try {
+            await request.File!.CopyToAsync(memoryStream);
+            var certificateBytes = memoryStream.ToArray();
+#if NET9_0_OR_GREATER
+            return X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
+#else
+            return new X509Certificate2(certificateBytes, request.Password);
+#endif
+        } catch (CryptographicException) {
+            return null;
+        }
     }
 
     internal static async Task<Results<FileContentHttpResult, NotFound, ValidationProblem>> GetCertificate(ExtendedConfigurationDbContext configurationDbContext, string clientId, int secretId) {

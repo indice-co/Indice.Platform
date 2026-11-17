@@ -53,7 +53,7 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .WithMessage("Specified type id is not valid.");
         RuleFor(campaign => campaign.ActivePeriod)
             .Must(campaign => campaign?.To > campaign?.From)
-            .When(campaign => campaign.ActivePeriod?.From is not null && campaign.ActivePeriod?.To is not null)
+            .When(campaign => campaign.ActivePeriod is { From: not null, To: not null })
             .WithMessage("Campaign should end after the start date.");
         RuleFor(campaign => campaign.ActionLink!.Text)
             .MaximumLength(TextSizePresets.M128)

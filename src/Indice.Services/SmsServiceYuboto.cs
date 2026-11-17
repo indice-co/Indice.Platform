@@ -108,7 +108,7 @@ internal class YubotoResponse
     public Dictionary<string, string> OK { get; set; } = new Dictionary<string, string>();
     public string? Error { get; set; }
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public override string ToString() => HasError ? Error! : $"{OK}";
+    public override string ToString() => HasError ? Error! : string.Join(", ", OK.Select(x => $"{x.Key}:{x.Value}"));
 }
 
 internal class YubotoRequestHelper

@@ -53,7 +53,7 @@ internal static class MediaHandlers
                 Size = new Size((int)(image.Width * factor), (int)(image.Height * factor)),
             };
             image.Mutate(i => i.Resize(resizeOptions));
-            var outputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
             await image.SaveAsWebpAsync(outputStream);
             outputStream.Seek(0, SeekOrigin.Begin);
             return TypedResults.File(outputStream.ToArray(), "image/webp", null, false, DateTimeOffset.UtcNow, new EntityTagHeaderValue($"\"{properties.ETag!.Trim('"')}_{size}\"", true));

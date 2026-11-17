@@ -75,7 +75,7 @@ public class SmsServiceApifon : ISmsService
         }
         
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
-        var request = new HttpRequestMessage {
+        using var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
             Method = HttpMethod.Post,
             RequestUri = new Uri($"{APIFON_BASE_URL}{SERVICE_ENDPOINT}")
