@@ -224,6 +224,10 @@ internal class KapaTELResponse
 /// <inheritdoc/>
 public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
     private readonly SmsServiceKapaTELSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "DeliveredToPhone",
+        "DeliveredToSMSC"
+    };
 
     /// <inheritdoc/>
     public KapaTELWebhookHttpHandler(IOptionsSnapshot<SmsServiceKapaTELSettings> settings) {
@@ -269,12 +273,18 @@ public sealed class KapaTELWebhookHttpHandler : IWebhookHttpHandler {
                 EventId = eventId,
                 MessageId = messageId,
                 Timestamp = timestamp,
-                Payload = payload
+                Payload = payload,
+                Succeeded = EventSucceeded(eventType),
+                Channel = WebhookChannel.Sms
             }
         };
 
         await Task.CompletedTask;
         return WebhookHttpResult.Ok(incomingEvents, statusCode: 204);
+    }
+
+    private static bool EventSucceeded(string eventType) {
+        return SucceededStatuses.Contains(eventType);
     }
 
     private static bool TryParseNotificationTimestamp(string value, out DateTimeOffset timestamp) {
