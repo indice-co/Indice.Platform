@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 
 import { AgentInfo, ChatMessagePart, ChatTopic, DexApiService, DexChatResponse, IChatMessagePart, LikeRequest } from '../../core/services/dex-api.service';
 import { ChatStreamFrame, ChatStreamService } from '../../core/services/chat-stream.service';
+import { EmbedBridgeService } from '../../core/embed/embed-bridge.service';
+import { EMBED_MODE } from '../../core/embed/embed-mode';
 import { assistantName } from '../../core/models/brand';
 import { ConversationsStore } from '../../core/services/conversations.store';
 import { JsonPointerPatch } from '../../core/services/json-pointer-patch';
@@ -35,6 +37,8 @@ export class ChatPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(ConversationsStore);
   private readonly router = inject(Router);
+  /** The widget frame's channel to the hosting page — only in embed mode, where the shell has already created it. */
+  private readonly bridge = inject(EMBED_MODE) ? inject(EmbedBridgeService) : null;
 
   protected readonly messages = signal<ThreadMessage[]>([]);
   protected readonly threadLoading = signal(false);
@@ -162,7 +166,20 @@ export class ChatPageComponent {
     if (!this.externalReference()?.referenceId || this.store.activeId()) {
       return;
     }
-    this.startTurn([], null);
+    if (!this.bridge) {
+      this.startTurn([], null);
+      return;
+    }
+    // In the widget the create mints the guest, and the visitor's name only counts then: wait for the hosting page to
+    // say who the visitor is (or that it does not know) before starting.
+    let destroyed = false;
+    this.destroyRef.onDestroy(() => (destroyed = true));
+    void this.bridge.configured.then(() => {
+      if (destroyed || this.isStreaming() || this.store.activeId() || !this.externalReference()?.referenceId) {
+        return;
+      }
+      this.startTurn([], null);
+    });
   }
 
   /** Opens the stream for a turn — creating the conversation when none is open — and feeds its frames to the thread. */
@@ -199,7 +216,8 @@ export class ChatPageComponent {
         if (!this.store.activeId() && frame.conversationId) {
           // Claim the id before publishing it, so the effect sees no change and skips the fetch.
           this.loadedId = frame.conversationId;
-          this.store.adopt(frame.conversationId);
+          // The reference still set here is the one the creating request carried.
+          this.store.adopt(frame.conversationId, this.externalReference());
           this.externalReference.set(null);
           // Drop the deep link from the address bar, so a reload does not ground (or autostart) a second conversation.
           void this.router.navigate([], {

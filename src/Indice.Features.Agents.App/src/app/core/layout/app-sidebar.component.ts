@@ -35,7 +35,7 @@ const COLLAPSED_LIMIT = 8;
       <!-- Brand + collapse control -->
       <div class="flex shrink-0 flex-col gap-1 px-3 pt-3">
         <div class="flex items-center gap-2.5" [class.justify-center]="collapsed()">
-          <a routerLink="/" class="flex min-w-0 items-center gap-2.5" (click)="navigated.emit()">
+          <a [routerLink]="embed() ? null : '/'" class="flex min-w-0 items-center gap-2.5" (click)="navigated.emit()">
             <img [src]="logo()" [alt]="assistantName" class="size-8 shrink-0 rounded-full" />
             @if (!collapsed()) {
               <span class="min-w-0 leading-tight">
@@ -275,9 +275,11 @@ const COLLAPSED_LIMIT = 8;
 
       <!-- Account anchor -->
       <div class="shrink-0 border-t border-base-300 px-3 py-3">
-        <app-sidebar-account [collapsed]="collapsed()" (navigated)="navigated.emit()" />
+        @if (!embed()) {
+          <app-sidebar-account [collapsed]="collapsed()" (navigated)="navigated.emit()" />
+        }
         @if (!collapsed()) {
-          <div class="mt-3">
+          <div [class.mt-3]="!embed()">
             <app-powered-by />
           </div>
         }
@@ -316,6 +318,11 @@ export class AppSidebarComponent {
   readonly loading = input(false);
   /** Desktop icon-rail mode; always `false` inside the mobile drawer. */
   readonly collapsed = input(false);
+  /**
+   * Inside the chat widget's frame: guests only and a single route, so there is no account anchor and the brand is
+   * not a link (it would navigate the frame out of `/embed`).
+   */
+  readonly embed = input(false);
   /** A list-level failure to surface above the conversations. */
   readonly error = input<string | null>(null);
 

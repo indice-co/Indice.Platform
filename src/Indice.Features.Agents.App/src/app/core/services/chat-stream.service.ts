@@ -3,6 +3,7 @@ import { Observable, Subscriber } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 
 import { AuthGuestService, GuestSessionPayload } from '../auth/auth-guest.service';
+import { EMBED_MODE } from '../embed/embed-mode';
 import { ChatTopic, DEX_API_BASE_URL, DexChatPatchOp, IChatMessagePart } from './dex-api.service';
 
 /** First frame of every stream; carries the session id. */
@@ -58,12 +59,14 @@ const KNOWN_FRAME_TYPES: ReadonlySet<string> = new Set(['start', 'status', 'delt
  * (no POST body, no Authorization header) and Angular's `HttpClient` (with `authInterceptor`)
  * isn't involved either. We therefore use `fetch` + `ReadableStream` and attach the bearer token
  * manually — the signed-in user's from `AuthService`, else the guest's from `AuthGuestService`,
- * else none (an anonymous create needs no token; the server mints one on the `start` frame).
+ * else none (an anonymous create needs no token; the server mints one on the `start` frame). The widget's `/embed`
+ * frame is guests only and never sends the user's token.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatStreamService {
   private readonly auth = inject(AuthService);
   private readonly guest = inject(AuthGuestService);
+  private readonly embed = inject(EMBED_MODE);
   private readonly baseUrl = (inject(DEX_API_BASE_URL, { optional: true }) ?? 'https://localhost:2001').replace(
     /\/$/,
     '',
@@ -79,7 +82,7 @@ export class ChatStreamService {
     agentName?: string | null,
     topic?: ChatTopic | null,
   ): Observable<ChatStreamFrame> {
-    return this.stream(`${this.baseUrl}/my/chats/stream`, parts, agentName, topic);
+    return this.stream(`${this.baseUrl}/my/chats/stream`, parts, agentName, topic, true);
   }
 
   /** POST /my/chats/{id}/messages/stream — stream a follow-up turn in an existing session. */
@@ -96,13 +99,17 @@ export class ChatStreamService {
     parts: IChatMessagePart[],
     agentName?: string | null,
     topic?: ChatTopic | null,
+    create = false,
   ): Observable<ChatStreamFrame> {
     return new Observable<ChatStreamFrame>((subscriber) => {
       const controller = new AbortController();
 
       void (async () => {
-        const userHeader = this.auth.getAuthorizationHeaderValue();
+        const userHeader = this.embed ? '' : this.auth.getAuthorizationHeaderValue();
         const authorization = userHeader || this.guest.getAuthorizationHeaderValue();
+        // The visitor's self-declared name only means something on the anonymous create, where it becomes the minted
+        // guest's name; a signed-in or already-minted caller is named by its token.
+        const authorName = create && !authorization ? this.guest.displayName : null;
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           Accept: 'text/event-stream',
@@ -125,6 +132,7 @@ export class ChatStreamService {
               parts,
               ...(agentName ? { agentName } : {}),
               ...(topic ? { topic } : {}),
+              ...(authorName ? { authorName } : {}),
             }),
             signal: controller.signal,
           });

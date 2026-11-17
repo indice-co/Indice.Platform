@@ -37,7 +37,40 @@ public sealed class OmniMessagingWebhookAuthenticationTests
         var result = await ParseAsync(settings, headers);
 
         Assert.True(result.Success);
-        Assert.Single(result.Events);
+        var webhookEvent = Assert.Single(result.Events);
+        Assert.True(webhookEvent.Succeeded);
+    }
+
+    [Theory]
+    [InlineData("open")]
+    [InlineData("click")]
+    public async Task InteractionEvents_AreMarkedSuccessful(string interaction) {
+        var settings = new SmsServiceOmniMessagingSettings {
+            WebhookAuthenticationMethod = SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey,
+            WebhookApiKeyHeaderName = "X-API-Key",
+            WebhookSecret = "my-api-key"
+        };
+        var headers = new Dictionary<string, StringValues> {
+            ["X-API-Key"] = "my-api-key"
+        };
+        var payload = $$"""
+            {
+              "id": "event-123",
+              "webhook_type": "interaction",
+              "webhook_data": {
+                "message_id": "message-123",
+                "to": "306900000000",
+                "interaction": "{{interaction}}"
+              }
+            }
+            """;
+
+        var result = await ParseAsync(settings, headers, payload);
+
+        Assert.True(result.Success);
+        var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal(interaction, webhookEvent.EventType);
+        Assert.True(webhookEvent.Succeeded);
     }
 
     [Fact]
@@ -59,11 +92,11 @@ public sealed class OmniMessagingWebhookAuthenticationTests
         Assert.Single(result.Events);
     }
 
-    private static Task<WebhookHttpResult> ParseAsync(SmsServiceOmniMessagingSettings settings, Dictionary<string, StringValues> headers) {
+    private static Task<WebhookHttpResult> ParseAsync(SmsServiceOmniMessagingSettings settings, Dictionary<string, StringValues> headers, string payload = Payload) {
         var options = new Mock<IOptionsSnapshot<SmsServiceOmniMessagingSettings>>();
         options.Setup(x => x.Value).Returns(settings);
         var handler = new OmnimessagingWebhookHttpHandler(options.Object);
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(Payload));
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes(payload));
         return handler.ParseAsync(headers, [], stream, TestContext.Current.CancellationToken);
     }
 }

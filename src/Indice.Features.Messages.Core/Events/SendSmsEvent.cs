@@ -27,6 +27,8 @@ public class SendSmsEvent
     public MessageType? MessageType { get; set; }
     /// <summary>The message Id.</summary>
     public Guid MessageId { get; set; }
+    /// <summary>The unique identifier given from the send provider for successful events.</summary>
+    public string? ReceiptId { get; set; }
 
     /// <summary>Creates a <see cref="SendSmsEvent"/> instance from a <see cref="ResolveMessageEvent"/> instance.</summary>
     /// <param name="messageEvent">The event model used when a contact is resolved from an external system.</param>
@@ -52,8 +54,9 @@ public class SendSmsEvent
     /// </summary>
     /// <param name="type">The type of the event.</param>
     /// <param name="succeeded">Indicates whether the event succeeded.</param>
+    /// <param name="receiptId">The unique identifier given from the send provider for successful events.</param>
     /// <returns></returns>
-    public MessageEvent ToMessageEvent(string type, bool succeeded) => new MessageEvent {
+    public MessageEvent ToMessageEvent(string type, bool succeeded, string? receiptId) => new MessageEvent {
         CampaignId = CampaignId,
         ContactId = ContactId,
         MessageId = MessageId,
@@ -61,6 +64,7 @@ public class SendSmsEvent
         Channel = MessageChannelKind.SMS.ToString(),
         Recipient = RecipientPhoneNumber!,
         Title = Title ?? "",
-        Success = succeeded
+        Success = succeeded,
+        ReceiptId = receiptId
     };
 }

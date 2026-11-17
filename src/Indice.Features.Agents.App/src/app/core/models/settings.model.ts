@@ -4,6 +4,10 @@ export interface IAppSettings {
   assistant_name: string;
   /** Theme the app started with: session storage `theme` (fed by the `?uitheme=` query string argument), else the host's `<html data-theme>` (`AgentsUIOptions.Theme`), else `dex`. */
   theme: string;
+  /** Whether this page is the compact `/embed` route framed by the chat widget (`widget.js`). Guests only: no sign-in, and no use of a signed-in user. */
+  embed: boolean;
+  /** Parent origins allowed to frame `/embed` and talk to it over `postMessage` (`AgentsUIOptions.Widget.AllowedOrigins`). */
+  widget_origins: string[];
   api_url: string;
   auth_settings: IAuthSettings;
   culture: string;

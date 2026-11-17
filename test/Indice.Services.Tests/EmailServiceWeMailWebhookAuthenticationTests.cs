@@ -180,6 +180,91 @@ public sealed class EmailServiceWeMailWebhookAuthenticationTests
         Assert.Empty(result.Events);
     }
 
+    [Theory]
+    [InlineData("queued", true)]
+    [InlineData("sent", true)]
+    [InlineData("delivered", true)]
+    [InlineData("opened", true)]
+    [InlineData("clicked", true)]
+    [InlineData("unsubscribed", true)]
+    [InlineData("resubscribed", true)]
+    [InlineData("DELIVERED", true)]
+    [InlineData("bounced", false)]
+    [InlineData("blocked", false)]
+    [InlineData("failed", false)]
+    [InlineData("complained", false)]
+    [InlineData("unknown", false)]
+    public async Task ParseEvents_ClassifiesEmailEvents(string eventType, bool expectedSucceeded) {
+        var payload = $$"""
+            {"message_id":"msg_123","event":"{{eventType}}"}
+            """;
+
+        var result = await ParseAsync(new EmailServiceWeMailSettings(), new Dictionary<string, StringValues>(), payload);
+
+        Assert.True(result.Success);
+        Assert.Equal(204, result.Status);
+        var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal(EmailServiceWeMail.ServiceName, webhookEvent.Provider);
+        Assert.Equal("msg_123", webhookEvent.MessageId);
+        Assert.Equal(eventType, webhookEvent.EventType);
+        Assert.Equal(expectedSucceeded, webhookEvent.Succeeded);
+        Assert.Equal(WebhookChannel.Email, webhookEvent.Channel);
+    }
+
+    [Fact]
+    public async Task ParseEvents_Batch_PreservesMetadataAndClassifiesNestedStatus() {
+        const string payload = """
+            [
+              {
+                "id": "evt_123",
+                "message_id": "msg_123",
+                "event": "delivered",
+                "to": "recipient@example.com",
+                "subject": "Order update",
+                "created_at": "2025-01-01T00:00:00Z"
+              },
+              {
+                "id": "evt_456",
+                "data": {
+                  "message_id": "msg_456",
+                  "status": "bounced",
+                  "to": "other@example.com",
+                  "subject": "Delivery update",
+                  "timestamp": 1735689600
+                }
+              }
+            ]
+            """;
+
+        var result = await ParseAsync(new EmailServiceWeMailSettings(), new Dictionary<string, StringValues>(), payload);
+
+        Assert.True(result.Success);
+        Assert.Equal(204, result.Status);
+        Assert.Collection(result.Events,
+            delivered => {
+                Assert.Equal("evt_123", delivered.EventId);
+                Assert.Equal("msg_123", delivered.MessageId);
+                Assert.Equal("delivered", delivered.EventType);
+                Assert.Equal("recipient@example.com", delivered.Recipient);
+                Assert.Equal("Order update", delivered.Subject);
+                Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1735689600), delivered.Timestamp);
+                Assert.Equal("delivered", delivered.Payload?["event"]?.GetValue<string>());
+                Assert.True(delivered.Succeeded);
+                Assert.Equal(WebhookChannel.Email, delivered.Channel);
+            },
+            bounced => {
+                Assert.Equal("evt_456", bounced.EventId);
+                Assert.Equal("msg_456", bounced.MessageId);
+                Assert.Equal("bounced", bounced.EventType);
+                Assert.Equal("other@example.com", bounced.Recipient);
+                Assert.Equal("Delivery update", bounced.Subject);
+                Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1735689600), bounced.Timestamp);
+                Assert.Equal("bounced", bounced.Payload?["data"]?["status"]?.GetValue<string>());
+                Assert.False(bounced.Succeeded);
+                Assert.Equal(WebhookChannel.Email, bounced.Channel);
+            });
+    }
+
     private static async Task<WebhookHttpResult> ParseAsync(EmailServiceWeMailSettings settings, Dictionary<string, StringValues> headers, string payload = Payload) {
         var options = new Mock<IOptions<EmailServiceWeMailSettings>>();
         options.Setup(x => x.Value).Returns(settings);

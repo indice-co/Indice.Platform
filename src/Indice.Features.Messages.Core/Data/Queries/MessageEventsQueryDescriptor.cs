@@ -74,7 +74,7 @@ SELECT
     Count(Id) AS [Events]
 FROM 
     [{0}].[MessageEvent] E
-where E.[Type] = @Type AND (@Channel IS NULL OR E.[Channel] = @Channel) 
+where E.[Type] = @Type AND E.[Orphan] = 0 AND (@Channel IS NULL OR E.[Channel] = @Channel) 
                        AND (@RangeStart IS NULL OR E.[CreatedOn] >= @RangeStart)
                        AND (@RangeEnd IS NULL OR E.[CreatedOn] < @RangeEnd)
 GROUP BY 
@@ -93,7 +93,7 @@ SELECT
     Count(""Id"") AS ""Events""
 FROM 
     ""{0}"".""MessageEvent"" E
-WHERE E.""Type"" = @Type AND (@Channel IS NULL OR E.""Channel"" = @Channel) 
+WHERE E.""Type"" = @Type AND E.""Orphan"" = FALSE AND (@Channel IS NULL OR E.""Channel"" = @Channel) 
                          AND (@RangeStart IS NULL OR E.""CreatedOn"" >= @RangeStart)
                          AND (@RangeEnd IS NULL OR E.""CreatedOn"" < @RangeEnd)
 GROUP BY 

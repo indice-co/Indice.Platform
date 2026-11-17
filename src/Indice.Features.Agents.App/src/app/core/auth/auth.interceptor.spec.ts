@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { AuthService } from '@indice/ng-auth';
 import { NEVER, of } from 'rxjs';
 
+import { EMBED_MODE } from '../embed/embed-mode';
 import { AuthGuestService } from './auth-guest.service';
 import { authInterceptor } from './auth.interceptor';
 
@@ -87,5 +88,46 @@ describe('authInterceptor', () => {
 
     expect(auth.removeUser).toHaveBeenCalled();
     expect(auth.signoutRedirect).toHaveBeenCalled();
+  });
+
+  describe('in the widget frame (embed mode)', () => {
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      sessionStorage.removeItem('dex.embed.guest.session');
+      TestBed.configureTestingModule({
+        providers: [
+          provideZonelessChangeDetection(),
+          provideHttpClient(withInterceptors([authInterceptor])),
+          provideHttpClientTesting(),
+          { provide: AuthService, useValue: auth },
+          { provide: EMBED_MODE, useValue: true },
+        ],
+      });
+      http = TestBed.inject(HttpClient);
+      backend = TestBed.inject(HttpTestingController);
+      guest = TestBed.inject(AuthGuestService);
+    });
+
+    afterEach(() => sessionStorage.removeItem('dex.embed.guest.session'));
+
+    it('never sends the signed-in user token, only the guest one', () => {
+      auth.userHeader = 'Bearer user';
+      guest.capture({ accessToken: 'guest', expiresIn: 3600 });
+
+      http.get('/api/x').subscribe();
+
+      expect(backend.expectOne('/api/x').request.headers.get('Authorization')).toBe('Bearer guest');
+    });
+
+    it('a 401 clears the guest and signs nobody out, even with a user signed in elsewhere', () => {
+      auth.userHeader = 'Bearer user';
+      guest.capture({ accessToken: 'guest', expiresIn: 3600 });
+
+      http.get('/api/x').subscribe({ error: () => undefined });
+      backend.expectOne('/api/x').flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(guest.isActive).toBeFalse();
+      expect(auth.signoutRedirect).not.toHaveBeenCalled();
+    });
   });
 });
