@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { AuthService } from '@indice/ng-auth';
 import { BehaviorSubject, filter } from 'rxjs';
 
+import { EMBED_MODE } from '../embed/embed-mode';
+
 /**
  * The credentials the server mints for an anonymous caller, delivered on the SSE `start` frame of
  * the turn that created the conversation (`POST /my/chats/stream`). Declared here because the
@@ -25,6 +27,13 @@ export interface GuestSessionState {
 
 /** Where the guest credential is kept. Per-tab: it survives a reload, not a tab close. */
 const STORAGE_KEY = 'dex.guest.session';
+/**
+ * The widget frame's own key: a same-origin frame shares session storage with the tab around it, and the widget's guest
+ * must neither overwrite nor adopt the full UI's.
+ */
+const EMBED_STORAGE_KEY = 'dex.embed.guest.session';
+/** Longest display name sent as `authorName` (the server accepts up to 250). */
+const MAX_DISPLAY_NAME_LENGTH = 100;
 /** Treat a token as dead this long before it is, so an in-flight request never lands on an expired one. */
 const EXPIRY_SKEW_MS = 30_000;
 
@@ -34,17 +43,36 @@ const EXPIRY_SKEW_MS = 30_000;
  */
 @Injectable({ providedIn: 'root' })
 export class AuthGuestService {
-  private readonly state = new BehaviorSubject<GuestSessionState | null>(readStored());
+  private readonly embed = inject(EMBED_MODE);
+  private readonly storageKey = this.embed ? EMBED_STORAGE_KEY : STORAGE_KEY;
+  private readonly state = new BehaviorSubject<GuestSessionState | null>(readStored(this.storageKey));
+  private name: string | null = null;
 
   /** The guest credential, or `null`. Emits on capture and on clear. */
   readonly session$ = this.state.asObservable();
 
   constructor() {
     // A signed-in user never sends guest credentials: drop the guest session the moment one appears
-    // (sign-in callback, silent renew, or a user restored from storage on load).
-    inject(AuthService)
-      .user$.pipe(filter((user) => !!user && !user.expired))
-      .subscribe(() => this.clear());
+    // (sign-in callback, silent renew, or a user restored from storage on load). The widget frame is the exception:
+    // it is guests only, and the user it sees is the one signed in to a same-origin full UI tab, not its own.
+    if (!this.embed) {
+      inject(AuthService)
+        .user$.pipe(filter((user) => !!user && !user.expired))
+        .subscribe(() => this.clear());
+    }
+  }
+
+  /**
+   * The name the visitor goes by, when the page hosting the widget passed one (`DexWidget.identify`). Unverified and
+   * for display only: it is sent as `authorName` on the anonymous create, so it only applies to a guest yet to be minted.
+   */
+  get displayName(): string | null {
+    return this.name;
+  }
+
+  set displayName(value: string | null | undefined) {
+    const name = typeof value === 'string' ? value.trim().slice(0, MAX_DISPLAY_NAME_LENGTH) : '';
+    this.name = name || null;
   }
 
   /** The live credential — `null` when absent or expired (an expired one is cleared as a side effect). */
@@ -85,7 +113,7 @@ export class AuthGuestService {
     };
     this.state.next(session);
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+      sessionStorage.setItem(this.storageKey, JSON.stringify(session));
     } catch {
       // Private browsing can refuse storage — the session just won't survive the reload.
     }
@@ -94,7 +122,7 @@ export class AuthGuestService {
   /** Forget the credential. No-op when there is none, so subscribers see no spurious `null`. */
   clear(): void {
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(this.storageKey);
     } catch {
       // Storage unavailable — nothing was persisted to begin with.
     }
@@ -108,9 +136,9 @@ function isExpired(session: GuestSessionState): boolean {
   return session.expiresAt !== null && session.expiresAt - EXPIRY_SKEW_MS <= Date.now();
 }
 
-function readStored(): GuestSessionState | null {
+function readStored(storageKey: string): GuestSessionState | null {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(storageKey);
     if (!raw) {
       return null;
     }
@@ -119,7 +147,7 @@ function readStored(): GuestSessionState | null {
       return null;
     }
     if (isExpired(parsed)) {
-      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(storageKey);
       return null;
     }
     return parsed;

@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { AuthService } from '@indice/ng-auth';
 import { catchError, throwError } from 'rxjs';
 
+import { EMBED_MODE } from '../embed/embed-mode';
 import { AuthGuestService } from './auth-guest.service';
 
 /**
@@ -14,13 +15,16 @@ import { AuthGuestService } from './auth-guest.service';
  * bounced to the identity server's logout page). The signed-in 401 behaviour is kept verbatim; a
  * guest 401 just drops the dead guest credential.
  *
+ * The widget's `/embed` frame is guests only: it never sends the user token, which there belongs to a same-origin
+ * full UI tab, not to the frame.
+ *
  * The SSE endpoints use `fetch`, not `HttpClient` — `ChatStreamService` applies the same rule itself.
  */
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
   const guest = inject(AuthGuestService);
 
-  const userHeader = auth.getAuthorizationHeaderValue();
+  const userHeader = inject(EMBED_MODE) ? '' : auth.getAuthorizationHeaderValue();
   const header = userHeader || guest.getAuthorizationHeaderValue();
   const authorized = header ? request.clone({ setHeaders: { Authorization: header } }) : request;
 

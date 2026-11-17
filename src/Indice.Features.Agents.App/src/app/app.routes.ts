@@ -4,6 +4,7 @@ import { AuthGuardService } from '@indice/ng-auth';
 import { AuthCallbackComponent } from './core/auth/auth-callback.component';
 import { AuthRenewComponent } from './core/auth/auth-renew.component';
 import { authSettledGuard } from './core/auth/auth-settled.guard';
+import { EmbedShellComponent } from './core/embed/embed-shell.component';
 import { LoggedOutComponent } from './core/auth/logged-out.component';
 import { ShellComponent } from './core/layout/shell.component';
 import { assistantName } from './core/models/brand';
@@ -15,6 +16,14 @@ export const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
   { path: 'logged-out', component: LoggedOutComponent },
+
+  // The chat widget's frame (widget.js). Guests only, so it doesn't wait for the OIDC user: the user it would find
+  // belongs to a same-origin full UI tab, not to the frame.
+  {
+    path: 'embed',
+    component: EmbedShellComponent,
+    children: [{ path: '', component: ChatPageComponent, title: assistantName }],
+  },
 
   // App shell (conversation rail) hosting the feature pages. Open to guests — the chat is public;
   // pages that need a signed-in user guard themselves.
