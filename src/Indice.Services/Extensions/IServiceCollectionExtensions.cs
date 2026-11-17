@@ -706,8 +706,8 @@ public static class IndiceServicesServiceCollectionExtensions
                 builder.AddHttpHandler<BrevoWebhookHttpHandler>(provider);
                 break;
             case EmailServiceWeMail.ServiceName:
-                services.Configure<EmailServiceWeMailSettings>(configuration.GetSection(EmailServiceWeMailSettings.Name));
-                services.AddWebhookServices<THandler, WeMailWebhookHttpHandler>(configuration, provider);
+                builder.Services.Configure<EmailServiceWeMailSettings>(builder.Configuration.GetSection(EmailServiceWeMailSettings.Name));
+                builder.AddHttpHandler<WeMailWebhookHttpHandler>(provider);
                 break;
         }
         return builder;
