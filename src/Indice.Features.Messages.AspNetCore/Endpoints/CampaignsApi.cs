@@ -86,7 +86,7 @@ internal static class CampaignsApi
              .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .WithParameterValidation<UploadFileRequest>()
              .Accepts<UploadFileRequest>(MediaTypeNames.Multipart.FormData)
-             .LimitUpload(options.FileUploadLimit, options.AcceptableAttachmentExtensions);
+             .LimitUpload(options.FileUploadLimit, options.AllowedAttachmentExtensions);
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.DeleteCampaignAttachment))

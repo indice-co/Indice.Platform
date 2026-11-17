@@ -24,10 +24,10 @@ public class MessageEndpointOptions : CampaignOptionsBase
     /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
     public int FileUploadLimit { get; set; } = 6 * 1024 * 1024;
     /// <summary>
-    /// The file extensions accepted for campaign attachments, as a comma or space separated string. Defaults to <see cref="CampaignOptionsBase.DefaultAcceptableAttachmentExtensions"/>.
+    /// The file extensions accepted for campaign attachments, as a comma or space separated string. Defaults to <see cref="CampaignOptionsBase.DefaultAllowedAttachmentExtensions"/>.
     /// </summary>
     /// <remarks>Attachments are served anonymously from the API origin, so avoid browser renderable types such as .html, .svg, .xml or .js.</remarks>
-    public string AcceptableAttachmentExtensions { get; set; } = DefaultAcceptableAttachmentExtensions;
+    public string AllowedAttachmentExtensions { get; set; } = DefaultAllowedAttachmentExtensions;
 
     /// <summary> Specifies whether the translation endpoints should be mapped. Defaults to true.</summary>
     public bool MapTranslations { get; set; } = true;
@@ -50,10 +50,10 @@ public class MessageManagementOptions : CampaignOptionsBase
     /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
     public int FileUploadLimit { get; set; } = 6 * 1024 * 1024;
     /// <summary>
-    /// The file extensions accepted for campaign attachments, as a comma or space separated string. Defaults to <see cref="CampaignOptionsBase.DefaultAcceptableAttachmentExtensions"/>.
+    /// The file extensions accepted for campaign attachments, as a comma or space separated string. Defaults to <see cref="CampaignOptionsBase.DefaultAllowedAttachmentExtensions"/>.
     /// </summary>
     /// <remarks>Attachments are served anonymously from the API origin, so avoid browser renderable types such as .html, .svg, .xml or .js.</remarks>
-    public string AcceptableAttachmentExtensions { get; set; } = DefaultAcceptableAttachmentExtensions;
+    public string AllowedAttachmentExtensions { get; set; } = DefaultAllowedAttachmentExtensions;
 
     /// <summary> Specifies whether the translation endpoints should be mapped. Defaults to true.</summary>
     public bool MapTranslations { get; set; } = true;
@@ -78,7 +78,7 @@ public class MessageInboxOptions : CampaignOptionsBase
 public class CampaignOptionsBase
 {
     /// <summary>The default file extensions accepted for campaign attachments (documents, archives and raster images).</summary>
-    public const string DefaultAcceptableAttachmentExtensions = ".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .odt, .ods, .odp, .rtf, .txt, .csv, .zip, .png, .jpg, .jpeg, .gif, .webp";
+    public const string DefaultAllowedAttachmentExtensions = ".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .odt, .ods, .odp, .rtf, .txt, .csv, .zip, .png, .jpg, .jpeg, .gif, .webp";
 
     /// <summary>Creates a new instance of <see cref="CampaignOptionsBase"/>.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
