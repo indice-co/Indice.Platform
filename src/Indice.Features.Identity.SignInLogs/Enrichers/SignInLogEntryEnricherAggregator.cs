@@ -25,10 +25,11 @@ internal class SignInLogEntryEnricherAggregator
         if (discard) {
             return EnrichResult.MustDiscard;
         }
-        if (dependencyType.HasValue) {
-            _enrichers = _enrichers.Where(enricher => dependencyType.Value.HasFlag(enricher.RunType));
+        var enrichersToRun = _enrichers;
+        if (dependencyType is { } runType) {
+            enrichersToRun = enrichersToRun.Where(enricher => runType.HasFlag(enricher.RunType));
         }
-        foreach (var enricher in _enrichers.OrderBy(x => x.Order)) {
+        foreach (var enricher in enrichersToRun.OrderBy(x => x.Order)) {
             await enricher.EnrichAsync(logEntry);
         }
         return EnrichResult.Success;

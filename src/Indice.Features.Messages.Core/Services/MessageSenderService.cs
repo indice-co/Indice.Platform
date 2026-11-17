@@ -100,8 +100,8 @@ public class MessageSenderService : IMessageSenderService
         if (!string.IsNullOrWhiteSpace(options.Search)) {
             query = query.Where(x => x.DisplayName!.Contains(options.Search, StringComparison.CurrentCultureIgnoreCase));
         }
-        if (filter?.IsDefault is not null) {
-            query = query.Where(x => x.IsDefault == filter.IsDefault.Value);
+        if (filter?.IsDefault is bool isDefault) {
+            query = query.Where(x => x.IsDefault == isDefault);
         }
         return query.Select(messageSender => new MessageSender {
             Id = messageSender.Id,

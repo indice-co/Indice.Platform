@@ -64,7 +64,7 @@ public class SmsServiceApifonIM : ISmsService
 
         var payload = ApifonIMRequest.CreateIM(senderId!, recipients, body!, Options.ViberFallbackEnabled, Options.EnableUrlShortener);
         var signature = payload.Sign(Options.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
-        var request = new HttpRequestMessage {
+        using var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
             Method = HttpMethod.Post,
             RequestUri = new Uri($"{SmsServiceApifon.APIFON_BASE_URL}{SERVICE_ENDPOINT}")

@@ -33,7 +33,7 @@ public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
         }
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         Logger.LogDebug("The following payload was sent to Yuboto: {requestBody}", jsonData);
-        var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        using var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
         var httpResponseMessage = await HttpClient.PostAsync("Send", data);
         if (!httpResponseMessage.IsSuccessStatusCode) {
             var errorMessage = "SMS Delivery failed.\n";

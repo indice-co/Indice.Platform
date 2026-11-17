@@ -55,14 +55,14 @@ public class ActivityLogStore : IActivityLogStore
     public async Task<ResultSet<ActivityLogEntry>> ListAsync(ListOptions options, ActivityLogEntryFilter filter , CancellationToken cancellationToken = default) {
         IQueryable<Data.DbActivityLogEntry> query = _dbContext.ActivityLogs;
         if (filter is not null) {
-            if (filter.From.HasValue) {
-                query = query.Where(log => log.CreatedAt >= filter.From.Value);
+            if (filter.From is DateTimeOffset from) {
+                query = query.Where(log => log.CreatedAt >= from);
             }
-            if (filter.To.HasValue) {
-                query = query.Where(log => log.CreatedAt < filter.To.Value.AddDays(1));
+            if (filter.To is DateTimeOffset to) {
+                query = query.Where(log => log.CreatedAt < to.AddDays(1));
             }
-            if (filter.Succeeded.HasValue) {
-                query = query.Where(log => log.Succeeded == filter.Succeeded.Value);
+            if (filter.Succeeded is bool succeeded) {
+                query = query.Where(log => log.Succeeded == succeeded);
             }
             filter.SubjectFilterMode ??= SubjectFilterMode.Actor;
             switch (filter.SubjectFilterMode) {
