@@ -202,8 +202,9 @@ public class CampaignService : ICampaignService
         var totalRecipientsSum = await DbContext.Campaigns.SumAsync(x => x.RecipientCount ?? 0);
         // Sum of messages and of distinct message ids per campaign that count as "reached", computed in a single pass over the events.
         var reach = await (from e in DbContext.MessageEvents
-                           where e.Type == nameof(MessageEventType.Sent) ||
-                                 (e.Channel == nameof(MessageChannelKind.Inbox) && e.Type == nameof(MessageEventType.Created))
+                           where !e.Orphan &&
+                                 (e.Type == nameof(MessageEventType.Sent) ||
+                                 (e.Channel == nameof(MessageChannelKind.Inbox) && e.Type == nameof(MessageEventType.Created)))
                            group e by e.CampaignId into g
                            select new {
                                Messages = g.Count(),
@@ -220,10 +221,11 @@ public class CampaignService : ICampaignService
 
         // Sum of distinct contacts per campaign that count as "engaged"
         var engagedSum = await (from e in DbContext.MessageEvents
-                                where e.Type == nameof(MessageEventType.Opened) ||
+                                where !e.Orphan &&
+                                      (e.Type == nameof(MessageEventType.Opened) ||
                                       e.Type == nameof(MessageEventType.Deleted) ||
                                       e.Type == nameof(MessageEventType.UnRead) ||
-                                      e.Type == nameof(MessageEventType.Read)
+                                      e.Type == nameof(MessageEventType.Read))
                                 group e by e.CampaignId into g
                                 select g.Select(x => x.ContactId).Distinct().Count()
                                 ).SumAsync();
@@ -241,7 +243,7 @@ public class CampaignService : ICampaignService
     public async Task<List<ChannelMetrics>> GetChannelMetrics(Guid? campaignId = null) {
         // A failed send is retried and every attempt logs a "Sent" event, so collapse the attempts of a message on a channel
         // into one outcome: delivered when any attempt succeeded, failed otherwise.
-        var query = DbContext.MessageEvents.AsQueryable();
+        var query = DbContext.MessageEvents.Where(x => !x.Orphan);
 
         if (campaignId != null) {
             query = query.Where(x => x.CampaignId == campaignId);
@@ -269,7 +271,8 @@ public class CampaignService : ICampaignService
         // A message belongs to a single campaign, so the distinct messages are counted per campaign first and then summed per type.
         // This keeps the join with campaigns and the grouping by type down to one row per campaign instead of one per event.
         var perCampaign = from messageEvent in DbContext.MessageEvents
-                          where (onDate == null || (onDate.Value.Date.AddDays(-1) <= messageEvent.CreatedOn && messageEvent.CreatedOn <= onDate.Value.Date.AddDays(1))) &&
+                          where !messageEvent.Orphan &&
+                                (onDate == null || (onDate.Value.Date.AddDays(-1) <= messageEvent.CreatedOn && messageEvent.CreatedOn <= onDate.Value.Date.AddDays(1))) &&
                                 (messageEvent.Type == nameof(MessageEventType.Sent) ||
                                 (messageEvent.Channel == nameof(MessageChannelKind.Inbox) && messageEvent.Type == nameof(MessageEventType.Created)))
                           group messageEvent by messageEvent.CampaignId into g

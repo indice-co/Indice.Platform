@@ -5,6 +5,136 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.65.0]
+### Added provider webhook events
+Delivery events reported by the sms and email providers (delivered, opened, bounced etc.) are now stored as message events.
+Call `AddMessagesWebhookServices()` on the api host to register the default `MessagesWebhookHandler` and the webhook http handlers
+of the configured `Sms:Provider` and email provider, and map the endpoints with `MapWebhooks()` (`/webhooks/{provider}` by default).
+Use `AddMessagesWebhookServices<THandler>()` to plug in a custom `IWebhookHandler`.
+
+```csharp
+builder.AddMessagesWebhookServices(options => options.ChannelCapacity = 200);
+// ...
+app.MapWebhooks();
+```
+
+The `Webhooks` configuration section is bound to `WebhookOptions`. `Enabled` now defaults to `true`; when it is `false` the endpoints return `404`.
+```json
+{
+  "Webhooks": {
+    "Enabled": true,
+    "ChannelCapacity": 100
+  }
+}
+```
+
+### Breaking changes
+- `SendEmailEvent.ToMessageEvent` and `SendSmsEvent.ToMessageEvent` take a new `receiptId` parameter.
+- `MessageEventHostedServcie` is renamed to `MessageEventHostedService`.
+
+### Added `ReceiptId` column to message events
+`MessageEvent.ReceiptId` stores the message id returned by the sms or email provider when a message is sent (`Sent` events).
+Provider webhook events (delivered, opened, bounced etc.) carry the same id, so they are matched to the sent message through it and
+stored with its campaign, contact and message. The webhook events also keep the provider id in `ReceiptId`.
+Events stored before this change have no `ReceiptId`.
+
+Run the following migration script. It can safely run more than once.<br/>
+**Caution!** Update table schema if not [cmp]. Building the index on a large table takes time and blocks writes to it, so run it off-peak (or add `WITH (ONLINE = ON)` where the edition supports it).
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND name = N'ReceiptId'
+)
+BEGIN
+    ALTER TABLE [cmp].[MessageEvent]
+        ADD [ReceiptId] NVARCHAR(128) NULL;
+END;
+GO
+
+-- Webhook events are matched to the sent message by receipt id and event type.
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND name = N'IX_MessageEvent_ReceiptId_Type'
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_MessageEvent_ReceiptId_Type]
+        ON [cmp].[MessageEvent]([ReceiptId] ASC, [Type] ASC);
+END;
+GO
+```
+
+PostgreSQL (11 or later)
+```sql
+ALTER TABLE cmp."MessageEvent" ADD COLUMN IF NOT EXISTS "ReceiptId" character varying(128) NULL;
+
+-- Webhook events are matched to the sent message by receipt id and event type.
+CREATE INDEX IF NOT EXISTS "IX_MessageEvent_ReceiptId_Type" ON cmp."MessageEvent" ("ReceiptId", "Type");
+```
+
+### Added `Orphan` flag to message events
+Provider webhook events that cannot be matched to a sent campaign message are stored with an empty (`Guid.Empty`) `CampaignId` and `ContactId`.
+The new `MessageEvent.Orphan` column marks these events, and they are excluded from the dashboard and the analytics
+(delivery, recipient, channel and message type metrics, event series). They are still returned by the events list.
+The column is also included in `IX_MessageEvent_CampaignId_Type`, so the analytics keep reading only the index.
+
+Run the following migration script. It can safely run more than once.<br/>
+**Caution!** Update table schema if not [cmp]. Rebuilding the index on a large table takes time and blocks writes to it, so run it off-peak (or add `ONLINE = ON` where the edition supports it).
+```tsql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns
+    WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND name = N'Orphan'
+)
+BEGIN
+    ALTER TABLE [cmp].[MessageEvent]
+        ADD [Orphan] BIT NOT NULL
+            CONSTRAINT [DF_MessageEvent_Orphan] DEFAULT (0);
+END;
+GO
+
+-- Add the column to the included columns of the campaign index (or create the index if missing).
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes i
+    INNER JOIN sys.index_columns ic ON ic.[object_id] = i.[object_id] AND ic.[index_id] = i.[index_id]
+    INNER JOIN sys.columns c ON c.[object_id] = ic.[object_id] AND c.[column_id] = ic.[column_id]
+    WHERE i.[object_id] = OBJECT_ID(N'[cmp].[MessageEvent]')
+      AND i.[name] = N'IX_MessageEvent_CampaignId_Type'
+      AND c.[name] = N'Orphan'
+)
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE object_id = OBJECT_ID(N'[cmp].[MessageEvent]')
+          AND name = N'IX_MessageEvent_CampaignId_Type'
+    )
+        CREATE NONCLUSTERED INDEX [IX_MessageEvent_CampaignId_Type]
+            ON [cmp].[MessageEvent]([CampaignId] ASC, [Type] ASC)
+            INCLUDE ([Channel], [MessageId], [ContactId], [Success], [Orphan])
+            WITH (DROP_EXISTING = ON);
+    ELSE
+        CREATE NONCLUSTERED INDEX [IX_MessageEvent_CampaignId_Type]
+            ON [cmp].[MessageEvent]([CampaignId] ASC, [Type] ASC)
+            INCLUDE ([Channel], [MessageId], [ContactId], [Success], [Orphan]);
+END;
+GO
+```
+
+PostgreSQL (11 or later)
+```sql
+ALTER TABLE cmp."MessageEvent" ADD COLUMN IF NOT EXISTS "Orphan" boolean NOT NULL DEFAULT FALSE;
+
+-- Included columns cannot be altered, so the campaign index is created again with the new column.
+DROP INDEX IF EXISTS cmp."IX_MessageEvent_CampaignId_Type";
+CREATE INDEX "IX_MessageEvent_CampaignId_Type" ON cmp."MessageEvent" ("CampaignId", "Type") INCLUDE ("Channel", "MessageId", "ContactId", "Success", "Orphan");
+```
+
 ## [8.64.0]
 ### Added real time inbox notifications
 `IInboxNotifier` is invoked whenever an inbox message is created: per recipient when a campaign is resolved, once for everybody for global campaigns.

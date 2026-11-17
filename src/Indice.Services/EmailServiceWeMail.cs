@@ -357,7 +357,6 @@ public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings
         return false;
     }
 
-    //TODO: Use when we implement the webhook event filtering based on the event type.
     private static bool EventSucceeded(string eventType) {
         return SucceededStatuses.Contains(eventType);
     }
@@ -406,7 +405,9 @@ public sealed class WeMailWebhookHttpHandler(IOptions<EmailServiceWeMailSettings
                 Subject = GetString(item, "subject")
                           ?? GetString(item, "data.subject")
                           ?? GetString(item, "campaign"),
-                Payload = item.DeepClone()
+                Payload = item.DeepClone(),
+                Succeeded = EventSucceeded(eventType),
+                Channel = WebhookChannel.Email
             };
         }
     }

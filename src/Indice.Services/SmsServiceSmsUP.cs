@@ -189,8 +189,13 @@ public class SmsServiceSmsUpSettings
 }
 
 /// <inheritdoc/>
-public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler {
+public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler
+{
     private readonly SmsServiceSmsUpSettings _settings;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "Status:DELIVRD",
+        "Status:ACCEPTD"
+    };
 
     /// <inheritdoc/>
     public SmsUpWebhookHttpHandler(IOptionsSnapshot<SmsServiceSmsUpSettings> settings) {
@@ -244,13 +249,18 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler {
                 Recipient = recipient,
                 Subject = sender,
                 Timestamp = timestamp,
-                Payload = payload
+                Payload = payload,
+                Succeeded = EventSucceeded(eventType),
+                Channel = WebhookChannel.Sms
             }
         };
 
         return WebhookHttpResult.Ok(incomingEvents, 204);
     }
 
+    private static bool EventSucceeded(string eventType) {
+        return SucceededStatuses.Contains(eventType);
+    }
     private bool IsSignatureInvalid(IEnumerable<KeyValuePair<string, StringValues>> requestParameters) {
         if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) {
             return false;

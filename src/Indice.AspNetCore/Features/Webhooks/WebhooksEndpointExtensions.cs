@@ -2,12 +2,14 @@
 using System.Text.Json.Nodes;
 using System.Threading.Channels;
 using Indice.Services;
+using Indice.Services.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Webhooks;
 
@@ -64,7 +66,11 @@ public static class WebhooksEndpointExtensions
     }
 
     internal static async Task<Results<ValidationProblem, NotFound, NoContent, Ok<JsonNode>, Ok>> HandleWebhook( 
-        string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, CancellationToken cancellationToken) {
+        string provider, HttpContext context, [FromServices] Channel<List<WebhookEvent>> channel, [FromServices] IOptions<WebhookOptions> options, CancellationToken cancellationToken) {
+        if (!options.Value.Enabled) {
+            return TypedResults.NotFound();
+        }
+
         var httpHandler = context.RequestServices.GetKeyedService<IWebhookHttpHandler>(provider);
         
         if (httpHandler is null) {
