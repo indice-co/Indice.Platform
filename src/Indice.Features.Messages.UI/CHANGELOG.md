@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [Unreleased]
+
+### Breaking changes
+
+#### Inbox attachments are downloaded with the user's access token
+The attachment endpoints of the messaging api no longer allow anonymous access (see the `Indice.Features.Messages.AspNetCore`
+changelog). The "Attachment" button of the inbox reading pane no longer opens the attachment url in a new tab; it downloads the
+file through the authenticated http client and saves it. Every attachment, whatever its type, is saved as a file download and is
+never opened in the browser. Attachment urls that do not belong to the messaging api are not downloaded, so the access token is
+never sent to other hosts. Update the UI together with the api, since older UI versions receive `401` when opening attachments.
+
+### Fixes
+
+#### Campaign details attachment download
+The download button in the "Attachments" section of the campaign details page did nothing. The attachment permalink already starts
+with the api path prefix (e.g. `/api/campaigns/attachments/...`), but it was appended to the api origin with an extra `/`. That gave
+`https://host//api/...` (404) when `api_url` was absolute, and a protocol-relative `//api/...` url with no domain when `api_url` was
+relative. The permalink is now resolved against `api_url` (or the app origin), downloaded only if it belongs to the messaging api,
+and saved as a file download like the inbox attachments. Failures now show an error toast.
+
 ## [8.64.0]
 
 ### Personal inbox

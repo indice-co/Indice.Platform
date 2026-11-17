@@ -696,6 +696,9 @@
   <data name="Campaigns.AttachmentsLabel" xml:space="preserve">
     <value>Attachments</value>
   </data>
+  <data name="Campaigns.AttachmentDownloadError" xml:space="preserve">
+    <value>The attachment could not be downloaded. Please try again.</value>
+  </data>
   <data name="Campaigns.AttachmentsInfo" xml:space="preserve">
     <value>Campaign attachments</value>
   </data>
@@ -2912,5 +2915,8 @@ user_code_2</value>
   </data>
   <data name="Inbox.Attachment" xml:space="preserve">
     <value>Attachment</value>
+  </data>
+  <data name="Inbox.AttachmentError" xml:space="preserve">
+    <value>The attachment could not be downloaded. Please try again.</value>
   </data>
 </root>

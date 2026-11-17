@@ -97,7 +97,6 @@ internal static class CampaignsApi
              .WithName(nameof(CampaignsHandlers.GetCampaignAttachment))
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
-             .AllowAnonymous()
              .ExcludeFromDescription();
 
         group.MapGet("{campaignId}/messages", CampaignsHandlers.GetCampaignMessages)

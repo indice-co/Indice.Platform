@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { BehaviorSubject, Subject, of } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 import { DialogService } from 'src/app/ui/dialog/dialog.service';
 import { FilterClause } from 'src/app/ui/list/filter-clause';
@@ -14,6 +15,8 @@ class TestInboxComponent extends InboxComponent {
   public readonly selection = this.selected;
   public read(message: InboxMessage): void { this.markAsRead(message); }
   public unread(message: InboxMessage): void { this.markAsUnread(message); }
+  public attach(message: InboxMessage): void { this.openAttachment(message); }
+  public readonly downloading = this.attachmentLoading;
 }
 
 describe('InboxComponent read-state reconciliation', () => {
@@ -80,4 +83,82 @@ describe('InboxComponent read-state reconciliation', () => {
       expect(component.selection()).toBe(second);
     });
   }
+});
+
+describe('InboxComponent attachments', () => {
+  const apiUrl = `${window.location.origin}/api/messages/attachments/file`;
+  let component: TestInboxComponent;
+  let api: jasmine.SpyObj<InboxApiService>;
+  let toaster: jasmine.SpyObj<AppTranslatedToaster>;
+  let open: jasmine.Spy;
+
+  const message = (attachmentUrl: string): InboxMessage => ({ id: 'a', createdAt: '', attachmentUrl });
+
+  beforeEach(() => {
+    api = jasmine.createSpyObj<InboxApiService>('InboxApiService', ['getMessageTypes', 'resolveAttachmentUrl', 'getAttachment']);
+    api.getMessageTypes.and.returnValue(of([]));
+    api.resolveAttachmentUrl.and.callFake(m => m.attachmentUrl ?? undefined);
+    toaster = jasmine.createSpyObj<AppTranslatedToaster>('AppTranslatedToaster', ['show']);
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: InboxStore, useValue: { changes$: new Subject() } },
+        { provide: InboxApiService, useValue: api },
+        { provide: ActivatedRoute, useValue: { queryParamMap: new BehaviorSubject(convertToParamMap({})) } },
+        { provide: Router, useValue: {} },
+        { provide: DialogService, useValue: {} },
+        { provide: AppTranslatedToaster, useValue: toaster }
+      ]
+    });
+    component = TestBed.runInInjectionContext(() => new TestInboxComponent());
+    open = spyOn(window, 'open');
+  });
+
+  it('downloads documents through the authenticated api instead of navigating to them', () => {
+    const clicked: HTMLAnchorElement[] = [];
+    spyOn(HTMLAnchorElement.prototype, 'click').and.callFake(function (this: HTMLAnchorElement) { clicked.push(this); });
+    api.getAttachment.and.returnValue(of(new Blob(['%PDF'], { type: 'application/pdf' })));
+    component.attach(message(`${apiUrl}.pdf`));
+    expect(api.getAttachment).toHaveBeenCalledOnceWith(`${apiUrl}.pdf`);
+    expect(open).not.toHaveBeenCalled();
+    expect(clicked.length).toBe(1);
+    expect(clicked[0].href).toMatch(/^blob:/u);
+    expect(clicked[0].download).toBe('file.pdf');
+    expect(component.downloading()).toBeFalse();
+  });
+
+  it('downloads images the same way, without opening them in the browser', () => {
+    const clicked: HTMLAnchorElement[] = [];
+    spyOn(HTMLAnchorElement.prototype, 'click').and.callFake(function (this: HTMLAnchorElement) { clicked.push(this); });
+    const response = new Subject<Blob>();
+    api.getAttachment.and.returnValue(response);
+    component.attach(message(`${apiUrl}.png`));
+    expect(component.downloading()).toBeTrue();
+    response.next(new Blob(['png'], { type: 'image/png' }));
+    response.complete();
+    expect(open).not.toHaveBeenCalled();
+    expect(clicked.length).toBe(1);
+    expect(clicked[0].download).toBe('file.png');
+    expect(component.downloading()).toBeFalse();
+  });
+
+  it('reports failed downloads', () => {
+    api.getAttachment.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+    component.attach(message(`${apiUrl}.png`));
+    expect(open).not.toHaveBeenCalled();
+    expect(toaster.show).toHaveBeenCalledTimes(1);
+    expect(component.downloading()).toBeFalse();
+  });
+
+  it('leaves unauthorized downloads to the sign in flow', () => {
+    api.getAttachment.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
+    component.attach(message(`${apiUrl}.pdf`));
+    expect(toaster.show).not.toHaveBeenCalled();
+  });
+
+  it('does not open attachments it refuses to download', () => {
+    api.getAttachment.and.returnValue(throwError(() => new Error('Only attachments of the messaging api can be downloaded.')));
+    component.attach(message('https://files.example/file.pdf'));
+    expect(open).not.toHaveBeenCalled();
+    expect(toaster.show).toHaveBeenCalledTimes(1);
+  });
 });
