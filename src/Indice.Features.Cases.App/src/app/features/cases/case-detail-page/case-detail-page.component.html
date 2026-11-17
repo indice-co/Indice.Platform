@@ -121,6 +121,13 @@
             }
           </ng-template>
         </app-tab>
+        @if (canAdminister) {
+          <app-tab id="access-rules" [label]="'accessRules.title' | translate">
+            <ng-template appTabContent>
+              <app-case-access-rules class="block p-5 sm:p-6" [case]="caseModel" />
+            </ng-template>
+          </app-tab>
+        }
       </app-tab-group>
 
       @if (actions.hasApproval || panelActions().length) {
