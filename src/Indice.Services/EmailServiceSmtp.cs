@@ -34,7 +34,7 @@ public class EmailServiceSmtp : IEmailService
     /// <inheritdoc/>
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
         var messageId = MimeUtils.GenerateMessageId();
-        var message = new MimeMessage();
+        using var message = new MimeMessage();
         message.From.Add(new MailboxAddress(from?.DisplayName ?? Settings.SenderName, from?.Address ?? Settings.Sender));
         message.To.AddRange(recipients.Select(InternetAddress.Parse));
         if (!string.IsNullOrWhiteSpace(Settings.BccRecipients)) {

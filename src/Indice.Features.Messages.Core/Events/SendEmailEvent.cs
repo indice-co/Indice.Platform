@@ -51,8 +51,9 @@ public class SendEmailEvent
     /// </summary>
     /// <param name="type">The type of the event.</param>
     /// <param name="succeeded">Indicates whether the event succeeded.</param>
+    /// <param name="receiptId">The unique identifier given from the send provider for successful events.</param>
     /// <returns></returns>
-    public MessageEvent ToMessageEvent(string type, bool succeeded) => new MessageEvent {
+    public MessageEvent ToMessageEvent(string type, bool succeeded, string? receiptId) => new MessageEvent {
         CampaignId = CampaignId,
         ContactId = ContactId,
         MessageId = MessageId,
@@ -60,6 +61,7 @@ public class SendEmailEvent
         Channel = MessageChannelKind.Email.ToString(),
         Recipient = RecipientEmail!,
         Title = Title ?? "",
-        Success = succeeded
+        Success = succeeded,
+        ReceiptId = receiptId
     };
 }

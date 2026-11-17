@@ -191,13 +191,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();
         } else {
-#if NET9_0_OR_GREATER
-
-            var certificate = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
-#else
-            var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
-#endif
-            identityServerBuilder.AddSigningCredential(certificate);
+            identityServerBuilder.AddSigningCredential(LoadSigningCertificate(configuration, webHostEnvironment));
         }
 
 #if NET9_0_OR_GREATER
@@ -209,6 +203,19 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         }
 #endif
         return identityServerBuilder;
+    }
+
+    // The returned certificate is owned by the IdentityServer signing credential store for the lifetime of the application.
+    private static X509Certificate2 LoadSigningCertificate(IConfiguration configuration, IWebHostEnvironment webHostEnvironment) {
+        var signingPfxFile = configuration["IdentityServer:SigningPfxFile"] ?? string.Empty;
+        var path = Path.IsPathRooted(signingPfxFile)
+            ? signingPfxFile
+            : Path.Combine(webHostEnvironment.ContentRootPath, signingPfxFile);
+#if NET9_0_OR_GREATER
+        return X509CertificateLoader.LoadPkcs12FromFile(path, configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#else
+        return new X509Certificate2(path, configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#endif
     }
 
     private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services, IConfiguration configuration) {
@@ -449,7 +456,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.AllRateLimiterPolicies = RateLimiterPolicies.All;
             options.CustomPolicyFactory = (policyName) => policyName switch {
                 "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
-                "forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+                "forgot-password" => new() { PermitLimit = 1, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
+                "account/forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },
                 "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
                 "login/add-email" => new() { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), HttpMethod = "POST" },

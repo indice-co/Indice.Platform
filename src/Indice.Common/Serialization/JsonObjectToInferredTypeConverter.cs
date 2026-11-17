@@ -35,7 +35,7 @@ public class JsonObjectToInferredTypeConverter : JsonConverter<object?>
 
     /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, object? value, JsonSerializerOptions options) {
-        if (value?.GetType().Name is "JObject" or "JArray") {
+        if (value is not null && value.GetType().Name is "JObject" or "JArray") {
             var json = value.ToString();
             var regex = new Regex(@"\:\s?(\d+\.0)\s?(,|}|\n)");
             json = regex.Replace(json!, new MatchEvaluator(match => {

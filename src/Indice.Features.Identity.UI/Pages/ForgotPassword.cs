@@ -3,6 +3,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Extensions;
+using Indice.Features.Identity.Core.Guards;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
@@ -10,6 +11,7 @@ using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -91,6 +93,12 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         }
         var user = await UserManager.FindByEmailAsync(Input.Email ?? throw new InvalidOperationException("Email cannot be null."));
         if (user is null) {
+            return Page();
+        }
+        // Same response as a sent email, so the limit does not reveal whether the account exists.
+        var actionRateLimiter = ServiceProvider.GetRequiredService<IActionRateLimiter>();
+        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, ActionRateLimiterActionNames.ForgotPassword)) {
+            Logger.LogWarning("Forgot password email limit reached for user {UserId}.", user.Id);
             return Page();
         }
         if (user.Claims.Count is 0) {

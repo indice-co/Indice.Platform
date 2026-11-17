@@ -27,16 +27,19 @@ public class DbMessageEventMap : IEntityTypeConfiguration<DbMessageEvent>
         builder.Property(x => x.Channel).HasMaxLength(TextSizePresets.S64);
         builder.Property(x => x.Recipient).HasMaxLength(TextSizePresets.M128);
         builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128);
+        builder.Property(x => x.ReceiptId).HasMaxLength(TextSizePresets.M128);
 
         // indexes
         builder.HasIndex(x => x.Type);
         builder.HasIndex(x => x.Channel);
         builder.HasIndex(x => x.Recipient);
+        // receipt lookups filtered by event type (e.g. sent)
+        builder.HasIndex(x => new { x.ReceiptId, x.Type });
         // events list (newest first) and date ranged analytics
         builder.HasIndex(x => x.CreatedOn);
         // campaign reports and the per campaign analytics, covering so they do not read the whole row
         var campaignIndex = builder.HasIndex(x => new { x.CampaignId, x.Type });
-        SqlServerIndexBuilderExtensions.IncludeProperties(campaignIndex, x => new { x.Channel, x.MessageId, x.ContactId, x.Success });
-        NpgsqlIndexBuilderExtensions.IncludeProperties(campaignIndex, x => new { x.Channel, x.MessageId, x.ContactId, x.Success });
+        SqlServerIndexBuilderExtensions.IncludeProperties(campaignIndex, x => new { x.Channel, x.MessageId, x.ContactId, x.Success, x.Orphan });
+        NpgsqlIndexBuilderExtensions.IncludeProperties(campaignIndex, x => new { x.Channel, x.MessageId, x.ContactId, x.Success, x.Orphan });
     }
 }

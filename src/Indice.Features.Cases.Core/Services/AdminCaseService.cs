@@ -350,16 +350,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
 
-        if (options.Filter?.From is DateTimeOffset from) {
+        if (options.Filter.From is DateTimeOffset from) {
             query = query.Where(c => c.CreatedByWhen >= from.Date);
         }
 
-        if (options.Filter?.To is DateTimeOffset to) {
+        if (options.Filter.To is DateTimeOffset to) {
             query = query.Where(c => c.CreatedByWhen <= to.Date.AddDays(1));
         }
 
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-        if (options.Filter!.CaseTypeCodes?.Length > 0) {
+        if (options.Filter.CaseTypeCodes?.Length > 0) {
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CaseTypeCodes
                 .Where(x => x.Operator == FilterOperator.Eq)

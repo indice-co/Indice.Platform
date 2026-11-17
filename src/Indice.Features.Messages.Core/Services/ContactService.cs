@@ -169,9 +169,9 @@ public class ContactService : IContactService
         var query = DbContext.Contacts
                             .AsNoTracking();
         var filter = options.Filter;
-        if (filter?.DistributionListId is not null) {
+        if (filter?.DistributionListId is Guid distributionListId) {
             query = query.Include(x => x.DistributionListContacts);
-            query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == filter.DistributionListId.Value));
+            query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == distributionListId));
         }
         if (filter?.Email is not null) {
             query = query.Where(x => x.Email!.ToLower() == filter.Email.ToLower());

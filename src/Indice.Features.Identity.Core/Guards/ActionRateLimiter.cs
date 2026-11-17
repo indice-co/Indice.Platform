@@ -23,6 +23,23 @@ public class ActionRateLimiterOptions
     public bool Enabled { get; set; } = true;
 }
 
+/// <summary>Action names used with <see cref="IActionRateLimiter"/>.</summary>
+public static class ActionRateLimiterActionNames
+{
+    /// <summary>Sending a password reset email (forgot password page and API).</summary>
+    public const string ForgotPassword = "Email:ForgotPassword";
+    /// <summary>Sending a registration email confirmation link (Identity UI).</summary>
+    public const string SendConfirmationEmail = "Email:SendConfirmationEmail";
+    /// <summary>Sending an email change confirmation link (Identity UI).</summary>
+    public const string ChangeEmail = "Email:ChangeEmail";
+    /// <summary>Sending an email verification code (Identity UI).</summary>
+    public const string VerificationEmail = "Email:VerificationEmail";
+    /// <summary>Sending a phone number verification SMS (Identity UI).</summary>
+    public const string ChangePhoneNumber = "Sms:ChangePhoneNumber";
+    /// <summary>Sending a phone number verification SMS (my account API).</summary>
+    public const string PhoneNumberChange = "Sms:PhoneNumberChange";
+}
+
 /// <summary>Provides action-scoped attempt limiting operations per user.</summary>
 public interface IActionRateLimiter
 {

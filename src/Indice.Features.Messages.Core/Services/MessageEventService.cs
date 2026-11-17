@@ -33,20 +33,21 @@ public class MessageEventService : IMessageEventService
             MessageId = x.MessageId,
             Recipient = x.Recipient,
             Title = x.Title,
-            Success = x.Success
+            Success = x.Success,
+            ReceiptId = x.ReceiptId
         });
         if (options.Filter is not null) {
-            if (options.Filter.CampaignId.HasValue) {
-                query = query.Where(x => x.CampaignId == options.Filter.CampaignId.Value);
+            if (options.Filter.CampaignId is Guid campaignId) {
+                query = query.Where(x => x.CampaignId == campaignId);
             }
-            if (options.Filter.MessageId.HasValue) {
-                query = query.Where(x => x.MessageId == options.Filter.MessageId.Value);
+            if (options.Filter.MessageId is Guid messageId) {
+                query = query.Where(x => x.MessageId == messageId);
             }
-            if (options.Filter.RangeStart.HasValue) {
-                query = query.Where(x => x.CreatedOn >= options.Filter.RangeStart.Value);
+            if (options.Filter.RangeStart is DateTimeOffset rangeStart) {
+                query = query.Where(x => x.CreatedOn >= rangeStart);
             }
-            if (options.Filter.RangeEnd.HasValue) {
-                query = query.Where(x => x.CreatedOn < options.Filter.RangeEnd.Value);
+            if (options.Filter.RangeEnd is DateTimeOffset rangeEnd) {
+                query = query.Where(x => x.CreatedOn < rangeEnd);
             }
             if (options.Filter.Channel?.Length > 0) {
                 var channels = options.Filter.Channel.Select(x => x.ToString());
@@ -135,7 +136,7 @@ public class MessageEventService : IMessageEventService
         var sent = nameof(MessageEventType.Sent);
         var created = nameof(MessageEventType.Created);
         var inbox = nameof(MessageChannelKind.Inbox);
-        var attempts = DbContext.MessageEvents.Where(x => x.Type == sent || (x.Channel == inbox && x.Type == created));
+        var attempts = DbContext.MessageEvents.Where(x => !x.Orphan && (x.Type == sent || (x.Channel == inbox && x.Type == created)));
         if (filter.Channel.HasValue) {
             var channel = filter.Channel.Value.ToString();
             attempts = attempts.Where(x => x.Channel == channel);

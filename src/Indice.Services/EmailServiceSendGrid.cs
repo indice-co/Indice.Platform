@@ -84,7 +84,8 @@ public class EmailServiceSendGrid : IEmailService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
 
-        var response = await HttpClient.PostAsync("mail/send", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
+        using var requestContent = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
+        var response = await HttpClient.PostAsync("mail/send", requestContent);
         if (!response.IsSuccessStatusCode) {
             var content = await response.Content.ReadAsStringAsync();
             throw new EmailServiceException($"SendGrid service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.");
@@ -101,6 +102,15 @@ public class EmailServiceSendGrid : IEmailService
 public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSettings> options) : IWebhookHttpHandler
 {
     private readonly EmailServiceSendGridSettings _options = options.Value;
+    private static readonly HashSet<string> SucceededStatuses = new(StringComparer.OrdinalIgnoreCase) {
+        "processed",
+        "delivered",
+        "open",
+        "click",
+        "unsubscribe",
+        "group_unsubscribe",
+        "group_resubscribe"
+    };
 
     /// <inheritdoc/>
     public async Task<WebhookHttpResult> ParseAsync(IDictionary<string, StringValues> requestHeaders, IEnumerable<KeyValuePair<string, StringValues>> requestParameters, Stream requestBody, CancellationToken cancellationToken) {
@@ -143,9 +153,14 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
                 Timestamp = timestamp,
                 Recipient = GetString(item, "email") ?? string.Empty,
                 Subject = GetString(item, "subject"),
-                Payload = item
+                Payload = item,
+                Succeeded = EventSucceeded(eventType),
+                Channel = WebhookChannel.Email
             };
         }
+    }
+    private static bool EventSucceeded(string eventType) {
+        return SucceededStatuses.Contains(eventType);
     }
 
     private bool IsAuthorized(IDictionary<string, StringValues> requestHeaders, byte[] payloadBytes) {
