@@ -206,7 +206,7 @@ internal static partial class MyAccountHandlers
         if (!endpointOptions.Value.PhoneNumber.SendOtpOnUpdate) {
             return TypedResults.NoContent();
         }
-        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
+        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, ActionRateLimiterActionNames.PhoneNumberChange)) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(),
                 userManager.MessageDescriber.LimitAttemptsReached)
@@ -236,7 +236,7 @@ internal static partial class MyAccountHandlers
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
             );
         }
-        if(!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, "Sms:PhoneNumberChange")) {
+        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, ActionRateLimiterActionNames.PhoneNumberChange)) {
             return TypedResults.ValidationProblem(
                 ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.LimitAttemptsReached)
             );
@@ -351,6 +351,7 @@ internal static partial class MyAccountHandlers
         IEmailService emailService,
         LinkGenerator linkGenerator,
         HttpContext httpContext,
+        IActionRateLimiter actionRateLimiter,
         ForgotPasswordRequest request
     ) {
         if (string.IsNullOrEmpty(request.Email)) {
@@ -360,6 +361,10 @@ internal static partial class MyAccountHandlers
         }
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null) {
+            return TypedResults.NoContent();
+        }
+        // Same response as a sent email, so the limit does not reveal whether the account exists.
+        if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, ActionRateLimiterActionNames.ForgotPassword)) {
             return TypedResults.NoContent();
         }
         if (user.Claims.Count is 0) {
