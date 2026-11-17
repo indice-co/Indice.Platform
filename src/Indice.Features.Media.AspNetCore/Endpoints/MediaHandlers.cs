@@ -12,20 +12,24 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
 namespace Indice.Features.Media.AspNetCore.Endpoints;
+
 internal static class MediaHandlers
 {
-    internal static async Task<Results<FileContentHttpResult, ValidationProblem, NotFound>> DownloadFile(string path, int? size, IOptions<MediaApiOptions> endpointOptions, IFileServiceFactory fileServiceFactory) {
+    internal static async Task<Results<FileContentHttpResult, ValidationProblem, NotFound>> DownloadFile(HttpResponse response, string path, int? size, IOptions<MediaApiOptions> endpointOptions, IFileServiceFactory fileServiceFactory) {
+        if (!MediaRootPath.TryGetStoragePath(path, "media", out var storagePath)) {
+            return TypedResults.NotFound();
+        }
+        path = storagePath;
         var format = Path.GetExtension(path);
         if (format.StartsWith('.')) {
             format = format.TrimStart('.');
         }
-        path = Path.Combine("media/", path.TrimStart('/'));
         if (size > 0 && !endpointOptions.Value.AllowedThumbnailSizes.Contains(size.Value)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("size", $"The specified size is not in the allowed list ({string.Join(',', endpointOptions.Value.AllowedThumbnailSizes)})"));
         }
         var fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey);
-        FileProperties? properties; 
-        try { 
+        FileProperties? properties;
+        try {
             properties = await fileService.GetPropertiesAsync(path);
         } catch (FileNotFoundServiceException) {
             return TypedResults.NotFound();
@@ -54,7 +58,7 @@ internal static class MediaHandlers
             outputStream.Seek(0, SeekOrigin.Begin);
             return TypedResults.File(outputStream.ToArray(), "image/webp", null, false, DateTimeOffset.UtcNow, new EntityTagHeaderValue($"\"{properties.ETag!.Trim('"')}_{size}\"", true));
         }
-        return TypedResults.File(data, contentType, null, false,  properties.LastModified, new EntityTagHeaderValue(properties.ETag, true));
+        return TypedResults.File(data, contentType, null, false, properties.LastModified, new EntityTagHeaderValue(properties.ETag, true));
     }
 
     internal static async Task<Results<FileContentHttpResult, NotFound>> GetFile(Base64Id fileGuid, string format, MediaManager mediaManager) {

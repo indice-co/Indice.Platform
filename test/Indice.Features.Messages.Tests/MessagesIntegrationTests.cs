@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
-using Indice.Extensions;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
@@ -720,6 +719,51 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         // assert: the API must NOT crash; it must return a non-success status code
         Assert.False(createCampaignResponse.IsSuccessStatusCode);
+    }
+
+    [Theory]
+    [InlineData("poc.html")]
+    [InlineData("poc.htm")]
+    [InlineData("poc.svg")]
+    [InlineData("poc.xml")]
+    [InlineData("poc.js")]
+    [InlineData("poc.xhtml")]
+    [InlineData("poc")]
+    public async Task Upload_Campaign_Attachment_With_Renderable_Extension_Is_Rejected(string fileName) {
+        var campaignId = await CreateInboxCampaign();
+
+        using var response = await UploadCampaignAttachment(campaignId, fileName, "application/octet-stream", Encoding.UTF8.GetBytes("<script>alert(document.domain)</script>"));
+
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+        var dbContext = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        Assert.False(await dbContext.Attachments.AnyAsync(TestContext.Current.CancellationToken));
+    }
+
+
+    private async Task<Guid> CreateInboxCampaign() {
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Attachment Campaign",
+            ActivePeriod = new Period { From = DateTimeOffset.UtcNow, To = DateTimeOffset.UtcNow.AddDays(1) },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            Content = new MessageContentDictionary(new Dictionary<MessageChannelKind, MessageContent> {
+                [MessageChannelKind.Inbox] = new MessageContent("Test Message", "Test Message Content")
+            })
+        };
+        var payload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync("/api/campaigns", requestContent, TestContext.Current.CancellationToken);
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        return Guid.Parse(response.Headers.Location!.Segments.Last());
+    }
+
+    private async Task<HttpResponseMessage> UploadCampaignAttachment(Guid campaignId, string fileName, string contentType, byte[] content) {
+        var fileContent = new ByteArrayContent(content);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+        using var form = new MultipartFormDataContent {
+            { fileContent, "File", fileName }
+        };
+        return await _httpClient.PostAsync($"/api/campaigns/{campaignId}/attachment", form, TestContext.Current.CancellationToken);
     }
 
     public async ValueTask InitializeAsync() {

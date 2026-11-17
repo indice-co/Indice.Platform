@@ -74,8 +74,7 @@ internal static class MyMessagesApi
              .WithName(nameof(MyMessagesHandlers.GetMessageAttachment))
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(MyMessagesHandlers.GET_MESSAGE_ATTACHMENT_DESCRIPTION)
-             .ExcludeFromDescription()
-             .AllowAnonymous();
+             .ExcludeFromDescription();
 
         group.MapGet("messages/types", MyMessagesHandlers.GetInboxMessageTypes)
             .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
