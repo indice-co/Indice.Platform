@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription, filter, pairwise } from 'rxjs';
 
 import { AuthGuestService } from '../auth/auth-guest.service';
-import { ConversationListItem, DexApiService } from './dex-api.service';
+import { ChatTopic, ConversationListItem, DexApiService } from './dex-api.service';
 
 /** How many sessions the rail fetches in one page — a generous single page covers the history. */
 const PAGE_SIZE = 100;
@@ -36,6 +36,8 @@ export class ConversationsStore {
 
   /** The list fetch in flight, if any — at most one is ever allowed to land. */
   private refreshSub?: Subscription;
+  /** Topics of the conversations this page created grounded on a record (see `adopt`). */
+  private readonly createdTopics = new Map<string, ChatTopic>();
 
   constructor() {
     // When the guest credential goes away (expired, rejected, or superseded by a sign-in) the rail it
@@ -80,9 +82,23 @@ export class ConversationsStore {
     this.activeId.set(null);
   }
 
-  /** Take ownership of a conversation the stream just created — no thread fetch follows. */
-  adopt(id: string): void {
+  /**
+   * Take ownership of a conversation the stream just created — no thread fetch follows. `topic` is the record the
+   * creating request was grounded on, if any; it is recorded before `activeId` changes, so readers of `topicOf` see it.
+   */
+  adopt(id: string, topic: ChatTopic | null = null): void {
+    if (topic?.referenceId) {
+      this.createdTopics.set(id, topic);
+    }
     this.activeId.set(id);
+  }
+
+  /**
+   * The record a conversation was created on, when this page created it with one. Unknown (`null`) for conversations
+   * created without a topic or opened from the list — the list does not carry topics.
+   */
+  topicOf(id: string): ChatTopic | null {
+    return this.createdTopics.get(id) ?? null;
   }
 
   /** Delete a conversation, dropping the row immediately and restoring it if the server refuses. */

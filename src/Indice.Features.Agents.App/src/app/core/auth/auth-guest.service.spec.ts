@@ -4,17 +4,23 @@ import { AuthService } from '@indice/ng-auth';
 import { User } from 'oidc-client-ts';
 import { Subject } from 'rxjs';
 
+import { EMBED_MODE } from '../embed/embed-mode';
 import { AuthGuestService, GuestSessionState } from './auth-guest.service';
 
 const STORAGE_KEY = 'dex.guest.session';
+const EMBED_STORAGE_KEY = 'dex.embed.guest.session';
 
 describe('AuthGuestService', () => {
   let user$: Subject<User | null>;
 
-  function create(): AuthGuestService {
+  function create(embed = false): AuthGuestService {
     user$ = new Subject<User | null>();
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), { provide: AuthService, useValue: { user$ } }],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: AuthService, useValue: { user$ } },
+        { provide: EMBED_MODE, useValue: embed },
+      ],
     });
     return TestBed.inject(AuthGuestService);
   }
@@ -24,8 +30,14 @@ describe('AuthGuestService', () => {
     return raw ? (JSON.parse(raw) as GuestSessionState) : null;
   }
 
-  beforeEach(() => sessionStorage.removeItem(STORAGE_KEY));
-  afterEach(() => sessionStorage.removeItem(STORAGE_KEY));
+  beforeEach(() => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(EMBED_STORAGE_KEY);
+  });
+  afterEach(() => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(EMBED_STORAGE_KEY);
+  });
 
   it('starts empty when nothing is stored', () => {
     const service = create();
@@ -110,5 +122,42 @@ describe('AuthGuestService', () => {
     user$.next({ expired: false } as User);
     expect(service.isActive).toBeFalse();
     expect(stored()).toBeNull();
+  });
+
+  it('displayName is trimmed, capped and empty means none', () => {
+    const service = create();
+    service.displayName = '  Maria  ';
+    expect(service.displayName).toBe('Maria');
+    service.displayName = 'x'.repeat(300);
+    expect(service.displayName?.length).toBe(100);
+    service.displayName = '   ';
+    expect(service.displayName).toBeNull();
+    service.displayName = 42 as unknown as string;
+    expect(service.displayName).toBeNull();
+  });
+
+  describe('in the widget frame (embed mode)', () => {
+    it('keeps its credential under its own key, apart from the full UI', () => {
+      sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ accessToken: 'full-ui', tokenType: 'Bearer', subject: null, expiresAt: null }),
+      );
+      const service = create(true);
+      expect(service.isActive).withContext("the full UI's guest is not adopted").toBeFalse();
+
+      service.capture({ accessToken: 'widget', expiresIn: 3600 });
+
+      expect(JSON.parse(sessionStorage.getItem(EMBED_STORAGE_KEY)!).accessToken).toBe('widget');
+      expect(stored()?.accessToken).withContext('the full UI key is untouched').toBe('full-ui');
+    });
+
+    it('is not cleared by a signed-in user (that user belongs to a same-origin tab)', () => {
+      const service = create(true);
+      service.capture({ accessToken: 'tok', expiresIn: 3600 });
+
+      user$.next({ expired: false } as User);
+
+      expect(service.isActive).toBeTrue();
+    });
   });
 });
