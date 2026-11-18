@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Breaking changes
+
+#### Attachment downloads require authentication
+The attachment download endpoints no longer allow anonymous access:
+
+| Endpoint | Now requires |
+|----------|--------------|
+| `GET my/messages/attachments/{fileGuid}.{format}` (my messages) | An authenticated user (`Bearer` scheme) who is a recipient of the message the attachment belongs to |
+| `GET campaigns/attachments/{fileGuid}.{format}` | An authenticated user (`Bearer` scheme) with the campaign management policy and scope, like the rest of the campaigns api |
+
+Anonymous requests now receive `401 Unauthorized`; signed-in users without campaign management rights receive `403 Forbidden` for
+campaign attachments. Paths are relative to the configured `PathPrefix` of the inbox and management api respectively.
+
+**What you need to change**
+- Clients must send the access token when downloading an attachment. Browser navigation (`<a href="...">`, `window.open`) does not
+  send it, so download the file with an authenticated http request and save it from a blob url, as the messaging admin UI now does:
+  ```ts
+  this.http.get(attachmentUrl, { responseType: 'blob' }).subscribe(blob => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  });
+  ```
+- Attachment links (`attachmentUrl` / campaign attachment `permaLink`) can no longer be opened by people who are not signed in,
+  e.g. when embedded in outbound campaign email. Distribute the content through another channel (e.g. the public media library)
+  if anonymous recipients must be able to open it.
+
+#### Inbox attachments are restricted to the recipients of the message
+`GET my/messages/attachments/{fileGuid}.{format}` used to return any campaign attachment to any caller who knew its file id. It now
+returns the attachment only when the campaign is visible in the caller's inbox, i.e. the campaign
+- is published and has the `Inbox` channel, and
+- is global and the caller has not deleted it, or the caller has a (not deleted) message for it.
+
+Otherwise, and when `{format}` does not match the extension of the stored file, the endpoint responds with `404 Not Found` (not
+`403`), so the existence of other users' attachments is not disclosed. The file is always returned as `application/octet-stream`
+with a `Content-Disposition: attachment` file name (the original file name), so browsers download it instead of rendering it.
+
+`ICampaignAttachmentService` has a new member, `GetRecipientFile(string recipientId, Guid fileGuid)`, which performs this check
+and returns the file (or `null`). Custom implementations of `ICampaignAttachmentService` must implement it.
+
 ## [8.0.0-rc16] - 2025-02-11
 
 ### Added

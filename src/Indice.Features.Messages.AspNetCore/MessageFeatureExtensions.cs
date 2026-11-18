@@ -47,6 +47,7 @@ public static class MessageFeatureExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.ManagementGroupName;
             options.FileUploadLimit = apiOptions.FileUploadLimit;
+            options.AllowedAttachmentExtensions = apiOptions.AllowedAttachmentExtensions;
             options.MapTranslations = apiOptions.MapTranslations;
         })
         .AddMessageInbox(options => {
@@ -85,6 +86,7 @@ public static class MessageFeatureExtensions
             options.RequiredScope = apiOptions.RequiredScope;
             options.GroupName = apiOptions.GroupName;
             options.FileUploadLimit = apiOptions.FileUploadLimit;
+            options.AllowedAttachmentExtensions = apiOptions.AllowedAttachmentExtensions;
             options.MapTranslations = apiOptions.MapTranslations;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));

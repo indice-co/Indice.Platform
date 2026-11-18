@@ -28,4 +28,24 @@ describe('InboxApiService', () => {
     expect(request.request.body).toEqual({ showExpired: true });
     request.flush(null);
   });
+
+  it('downloads attachments through the http client as a blob', () => {
+    const url = api.resolveAttachmentUrl({ id: 'message-1', createdAt: '', attachmentUrl: '/api/messages/attachments/file.pdf' })!;
+    let received: Blob | undefined;
+    api.getAttachment(url).subscribe(blob => received = blob);
+    const request = http.expectOne(`${window.location.origin}/api/messages/attachments/file.pdf`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.responseType).toBe('blob');
+    const body = new Blob(['%PDF'], { type: 'application/pdf' });
+    request.flush(body);
+    expect(received).toBe(body);
+  });
+
+  it('refuses to send the access token to attachments of other hosts', () => {
+    let failed = false;
+    api.getAttachment('https://attacker.example/api/messages/attachments/file.pdf').subscribe({ error: () => failed = true });
+    expect(failed).toBeTrue();
+    expect(api.isApiUrl('https://attacker.example/file.pdf')).toBeFalse();
+    expect(api.isApiUrl(`${window.location.origin}/api/messages/attachments/file.pdf`)).toBeTrue();
+  });
 });

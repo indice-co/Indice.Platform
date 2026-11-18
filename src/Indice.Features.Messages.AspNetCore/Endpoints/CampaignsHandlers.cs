@@ -200,7 +200,7 @@ Uploads an attachment for the specified campaign.
 
 Parameters:
 - campaignId: The ID of the campaign.
-- file: Contains the stream of the attachment to be uploaded.
+- file: Contains the stream of the attachment to be uploaded. Only the configured acceptable attachment extensions are allowed.
 ";
 
     public static readonly string DELETE_CAMPAIGN_ATTACHMENT_DESCRIPTION = @"

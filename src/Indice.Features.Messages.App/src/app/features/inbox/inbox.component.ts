@@ -1,9 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { catchError, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, finalize, map, of, switchMap, tap } from 'rxjs';
 import {
   LucideArrowLeft, LucideCheckCheck, LucideExternalLink, LucideInbox, LucideMail, LucideMailOpen, LucidePaperclip, LucideRefreshCw, LucideTrash
 } from '@lucide/angular';
@@ -17,6 +18,7 @@ import { PaginationComponent } from 'src/app/ui/list/pagination.component';
 import { SearchInputComponent } from 'src/app/ui/list/search-input.component';
 import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.component';
 import { InboxApiService } from './inbox-api.service';
+import { attachmentFileName, saveAttachment } from 'src/app/shared/attachment-download';
 import { InboxMessage, InboxMessagesQuery } from './inbox.models';
 import { InboxStore } from './inbox.store';
 
@@ -156,10 +158,11 @@ const EXPIRED_FILTER = 'expired';
                     <svg lucideExternalLink class="size-4"></svg>{{ message.actionLink?.text || ('Inbox.OpenLink' | translate) }}
                   </a>
                 }
-                @if (attachmentUrl(); as href) {
-                  <a class="btn btn-sm" [href]="href" target="_blank" rel="noopener noreferrer">
-                    <svg lucidePaperclip class="size-4"></svg>{{ 'Inbox.Attachment' | translate }}
-                  </a>
+                @if (attachmentUrl()) {
+                  <button type="button" class="btn btn-sm" [disabled]="attachmentLoading()" (click)="openAttachment(message)">
+                    @if (attachmentLoading()) { <span class="loading loading-spinner loading-xs"></span> } @else { <svg lucidePaperclip class="size-4"></svg> }
+                    {{ 'Inbox.Attachment' | translate }}
+                  </button>
                 }
               </footer>
             }
@@ -210,6 +213,7 @@ export class InboxComponent implements OnInit {
   protected readonly detailLoading = signal(false);
   protected readonly actionLink = computed(() => { const m = this.selected(); return m ? this._api.resolveActionLink(m) : undefined; });
   protected readonly attachmentUrl = computed(() => { const m = this.selected(); return m ? this._api.resolveAttachmentUrl(m) : undefined; });
+  protected readonly attachmentLoading = signal(false);
 
   constructor() {
     this._route.queryParamMap
@@ -299,6 +303,30 @@ export class InboxComponent implements OnInit {
     this.store.markAllAsRead().subscribe(() => {
       this._toaster.show(ToastType.Success, 'Inbox.MarkAllAsReadSuccessTitle', 'Inbox.MarkAllAsReadSuccessMessage');
     });
+  }
+
+  /**
+   * Opens the attachment of a message. The attachment route requires the access token, which browser navigation does not
+   * send, so the file is downloaded through the authenticated http client and then saved from a blob url. Every attachment
+   * is saved as a file download, none is opened in the browser.
+   */
+  protected openAttachment(message: InboxMessage): void {
+    const url = this._api.resolveAttachmentUrl(message);
+    if (!url || this.attachmentLoading()) {
+      return;
+    }
+    this.attachmentLoading.set(true);
+    this._api
+      .getAttachment(url)
+      .pipe(finalize(() => this.attachmentLoading.set(false)))
+      .subscribe({
+        next: blob => saveAttachment(blob, attachmentFileName(url)),
+        error: (error: unknown) => {
+          if (!(error instanceof HttpErrorResponse && error.status === 401)) {
+            this._toaster.show(ToastType.Error, 'Toasts.Error.Title', 'Inbox.AttachmentError');
+          }
+        }
+      });
   }
 
   protected remove(message: InboxMessage): void {

@@ -1,11 +1,14 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideDownload, LucideExternalLink, LucidePaperclip, LucidePencil } from '@lucide/angular';
+import { finalize } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
 import { MessageSender, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { attachmentFileName, resolveApiFileUrl, saveAttachment } from 'src/app/shared/attachment-download';
+import { AppTranslatedToaster, ToastType } from 'src/app/shared/services/app-translated-toaster';
 import { BoolIconComponent, CHANNEL_KINDS, ChannelIconComponent, MessageTypeBadgeComponent } from 'src/app/ui/badges/badges';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { contentChannel } from '../../campaign-utils';
@@ -168,6 +171,7 @@ import { CampaignEditStore } from '../campaign-edit-store.service';
 export class CampaignDetailsEditComponent implements OnInit {
   private readonly _api = inject(MessagesApiClient);
   private readonly _http = inject(HttpClient);
+  private readonly _toaster = inject(AppTranslatedToaster);
   protected readonly store = inject(CampaignEditStore);
   protected readonly pane = inject(SidePaneService);
 
@@ -176,7 +180,6 @@ export class CampaignDetailsEditComponent implements OnInit {
   protected readonly downloading = signal(false);
   protected readonly usedChannels = computed<string[]>(() =>
     Object.keys(this.store.campaign()?.content ?? {}).map(key => contentChannel(key)?.kind ?? key));
-  private readonly _apiOrigin = (settings.api_url || '').substring(0, 4) === 'http' ? new URL(settings.api_url).origin : '';
 
   public ngOnInit(): void {
     this._api.getMessageSenders(undefined, undefined, undefined, undefined, true)
@@ -189,24 +192,24 @@ export class CampaignDetailsEditComponent implements OnInit {
 
   protected downloadAttachment(): void {
     const attachment = this.store.campaign()?.attachment;
-    if (!attachment?.permaLink || !attachment.label) {
+    if (!attachment?.permaLink || this.downloading()) {
+      return;
+    }
+    const url = resolveApiFileUrl(attachment.permaLink, settings.api_url);
+    if (!url) {
+      this._toaster.show(ToastType.Error, 'Toasts.Error.Title', 'Campaigns.AttachmentDownloadError');
       return;
     }
     this.downloading.set(true);
-    this._http.get(`${this._apiOrigin}/${attachment.permaLink}`, { responseType: 'arraybuffer' }).subscribe({
-      next: data => {
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const link = document.createElement('a');
-        link.style.display = 'none';
-        link.href = url;
-        link.download = attachment.label ?? 'download';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        this.downloading.set(false);
-      },
-      error: () => this.downloading.set(false)
-    });
+    this._http.get(url, { responseType: 'blob' })
+      .pipe(finalize(() => this.downloading.set(false)))
+      .subscribe({
+        next: blob => saveAttachment(blob, attachment.label || attachmentFileName(url)),
+        error: (error: unknown) => {
+          if (!(error instanceof HttpErrorResponse && error.status === 401)) {
+            this._toaster.show(ToastType.Error, 'Toasts.Error.Title', 'Campaigns.AttachmentDownloadError');
+          }
+        }
+      });
   }
 }

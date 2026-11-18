@@ -696,6 +696,9 @@
   <data name="Campaigns.AttachmentsLabel" xml:space="preserve">
     <value>Επισυναπτόμενα</value>
   </data>
+  <data name="Campaigns.AttachmentDownloadError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η λήψη του συνημμένου. Παρακαλώ δοκιμάστε ξανά.</value>
+  </data>
   <data name="Campaigns.AttachmentsInfo" xml:space="preserve">
     <value>Επισυναπτόμενα της καμπάνιας</value>
   </data>
@@ -2911,5 +2914,8 @@
   </data>
   <data name="Inbox.Attachment" xml:space="preserve">
     <value>Συνημμένο</value>
+  </data>
+  <data name="Inbox.AttachmentError" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η λήψη του συνημμένου. Παρακαλώ δοκιμάστε ξανά.</value>
   </data>
 </root>

@@ -86,7 +86,7 @@ internal static class CampaignsApi
              .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .WithParameterValidation<UploadFileRequest>()
              .Accepts<UploadFileRequest>(MediaTypeNames.Multipart.FormData)
-             .LimitUpload(options.FileUploadLimit);
+             .LimitUpload(options.FileUploadLimit, options.AllowedAttachmentExtensions);
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.DeleteCampaignAttachment))
@@ -97,7 +97,6 @@ internal static class CampaignsApi
              .WithName(nameof(CampaignsHandlers.GetCampaignAttachment))
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
-             .AllowAnonymous()
              .ExcludeFromDescription();
 
         group.MapGet("{campaignId}/messages", CampaignsHandlers.GetCampaignMessages)

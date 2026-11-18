@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, throwError } from 'rxjs';
 import { MESSAGES_API_BASE_URL } from 'src/app/core/services/messages-api.service';
 import { InboxMessage, InboxMessageType, InboxMessagesQuery, InboxResultSet } from './inbox.models';
 
@@ -93,5 +93,27 @@ export class InboxApiService {
     } catch {
       return url;
     }
+  }
+
+  /** Whether the (absolute) url targets the messaging api, i.e. it may be requested with the user's access token. */
+  public isApiUrl(url: string): boolean {
+    try {
+      const origin = window.location.origin;
+      return new URL(url, origin).origin === new URL(this._baseUrl || origin, origin).origin;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Downloads an attachment of the messaging api through the http client, so that the access token is sent along
+   * (plain browser navigation to the attachment route would be rejected with 401). Urls of other hosts are refused,
+   * so that the token is never sent to them.
+   */
+  public getAttachment(url: string): Observable<Blob> {
+    if (!this.isApiUrl(url)) {
+      return throwError(() => new Error('Only attachments of the messaging api can be downloaded.'));
+    }
+    return this._http.get(url, { responseType: 'blob' });
   }
 }
