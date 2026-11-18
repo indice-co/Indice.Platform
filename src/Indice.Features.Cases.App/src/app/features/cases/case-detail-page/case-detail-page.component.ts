@@ -21,6 +21,7 @@ import { DialogService } from 'src/app/ui/dialog/dialog.service';
 import { EmptyStateComponent } from 'src/app/ui/list/empty-state.component';
 import { SidePaneService } from 'src/app/ui/side-pane/side-pane';
 import { TABS } from 'src/app/ui/tabs/tabs';
+import { CaseAccessRulesComponent } from './case-access-rules/case-access-rules.component';
 import { CaseAttachmentsComponent } from './case-attachments/case-attachments.component';
 import { CaseCommentComposerComponent } from './case-comment-composer/case-comment-composer.component';
 import { CaseDataVersionsComponent } from './case-data-versions/case-data-versions.component';
@@ -34,7 +35,7 @@ import { RelatedCasesComponent } from './related-cases/related-cases.component';
   templateUrl: './case-detail-page.component.html',
   imports: [
     DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseAttachmentsComponent, CaseCommentComposerComponent, CaseCustomActionComponent,
-    CaseDataVersionsComponent, CaseDetailInfoComponent, CaseFormComponent,
+    CaseAccessRulesComponent, CaseDataVersionsComponent, CaseDetailInfoComponent, CaseFormComponent,
     CasePrintPdfComponent, CaseTimelineComponent, RelatedCasesComponent, EmptyStateComponent, TABS,
     LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
   ]
