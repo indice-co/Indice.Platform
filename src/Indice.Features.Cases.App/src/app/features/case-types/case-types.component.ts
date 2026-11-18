@@ -62,7 +62,9 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
                 <td><span class="font-mono text-xs">{{ item.code }}</span></td>
                 <td>
                   @if (item.category) {
-                    <span class="badge badge-outline badge-sm">{{ item.category.name }}</span>
+                    <span class="badge badge-outline badge-sm max-w-48" [title]="item.category.name ?? ''">
+                      <span class="truncate">{{ item.category.name }}</span>
+                    </span>
                   } @else {
                     <span class="text-base-content/40">&mdash;</span>
                   }
@@ -70,7 +72,7 @@ import { PageHeaderComponent } from 'src/app/ui/page-header/page-header.componen
                 <td>
                   <div class="flex flex-wrap gap-1">
                     @for (tag of tags(item); track tag) {
-                      <span class="badge badge-ghost badge-sm">{{ tag }}</span>
+                      <span class="badge badge-ghost badge-sm whitespace-nowrap">{{ tag }}</span>
                     }
                   </div>
                 </td>

@@ -3,12 +3,15 @@ import { NgTemplateOutlet } from '@angular/common';
 import { JsonFormsAngularService, JsonFormsBaseRenderer, JsonFormsOutlet } from '@jsonforms/angular';
 import { getData, JsonFormsState, Layout, mapStateToLayoutProps, OwnPropsOfRenderer } from '@jsonforms/core';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { addClasses, arrayIndicesOf, evaluateCondition, flexItemStyle, isShownForChannel } from '../jsonforms-utilities';
+import { addClasses, arrayIndicesOf, evaluateCondition, flexItemStyle, gapAwareBasis, isShownForChannel, isSpacer } from '../jsonforms-utilities';
+
+const COLUMN_GAP = '1rem';
 
 /**
  * `VerticalLayout`, `HorizontalLayout`, `Group` and `Category`, drawn like the ajsf `section` / `flex` containers:
  * flex direction and wrap from `options['flex-flow']`, child sizing from each child's `options.flex`; a `Group` is a bordered
- * fieldset with its title as legend.
+ * fieldset with its title as legend. In a row, percentage sizes make room for the column gap and an empty `Html` spacer
+ * takes the place of the gap before it, so that ajsf rows such as `49% | 2% | 49%` still fit on one line.
  */
 @Component({
     selector: 'app-jf-layout',
@@ -32,7 +35,7 @@ import { addClasses, arrayIndicesOf, evaluateCondition, flexItemStyle, isShownFo
           [style.display]="flex ? 'flex' : null"
           [style.flex-direction]="flex ? flexDirection : null"
           [style.flex-wrap]="flex ? flexWrap : null"
-          [style.column-gap]="flex ? '1rem' : null"
+          [style.column-gap]="flex ? columnGap : null"
           [style.justify-content]="flex ? options['justify-content'] : null"
           [style.align-items]="flex ? options['align-items'] : null"
           [style.align-content]="flex ? options['align-content'] : null">
@@ -43,7 +46,9 @@ import { addClasses, arrayIndicesOf, evaluateCondition, flexItemStyle, isShownFo
               [style.flex-shrink]="child.style.shrink"
               [style.flex-basis]="child.style.basis"
               [style.align-self]="child.style.alignSelf"
-              [style.order]="child.style.order">
+              [style.order]="child.style.order"
+              [style.margin-inline-start]="child.marginStart"
+              [style.margin-inline-end]="child.marginEnd">
               <jsonforms-outlet [renderProps]="child.props"></jsonforms-outlet>
             </div>
           }
@@ -56,7 +61,8 @@ export class LayoutRendererComponent extends JsonFormsBaseRenderer<Layout> imple
     private jsonFormsService = inject(JsonFormsAngularService);
     private caseDetailsService = inject(CaseDetailsService);
     options: any = {};
-    children: { props: OwnPropsOfRenderer, style: ReturnType<typeof flexItemStyle> }[] = [];
+    children: { props: OwnPropsOfRenderer, style: ReturnType<typeof flexItemStyle>, marginStart: string | null, marginEnd: string | null }[] = [];
+    readonly columnGap = COLUMN_GAP;
     shown = true;
     flex = false;
     flexDirection = 'column';
@@ -73,10 +79,18 @@ export class LayoutRendererComponent extends JsonFormsBaseRenderer<Layout> imple
         const label = (this.uischema as any).label;
         // '' for an untitled group (still drawn as a fieldset), null for other layouts
         this.groupLabel = this.uischema.type === 'Group' ? (typeof label === 'string' ? label : '') : null;
-        this.children = (this.uischema.elements ?? []).map(element => ({
-            props: { uischema: element, schema: this.schema, path: this.path },
-            style: flexItemStyle(element.options)
-        }));
+        const row = this.flex && this.flexDirection.startsWith('row');
+        const reverse = this.flexDirection === 'row-reverse';
+        this.children = (this.uischema.elements ?? []).map(element => {
+            const style = flexItemStyle(element.options);
+            const spacer = row && isSpacer(element);
+            return {
+                props: { uischema: element, schema: this.schema, path: this.path },
+                style: row && !spacer ? { ...style, basis: gapAwareBasis(style.basis, COLUMN_GAP) } : style,
+                marginStart: spacer && !reverse ? `-${COLUMN_GAP}` : null,
+                marginEnd: spacer && reverse ? `-${COLUMN_GAP}` : null
+            };
+        });
         this.addSubscription(this.jsonFormsService.$state.subscribe((state: JsonFormsState) => this.update(state)));
     }
 
