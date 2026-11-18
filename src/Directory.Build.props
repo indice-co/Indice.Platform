@@ -22,7 +22,7 @@
     <VersionPrefixFtpServer>$(VersionPrefixBase).0</VersionPrefixFtpServer>
     <VersionPrefixWorkers>$(VersionPrefixBase).0</VersionPrefixWorkers>
     <VersionPrefixAgents>$(VersionPrefixBase).0</VersionPrefixAgents>
-    <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
 
     <!--<VersionSuffix>rc01</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>
