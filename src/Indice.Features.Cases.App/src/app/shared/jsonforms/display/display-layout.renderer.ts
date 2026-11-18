@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, ViewEncapsulation }
 import { JsonFormsAngularService, JsonFormsBaseRenderer, JsonFormsOutlet } from '@jsonforms/angular';
 import { getData, getSchema, hasType, JsonFormsState, JsonSchema, Layout, mapStateToLayoutProps, OwnPropsOfRenderer, Resolve, UISchemaElement } from '@jsonforms/core';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { addClasses, arrayIndicesOf, evaluateCondition, isShownForChannel, isTrue } from '../jsonforms-utilities';
+import { addClasses, arrayIndicesOf, evaluateCondition, flexItemStyle, isShownForChannel, isSpacer, isTrue } from '../jsonforms-utilities';
 
 /** Widgets whose value reads better across the whole width. */
 const WIDE_WIDGETS = ['textarea', 'wysiwyg'];
@@ -10,7 +10,8 @@ const WIDE_WIDGETS = ['textarea', 'wysiwyg'];
 /**
  * `VerticalLayout`, `HorizontalLayout`, `Group` and `Category` of the read-only case view: label / value pairs in two columns
  * (one on phones), a `Group` titled by a heading. Layouts, nested objects, arrays and long text span both columns;
- * horizontal layouts (and ajsf `flex-flow: row`) keep their fields side by side.
+ * horizontal layouts (and ajsf `flex-flow: row`) keep their fields side by side in as many aligned columns as fit,
+ * a child sized `100%` taking a whole line. Empty `Html` spacers (the ajsf gutters) are left out; the grid has its own gaps.
  */
 @Component({
     selector: 'app-jf-display-layout',
@@ -21,9 +22,9 @@ const WIDE_WIDGETS = ['textarea', 'wysiwyg'];
         @if (heading) {
           <h3 class="mb-3 border-b border-base-300 pb-1.5 text-sm font-semibold" [class]="options.labelHtmlClass || ''" [innerHTML]="heading"></h3>
         }
-        <div [class]="row ? 'flex flex-wrap gap-x-6 gap-y-4' : 'grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2'">
+        <div [class]="row ? 'grid grid-cols-[repeat(auto-fit,minmax(min(12rem,100%),1fr))] gap-x-6 gap-y-4' : 'grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2'">
           @for (child of children; track $index) {
-            <div [class]="'jf-display-cell min-w-0 ' + (row ? 'flex-1 basis-48' : child.wide ? 'sm:col-span-2' : '')">
+            <div [class]="'jf-display-cell min-w-0 ' + child.cellClass">
               <jsonforms-outlet [renderProps]="child.props"></jsonforms-outlet>
             </div>
           }
@@ -39,7 +40,7 @@ export class DisplayLayoutRendererComponent extends JsonFormsBaseRenderer<Layout
     private jsonFormsService = inject(JsonFormsAngularService);
     private caseDetailsService = inject(CaseDetailsService);
     options: any = {};
-    children: { props: OwnPropsOfRenderer, wide: boolean }[] = [];
+    children: { props: OwnPropsOfRenderer, cellClass: string }[] = [];
     shown = true;
     row = false;
     heading: string | null = null;
@@ -57,7 +58,7 @@ export class DisplayLayoutRendererComponent extends JsonFormsBaseRenderer<Layout
                 rootSchema = getSchema(state);
                 this.children = (this.uischema.elements ?? []).map(element => ({
                     props: { uischema: element, schema: this.schema, path: this.path },
-                    wide: this.isWide(element, rootSchema!)
+                    cellClass: this.cellClass(element, rootSchema!)
                 }));
             }
             this.update(state);
@@ -73,6 +74,18 @@ export class DisplayLayoutRendererComponent extends JsonFormsBaseRenderer<Layout
         this.shown = visible
             && isShownForChannel(this.options, this.caseDetailsService.caseDetails?.channel)
             && evaluateCondition(this.options.condition, getData(state), arrayIndicesOf(this.path));
+    }
+
+    private cellClass(element: UISchemaElement, rootSchema: JsonSchema): string {
+        if (isSpacer(element)) {
+            // still rendered: a spacer may carry a condition script with side effects
+            return 'hidden';
+        }
+        if (this.row) {
+            const basis = flexItemStyle(element.options).basis.trim();
+            return basis.endsWith('%') && parseFloat(basis) >= 100 ? 'col-span-full' : '';
+        }
+        return this.isWide(element, rootSchema) ? 'sm:col-span-2' : '';
     }
 
     private isWide(element: UISchemaElement, rootSchema: JsonSchema): boolean {

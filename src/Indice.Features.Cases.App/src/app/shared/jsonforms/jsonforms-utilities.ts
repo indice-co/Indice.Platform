@@ -298,6 +298,30 @@ export function flexItemStyle(options: any): { grow: string, shrink: string, bas
     };
 }
 
+/**
+ * A percentage flex basis that leaves room for the column gap. ajsf rows had no gap, so their percentages add up to 100%;
+ * each item gives up its share of the gaps (`(1 - p) * gap`), which makes such a line exactly fit again.
+ */
+export function gapAwareBasis(basis: string, gap: string): string {
+    const match = /^(\d*\.?\d+)%$/.exec(basis.trim());
+    const percent = match ? Number(match[1]) : NaN;
+    return isNaN(percent) || percent >= 100 ? basis : `calc(${percent}% - ${gap} * ${+(1 - percent / 100).toFixed(4)})`;
+}
+
+const visibleMarkup = /<(img|svg|iframe|video|audio|canvas|object|embed|hr|input|button|select|textarea)\b/i;
+
+/** An `Html` element with nothing to show (the ajsf `{ type: 'html', helpvalue: '<div></div>', flex: '0 1 2%' }`): a gutter or an empty slot of a flex row. */
+export function isSpacer(element: UISchemaElement): boolean {
+    if (element.type !== 'Html') {
+        return false;
+    }
+    const html: unknown = element.options?.['helpvalue'] ?? element.options?.['description'];
+    if (typeof html !== 'string') {
+        return true;
+    }
+    return !visibleMarkup.test(html) && html.replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim() === '';
+}
+
 function scopeOf(uischema: any): string | undefined {
     return typeof uischema?.scope === 'string' ? uischema.scope : undefined;
 }
