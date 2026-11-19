@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [8.66.0]
 ### Security
 - Password reset emails are now limited per user, to stop mass reset emails being sent to one account. Both the forgot
   password API (`POST account/forgot-password`) and the Identity UI page (`/forgot-password`) count requests with
