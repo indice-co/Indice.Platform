@@ -43,6 +43,11 @@ public class User : IdentityUser
     public bool Blocked { get; set; }
     /// <summary>Indicates whether the user must provide a new password upon next login.</summary>
     public bool PasswordExpired { get; set; }
+    /// <summary>
+    /// Indicates that the current password was issued by an administrator and must be changed at the next sign-in.
+    /// While set, <see cref="PasswordExpirationDate"/> holds the date after which the password is no longer accepted at all.
+    /// </summary>
+    public bool PasswordIsTemporary { get; set; }
     /// <summary>Indicates whether the user should enroll for the two factor authentication.</summary>
     /// <remarks>In case this is empty or null then the two factor is optional.</remarks>
     public MfaPolicy? TwoFactorPolicy { get; set; }
@@ -56,7 +61,11 @@ public class User : IdentityUser
     public virtual ICollection<UserDevice> Devices { get; } = new List<UserDevice>();
 
     /// <summary>Calculates the next date that the user must change his password.</summary>
+    /// <remarks>A temporary password keeps the expiration date it was issued with, regardless of the expiration policy.</remarks>
     public DateTimeOffset? CalculatePasswordExpirationDate() {
+        if (PasswordIsTemporary) {
+            return PasswordExpirationDate;
+        }
         // check for empty or zero expiration policy. Empty is interpreted the same as Never expires.
         // but zero PasswordExpirationPolicy in days is an invalid state that could loop the user endlessly changing passwords
         // so zero must be interpreted as null too.
@@ -78,6 +87,10 @@ public class User : IdentityUser
     /// <summary>Check whether the current password has expired according to current password expiration policy.</summary>
     /// <param name="now">The date to use as now.</param>
     public bool HasExpiredPassword(DateTime? now = null) => PasswordExpired || PasswordExpirationDate.HasValue && PasswordExpirationDate <= (now ?? DateTime.UtcNow);
+
+    /// <summary>Checks whether the current password is temporary and has passed its <see cref="PasswordExpirationDate"/>, so it must be refused at sign-in.</summary>
+    /// <param name="now">The date to use as now.</param>
+    public bool HasExpiredTemporaryPassword(DateTimeOffset? now = null) => PasswordIsTemporary && PasswordExpirationDate.HasValue && PasswordExpirationDate <= (now ?? DateTimeOffset.UtcNow);
 
     /// <summary>Checks whether the current user has been locked out.</summary>
     /// <param name="now">The date to use as now.</param>

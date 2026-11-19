@@ -276,6 +276,9 @@
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>アカウントは一時的にロックされています。システム管理者に連絡してください。</value>
   </data>
+  <data name="LoginErrorTemporaryPasswordExpired" xml:space="preserve">
+    <value>一時パスワードの有効期限が切れています。パスワードをリセットするか、システム管理者に連絡してください。</value>
+  </data>
   <data name="PasswordExpiredMessage" xml:space="preserve">
     <value>パスワードの有効期限が切れています。新しいパスワードを選択してください。</value>
   </data>

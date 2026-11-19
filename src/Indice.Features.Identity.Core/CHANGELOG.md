@@ -16,6 +16,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ActionRateLimiterActionNames` lists every action name used with `IActionRateLimiter`: `ForgotPassword`,
   `SendConfirmationEmail`, `ChangeEmail`, `VerificationEmail`, `ChangePhoneNumber` (Identity UI) and `PhoneNumberChange`
   (my account API). The existing values are unchanged, so current counters keep working.
+- Temporary passwords. A password set by an administrator (create user or set password with `changePasswordAfterFirstSignIn`,
+  or any admin set when `IdentityOptions:Password:RequirePasswordChangeAfterAdminSet` is `true`) is now marked with the new
+  `User.PasswordIsTemporary` column. The user must change it at the next sign-in, and it is refused after
+  `User.PasswordExpirationDate`. That date is `IdentityOptions:Password:TemporaryPasswordLifetime` (a `TimeSpan`, for example
+  `"1.00:00:00"`) after the password was set, or the date given by the password expiration policy when no lifetime is configured.
+  The expiration policy does not move the date of a temporary password. Changing or resetting the password clears both the
+  temporary status and the forced change. `ExtendedUserManager.SetPasswordExpiredAsync(user, false)` also turns it into a regular password.
+  An expired temporary password is refused with `ExtendedSignInResult.TemporaryPasswordExpired`. The Identity UI shows
+  `LoginErrorTemporaryPasswordExpired`, and the resource owner password grant returns `invalid_grant` with `error_description` `110`.
+  No new claim is issued. The existing `password_expiration_date` claim carries the cutoff.
+- `ExtendedUserManager.MarkPasswordAsTemporaryAsync(user)` marks the current password of a user as temporary.
+- `IdentityOptions:Password:RevokeGrantsOnPasswordChange` (default `false`). When `true`, every refresh token, reference token
+  and consent of the user is revoked when the password is changed, reset or set by an administrator.
+- `POST /api/users/{userId}/send-password-reset` (Admin, `BeUsersWriter`) emails the user the standard password reset link,
+  so support can start a recovery for the user without knowing or setting the password. The Admin UI exposes it as a
+  user action.
+- `PasswordIsTemporary` is exposed in `UserEventContext`, and in the `BasicUserInfo`, `UserInfo` and `SingleUserInfo` responses of the users API.
+### Changed
+- `changePasswordAfterFirstSignIn` now also gives the password a hard cutoff. If a password expiration policy is set and the
+  user does not sign in before the policy date, the password is refused instead of just forcing a change. Set
+  `IdentityOptions:Password:TemporaryPasswordLifetime` to choose the cutoff explicitly.
+
+> [!WARNING]
+> **Database update required.** Run the script for your database **before** you deploy this version. Existing users get
+> `PasswordIsTemporary = false`, so their behaviour does not change. The column is mapped in `UserMap` with a database default
+> of `false`, so hosts that manage the schema with EF Core migrations can run `dotnet ef migrations add` instead of the script.
+
+SQL Server: run this migration script to update the database
+```tsql
+IF COL_LENGTH(N'[auth].[User]', N'PasswordIsTemporary') IS NULL
+BEGIN
+    ALTER TABLE [auth].[User] ADD [PasswordIsTemporary] BIT NOT NULL CONSTRAINT [DF_User_PasswordIsTemporary] DEFAULT (0);
+END
+GO
+```
+
+PostgreSQL: run this migration script to update the database
+```sql
+ALTER TABLE auth."User" ADD COLUMN IF NOT EXISTS "PasswordIsTemporary" boolean NOT NULL DEFAULT false;
+```
 
 ## [8.62.0]
 ### Changed

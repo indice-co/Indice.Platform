@@ -2423,6 +2423,9 @@
   <data name="Users.Actions.ResetMfa" xml:space="preserve">
     <value>Reset MFA</value>
   </data>
+  <data name="Users.Actions.SendPasswordReset" xml:space="preserve">
+    <value>Send password reset email</value>
+  </data>
   <data name="Users.Actions.SetPassword" xml:space="preserve">
     <value>Set password</value>
   </data>
@@ -2603,6 +2606,9 @@
   <data name="Users.Details.SecurityHint" xml:space="preserve">
     <value>Multi-factor authentication and password rotation.</value>
   </data>
+  <data name="Users.Details.TemporaryPasswordValidUntil" xml:space="preserve">
+    <value>Temporary password, must be changed at next sign-in and is refused after {{date}}</value>
+  </data>
   <data name="Users.Devices.Blocked" xml:space="preserve">
     <value>Blocked</value>
   </data>
@@ -2725,6 +2731,15 @@
   </data>
   <data name="Users.Edit.ResetMfaTitle" xml:space="preserve">
     <value>Reset MFA?</value>
+  </data>
+  <data name="Users.Edit.SendPasswordResetMessage" xml:space="preserve">
+    <value>A password reset link will be emailed to {{email}}. The current password keeps working until the user sets a new one.</value>
+  </data>
+  <data name="Users.Edit.SendPasswordResetTitle" xml:space="preserve">
+    <value>Send password reset email?</value>
+  </data>
+  <data name="Users.Edit.SendPasswordResetToast" xml:space="preserve">
+    <value>Password reset email sent</value>
   </data>
   <data name="Users.Edit.TheUser" xml:space="preserve">
     <value>the user</value>
@@ -3109,6 +3124,9 @@
   </data>
   <data name="Users.Status.PasswordNotExpired" xml:space="preserve">
     <value>Password not expired</value>
+  </data>
+  <data name="Users.Status.TemporaryPassword" xml:space="preserve">
+    <value>Temporary password</value>
   </data>
   <data name="Users.Status.HasSignedIn" xml:space="preserve">
     <value>Has signed in</value>

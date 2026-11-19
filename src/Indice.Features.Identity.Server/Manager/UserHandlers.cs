@@ -115,7 +115,8 @@ internal static class UserHandlers
                 IsAdmin = user.Admin,
                 AccessFailedCount = user.AccessFailedCount,
                 LastSignInDate = user.LastSignInDate,
-                PasswordExpirationDate = user.PasswordExpirationDate
+                PasswordExpirationDate = user.PasswordExpirationDate,
+                PasswordIsTemporary = user.PasswordIsTemporary
             };
         if (expandClaims?.Length > 4) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(expandClaims), "Cannot expand more than three claim types"));
@@ -150,6 +151,7 @@ internal static class UserHandlers
                     AccessFailedCount = user.AccessFailedCount,
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate,
+                    PasswordIsTemporary = user.PasswordIsTemporary,
                     Claims = UserInfo.MergeClaims(user.Claims, claimType, ct.ClaimValue)
                 };
         }
@@ -190,6 +192,7 @@ internal static class UserHandlers
                 AccessFailedCount = user.AccessFailedCount,
                 LastSignInDate = user.LastSignInDate,
                 PasswordExpirationDate = user.PasswordExpirationDate,
+                PasswordIsTemporary = user.PasswordIsTemporary,
                 Claims = user.Claims.Select(claim => new ClaimInfo {
                     Id = claim.Id,
                     Type = claim.ClaimType,
@@ -277,7 +280,10 @@ internal static class UserHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
+        var hasPassword = !string.IsNullOrEmpty(request.Password);
+        if (hasPassword && (request.ChangePasswordAfterFirstSignIn == true || userManager.RequirePasswordChangeAfterAdminSet)) {
+            await userManager.MarkPasswordAsTemporaryAsync(user);
+        } else if (request.ChangePasswordAfterFirstSignIn == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
         var response = SingleUserInfo.FromUser(user);
@@ -364,6 +370,7 @@ internal static class UserHandlers
             AccessFailedCount = user.AccessFailedCount,
             PasswordExpirationDate = user.PasswordExpirationDate,
             PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+            PasswordIsTemporary = user.PasswordIsTemporary,
             UserName = user.UserName,
             Blocked = user.Blocked,
             IsAdmin = user.Admin,
@@ -797,9 +804,29 @@ internal static class UserHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        if (request.ChangePasswordAfterFirstSignIn == true) {
-            await userManager.SetPasswordExpiredAsync(user, true);
+        if (request.ChangePasswordAfterFirstSignIn == true || userManager.RequirePasswordChangeAfterAdminSet) {
+            await userManager.MarkPasswordAsTemporaryAsync(user);
         }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SendPasswordResetEmail(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        [Microsoft.AspNetCore.Mvc.FromServices] IEmailService emailService,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
+        string userId,
+        SendPasswordResetEmailRequest? request
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        if (string.IsNullOrWhiteSpace(user.Email)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("email", "The user does not have an email address."));
+        }
+        await MyAccountHandlers.SendForgotPasswordEmailAsync(userManager, endpointOptions.Value, emailService, linkGenerator, httpContext, user, request?.ReturnUrl);
         return TypedResults.NoContent();
     }
 

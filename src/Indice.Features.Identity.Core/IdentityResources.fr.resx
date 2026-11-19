@@ -276,6 +276,9 @@
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Votre compte est temporairement verrouille. Veuillez contacter un administrateur systeme.</value>
   </data>
+  <data name="LoginErrorTemporaryPasswordExpired" xml:space="preserve">
+    <value>Votre mot de passe temporaire a expiré. Veuillez réinitialiser votre mot de passe ou contacter un administrateur système.</value>
+  </data>
   <data name="PasswordExpiredMessage" xml:space="preserve">
     <value>Votre mot de passe a expire. Veuillez choisir un nouveau mot de passe.</value>
   </data>

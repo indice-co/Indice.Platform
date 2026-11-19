@@ -276,6 +276,9 @@
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Il tuo account è temporaneamente bloccato. Contatta un amministratore di sistema.</value>
   </data>
+  <data name="LoginErrorTemporaryPasswordExpired" xml:space="preserve">
+    <value>La tua password temporanea è scaduta. Reimposta la password o contatta un amministratore di sistema.</value>
+  </data>
   <data name="PasswordExpiredMessage" xml:space="preserve">
     <value>La tua password è scaduta. Scegli una nuova password.</value>
   </data>

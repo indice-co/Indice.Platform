@@ -41,6 +41,8 @@ public sealed class UserEventContext
     public bool Blocked { get; private set; }
     /// <summary>Indicates whether the user must provide a new password upon next login.</summary>
     public bool PasswordExpired { get; private set; }
+    /// <summary>Indicates that the current password was issued by an administrator and is temporary.</summary>
+    public bool PasswordIsTemporary { get; private set; }
     /// <summary>Navigation property for the claims this user possesses.</summary>
     public List<UserClaimEventContext> Claims { get; private set; } = [];
 
@@ -62,6 +64,7 @@ public sealed class UserEventContext
         PasswordExpirationDate = user.PasswordExpirationDate,
         PasswordExpirationPolicy = user.PasswordExpirationPolicy,
         PasswordExpired = user.PasswordExpired,
+        PasswordIsTemporary = user.PasswordIsTemporary,
         PhoneNumber = user.PhoneNumber,
         PhoneNumberConfirmed = user.PhoneNumberConfirmed,
         TwoFactorEnabled = user.TwoFactorEnabled,

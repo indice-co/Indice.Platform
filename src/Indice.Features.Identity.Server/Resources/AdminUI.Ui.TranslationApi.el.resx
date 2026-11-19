@@ -2423,6 +2423,9 @@
   <data name="Users.Actions.ResetMfa" xml:space="preserve">
     <value>Επαναφορά MFA</value>
   </data>
+  <data name="Users.Actions.SendPasswordReset" xml:space="preserve">
+    <value>Αποστολή email επαναφοράς κωδικού πρόσβασης</value>
+  </data>
   <data name="Users.Actions.SetPassword" xml:space="preserve">
     <value>Ορισμός κωδικού πρόσβασης</value>
   </data>
@@ -2603,6 +2606,9 @@
   <data name="Users.Details.SecurityHint" xml:space="preserve">
     <value>Πολυπαραγοντική αυθεντικοποίηση και ανανέωση κωδικού πρόσβασης.</value>
   </data>
+  <data name="Users.Details.TemporaryPasswordValidUntil" xml:space="preserve">
+    <value>Προσωρινός κωδικός πρόσβασης, πρέπει να αλλάξει στην επόμενη σύνδεση και δεν γίνεται δεκτός μετά τις {{date}}</value>
+  </data>
   <data name="Users.Devices.Blocked" xml:space="preserve">
     <value>Αποκλεισμένη</value>
   </data>
@@ -2725,6 +2731,15 @@
   </data>
   <data name="Users.Edit.ResetMfaTitle" xml:space="preserve">
     <value>Επαναφορά MFA;</value>
+  </data>
+  <data name="Users.Edit.SendPasswordResetMessage" xml:space="preserve">
+    <value>Θα σταλεί σύνδεσμος επαναφοράς κωδικού πρόσβασης στη διεύθυνση {{email}}. Ο τρέχων κωδικός παραμένει σε ισχύ μέχρι ο χρήστης να ορίσει νέο.</value>
+  </data>
+  <data name="Users.Edit.SendPasswordResetTitle" xml:space="preserve">
+    <value>Αποστολή email επαναφοράς κωδικού πρόσβασης;</value>
+  </data>
+  <data name="Users.Edit.SendPasswordResetToast" xml:space="preserve">
+    <value>Το email επαναφοράς κωδικού πρόσβασης στάλθηκε</value>
   </data>
   <data name="Users.Edit.TheUser" xml:space="preserve">
     <value>χωρίς όνομα</value>
@@ -3109,6 +3124,9 @@
   </data>
   <data name="Users.Status.PasswordNotExpired" xml:space="preserve">
     <value>Έγκυρος κωδικός</value>
+  </data>
+  <data name="Users.Status.TemporaryPassword" xml:space="preserve">
+    <value>Προσωρινός κωδικός</value>
   </data>
   <data name="Users.Status.HasSignedIn" xml:space="preserve">
     <value>Έχει συνδεθεί</value>

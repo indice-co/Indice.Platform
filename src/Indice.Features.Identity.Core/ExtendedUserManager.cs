@@ -63,7 +63,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) ?? false;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) ?? false;
-
+        var temporaryPasswordLifetime = configuration.GetIdentityOption<TimeSpan?>(nameof(IdentityOptions.Password), nameof(TemporaryPasswordLifetime));
+        TemporaryPasswordLifetime = temporaryPasswordLifetime > TimeSpan.Zero ? temporaryPasswordLifetime : null;
+        RequirePasswordChangeAfterAdminSet = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.Password), nameof(RequirePasswordChangeAfterAdminSet)) ?? false;
     }
 
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
@@ -84,6 +86,17 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public bool RequirePostSignInConfirmedEmail { get; }
     /// <summary>Whether the user should confirm their phone number after signing in.</summary>
     public bool RequirePostSignInConfirmedPhoneNumber { get; }
+    /// <summary>
+    /// How long a temporary password (set by an administrator and pending a mandatory change) is accepted at sign-in.
+    /// When <see langword="null"/> a temporary password is accepted until the date given by the password expiration policy. 
+    /// Configured via <c>IdentityOptions:Password:TemporaryPasswordLifetime</c>.
+    /// </summary>
+    public TimeSpan? TemporaryPasswordLifetime { get; }
+    /// <summary>
+    /// When enabled, every password set by an administrator must be changed by the user at the next sign-in, regardless of what the administrator requested.
+    /// Configured via <c>IdentityOptions:Password:RequirePasswordChangeAfterAdminSet</c>.
+    /// </summary>
+    public bool RequirePasswordChangeAfterAdminSet { get; }
 
     /// <summary>Options for updating a user.</summary>
     /// <param name="user">The user to update.</param>
@@ -287,6 +300,28 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var userStore = GetUserStore();
         await userStore!.SetPasswordExpiredAsync(user, expired, cancellationToken);
         await UpdateAsync(user);
+    }
+
+    /// <summary>
+    /// Marks the current password of the user as temporary. The user is forced to change it at the next sign-in and the password is 
+    /// refused once <see cref="User.PasswordExpirationDate"/> passes. That date is <see cref="TemporaryPasswordLifetime"/> after the password was set, 
+    /// or the date given by the password expiration policy when no lifetime is configured.
+    /// </summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <remarks>The temporary status is cleared automatically whenever the password of the user changes.</remarks>
+    public async Task<IdentityResult> MarkPasswordAsTemporaryAsync(TUser user, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        user.PasswordIsTemporary = false;
+        var expirationDate = TemporaryPasswordLifetime.HasValue
+            ? (user.LastPasswordChangeDate ?? DateTimeOffset.UtcNow).Add(TemporaryPasswordLifetime.Value)
+            : user.CalculatePasswordExpirationDate();
+        user.PasswordIsTemporary = true;
+        user.PasswordExpired = true;
+        user.PasswordExpirationDate = expirationDate;
+        return await UpdateAsync(user);
     }
 
     /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>

@@ -59,7 +59,8 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         [ResourceOwnerPasswordErrorCodes.Traveler] = "User's login is suspicious",
         [ResourceOwnerPasswordErrorCodes.NotMobileClient] = "Client is not a mobile device",
         [ResourceOwnerPasswordErrorCodes.MissingDeviceId] = "Device id is missing.",
-        [ResourceOwnerPasswordErrorCodes.DeviceNotFound] = "Device was not found."
+        [ResourceOwnerPasswordErrorCodes.DeviceNotFound] = "Device was not found.",
+        [ResourceOwnerPasswordErrorCodes.TemporaryPasswordExpired] = "User's temporary password has expired."
     };
 
     /// <inheritdoc />
@@ -230,6 +231,10 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.LockedOut);
             return;
         }
+        if (result.IsTemporaryPasswordExpired()) {
+            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.TemporaryPasswordExpired);
+            return;
+        }
         var signInGuardResult = await _signInGuard.IsSuspiciousLogin(_signInManager.Context, context.User);
         if (signInGuardResult.Warning == SignInWarning.ImpossibleTravel) {
             if (_signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
@@ -333,6 +338,7 @@ internal class ResourceOwnerPasswordErrorCodes
     public const string NotFound = "107";
     public const string Blocked = "108";
     public const string Traveler = "109";
+    public const string TemporaryPasswordExpired = "110";
     // Client specific error codes.
     public const string NotMobileClient = "204";
     public const string MissingDeviceId = "205";

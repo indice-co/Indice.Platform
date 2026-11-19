@@ -309,6 +309,10 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
         if (!attempt.Succeeded) {
             return attempt;
         }
+        if (user.HasExpiredTemporaryPassword()) {
+            Logger.LogWarning("User '{UserId}' tried to sign in with an expired temporary password.", user.Id);
+            return ExtendedSignInResult.TemporaryPasswordExpired;
+        }
         var result = await _signInGuard.IsSuspiciousLogin(Context, user);
         await _eventService.Publish(UserPasswordLoginEvent.Success(UserEventContext.InitializeFromUser(user), result.Warning));
         if (ExpireBlacklistedPasswordsOnSignIn) {
@@ -562,6 +566,7 @@ public IReadOnlySet<string> MfaImplicitLoginProviders { get; }
 public class ExtendedSignInResult : SignInResult
 {
     private static readonly SignInResult _validationRequired = new ExtendedSignInResult { RequiresValidation = true };
+    private static readonly SignInResult _temporaryPasswordExpired = new ExtendedSignInResult { IsTemporaryPasswordExpired = true };
     /// <summary>Constructs an instance of <see cref="ExtendedSignInResult"/>.</summary>
     public ExtendedSignInResult() {
     }
@@ -576,8 +581,14 @@ public class ExtendedSignInResult : SignInResult
     /// <returns>A <see cref="SignInResult"/> that represents sign-in attempt that needs user validation.</returns>
     public static SignInResult ValidationRequired => _validationRequired;
 
+    /// <summary>Returns a flag indicating whether the sign-in failed because the user's temporary password has expired.</summary>
+    public bool IsTemporaryPasswordExpired { get; protected set; }
+
+    /// <summary>Returns a <see cref="SignInResult"/> that represents a sign-in attempt with a valid but expired temporary password.</summary>
+    public static SignInResult TemporaryPasswordExpired => _temporaryPasswordExpired;
+
     /// <inheritdoc/>
-    public override string ToString() => RequiresValidation ? "RequiresValidation" : base.ToString();
+    public override string ToString() => RequiresValidation ? "RequiresValidation" : IsTemporaryPasswordExpired ? "TemporaryPasswordExpired" : base.ToString();
 }
 
 /// <summary>Extensions on <see cref="SignInResult"/> type.</summary>
@@ -585,6 +596,9 @@ public static class ExtendedSignInManagerExtensions
 {
     /// <summary>Returns a flag indication whether the user attempting to sign-in requires extended validation.</summary>
     public static bool RequiresValidation(this SignInResult result) => result is ExtendedSignInResult { RequiresValidation: true };
+
+    /// <summary>Returns a flag indicating whether the sign-in failed because the user's temporary password has expired.</summary>
+    public static bool IsTemporaryPasswordExpired(this SignInResult result) => result is ExtendedSignInResult { IsTemporaryPasswordExpired: true };
 }
 
 internal sealed class TwoFactorAuthenticationInfo
