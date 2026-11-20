@@ -1,0 +1,40 @@
+@page "/manage/preferences"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/profile")]
+
+@model BaseChangePreferencesModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_ProfileLayout";
+    ViewData["Title"] = Localizer.ChangePreferences_PageTitle;
+}
+
+<section class="data-card data-card--form">
+    <a class="data-card__back" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
+    <header class="data-card__header">
+        <h1 class="data-card__title">@Localizer.ChangePreferences_PageTitle</h1>
+        <p class="data-card__meta">@Localizer.ChangePreferences_Description</p>
+    </header>
+    <partial name="_ValidationSummary" />
+    <form method="post" class="auth-form">
+        <div class="field">
+            <label asp-for="Input.Locale" class="field__label">@Localizer.Profile_PreferredLanguage</label>
+            <select class="form-select field__control" asp-for="Input.Locale" required aria-describedby="Input_Locale-error" autofocus>
+                <option value="">@Localizer.Profile_Choose</option>
+                @foreach (var culture in Model.SupportedCultures)
+                {
+                    <option value="@culture.TwoLetterISOLanguageName" selected="@(string.Equals(culture.TwoLetterISOLanguageName, Model.Input.Locale, StringComparison.OrdinalIgnoreCase))">@culture.TwoLetterISOLanguageName.ToUpperInvariant() - @culture.NativeName</option>
+                }
+            </select>
+            <span asp-validation-for="Input.Locale" class="field__error" id="Input_Locale-error"></span>
+        </div>
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.Profile_Save</button>
+        </div>
+    </form>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

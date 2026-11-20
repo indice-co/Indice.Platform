@@ -24,16 +24,7 @@
 <div id="send-confirmation-error" class="alert alert-danger d-none" role="alert">
     @Localizer.Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator
 </div>
-@if (Model.ProfileSuccessfullyChanged)
-{
-    var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value!;
-    if (Model.EmailChangeRequested)
-    {
-        message += Localizer.Profile_EmailSentToNewEmail.Value;
-    }
-    <partial name="_Alert" model="@AlertModel.Success(message)" />
-}
-@if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
+@if (Model.View.EmailChangePending)
 {
     <partial name="_Alert" model="@AlertModel.Warn(Localizer.Profile_Your_New_Email_Verification_Is_Still_Pending.ToString())" />
 }
@@ -127,95 +118,95 @@
     </div>
 </section>
 
-@* ---- Profile details ---- *@
-<form method="post" class="profile-form">
-    <section class="data-card">
-        <header class="data-card__header">
-            <h2 class="data-card__title">@Localizer.Profile_DetailsSection</h2>
-        </header>
-        <div class="data-card__grid">
-            @if (Model.View.ShowFullName)
-            {
-                <div class="field data-card__span">
-                    <label class="field__label" for="Input_FullName">@Localizer.Profile_FullName</label>
-                    <input class="form-control field__control" id="Input_FullName" type="text" placeholder="@Localizer.Profile_FullName" value="@Model.Input.LastName @Model.Input.FirstName" readonly="readonly" />
-                    <input class="form-control" type="hidden" asp-for="Input.FirstName" />
-                    <input class="form-control" type="hidden" asp-for="Input.LastName" />
-                </div>
-            }
-            else
-            {
-                <div class="field">
-                    <label asp-for="Input.FirstName" class="field__label">@Localizer.Profile_First_Name</label>
-                    <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" readonly="@Model.View.DisableEditGivenName" autocomplete="given-name" aria-describedby="Input_FirstName-error" />
-                    <span asp-validation-for="Input.FirstName" class="field__error" id="Input_FirstName-error"></span>
-                </div>
-                <div class="field">
-                    <label asp-for="Input.LastName" class="field__label">@Localizer.Profile_Last_Name</label>
-                    <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" readonly="@Model.View.DisableEditFamilyName" autocomplete="family-name" aria-describedby="Input_LastName-error" />
-                    <span asp-validation-for="Input.LastName" class="field__error" id="Input_LastName-error"></span>
-                </div>
-            }
-            <div class="field">
-                <label asp-for="Input.Tin" class="field__label">@Localizer.Profile_Tax_Identification</label>
-                <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_Tax_Identification" readonly="@Model.View.DisableEditTin" asp-for="Input.Tin" aria-describedby="Input_Tin-error" />
-                <span asp-validation-for="Input.Tin" class="field__error" id="Input_Tin-error"></span>
+@* ---- Profile details (read only, edited on /ChangeProfileDetails) ---- *@
+@{
+    var timezoneDisplay = string.IsNullOrWhiteSpace(Model.View.ZoneInfo) ? null : (zoneInfoProvider.GetTimeZones().FirstOrDefault(x => x.Id == Model.View.ZoneInfo)?.DisplayName ?? Model.View.ZoneInfo);
+    var fullName = string.Join(" ", new[] { Model.View.LastName, Model.View.FirstName }.Where(x => !string.IsNullOrWhiteSpace(x)));
+}
+<section class="data-card">
+    <header class="data-card__header">
+        <h2 class="data-card__title">@Localizer.Profile_DetailsSection</h2>
+        <a asp-page="/ChangeProfileDetails" class="data-card__action"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> @Localizer.Profile_Edit</a>
+    </header>
+    <div class="account-rows">
+        @if (Model.View.ShowFullName)
+        {
+            <div class="account-row">
+                <span class="account-row__label">@Localizer.Profile_FullName</span>
+                <span class="account-row__value">@DisplayValue(fullName)</span>
             </div>
-            <div class="field">
-                <label asp-for="Input.BirthDate" class="field__label">@Localizer.Profile_Birth_Date</label>
-                <input class="form-control field__control" type="date" placeholder="@Localizer.Profile_Birth_Date" asp-for="Input.BirthDate" autocomplete="bday" aria-describedby="Input_BirthDate-error" />
-                <span asp-validation-for="Input.BirthDate" class="field__error" id="Input_BirthDate-error"></span>
+        }
+        else
+        {
+            <div class="account-row">
+                <span class="account-row__label">@Localizer.Profile_First_Name</span>
+                <span class="account-row__value">@DisplayValue(Model.View.FirstName)</span>
             </div>
-            <div class="field">
-                <label asp-for="Input.ZoneInfo" class="field__label">@Localizer.Profile_Timezone</label>
-                <select class="form-select field__control" asp-for="Input.ZoneInfo" aria-describedby="Input_ZoneInfo-error">
-                    <option value="">@Localizer.Profile_Choose</option>
-                    @foreach (var timezone in zoneInfoProvider.GetTimeZones())
-                    {
-                        <option value="@timezone.Id">@timezone.DisplayName</option>
-                    }
-                </select>
-                <span asp-validation-for="Input.ZoneInfo" class="field__error" id="Input_ZoneInfo-error"></span>
+            <div class="account-row">
+                <span class="account-row__label">@Localizer.Profile_Last_Name</span>
+                <span class="account-row__value">@DisplayValue(Model.View.LastName)</span>
             </div>
-            <div class="field" indice-if="Model.View.HasDeveloperTotp">
-                <label asp-for="Input.DeveloperTotp" class="field__label">@Localizer.Profile_Developer_TOTP</label>
-                <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_Developer_TOTP" readonly="readonly" asp-for="Input.DeveloperTotp" />
-            </div>
+        }
+        <div class="account-row">
+            <span class="account-row__label">@Localizer.Profile_Tax_Identification</span>
+            <span class="account-row__value">@DisplayValue(Model.View.Tin)</span>
         </div>
-        <div class="form-check">
-            <input asp-for="Input.ConsentCommercial" type="checkbox" class="form-check-input" />
-            <label class="form-check-label" asp-for="Input.ConsentCommercial">
-                @Localizer.Profile_PrivacyPolicyConsent
-                <a target="_blank" href="/privacy" onclick="event.stopPropagation();">@Localizer.Profile_Here.</a>
-            </label>
+        <div class="account-row">
+            <span class="account-row__label">@Localizer.Profile_Birth_Date</span>
+            <span class="account-row__value">@DisplayValue(Model.View.BirthDate?.ToString("d"))</span>
         </div>
-        <div class="data-card__actions">
-            <button class="btn btn-primary" type="submit">@Localizer.Profile_Save</button>
+        <div class="account-row">
+            <span class="account-row__label">@Localizer.Profile_Timezone</span>
+            <span class="account-row__value">@DisplayValue(timezoneDisplay)</span>
         </div>
-    </section>
-</form>
+        <div class="account-row" indice-if="Model.View.HasDeveloperTotp">
+            <span class="account-row__label">@Localizer.Profile_Developer_TOTP</span>
+            <span class="account-row__value">@DisplayValue(Model.View.DeveloperTotp)</span>
+        </div>
+        @foreach (var claim in Model.View.Claims)
+        {
+            <div class="account-row">
+                <span class="account-row__label">@claim.DisplayName</span>
+                <span class="account-row__value">@DisplayValue(FormatClaimValue(claim))</span>
+            </div>
+        }
+        <div class="account-row">
+            <span class="account-row__label">@Localizer.Profile_ConsentCommercial</span>
+            <span class="account-row__value">@(Model.View.ConsentCommercial ? Localizer.Profile_Yes : Localizer.Profile_No)</span>
+        </div>
+    </div>
+</section>
 
-@* ---- Preferences (own form: auto-submits on change) ---- *@
+@* ---- Preferences (read only, edited on /ChangePreferences) ---- *@
+@{
+    var currentCulture = string.IsNullOrWhiteSpace(Model.View.Locale) ? null : Model.View.SupportedCultures.FirstOrDefault(x => string.Equals(x.TwoLetterISOLanguageName, Model.View.Locale, StringComparison.OrdinalIgnoreCase));
+    var localeDisplay = currentCulture is not null ? $"{currentCulture.TwoLetterISOLanguageName.ToUpperInvariant()} - {currentCulture.NativeName}" : Model.View.Locale;
+}
 <section class="data-card" indice-if="Model.View.SupportedCultures.Count > 0">
     <header class="data-card__header">
         <h2 class="data-card__title">@Localizer.Profile_Preferences</h2>
     </header>
-    <form id="userPreferenceForm" method="post" asp-page-handler="UpdateLanguagePreference">
-        <div class="data-card__grid">
-            <div class="field">
-                <label asp-for="InputLanguagePreference.Locale" class="field__label">@Localizer.Profile_PreferredLanguage</label>
-                <select class="form-select field__control" asp-for="InputLanguagePreference.Locale" required aria-describedby="InputLanguagePreference_Locale-error">
-                    <option value="">@Localizer.Profile_Choose</option>
-                    @foreach (var culture in Model.View.SupportedCultures)
-                    {
-                        <option value="@culture.TwoLetterISOLanguageName" selected="@(culture.TwoLetterISOLanguageName.Equals(Model.View.Locale))">@culture.TwoLetterISOLanguageName.ToUpperInvariant() - @culture.NativeName</option>
-                    }
-                </select>
-                <span asp-validation-for="InputLanguagePreference.Locale" class="field__error" id="InputLanguagePreference_Locale-error"></span>
-            </div>
+    <div class="account-rows">
+        <div class="account-row">
+            <span class="account-row__label">@Localizer.Profile_PreferredLanguage</span>
+            <span class="account-row__value">@DisplayValue(localeDisplay)</span>
+            <a asp-page="/ChangePreferences" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_PreferredLanguage"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
         </div>
-    </form>
+    </div>
 </section>
+
+@functions {
+    private Microsoft.AspNetCore.Html.IHtmlContent DisplayValue(string? value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? new Microsoft.AspNetCore.Html.HtmlString($"<span class=\"account-row__empty\">{Localizer.Profile_NotSet}</span>")
+            : new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(value));
+
+    private string? FormatClaimValue(ProfileClaimViewModel claim) => claim.ValueType switch {
+        ClaimValueType.Boolean => claim.Value is null ? null : string.Equals(claim.Value, "true", StringComparison.OrdinalIgnoreCase) ? Localizer.Profile_Yes.Value : Localizer.Profile_No.Value,
+        ClaimValueType.DateTime => DateTime.TryParseExact(claim.Value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date.ToString("d") : claim.Value,
+        _ => claim.Value
+    };
+}
 
 @* ---- External providers ---- *@
 <section class="data-card" indice-if="Model.View.CurrentLogins?.Count > 0 || Model.View.OtherLogins.Count > 0">
@@ -292,13 +283,6 @@
                 if (!el.classList.contains('disabled')) {
                     el.classList.add('disabled');
                 }
-            });
-        });
-    </script>
-    <script csp-nonce="true">
-        document.querySelectorAll('#userPreferenceForm select').forEach(function (el) {
-            el.addEventListener("change", function (select) {
-                document.getElementById('userPreferenceForm').submit();
             });
         });
     </script>

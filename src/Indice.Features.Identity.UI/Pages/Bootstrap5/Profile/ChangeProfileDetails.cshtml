@@ -1,0 +1,117 @@
+@page "/manage/profile/details"
+@attribute [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("manage/profile")]
+
+@model BaseChangeProfileDetailsModel
+
+@inject IZoneInfoProvider zoneInfoProvider
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_ProfileLayout";
+    ViewData["Title"] = Localizer.ChangeProfileDetails_PageTitle;
+}
+
+<section class="data-card data-card--form">
+    <a class="data-card__back" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
+    <header class="data-card__header">
+        <h1 class="data-card__title">@Localizer.ChangeProfileDetails_PageTitle</h1>
+        <p class="data-card__meta">@Localizer.ChangeProfileDetails_Description</p>
+    </header>
+    <partial name="_ValidationSummary" />
+    <form method="post" class="auth-form">
+        <div class="data-card__grid">
+            @if (Model.View.ShowFullName)
+            {
+                <div class="field data-card__span">
+                    <label class="field__label" for="Input_FullName">@Localizer.Profile_FullName</label>
+                    <input class="form-control field__control" id="Input_FullName" type="text" value="@string.Join(" ", new[] { Model.Input.LastName, Model.Input.FirstName }.Where(x => !string.IsNullOrWhiteSpace(x)))" readonly="readonly" />
+                </div>
+            }
+            else
+            {
+                <div class="field">
+                    <label asp-for="Input.FirstName" class="field__label">@Localizer.Profile_First_Name</label>
+                    <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" readonly="@Model.View.DisableEditGivenName" autocomplete="given-name" aria-describedby="Input_FirstName-error" />
+                    <span asp-validation-for="Input.FirstName" class="field__error" id="Input_FirstName-error"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="Input.LastName" class="field__label">@Localizer.Profile_Last_Name</label>
+                    <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" readonly="@Model.View.DisableEditFamilyName" autocomplete="family-name" aria-describedby="Input_LastName-error" />
+                    <span asp-validation-for="Input.LastName" class="field__error" id="Input_LastName-error"></span>
+                </div>
+            }
+            <div class="field">
+                <label asp-for="Input.Tin" class="field__label">@Localizer.Profile_Tax_Identification</label>
+                <input class="form-control field__control" type="text" placeholder="@Localizer.Profile_Tax_Identification" readonly="@Model.View.DisableEditTin" asp-for="Input.Tin" aria-describedby="Input_Tin-error" />
+                <span asp-validation-for="Input.Tin" class="field__error" id="Input_Tin-error"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Input.BirthDate" class="field__label">@Localizer.Profile_Birth_Date</label>
+                <input class="form-control field__control" type="date" asp-for="Input.BirthDate" autocomplete="bday" aria-describedby="Input_BirthDate-error" />
+                <span asp-validation-for="Input.BirthDate" class="field__error" id="Input_BirthDate-error"></span>
+            </div>
+            <div class="field data-card__span">
+                <label asp-for="Input.ZoneInfo" class="field__label">@Localizer.Profile_Timezone</label>
+                <select class="form-select field__control" asp-for="Input.ZoneInfo" aria-describedby="Input_ZoneInfo-error">
+                    <option value="">@Localizer.Profile_Choose</option>
+                    @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                    {
+                        <option value="@timezone.Id">@timezone.DisplayName</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.ZoneInfo" class="field__error" id="Input_ZoneInfo-error"></span>
+            </div>
+            @for (var i = 0; i < Model.View.Claims.Count; i++)
+            {
+                var claim = Model.View.Claims[i];
+                var value = i < Model.Input.Claims.Count && Model.Input.Claims[i].Type == claim.Type ? Model.Input.Claims[i].Value : claim.Value;
+                var id = $"Input_Claims_{i}__Value";
+                var name = $"Input.Claims[{i}].Value";
+                var describedBy = string.IsNullOrWhiteSpace(claim.Description) ? $"{id}-error" : $"{id}-help {id}-error";
+                <input type="hidden" name="Input.Claims[@i].Type" value="@claim.Type" />
+                @if (claim.ValueType == ClaimValueType.Boolean)
+                {
+                    <div class="field data-card__span">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="@id" name="@name" value="true" checked="@(string.Equals(value, "true", StringComparison.OrdinalIgnoreCase))" aria-describedby="@describedBy" />
+                            <label class="form-check-label" for="@id">@claim.DisplayName</label>
+                        </div>
+                        <span indice-if="!string.IsNullOrWhiteSpace(claim.Description)" class="field__help" id="@id-help">@claim.Description</span>
+                        @Html.ValidationMessage(name, null, new { @class = "field__error", id = $"{id}-error" })
+                    </div>
+                }
+                else
+                {
+                    var inputType = claim.ValueType switch {
+                        ClaimValueType.Int => "number",
+                        ClaimValueType.DateTime => "date",
+                        _ => "text"
+                    };
+                    <div class="field">
+                        <label class="field__label" for="@id">
+                            @claim.DisplayName
+                            <span indice-if="claim.Required" class="field__required" aria-hidden="true">*</span>
+                        </label>
+                        <input class="form-control field__control" type="@inputType" id="@id" name="@name" value="@value" required="@claim.Required" step="@(claim.ValueType == ClaimValueType.Int ? "1" : null)" aria-describedby="@describedBy" />
+                        <span indice-if="!string.IsNullOrWhiteSpace(claim.Description)" class="field__help" id="@id-help">@claim.Description</span>
+                        @Html.ValidationMessage(name, null, new { @class = "field__error", id = $"{id}-error" })
+                    </div>
+                }
+            }
+        </div>
+        <div class="form-check">
+            <input asp-for="Input.ConsentCommercial" type="checkbox" class="form-check-input" />
+            <label class="form-check-label" asp-for="Input.ConsentCommercial">
+                @Localizer.Profile_PrivacyPolicyConsent
+                <a target="_blank" href="/privacy">@Localizer.Profile_Here.</a>
+            </label>
+        </div>
+        <div class="auth-form__actions">
+            <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.Profile_Save</button>
+        </div>
+    </form>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

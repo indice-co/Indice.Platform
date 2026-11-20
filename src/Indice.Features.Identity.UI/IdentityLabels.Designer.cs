@@ -4046,5 +4046,104 @@ namespace Indice.Features.Identity.UI {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to Edit profile details.
+        /// </summary>
+        public static string ChangeProfileDetails_PageTitle {
+            get {
+                return ResourceManager.GetString("ChangeProfileDetails_PageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep your personal information up to date..
+        /// </summary>
+        public static string ChangeProfileDetails_Description {
+            get {
+                return ResourceManager.GetString("ChangeProfileDetails_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edit preferences.
+        /// </summary>
+        public static string ChangePreferences_PageTitle {
+            get {
+                return ResourceManager.GetString("ChangePreferences_PageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the language you prefer for your account..
+        /// </summary>
+        public static string ChangePreferences_Description {
+            get {
+                return ResourceManager.GetString("ChangePreferences_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your preferences were updated..
+        /// </summary>
+        public static string ChangePreferences_Succeeded {
+            get {
+                return ResourceManager.GetString("ChangePreferences_Succeeded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not set.
+        /// </summary>
+        public static string Profile_NotSet {
+            get {
+                return ResourceManager.GetString("Profile_NotSet", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        public static string Profile_Yes {
+            get {
+                return ResourceManager.GetString("Profile_Yes", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        public static string Profile_No {
+            get {
+                return ResourceManager.GetString("Profile_No", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Commercial communications.
+        /// </summary>
+        public static string Profile_ConsentCommercial {
+            get {
+                return ResourceManager.GetString("Profile_ConsentCommercial", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The value of &apos;{0}&apos; is not valid..
+        /// </summary>
+        public static string Profile_InvalidValue {
+            get {
+                return ResourceManager.GetString("Profile_InvalidValue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is required..
+        /// </summary>
+        public static string Profile_RequiredValue {
+            get {
+                return ResourceManager.GetString("Profile_RequiredValue", resourceCulture);
+            }
+        }
+
     }
 }

@@ -79,6 +79,25 @@
         }
     }
 
+    // Header link to the page where the card's data is edited.
+    &__action {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .35rem .75rem;
+        border-radius: t.$radius-sm;
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-ink);
+        font-size: t.$font-size-sm;
+        font-weight: t.$font-weight-medium;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--idui-color-border);
+        }
+    }
+
     .field__label-action {
         margin-left: t.$space-2;
         font-size: t.$font-size-xs;
@@ -244,6 +263,10 @@
         color: var(--idui-color-ink);
         text-align: right;
         overflow-wrap: anywhere;
+    }
+
+    &__empty {
+        color: var(--idui-color-text-subtle);
     }
 
     &__toggle {

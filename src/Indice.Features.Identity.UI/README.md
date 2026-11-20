@@ -328,11 +328,21 @@ Indice.Features.Identity.UI/
 - `/ConfirmEmailChange` - Email change confirmation
 
 ### Profile Management
-- `/Profile` - User profile management dashboard
+- `/Profile` - User profile management dashboard (read only; each section links to its edit page)
+- `/ChangeProfileDetails` (`/manage/profile/details`) - Edit profile details and user editable claims
+- `/ChangePreferences` (`/manage/preferences`) - Edit the preferred language
 - `/ChangePassword` - Password change form
 - `/AddEmail` - Add additional email address
 - `/AddPhone` - Add phone number
 - `/VerifyPhone` - Phone number verification
+
+#### User editable claims
+`/ChangeProfileDetails` shows the well known profile fields (given/family name, TIN, birth date, time zone, commercial
+consent) and every other claim type marked **User editable** in the admin (`ClaimType.UserEditable`), except auto
+generated claim types and claims managed by other pages (email, phone, locale, picture, etc.). The input follows the
+claim type's value type (`String`, `Int`, `DateTime`, `Boolean`); `Required` and `Rule` (a regular expression that must
+match the whole value) are validated on the server. Only changed values are saved. Given name, family name and TIN are
+read only unless their claim types are user editable. The same claims are listed, read only, on `/Profile`.
 
 #### Profile MFA challenge
 When a user with MFA enabled changes their email (`/ChangeEmail`, `/manage/email`), phone number (`/ChangePhone`,

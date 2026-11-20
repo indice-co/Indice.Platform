@@ -989,6 +989,24 @@ public class IdentityUILocalizer
     public virtual HtmlString ChangeUserName_PageTitle => new HtmlString(IdentityLabels.ChangeUserName_PageTitle);
     /// <summary>Gets the localized string explaining that the new username is used to sign in.</summary>
     public virtual HtmlString ChangeUserName_Description => new HtmlString(IdentityLabels.ChangeUserName_Description);
+    /// <summary>Gets the localized string for "Edit profile details".</summary>
+    public virtual HtmlString ChangeProfileDetails_PageTitle => new HtmlString(IdentityLabels.ChangeProfileDetails_PageTitle);
+    /// <summary>Gets the localized description of the edit profile details page.</summary>
+    public virtual HtmlString ChangeProfileDetails_Description => new HtmlString(IdentityLabels.ChangeProfileDetails_Description);
+    /// <summary>Gets the localized string for "Edit preferences".</summary>
+    public virtual HtmlString ChangePreferences_PageTitle => new HtmlString(IdentityLabels.ChangePreferences_PageTitle);
+    /// <summary>Gets the localized description of the edit preferences page.</summary>
+    public virtual HtmlString ChangePreferences_Description => new HtmlString(IdentityLabels.ChangePreferences_Description);
+    /// <summary>Gets the localized string for "Your preferences were updated.".</summary>
+    public virtual HtmlString ChangePreferences_Succeeded => new HtmlString(IdentityLabels.ChangePreferences_Succeeded);
+    /// <summary>Gets the localized string for "Not set", displayed for profile values that have no value.</summary>
+    public virtual HtmlString Profile_NotSet => new HtmlString(IdentityLabels.Profile_NotSet);
+    /// <summary>Gets the localized string for "Yes".</summary>
+    public virtual HtmlString Profile_Yes => new HtmlString(IdentityLabels.Profile_Yes);
+    /// <summary>Gets the localized string for "No".</summary>
+    public virtual HtmlString Profile_No => new HtmlString(IdentityLabels.Profile_No);
+    /// <summary>Gets the localized string for "Commercial communications".</summary>
+    public virtual HtmlString Profile_ConsentCommercial => new HtmlString(IdentityLabels.Profile_ConsentCommercial);
     /// <summary>Gets the localized string for "Verify your identity".</summary>
     public virtual HtmlString ProfileMfaChallenge_Title => new HtmlString(IdentityLabels.ProfileMfaChallenge_Title);
     /// <summary>Gets the localized prompt explaining why the profile MFA challenge is needed.</summary>

@@ -1648,6 +1648,21 @@ body {
 .data-card__actions .btn {
   min-width: 10rem;
 }
+.data-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--idui-color-surface-muted);
+  color: var(--idui-color-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.data-card__action:hover, .data-card__action:focus-visible {
+  background: var(--idui-color-border);
+}
 .data-card .field__label-action {
   margin-left: 0.5rem;
   font-size: 0.75rem;
@@ -1800,6 +1815,9 @@ body {
   color: var(--idui-color-ink);
   text-align: right;
   overflow-wrap: anywhere;
+}
+.account-row__empty {
+  color: var(--idui-color-text-subtle);
 }
 .account-row__toggle {
   display: inline-flex;

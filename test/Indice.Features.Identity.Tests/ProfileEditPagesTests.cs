@@ -1,0 +1,308 @@
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+using Duende.IdentityServer.EntityFramework.Options;
+#else
+using IdentityModel;
+using IdentityServer4.EntityFramework.Options;
+#endif
+using System.Globalization;
+using System.Security.Claims;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.UI.Models;
+using Indice.Features.Identity.UI.Pages;
+using Indice.Security;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Moq;
+
+namespace Indice.Features.Identity.Tests;
+
+public class ProfileEditPagesTests : IAsyncLifetime
+{
+    private const string LoyaltyNumber = "loyalty_number";
+    private const string Children = "children";
+    private const string Newsletter = "newsletter";
+    private const string Anniversary = "anniversary";
+    private const string Nickname = "nickname";
+    private const string EmployeeId = "employee_id";
+    private const string AutoClaim = "auto_claim";
+    private readonly Mock<ITempDataProvider> _tempDataProvider = new();
+    private ServiceProvider? _rootProvider;
+    private AsyncServiceScope _scope;
+    private HttpContext _httpContext = null!;
+
+    public ProfileEditPagesTests() {
+        _tempDataProvider.Setup(x => x.LoadTempData(It.IsAny<HttpContext>())).Returns(new Dictionary<string, object>());
+    }
+
+    private ExtendedUserManager<User> UserManager => _scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+    private ExtendedConfigurationDbContext ConfigurationDbContext => _scope.ServiceProvider.GetRequiredService<ExtendedConfigurationDbContext>();
+
+    private async Task<User> SetupAsync(params Claim[] claims) {
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var httpContextAccessor = new TestHttpContextAccessor();
+        var databaseName = Guid.NewGuid().ToString();
+        var services = new ServiceCollection()
+            .AddSingleton(configuration)
+            .AddLogging()
+            .AddSingleton<IHttpContextAccessor>(httpContextAccessor)
+            .AddSingleton(new ConfigurationStoreOptions());
+        services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
+        services.AddTotpServiceFactory(configuration)
+                .AddDefaultPlatformEventService()
+                .AddSmsServiceNoop()
+                .AddPushNotificationServiceNoop()
+                .AddLocalization()
+                .AddDistributedMemoryCache()
+                .AddDbContext<ExtendedConfigurationDbContext>(builder => builder.UseInMemoryDatabase($"{databaseName}-configuration"))
+                .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(databaseName))
+                .AddIdentity<User, Role>()
+                .AddDefaultTokenProviders()
+                .AddExtendedUserManager()
+                .AddExtendedSignInManager()
+                .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                .AddIdentityMessageDescriber<IdentityMessageDescriber>();
+        _rootProvider = services.BuildServiceProvider();
+        _scope = _rootProvider.CreateAsyncScope();
+        _httpContext = new DefaultHttpContext { RequestServices = _scope.ServiceProvider };
+        _httpContext.Request.Scheme = "https";
+        _httpContext.Request.Host = new HostString("localhost");
+        httpContextAccessor.HttpContext = _httpContext;
+
+        ConfigurationDbContext.ClaimTypes.AddRange(
+            NewClaimType(JwtClaimTypes.GivenName, userEditable: false),
+            NewClaimType(JwtClaimTypes.FamilyName),
+            NewClaimType(JwtClaimTypes.Locale),
+            NewClaimType(LoyaltyNumber, displayName: "Loyalty number", rule: @"\d{5}"),
+            NewClaimType(Children, displayName: "Children", valueType: ClaimValueType.Int),
+            NewClaimType(Newsletter, displayName: "Newsletter", valueType: ClaimValueType.Boolean),
+            NewClaimType(Anniversary, displayName: "Anniversary", valueType: ClaimValueType.DateTime),
+            NewClaimType(Nickname, displayName: "Nickname", required: true),
+            NewClaimType(EmployeeId, displayName: "Employee id", userEditable: false),
+            NewClaimType(AutoClaim, displayName: "Auto", autoGenerated: true)
+        );
+        await ConfigurationDbContext.SaveChangesAsync();
+
+        var user = new User {
+            UserName = "someone",
+            Email = "someone@somewhere.com",
+            EmailConfirmed = true
+        };
+        Assert.True((await UserManager.CreateAsync(user)).Succeeded);
+        if (claims.Length > 0) {
+            Assert.True((await UserManager.AddClaimsAsync(user, claims)).Succeeded);
+        }
+        var signInManager = _scope.ServiceProvider.GetRequiredService<ExtendedSignInManager<User>>();
+        _httpContext.User = await signInManager.CreateUserPrincipalAsync(user);
+        return user;
+    }
+
+    private static ClaimType NewClaimType(string name, string? displayName = null, ClaimValueType valueType = ClaimValueType.String, bool userEditable = true, bool required = false, bool autoGenerated = false, string? rule = null) => new() {
+        Id = Guid.NewGuid().ToString(),
+        Name = name,
+        DisplayName = displayName,
+        ValueType = valueType,
+        UserEditable = userEditable,
+        Required = required,
+        AutoGenerated = autoGenerated,
+        Rule = rule
+    };
+
+    private T WithPageContext<T>(T page) where T : PageModel {
+        var actionContext = new ActionContext(_httpContext, new RouteData(), new CompiledPageActionDescriptor(), new ModelStateDictionary());
+        page.PageContext = new PageContext(actionContext);
+        page.TempData = new TempDataDictionary(_httpContext, _tempDataProvider.Object);
+        return page;
+    }
+
+    private TestChangeProfileDetailsModel CreateDetailsPage() => WithPageContext(new TestChangeProfileDetailsModel(UserManager, ConfigurationDbContext));
+
+    private TestChangePreferencesModel CreatePreferencesPage(params string[] cultures) =>
+        WithPageContext(new TestChangePreferencesModel(UserManager, Options.Create(new RequestLocalizationOptions {
+            SupportedCultures = cultures.Select(x => new CultureInfo(x)).ToList()
+        })));
+
+    private async Task<Dictionary<string, string>> GetStoredClaimsAsync(User user) {
+        await using var scope = _rootProvider!.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        return await dbContext.UserClaims.Where(x => x.UserId == user.Id).ToDictionaryAsync(x => x.ClaimType!, x => x.ClaimValue!);
+    }
+
+    // Builds a post that keeps the current values of every listed claim, except the ones given.
+    private static ProfileDetailsInputModel PostedInput(BaseChangeProfileDetailsModel loaded, params (string Type, string? Value)[] changes) {
+        var input = loaded.Input;
+        input.Claims = loaded.View.Claims.Select(x => new ProfileClaimInputModel {
+            Type = x.Type,
+            Value = changes.Any(change => change.Type == x.Type) ? changes.First(change => change.Type == x.Type).Value : x.Value
+        }).ToList();
+        return input;
+    }
+
+    [Fact]
+    public async Task Details_OnGet_Lists_Only_Additional_User_Editable_Claims() {
+        await SetupAsync(new Claim(LoyaltyNumber, "12345"), new Claim(Anniversary, "2020-05-17T00:00:00"), new Claim(EmployeeId, "E1"));
+        var page = CreateDetailsPage();
+
+        var result = await page.OnGetAsync();
+
+        Assert.IsType<PageResult>(result);
+        Assert.Equal([Anniversary, Children, LoyaltyNumber, Newsletter, Nickname], page.View.Claims.Select(x => x.Type).ToArray());
+        Assert.Equal(page.View.Claims.Select(x => x.Type), page.Input.Claims.Select(x => x.Type));
+        Assert.Equal("12345", page.Input.Claims.Single(x => x.Type == LoyaltyNumber).Value);
+        Assert.Equal("2020-05-17", page.Input.Claims.Single(x => x.Type == Anniversary).Value);
+        Assert.True(page.View.DisableEditGivenName);
+        Assert.False(page.View.DisableEditFamilyName);
+        Assert.True(page.View.DisableEditTin);
+    }
+
+    [Fact]
+    public async Task Details_OnPost_Saves_Changed_Claims_And_Ignores_Read_Only_And_Unknown_Claims() {
+        var user = await SetupAsync(new Claim(JwtClaimTypes.GivenName, "John"), new Claim(Nickname, "Johnny"), new Claim(EmployeeId, "E1"));
+        var loaded = CreateDetailsPage();
+        await loaded.OnGetAsync();
+        var page = CreateDetailsPage();
+        page.Input = PostedInput(loaded, (LoyaltyNumber, " 54321 "), (Children, "3"), (Newsletter, "true"), (Anniversary, "2021-02-03"));
+        page.Input.FirstName = "Hacked";
+        page.Input.LastName = " Doe ";
+        page.Input.Claims.Add(new ProfileClaimInputModel { Type = EmployeeId, Value = "E2" });
+        page.Input.Claims.Add(new ProfileClaimInputModel { Type = "unknown", Value = "x" });
+
+        var result = await page.OnPostAsync();
+
+        Assert.Equal("/Profile", Assert.IsType<RedirectToPageResult>(result).PageName);
+        var claims = await GetStoredClaimsAsync(user);
+        Assert.Equal("John", claims[JwtClaimTypes.GivenName]);
+        Assert.Equal("Doe", claims[JwtClaimTypes.FamilyName]);
+        Assert.Equal("54321", claims[LoyaltyNumber]);
+        Assert.Equal("3", claims[Children]);
+        Assert.Equal("true", claims[Newsletter]);
+        Assert.Equal("2021-02-03", claims[Anniversary]);
+        Assert.Equal("Johnny", claims[Nickname]);
+        Assert.Equal("E1", claims[EmployeeId]);
+        Assert.False(claims.ContainsKey("unknown"));
+        Assert.False(claims.ContainsKey(BasicClaimTypes.ConsentCommercialDate));
+        Assert.True(page.TempData.ContainsKey("Alert"));
+    }
+
+    [Theory]
+    [InlineData(LoyaltyNumber, "1234")]
+    [InlineData(LoyaltyNumber, "123456")]
+    [InlineData(Children, "two")]
+    [InlineData(Anniversary, "not a date")]
+    [InlineData(Nickname, "")]
+    public async Task Details_OnPost_Rejects_Invalid_Claim_Values(string claimType, string value) {
+        var user = await SetupAsync(new Claim(Nickname, "Johnny"));
+        var loaded = CreateDetailsPage();
+        await loaded.OnGetAsync();
+        var page = CreateDetailsPage();
+        page.Input = PostedInput(loaded, (claimType, value), (Newsletter, "true"));
+
+        var result = await page.OnPostAsync();
+
+        Assert.IsType<PageResult>(result);
+        var index = page.View.Claims.ToList().FindIndex(x => x.Type == claimType);
+        Assert.True(page.ModelState.ContainsKey($"Input.Claims[{index}].Value"));
+        var claims = await GetStoredClaimsAsync(user);
+        Assert.False(claims.ContainsKey(Newsletter));
+        Assert.Equal("Johnny", claims[Nickname]);
+    }
+
+    [Fact]
+    public async Task Details_OnPost_Updates_Consent_Date_Only_When_Consent_Changes() {
+        var user = await SetupAsync(new Claim(Nickname, "Johnny"));
+        var loaded = CreateDetailsPage();
+        await loaded.OnGetAsync();
+        var page = CreateDetailsPage();
+        page.Input = PostedInput(loaded);
+        page.Input.ConsentCommercial = true;
+
+        await page.OnPostAsync();
+        var afterConsent = await GetStoredClaimsAsync(user);
+        loaded = CreateDetailsPage();
+        await loaded.OnGetAsync();
+        page = CreateDetailsPage();
+        page.Input = PostedInput(loaded, (LoyaltyNumber, "11111"));
+        await page.OnPostAsync();
+        var afterOtherChange = await GetStoredClaimsAsync(user);
+
+        Assert.Equal("true", afterConsent[BasicClaimTypes.ConsentCommercial]);
+        Assert.True(afterConsent.ContainsKey(BasicClaimTypes.ConsentCommercialDate));
+        Assert.Equal(afterConsent[BasicClaimTypes.ConsentCommercialDate], afterOtherChange[BasicClaimTypes.ConsentCommercialDate]);
+        Assert.Equal("11111", afterOtherChange[LoyaltyNumber]);
+    }
+
+    [Fact]
+    public async Task Preferences_OnPost_Saves_Supported_Locale() {
+        var user = await SetupAsync(new Claim(JwtClaimTypes.Locale, "en"));
+        var page = CreatePreferencesPage("en", "el");
+        await page.OnGetAsync();
+        Assert.Equal("en", page.Input.Locale);
+        page.Input.Locale = "EL";
+
+        var result = await page.OnPostAsync();
+
+        Assert.Equal("/Profile", Assert.IsType<RedirectToPageResult>(result).PageName);
+        Assert.Equal("el", (await GetStoredClaimsAsync(user))[JwtClaimTypes.Locale]);
+        Assert.True(page.TempData.ContainsKey("Alert"));
+    }
+
+    [Theory]
+    [InlineData("fr")]
+    [InlineData("")]
+    public async Task Preferences_OnPost_Rejects_Unsupported_Locale(string locale) {
+        var user = await SetupAsync(new Claim(JwtClaimTypes.Locale, "en"));
+        var page = CreatePreferencesPage("en", "el");
+        page.Input.Locale = locale;
+
+        var result = await page.OnPostAsync();
+
+        Assert.IsType<PageResult>(result);
+        Assert.True(page.ModelState.ContainsKey("Input.Locale"));
+        Assert.Equal("en", (await GetStoredClaimsAsync(user))[JwtClaimTypes.Locale]);
+    }
+
+    [Fact]
+    public async Task Preferences_Page_Is_Disabled_Without_Supported_Cultures() {
+        await SetupAsync();
+
+        var get = await CreatePreferencesPage().OnGetAsync();
+        var postPage = CreatePreferencesPage();
+        postPage.Input.Locale = "en";
+        var post = await postPage.OnPostAsync();
+
+        Assert.Equal("/Profile", Assert.IsType<RedirectToPageResult>(get).PageName);
+        Assert.IsType<BadRequestResult>(post);
+    }
+
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    public async ValueTask DisposeAsync() {
+        await _scope.DisposeAsync();
+        if (_rootProvider is not null) {
+            await _rootProvider.DisposeAsync();
+        }
+    }
+
+    private sealed class TestChangeProfileDetailsModel(ExtendedUserManager<User> userManager, ExtendedConfigurationDbContext configurationDbContext) : BaseChangeProfileDetailsModel(userManager, configurationDbContext);
+
+    private sealed class TestChangePreferencesModel(ExtendedUserManager<User> userManager, IOptions<RequestLocalizationOptions> localizationOptions) : BaseChangePreferencesModel(userManager, localizationOptions);
+
+    private sealed class TestHttpContextAccessor : IHttpContextAccessor
+    {
+        public HttpContext? HttpContext { get; set; }
+    }
+}

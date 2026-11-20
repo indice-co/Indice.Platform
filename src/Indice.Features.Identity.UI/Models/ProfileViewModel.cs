@@ -37,4 +37,6 @@ public class ProfileViewModel : ProfileInputModel
     public string? TwoFactorMethodName { get; set; }
     /// <summary>Indicates whether the user can manage two-factor authentication in the profile pages.</summary>
     public bool CanManageMfa { get; set; }
+    /// <summary>The additional claims, marked as user editable, that have no dedicated field on the profile page, with the user's current values.</summary>
+    public IList<ProfileClaimViewModel> Claims { get; set; } = [];
 }

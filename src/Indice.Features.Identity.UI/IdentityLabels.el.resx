@@ -1358,4 +1358,15 @@
 <data name="ManageMfa_SetupExpired" xml:space="preserve"><value>Η ρύθμιση έληξε. Ξεκινήστε ξανά.</value></data>
 <data name="ManageMfa_MethodUnavailable" xml:space="preserve"><value>Αυτή η μέθοδος δεν μπορεί να χρησιμοποιηθεί.</value></data>
 <data name="ManageMfa_Updated" xml:space="preserve"><value>Οι ρυθμίσεις ελέγχου ταυτότητας δύο παραγόντων ενημερώθηκαν.</value></data>
+<data name="ChangeProfileDetails_PageTitle" xml:space="preserve"><value>Επεξεργασία στοιχείων προφίλ</value></data>
+<data name="ChangeProfileDetails_Description" xml:space="preserve"><value>Διατηρήστε τα προσωπικά σας στοιχεία ενημερωμένα.</value></data>
+<data name="ChangePreferences_PageTitle" xml:space="preserve"><value>Επεξεργασία ρυθμίσεων</value></data>
+<data name="ChangePreferences_Description" xml:space="preserve"><value>Επιλέξτε τη γλώσσα που προτιμάτε για τον λογαριασμό σας.</value></data>
+<data name="ChangePreferences_Succeeded" xml:space="preserve"><value>Οι ρυθμίσεις σας ενημερώθηκαν.</value></data>
+<data name="Profile_NotSet" xml:space="preserve"><value>Δεν έχει οριστεί</value></data>
+<data name="Profile_Yes" xml:space="preserve"><value>Ναι</value></data>
+<data name="Profile_No" xml:space="preserve"><value>Όχι</value></data>
+<data name="Profile_ConsentCommercial" xml:space="preserve"><value>Εμπορική επικοινωνία</value></data>
+<data name="Profile_InvalidValue" xml:space="preserve"><value>Η τιμή του πεδίου '{0}' δεν είναι έγκυρη.</value></data>
+<data name="Profile_RequiredValue" xml:space="preserve"><value>Το πεδίο '{0}' είναι υποχρεωτικό.</value></data>
 </root>

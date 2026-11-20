@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - next major
+### Added (profile edit pages)
+- New **Edit profile details** page `/ChangeProfileDetails` (`/manage/profile/details`, `BaseChangeProfileDetailsModel`,
+  input `ProfileDetailsInputModel` with `ProfileDetailsInputModelValidator`, view model `ProfileDetailsViewModel`). Besides
+  the existing profile fields it lists every claim type marked `UserEditable` (not auto generated and not managed by
+  another page) with an input that matches its value type. `Required` and `Rule` are validated on the server and only
+  changed values are saved. It uses the `manage/profile` rate limiter policy.
+- New **Edit preferences** page `/ChangePreferences` (`/manage/preferences`, `BaseChangePreferencesModel`) for the
+  preferred language. Only cultures in `RequestLocalizationOptions.SupportedCultures` are accepted; the page is not
+  available when none are configured.
+- `ProfileViewModel.Claims` (`ProfileClaimViewModel`) with the user editable claims shown on `/Profile`.
+- New labels `ChangeProfileDetails_*`, `ChangePreferences_*`, `Profile_NotSet`, `Profile_Yes`, `Profile_No`,
+  `Profile_ConsentCommercial`, `Profile_InvalidValue` and `Profile_RequiredValue` (English and Greek) and Bootstrap5
+  styles `data-card__action` and `account-row__empty`.
+### Changed (profile edit pages, breaking)
+- **Breaking:** the *Profile details* and *Settings* sections of `/Profile` are now read only and link to
+  `/ChangeProfileDetails` and `/ChangePreferences`. `BaseProfileModel.OnPostAsync`, `OnPostUpdateLanguagePreferenceAsync`,
+  `InputLanguagePreference`, `ProfileSuccessfullyChanged` and `EmailChangeRequested` are removed and `Input` is no longer
+  bound on post. Profile page overrides that post these handlers must link to the new pages instead.
+- `consent_commercial_date` is now updated only when the commercial consent changes (it was updated on every save).
+  Given name, family name and TIN are trimmed before they are saved.
 ### Added (profile MFA challenge, breaking)
 - **Profile MFA challenge (SCA):** users with MFA enabled must pass an MFA check before changing their email, phone
   number or username on `/ChangeEmail` (`/manage/email`), `/ChangePhone` (`/manage/phone`) and `/ChangeUserName`
