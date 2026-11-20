@@ -187,21 +187,32 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <inheritdoc />
     /// <remarks>
     /// When the stored hash needs an upgrade, ASP.NET Identity rehashes the password through <see cref="IUserPasswordStore{TUser}.SetPasswordHashAsync"/>, 
-    /// which the store treats as a password change. The password itself is the same, so a temporary password keeps its status and cutoff.
+    /// which the store treats as a password change. The password itself is the same, so a temporary password keeps its status and cutoff, 
+    /// saved in the same write as the upgraded hash.
     /// </remarks>
     public override async Task<bool> CheckPasswordAsync(TUser user, string password) {
         if (user?.PasswordIsTemporary != true) {
             return await base.CheckPasswordAsync(user!, password);
         }
-        var (passwordHash, passwordExpired, passwordExpirationDate) = (user.PasswordHash, user.PasswordExpired, user.PasswordExpirationDate);
-        var succeeded = await base.CheckPasswordAsync(user, password);
-        if (succeeded && !user.PasswordIsTemporary && user.PasswordHash != passwordHash) {
+        ThrowIfDisposed();
+        var passwordStore = Store as IUserPasswordStore<TUser> ?? throw new NotSupportedException("Store does not implement IUserPasswordStore<TUser>.");
+        var result = await VerifyPasswordAsync(passwordStore, user, password);
+        if (result == PasswordVerificationResult.SuccessRehashNeeded) {
+            var (passwordExpired, passwordExpirationDate) = (user.PasswordExpired, user.PasswordExpirationDate);
+            await UpdatePasswordHash(user, password, validatePassword: false);
             user.PasswordIsTemporary = true;
             user.PasswordExpired = passwordExpired;
             user.PasswordExpirationDate = passwordExpirationDate;
-            await UpdateAsync(user);
+            var updateResult = await UpdateUserAsync(user);
+            if (!updateResult.Succeeded) {
+                Logger.LogWarning("Failed to store the upgraded password hash of user '{UserId}'.", user.Id);
+            }
         }
-        return succeeded;
+        if (result == PasswordVerificationResult.Failed) {
+            Logger.LogDebug("Invalid password for user.");
+            return false;
+        }
+        return true;
     }
 
     /// <inheritdoc />
@@ -334,6 +345,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
+        SetPasswordAsTemporary(user);
+        return await UpdateAsync(user);
+    }
+
+    private void SetPasswordAsTemporary(TUser user) {
         user.PasswordIsTemporary = false;
         var expirationDate = TemporaryPasswordLifetime.HasValue
             ? (user.LastPasswordChangeDate ?? DateTimeOffset.UtcNow).Add(TemporaryPasswordLifetime.Value)
@@ -341,7 +357,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         user.PasswordIsTemporary = true;
         user.PasswordExpired = true;
         user.PasswordExpirationDate = expirationDate;
-        return await UpdateAsync(user);
     }
 
     /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>
@@ -365,13 +380,26 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="validatePassword">Whether to validate the password.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
-    public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) {
+    public Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) => CreateAsync(user, password, validatePassword, temporaryPassword: false);
+
+    /// <summary>Creates the specified <paramref name="user"/> in the backing store with given password, as an asynchronous operation.</summary>
+    /// <param name="user">The user to create.</param>
+    /// <param name="password">The password for the user to hash and store.</param>
+    /// <param name="validatePassword">Whether to validate the password.</param>
+    /// <param name="temporaryPassword">Whether the password is temporary (see <see cref="MarkPasswordAsTemporaryAsync"/>). The temporary status is stored together with the user.</param>
+    /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+    public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword, bool temporaryPassword) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(password);
         var result = await UpdatePasswordHash(user, password, validatePassword);
         if (!result.Succeeded) {
             return result;
+        }
+        if (temporaryPassword) {
+            // The store assigns the default policy on create. Assign it here, so the cutoff can fall back to the policy date.
+            user.PasswordExpirationPolicy ??= GetUserStore(throwOnFail: false)?.PasswordExpirationPolicy;
+            SetPasswordAsTemporary(user);
         }
         return await CreateAsync(user);
     }
@@ -384,12 +412,27 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="selfServicePasswordReset"> Whether the reset was executed by the user themselves</param>
     /// <returns>Whether the password was successfully updated.</returns>
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
-    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true, bool suppressNotification = false, bool selfServicePasswordReset = true) {
+    public Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true, bool suppressNotification = false, bool selfServicePasswordReset = true) =>
+        ResetPasswordAsync(user, newPassword, validatePassword, suppressNotification, selfServicePasswordReset, temporaryPassword: false);
+
+    /// <summary>Reset's a user's password.</summary>
+    /// <param name="user">The user.</param>
+    /// <param name="newPassword">The new password.</param>
+    /// <param name="validatePassword">Whether to validate the password.</param>
+    /// <param name="suppressNotification">Whether to suppress the security notification triggered after an administrator password reset.</param>
+    /// <param name="selfServicePasswordReset"> Whether the reset was executed by the user themselves</param>
+    /// <param name="temporaryPassword">Whether the new password is temporary (see <see cref="MarkPasswordAsTemporaryAsync"/>). The temporary status is stored together with the new password.</param>
+    /// <returns>Whether the password was successfully updated.</returns>
+    /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
+    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword, bool suppressNotification, bool selfServicePasswordReset, bool temporaryPassword) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
         if (!result.Succeeded) {
             return result;
+        }
+        if (temporaryPassword) {
+            SetPasswordAsTemporary(user);
         }
         result = await UpdateAsync(user);
         if (!result.Succeeded) {

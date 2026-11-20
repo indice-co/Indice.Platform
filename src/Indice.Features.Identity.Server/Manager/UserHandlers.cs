@@ -272,18 +272,17 @@ internal static class UserHandlers
             claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
         }
 
-        if (string.IsNullOrEmpty(request.Password)) {
+        var hasPassword = !string.IsNullOrEmpty(request.Password);
+        if (!hasPassword) {
             result = await userManager.CreateAsync(user);
         } else {
-            result = await userManager.CreateAsync(user, request.Password, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
+            var temporaryPassword = request.ChangePasswordAfterFirstSignIn == true || userManager.RequirePasswordChangeAfterAdminSet;
+            result = await userManager.CreateAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), temporaryPassword);
         }
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var hasPassword = !string.IsNullOrEmpty(request.Password);
-        if (hasPassword && (request.ChangePasswordAfterFirstSignIn == true || userManager.RequirePasswordChangeAfterAdminSet)) {
-            await userManager.MarkPasswordAsTemporaryAsync(user);
-        } else if (request.ChangePasswordAfterFirstSignIn == true) {
+        if (!hasPassword && request.ChangePasswordAfterFirstSignIn == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
         var response = user.ToSingleUserInfo();
@@ -800,12 +799,10 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), suppressNotification: request.SuppressNotification.GetValueOrDefault(), selfServicePasswordReset: false);
+        var temporaryPassword = request.ChangePasswordAfterFirstSignIn == true || userManager.RequirePasswordChangeAfterAdminSet;
+        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault(), suppressNotification: request.SuppressNotification.GetValueOrDefault(), selfServicePasswordReset: false, temporaryPassword: temporaryPassword);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
-        }
-        if (request.ChangePasswordAfterFirstSignIn == true || userManager.RequirePasswordChangeAfterAdminSet) {
-            await userManager.MarkPasswordAsTemporaryAsync(user);
         }
         return TypedResults.NoContent();
     }

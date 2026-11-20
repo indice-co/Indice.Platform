@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
 #if NET9_0_OR_GREATER
@@ -8,10 +9,13 @@ using IdentityServer4.Models;
 using IdentityServer4.Stores;
 #endif
 using Indice.AspNetCore.Authorization;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Features.Identity.Tests.Security;
@@ -24,6 +28,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -239,6 +244,8 @@ public class TemporaryPasswordTests : IAsyncLifetime
     public async Task SetPasswordApi_WithChangePasswordAfterFirstSignIn_MarksPasswordAsTemporary() {
         var (host, httpClient) = CreateHost(new() { ["IdentityOptions:Password:TemporaryPasswordLifetime"] = "1.00:00:00" });
         var userId = await CreateUserAsync(host);
+        var saves = host.Services.GetRequiredService<UserSaveRecorder>();
+        saves.Clear();
 
         var response = await httpClient.PutAsJsonAsync($"/api/users/{userId}/set-password", new SetPasswordRequest {
             Password = NewPassword,
@@ -246,6 +253,9 @@ public class TemporaryPasswordTests : IAsyncLifetime
         }, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        AssertStoredAsTemporary(saves.For(userId));
+        var setEvent = Assert.Single(host.Services.GetRequiredService<EventRecorder>().Users<PasswordSetEvent>(userId));
+        Assert.True(setEvent.PasswordIsTemporary);
         using var scope = host.Services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = await userManager.FindByIdAsync(userId);
@@ -258,7 +268,7 @@ public class TemporaryPasswordTests : IAsyncLifetime
 
     [Fact]
     public async Task CreateUserApi_WithChangePasswordAfterFirstSignIn_ReturnsTemporaryState() {
-        var (_, httpClient) = CreateHost(new() { ["IdentityOptions:Password:TemporaryPasswordLifetime"] = "1.00:00:00" });
+        var (host, httpClient) = CreateHost(new() { ["IdentityOptions:Password:TemporaryPasswordLifetime"] = "1.00:00:00" });
         var id = Guid.NewGuid().ToString();
 
         var response = await httpClient.PostAsJsonAsync("/api/users", new CreateUserRequest {
@@ -274,6 +284,31 @@ public class TemporaryPasswordTests : IAsyncLifetime
         Assert.True(user.PasswordIsTemporary);
         var cutoff = Assert.NotNull(user.PasswordExpirationDate);
         Assert.InRange(cutoff, DateTimeOffset.UtcNow.AddHours(23), DateTimeOffset.UtcNow.AddHours(25));
+        // The password is never stored, nor announced, as a regular one.
+        AssertStoredAsTemporary(host.Services.GetRequiredService<UserSaveRecorder>().For(user.Id!));
+        var createdEvent = Assert.Single(host.Services.GetRequiredService<EventRecorder>().Users<UserCreatedEvent>(user.Id!));
+        Assert.True(createdEvent.PasswordIsTemporary);
+        Assert.Equal(cutoff, createdEvent.PasswordExpirationDate);
+    }
+
+    [Fact]
+    public async Task CreateUserApi_WithoutLifetime_UsesDefaultPolicyDateAsCutoff() {
+        var (_, httpClient) = CreateHost(new() { ["IdentityOptions:Password:PasswordExpirationPolicy"] = nameof(PasswordExpirationPolicy.Monthly) });
+        var id = Guid.NewGuid().ToString();
+
+        var response = await httpClient.PostAsJsonAsync("/api/users", new CreateUserRequest {
+            Email = $"{id}@indice.gr",
+            UserName = $"{id}@indice.gr",
+            Password = InitialPassword,
+            ChangePasswordAfterFirstSignIn = true
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var user = await response.Content.ReadFromJsonAsync<SingleUserInfo>(TestContext.Current.CancellationToken);
+        Assert.NotNull(user);
+        Assert.True(user.PasswordIsTemporary);
+        var cutoff = Assert.NotNull(user.PasswordExpirationDate);
+        Assert.InRange(cutoff, DateTimeOffset.UtcNow.AddDays(27), DateTimeOffset.UtcNow.AddDays(32));
     }
 
     [Theory]
@@ -296,6 +331,7 @@ public class TemporaryPasswordTests : IAsyncLifetime
             }
             (passwordHash, cutoff) = (user.PasswordHash, user.PasswordExpirationDate);
             hasher.RehashNeeded = true;
+            host.Services.GetRequiredService<UserSaveRecorder>().Clear();
 
             if (expired) {
                 var result = await signInManager.CheckPasswordSignInAsync(user, InitialPassword, lockoutOnFailure: true);
@@ -305,6 +341,8 @@ public class TemporaryPasswordTests : IAsyncLifetime
             }
         }
         using (var scope = host.Services.CreateScope()) {
+            // A concurrent sign-in can only ever read the temporary state, since every write of the user kept it.
+            AssertStoredAsTemporary(host.Services.GetRequiredService<UserSaveRecorder>().For(userId));
             var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
             var user = await userManager.FindByIdAsync(userId);
             Assert.NotNull(user);
@@ -438,6 +476,11 @@ public class TemporaryPasswordTests : IAsyncLifetime
         return (await CreateUserAsync(userManager)).Id;
     }
 
+    private static void AssertStoredAsTemporary(IReadOnlyList<bool> saves) {
+        Assert.NotEmpty(saves);
+        Assert.All(saves, passwordIsTemporary => Assert.True(passwordIsTemporary));
+    }
+
     private static async Task ExpireTemporaryPasswordAsync(ExtendedUserManager<User> userManager, User user) {
         user.PasswordExpirationDate = DateTimeOffset.UtcNow.AddMinutes(-1);
         var result = await userManager.UpdateAsync(user);
@@ -451,7 +494,11 @@ public class TemporaryPasswordTests : IAsyncLifetime
             builder.UseTestServer();
             builder.ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddInMemoryCollection(settings));
             builder.ConfigureServices((context, services) => {
-                services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(databaseName));
+                services.AddSingleton<UserSaveRecorder>();
+                services.AddSingleton<EventRecorder>();
+                services.AddPlatformEventHandler<UserCreatedEvent, RecordingEventHandler>();
+                services.AddPlatformEventHandler<PasswordSetEvent, RecordingEventHandler>();
+                services.AddDbContext<ExtendedIdentityDbContext<User, Role>>((sp, builder) => builder.UseInMemoryDatabase(databaseName).AddInterceptors(sp.GetRequiredService<UserSaveRecorder>()));
                 services.AddDbContext<ExtendedConfigurationDbContext>(builder => builder.UseInMemoryDatabase(databaseName));
                 services.AddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User, Role> { InitialUsers = [], CustomRoles = [] });
                 services.AddDataProtection();
@@ -511,6 +558,54 @@ public class TemporaryPasswordTests : IAsyncLifetime
         };
         _httpClients.Add(httpClient);
         return (host, httpClient);
+    }
+
+    /// <summary>Records the <see cref="User.PasswordIsTemporary"/> value of every user written to the database.</summary>
+    private sealed class UserSaveRecorder : SaveChangesInterceptor
+    {
+        private readonly ConcurrentQueue<(string UserId, bool PasswordIsTemporary)> _saves = new();
+
+        public IReadOnlyList<bool> For(string userId) => _saves.Where(x => x.UserId == userId).Select(x => x.PasswordIsTemporary).ToList();
+
+        public void Clear() => _saves.Clear();
+
+        public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result) {
+            Record(eventData.Context);
+            return base.SavingChanges(eventData, result);
+        }
+
+        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default) {
+            Record(eventData.Context);
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+
+        private void Record(DbContext? context) {
+            foreach (var entry in context?.ChangeTracker.Entries<User>().Where(x => x.State is EntityState.Added or EntityState.Modified) ?? []) {
+                _saves.Enqueue((entry.Entity.Id, entry.Entity.PasswordIsTemporary));
+            }
+        }
+    }
+
+    private sealed class EventRecorder
+    {
+        private readonly ConcurrentQueue<(Type EventType, UserEventContext User)> _events = new();
+
+        public void Add(Type eventType, UserEventContext user) => _events.Enqueue((eventType, user));
+
+        public IReadOnlyList<UserEventContext> Users<TEvent>(string userId) => _events.Where(x => x.EventType == typeof(TEvent) && x.User.Id == userId).Select(x => x.User).ToList();
+    }
+
+    private sealed class RecordingEventHandler(EventRecorder recorder) : IPlatformEventHandler<UserCreatedEvent>, IPlatformEventHandler<PasswordSetEvent>
+    {
+        Task IPlatformEventHandler<UserCreatedEvent>.Handle(UserCreatedEvent @event, PlatformEventArgs args) {
+            recorder.Add(typeof(UserCreatedEvent), @event.User);
+            return Task.CompletedTask;
+        }
+
+        Task IPlatformEventHandler<PasswordSetEvent>.Handle(PasswordSetEvent @event, PlatformEventArgs args) {
+            recorder.Add(typeof(PasswordSetEvent), @event.User);
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class RehashingPasswordHasher : PasswordHasher<User>

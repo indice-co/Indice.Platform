@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `LoginErrorTemporaryPasswordExpired`, and the resource owner password grant returns `invalid_grant` with `error_description` `110`.
   No new claim is issued. The existing `password_expiration_date` claim carries the cutoff.
 - `ExtendedUserManager.MarkPasswordAsTemporaryAsync(user)` marks the current password of a user as temporary.
+- `ExtendedUserManager.CreateAsync(user, password, validatePassword, temporaryPassword)` and
+  `ExtendedUserManager.ResetPasswordAsync(user, newPassword, validatePassword, suppressNotification, selfServicePasswordReset, temporaryPassword)`
+  store a temporary password in the same write as its hash, so the password is never stored or announced (`UserCreatedEvent`,
+  `PasswordSetEvent`) as a regular one. The users API uses them for `changePasswordAfterFirstSignIn`.
 - `IdentityOptions:Password:RevokeGrantsOnPasswordChange` (default `false`). When `true`, every refresh token, reference token
   and consent of the user is revoked when the password is changed, reset or set by an administrator.
 - `POST /api/users/{userId}/send-password-reset` (Admin, `BeUsersWriter`) emails the user the standard password reset link,
@@ -41,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resetting the password of a locked out user with a token now publishes `PasswordChangedEvent`, like every other reset.
   Event handlers (password changed notification, grant revocation) now also run in this case.
 - When ASP.NET Identity upgrades the stored hash of a temporary password at sign-in, the password stays temporary and keeps its cutoff.
+  The upgraded hash and the temporary status are saved in a single write.
 - The background platform event dispatcher (`AddBackgroundPlatformEventService`, in `Indice.Common`) now calls handlers that
   handle more than one event type, for example `ClientCacheInvalidationEventHandler` and `UserNameOrPasswordChangedEventHandler`.
   Before, these handlers failed silently. Handler errors are now logged.
