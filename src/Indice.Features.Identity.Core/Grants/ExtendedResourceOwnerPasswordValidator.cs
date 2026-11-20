@@ -60,8 +60,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         [ResourceOwnerPasswordErrorCodes.NotMobileClient] = "Client is not a mobile device",
         [ResourceOwnerPasswordErrorCodes.MissingDeviceId] = "Device id is missing.",
         [ResourceOwnerPasswordErrorCodes.DeviceNotFound] = "Device was not found.",
-        [ResourceOwnerPasswordErrorCodes.TemporaryPasswordExpired] = "User's temporary password has expired.",
-        [ResourceOwnerPasswordErrorCodes.PasswordChangeRequired] = "User must change the temporary password before signing in."
+        [ResourceOwnerPasswordErrorCodes.TemporaryPasswordExpired] = "User's temporary password has expired."
     };
 
     /// <inheritdoc />
@@ -236,10 +235,10 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.TemporaryPasswordExpired);
             return;
         }
-        if (context.User.PasswordIsTemporary) {
-            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.PasswordChangeRequired);
-            return;
-        }
+        // TODO: A user with an expired or (unexpired) temporary password still gets a token with the requested scopes, so existing mobile clients 
+        // can read password_expired from userinfo and run their change password flow with that token. APIs are expected to guard their resources.
+        // Plan: when PasswordExpired is set, ignore the requested scopes and issue only those needed to change the password (openid + identity),
+        // then require a new sign-in after the change. Refusing the grant outright breaks every password grant client without an escape route.
         var signInGuardResult = await _signInGuard.IsSuspiciousLogin(_signInManager.Context, context.User);
         if (signInGuardResult.Warning == SignInWarning.ImpossibleTravel) {
             if (_signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
@@ -344,7 +343,6 @@ internal class ResourceOwnerPasswordErrorCodes
     public const string Blocked = "108";
     public const string Traveler = "109";
     public const string TemporaryPasswordExpired = "110";
-    public const string PasswordChangeRequired = "111";
     // Client specific error codes.
     public const string NotMobileClient = "204";
     public const string MissingDeviceId = "205";

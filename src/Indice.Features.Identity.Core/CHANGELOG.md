@@ -25,8 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   temporary status and the forced change. `ExtendedUserManager.SetPasswordExpiredAsync(user, false)` also turns it into a regular password.
   An expired temporary password is refused with `ExtendedSignInResult.TemporaryPasswordExpired`. The Identity UI shows
   `LoginErrorTemporaryPasswordExpired`, and the resource owner password grant returns `invalid_grant` with `error_description` `110`.
-  The resource owner password grant also refuses an unexpired temporary password until it is changed, with
-  `invalid_grant` and `error_description` `111`. No new claim is issued. The existing `password_expiration_date` claim carries the cutoff.
+  Before the cutoff, the password grant still issues a token, as it does for any expired password. The client reads `password_expired`
+  (userinfo or the token) and runs its change password flow. No new claim is issued. The existing `password_expiration_date` claim carries the cutoff.
 - `ExtendedUserManager.MarkPasswordAsTemporaryAsync(user)` marks the current password of a user as temporary.
 - `ExtendedUserManager.CreateAsync(user, password, validatePassword, temporaryPassword)` and
   `ExtendedUserManager.ResetPasswordAsync(user, newPassword, validatePassword, suppressNotification, selfServicePasswordReset, temporaryPassword)`

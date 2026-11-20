@@ -363,7 +363,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Password_Grant_Rejects_Temporary_Password() {
+    public async Task Password_Grant_Issues_Token_For_Unexpired_Temporary_Password() {
+        // Password grant clients read password_expired and run their change password flow with this token. Refusing it is a breaking change.
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var result = await userManager.MarkPasswordAsTemporaryAsync(TestUser, TestContext.Current.CancellationToken);
         Assert.True(result.Succeeded);
@@ -371,9 +372,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
 
         var tokenResponse = await LoginWithPasswordGrant(userName: TestUser.UserName!, password: "xxxxxxx");
 
-        Assert.True(tokenResponse.IsError);
-        Assert.Equal("invalid_grant", tokenResponse.Error);
-        Assert.Equal("111", tokenResponse.ErrorDescription);
+        Assert.False(tokenResponse.IsError, tokenResponse.ErrorDescription);
+        Assert.False(string.IsNullOrWhiteSpace(tokenResponse.AccessToken));
     }
 
     [Fact]
