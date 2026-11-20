@@ -363,6 +363,20 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Password_Grant_Rejects_Temporary_Password() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var result = await userManager.MarkPasswordAsTemporaryAsync(TestUser, TestContext.Current.CancellationToken);
+        Assert.True(result.Succeeded);
+        Assert.False(TestUser.HasExpiredTemporaryPassword());
+
+        var tokenResponse = await LoginWithPasswordGrant(userName: TestUser.UserName!, password: "xxxxxxx");
+
+        Assert.True(tokenResponse.IsError);
+        Assert.Equal("invalid_grant", tokenResponse.Error);
+        Assert.Equal("111", tokenResponse.ErrorDescription);
+    }
+
+    [Fact]
     public async Task DeviceAuthentication_Pin_Issues_New_SessionId() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
         var tokenResponse = await LoginWithDevicePin(registrationResult.RegistrationId);

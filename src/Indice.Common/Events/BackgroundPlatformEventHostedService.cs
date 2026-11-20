@@ -39,13 +39,18 @@ internal class BackgroundPlatformEventHostedService : BackgroundService
             handlers ??= Enumerable.Empty<IPlatformEventHandler<IPlatformEvent>>();
             foreach (var handler in handlers) {
                 var args = new PlatformEventArgs();
-                try {
-                    await (Task)handleMethod.Invoke(handler, [ @event, args ])!;
-                } catch (Exception ex) {
-                    if (args.ThrowOnError) {
-                        throw;
+                while (true) {
+                    try {
+                        await (Task)handleMethod.Invoke(handler, [ @event, args ])!;
+                        break;
+                    } catch (Exception ex) {
+                        if (!args.ThrowOnError) {
+                            _logger.LogError(ex, "Failed to invoke handler type: {PlatformEventHandler}", handler.GetType().Name);
+                            break;
+                        }
+                        _logger.LogError(ex, "Failed to invoke required handler type: {PlatformEventHandler}; retrying.", handler.GetType().Name);
+                        await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
                     }
-                    _logger.LogError(ex, "Failed to invoke handler type: {PlatformEventHandler}", handler.GetType().Name);
                 }
             }
         }

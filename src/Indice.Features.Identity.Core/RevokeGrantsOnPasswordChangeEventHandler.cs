@@ -27,9 +27,15 @@ internal sealed class RevokeGrantsOnPasswordChangeEventHandler : IPlatformEventH
         _enabled = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.Password), "RevokeGrantsOnPasswordChange") ?? false;
     }
 
-    Task IPlatformEventHandler<PasswordChangedEvent>.Handle(PasswordChangedEvent @event, PlatformEventArgs args) => RevokeAsync(@event.User);
+    Task IPlatformEventHandler<PasswordChangedEvent>.Handle(PasswordChangedEvent @event, PlatformEventArgs args) {
+        args.ThrowOnError = _enabled;
+        return RevokeAsync(@event.User);
+    }
 
-    Task IPlatformEventHandler<PasswordSetEvent>.Handle(PasswordSetEvent @event, PlatformEventArgs args) => RevokeAsync(@event.User);
+    Task IPlatformEventHandler<PasswordSetEvent>.Handle(PasswordSetEvent @event, PlatformEventArgs args) {
+        args.ThrowOnError = _enabled;
+        return RevokeAsync(@event.User);
+    }
 
     private async Task RevokeAsync(UserEventContext user) {
         if (!_enabled) {

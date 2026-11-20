@@ -3,9 +3,11 @@ using System.Net;
 using System.Net.Http.Json;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 #else
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 #endif
 using Indice.AspNetCore.Authorization;
@@ -32,6 +34,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Moq;
 
 namespace Indice.Features.Identity.Tests;
 
@@ -238,6 +241,47 @@ public class TemporaryPasswordTests : IAsyncLifetime
         Assert.True(result.Succeeded, string.Join(", ", result.Errors.Select(x => x.Description)));
         var grants = await grantStore.GetAllAsync(new PersistedGrantFilter { SubjectId = user.Id });
         Assert.Equal(expectGrantsToRemain, grants.Any());
+    }
+
+    [Fact]
+    public async Task ChangePassword_WhenGrantRevocationFails_PropagatesFailure() {
+        var grantService = new Mock<IPersistedGrantService>();
+        grantService.Setup(service => service.RemoveAllGrantsAsync(It.IsAny<string>()))
+                    .Returns(Task.FromException(new InvalidOperationException("Grant revocation failed.")));
+        var (host, _) = CreateHost(new() { ["IdentityOptions:Password:RevokeGrantsOnPasswordChange"] = "true" }, persistedGrantService: grantService.Object);
+        using var scope = host.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var user = await CreateUserAsync(userManager);
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => userManager.ChangePasswordAsync(user, InitialPassword, NewPassword));
+
+        Assert.Equal("Grant revocation failed.", error.Message);
+        grantService.Verify(service => service.RemoveAllGrantsAsync(user.Id), Times.Once);
+    }
+
+    [Fact]
+    public async Task ChangePassword_WithBackgroundEventService_RetriesGrantRevocationFailure() {
+        var attempts = 0;
+        var revoked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var grantService = new Mock<IPersistedGrantService>();
+        grantService.Setup(service => service.RemoveAllGrantsAsync(It.IsAny<string>()))
+                    .Returns(() => {
+                        if (Interlocked.Increment(ref attempts) == 1) {
+                            return Task.FromException(new InvalidOperationException("Temporary grant store failure."));
+                        }
+                        revoked.TrySetResult(true);
+                        return Task.CompletedTask;
+                    });
+        var (host, _) = CreateHost(new() { ["IdentityOptions:Password:RevokeGrantsOnPasswordChange"] = "true" }, backgroundEvents: true, persistedGrantService: grantService.Object);
+        using var scope = host.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var user = await CreateUserAsync(userManager);
+
+        var result = await userManager.ChangePasswordAsync(user, InitialPassword, NewPassword);
+
+        Assert.True(result.Succeeded, string.Join(", ", result.Errors.Select(x => x.Description)));
+        await revoked.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+        Assert.Equal(2, attempts);
     }
 
     [Fact]
@@ -488,7 +532,7 @@ public class TemporaryPasswordTests : IAsyncLifetime
         Assert.True(user.HasExpiredTemporaryPassword());
     }
 
-    private (IHost Host, HttpClient HttpClient) CreateHost(Dictionary<string, string?> settings, IPasswordHasher<User>? passwordHasher = null, bool backgroundEvents = false) {
+    private (IHost Host, HttpClient HttpClient) CreateHost(Dictionary<string, string?> settings, IPasswordHasher<User>? passwordHasher = null, bool backgroundEvents = false, IPersistedGrantService? persistedGrantService = null) {
         var databaseName = $"TemporaryPasswordTests_{Guid.NewGuid()}";
         var host = new HostBuilder().ConfigureWebHost(builder => {
             builder.UseTestServer();
@@ -519,6 +563,9 @@ public class TemporaryPasswordTests : IAsyncLifetime
                         .AddInMemoryClients([])
                         .AddAspNetIdentity<User>()
                         .AddInMemoryPersistedGrants();
+                if (persistedGrantService is not null) {
+                    services.AddSingleton(persistedGrantService);
+                }
                 services.AddSingleton<IEmailService, FakeEmailService>();
                 if (backgroundEvents) {
                     services.AddBackgroundPlatformEventService();
