@@ -617,10 +617,8 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
         }
 
         var rootId = GetJsonValueAsString(root, "id");
-        var messageId = GetJsonValueAsString(root, "message_id");
-        var campaignId = GetJsonValueAsString(root, "campaign_id");
-        var resolvedMessageId = messageId ?? campaignId ?? rootId;
-        if (string.IsNullOrWhiteSpace(resolvedMessageId)) {
+        var messageId = GetJsonValueAsString(root, "campaign_reference");
+        if (string.IsNullOrWhiteSpace(messageId)) {
             error = "Delivery report webhook requires one of 'message_id', 'campaign_id' or 'id'.";
             return false;
         }
@@ -636,8 +634,8 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
         webhookEvent = new WebhookEvent {
             Provider = "OmniMessaging",
             EventType = string.IsNullOrWhiteSpace(status) ? "SmsDelivery" : status,
-            MessageId = resolvedMessageId,
-            EventId = rootId ?? resolvedMessageId,
+            MessageId = messageId,
+            EventId = rootId ?? messageId,
             Recipient = recipient,
             Subject = GetJsonValueAsString(root, "campaign_reference"),
             Timestamp = timestamp,

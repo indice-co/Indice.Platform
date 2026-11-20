@@ -169,7 +169,7 @@ public sealed class SparkPostWebhookHttpHandler(IOptions<EmailServiceSparkPostSe
 
                 foreach (var data in familyEvents) {
                     var eventId = GetString(data, "event_id");
-                    var messageId = GetString(data, "message_id");
+                    var messageId = GetString(data, "transmission_id");
 
                     if (string.IsNullOrWhiteSpace(eventId) ||
                         string.IsNullOrWhiteSpace(messageId))
