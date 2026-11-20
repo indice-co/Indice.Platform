@@ -164,6 +164,11 @@ public static class UsersApi
              .WithParameterValidation<SetPasswordRequest>()
              .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
+        group.MapPost("{userId}/send-password-reset", UserHandlers.SendPasswordResetEmail)
+             .WithName(nameof(UserHandlers.SendPasswordResetEmail))
+             .WithSummary("Emails a password reset link to the user, on behalf of the user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapPost("generate-password", UserHandlers.GeneratePassword)
              .WithName(nameof(UserHandlers.GeneratePassword))
              .WithSummary("Generates a random password that satisfies the configured password options and validators.")

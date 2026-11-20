@@ -75,6 +75,11 @@ public class BasicUserInfo
     public DateTimeOffset? LastSignInDate { get; set; }
     /// <summary>If set, it represents the date when the current password will expire.</summary>
     public DateTimeOffset? PasswordExpirationDate { get; set; }
+    /// <summary>
+    /// Indicates that the current password was issued by an administrator and must be changed at the next sign-in.
+    /// In that case <see cref="PasswordExpirationDate"/> is the date after which the password is no longer accepted.
+    /// </summary>
+    public bool PasswordIsTemporary { get; set; }
 }
 
 /// <summary>Models an application user when retrieving a list.</summary>
@@ -125,6 +130,7 @@ public static class UserExtensions
         LockoutEnd = user.LockoutEnd,
         PasswordExpirationDate = user.PasswordExpirationDate,
         PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+        PasswordIsTemporary = user.PasswordIsTemporary,
         PhoneNumber = user.PhoneNumber,
         PhoneNumberConfirmed = user.PhoneNumberConfirmed,
         TwoFactorEnabled = user.TwoFactorEnabled,
@@ -152,6 +158,7 @@ public static class UserExtensions
         LockoutEnd = user.LockoutEnd,
         PasswordExpirationDate = user.PasswordExpirationDate,
         PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+        PasswordIsTemporary = user.PasswordIsTemporary,
         PhoneNumber = user.PhoneNumber,
         PhoneNumberConfirmed = user.PhoneNumberConfirmed,
         TwoFactorEnabled = user.TwoFactorEnabled,

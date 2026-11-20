@@ -74,7 +74,7 @@ import { MFA_POLICIES, PASSWORD_EXPIRATION_POLICIES, claimValueValidators } from
                 </select>
                 <p class="label">
                   {{ user.passwordExpirationDate
-                    ? ('Users.Details.CurrentPasswordExpires' | translate: { date: (user.passwordExpirationDate | date: 'medium') })
+                    ? ((user.passwordIsTemporary ? 'Users.Details.TemporaryPasswordValidUntil' : 'Users.Details.CurrentPasswordExpires') | translate: { date: (user.passwordExpirationDate | date: 'medium') })
                     : ('Users.Details.PasswordNeverExpires' | translate) }}
                 </p>
               </fieldset>

@@ -276,6 +276,9 @@
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
   </data>
+  <data name="LoginErrorTemporaryPasswordExpired" xml:space="preserve">
+    <value>Ο προσωρινός κωδικός πρόσβασης έχει λήξει. Παρακαλώ επαναφέρετε τον κωδικό σας ή επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
+  </data>
   <data name="PasswordExpiredMessage" xml:space="preserve">
     <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
   </data>

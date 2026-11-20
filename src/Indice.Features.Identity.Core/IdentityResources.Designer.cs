@@ -410,6 +410,15 @@ namespace Indice.Features.Identity.Core {
                 return ResourceManager.GetString("LoginErrorLockedMessage", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your temporary password has expired. Please reset your password or contact a system administrator..
+        /// </summary>
+        internal static string LoginErrorTemporaryPasswordExpired {
+            get {
+                return ResourceManager.GetString("LoginErrorTemporaryPasswordExpired", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Please check your credentials..

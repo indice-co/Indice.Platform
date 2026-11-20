@@ -201,6 +201,12 @@ public abstract class BaseLoginModel : BasePageModel
             ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginErrorLockedMessage);
             View = await BuildLoginViewModelAsync(Input);
             return Page();
+        } else if (result.IsTemporaryPasswordExpired()) {
+            Logger.LogWarning("User '{UserName}' tried to sign in with an expired temporary password.", Input.UserName);
+            await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "Temporary password expired.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginErrorTemporaryPasswordExpired);
+            View = await BuildLoginViewModelAsync(Input);
+            return Page();
         } else if (result.RequiresTwoFactor) {
             Logger.LogWarning("User '{UserName}' requires two factor authentication.", Input.UserName);
             var redirectUrl = Url.PageLink("/Mfa", values: new { Input.ReturnUrl });

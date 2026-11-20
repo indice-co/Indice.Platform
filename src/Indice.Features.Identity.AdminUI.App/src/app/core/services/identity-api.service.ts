@@ -905,6 +905,12 @@ export interface IIdentityApiService {
      */
     setPassword(userId: string, body: SetPasswordRequest): Observable<void>;
     /**
+     * Emails a password reset link to the user, on behalf of the user.
+     * @param body (optional) 
+     * @return No Content
+     */
+    sendPasswordResetEmail(userId: string, body?: SendPasswordResetEmailRequest | undefined): Observable<void>;
+    /**
      * Generates a random password that satisfies the configured password options and validators.
      * @param body (optional) 
      * @return OK
@@ -13201,6 +13207,87 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Emails a password reset link to the user, on behalf of the user.
+     * @param body (optional) 
+     * @return No Content
+     */
+    sendPasswordResetEmail(userId: string, body?: SendPasswordResetEmailRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/send-password-reset";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSendPasswordResetEmail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSendPasswordResetEmail(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSendPasswordResetEmail(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Unlocks a user.
      * @return No Content
      */
@@ -17530,6 +17617,46 @@ export interface ISetPasswordRequest {
     suppressNotification?: boolean | undefined;
 }
 
+/** Models a request by an administrator to email a password reset link to a user. */
+export class SendPasswordResetEmailRequest implements ISendPasswordResetEmailRequest {
+    /** The url to return to after the user has reset the password. */
+    returnUrl?: string | undefined;
+
+    constructor(data?: ISendPasswordResetEmailRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.returnUrl = _data["returnUrl"];
+        }
+    }
+
+    static fromJS(data: any): SendPasswordResetEmailRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SendPasswordResetEmailRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["returnUrl"] = this.returnUrl;
+        return data;
+    }
+}
+
+/** Models a request by an administrator to email a password reset link to a user. */
+export interface ISendPasswordResetEmailRequest {
+    /** The url to return to after the user has reset the password. */
+    returnUrl?: string | undefined;
+}
+
 /** Models a request to generate a random password that satisfies the configured password rules. */
 export class GeneratePasswordRequest implements IGeneratePasswordRequest {
     /** The id of an existing user the password is generated for, so that user-specific validators also apply. */
@@ -18716,6 +18843,7 @@ export class SingleUserInfo implements ISingleUserInfo {
     accessFailedCount?: number;
     lastSignInDate?: Date | undefined;
     passwordExpirationDate?: Date | undefined;
+    passwordIsTemporary?: boolean;
 
     constructor(data?: ISingleUserInfo) {
         if (data) {
@@ -18756,6 +18884,7 @@ export class SingleUserInfo implements ISingleUserInfo {
             this.accessFailedCount = _data["accessFailedCount"];
             this.lastSignInDate = _data["lastSignInDate"] ? new Date(_data["lastSignInDate"].toString()) : undefined as any;
             this.passwordExpirationDate = _data["passwordExpirationDate"] ? new Date(_data["passwordExpirationDate"].toString()) : undefined as any;
+            this.passwordIsTemporary = _data["passwordIsTemporary"];
         }
     }
 
@@ -18796,6 +18925,7 @@ export class SingleUserInfo implements ISingleUserInfo {
         data["accessFailedCount"] = this.accessFailedCount;
         data["lastSignInDate"] = this.lastSignInDate ? this.lastSignInDate.toISOString() : undefined as any;
         data["passwordExpirationDate"] = this.passwordExpirationDate ? this.passwordExpirationDate.toISOString() : undefined as any;
+        data["passwordIsTemporary"] = this.passwordIsTemporary;
         return data;
     }
 }
@@ -18821,6 +18951,7 @@ export interface ISingleUserInfo {
     accessFailedCount?: number;
     lastSignInDate?: Date | undefined;
     passwordExpirationDate?: Date | undefined;
+    passwordIsTemporary?: boolean;
 }
 
 export enum SubjectFilterMode {
@@ -20308,6 +20439,7 @@ export class UserInfo implements IUserInfo {
     accessFailedCount?: number;
     lastSignInDate?: Date | undefined;
     passwordExpirationDate?: Date | undefined;
+    passwordIsTemporary?: boolean;
 
     constructor(data?: IUserInfo) {
         if (data) {
@@ -20345,6 +20477,7 @@ export class UserInfo implements IUserInfo {
             this.accessFailedCount = _data["accessFailedCount"];
             this.lastSignInDate = _data["lastSignInDate"] ? new Date(_data["lastSignInDate"].toString()) : undefined as any;
             this.passwordExpirationDate = _data["passwordExpirationDate"] ? new Date(_data["passwordExpirationDate"].toString()) : undefined as any;
+            this.passwordIsTemporary = _data["passwordIsTemporary"];
         }
     }
 
@@ -20382,6 +20515,7 @@ export class UserInfo implements IUserInfo {
         data["accessFailedCount"] = this.accessFailedCount;
         data["lastSignInDate"] = this.lastSignInDate ? this.lastSignInDate.toISOString() : undefined as any;
         data["passwordExpirationDate"] = this.passwordExpirationDate ? this.passwordExpirationDate.toISOString() : undefined as any;
+        data["passwordIsTemporary"] = this.passwordIsTemporary;
         return data;
     }
 }
@@ -20408,6 +20542,7 @@ export interface IUserInfo {
     accessFailedCount?: number;
     lastSignInDate?: Date | undefined;
     passwordExpirationDate?: Date | undefined;
+    passwordIsTemporary?: boolean;
 }
 
 export class UserInfoResultSet implements IUserInfoResultSet {

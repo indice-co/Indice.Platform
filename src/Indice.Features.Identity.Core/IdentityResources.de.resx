@@ -276,6 +276,9 @@
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Ihr Konto ist vorübergehend gesperrt. Bitte kontaktieren Sie einen Systemadministrator.</value>
   </data>
+  <data name="LoginErrorTemporaryPasswordExpired" xml:space="preserve">
+    <value>Ihr temporäres Passwort ist abgelaufen. Bitte setzen Sie Ihr Passwort zurück oder kontaktieren Sie einen Systemadministrator.</value>
+  </data>
   <data name="PasswordExpiredMessage" xml:space="preserve">
     <value>Ihr Passwort ist abgelaufen. Bitte wählen Sie ein neues Passwort.</value>
   </data>

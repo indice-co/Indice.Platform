@@ -85,6 +85,11 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
                              PasswordHash = passwordHash
                          }, cancellationToken);
         }
+        // A temporary password, and the forced change that came with it, belong to the previous password.
+        if (user.PasswordIsTemporary) {
+            user.PasswordIsTemporary = false;
+            user.PasswordExpired = false;
+        }
         user.LastPasswordChangeDate = changeDate;
         // Calculate expiration date based on policy.
         user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
@@ -136,6 +141,10 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         user.PasswordExpired = expired;
+        // Lifting the mandatory change turns a temporary password into a regular one, governed again by the expiration policy.
+        if (!expired) {
+            user.PasswordIsTemporary = false;
+        }
         return Task.CompletedTask;
     }
 

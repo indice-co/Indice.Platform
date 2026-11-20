@@ -276,6 +276,9 @@
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>A sua conta está temporariamente bloqueada. Por favor, contacte um administrador do sistema.</value>
   </data>
+  <data name="LoginErrorTemporaryPasswordExpired" xml:space="preserve">
+    <value>A sua senha temporária expirou. Por favor, redefina a sua senha ou contacte um administrador do sistema.</value>
+  </data>
   <data name="PasswordExpiredMessage" xml:space="preserve">
     <value>A sua senha expirou. Por favor, escolha uma nova senha.</value>
   </data>
