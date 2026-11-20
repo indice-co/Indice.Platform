@@ -178,10 +178,30 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             return result;
         }
         if (await IsLockedOutAsync(user)) {
-            return await SetLockoutEndDateAsync(user, null);
+            result = await SetLockoutEndDateAsync(user, null);
         }
         await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
         return result;
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// When the stored hash needs an upgrade, ASP.NET Identity rehashes the password through <see cref="IUserPasswordStore{TUser}.SetPasswordHashAsync"/>, 
+    /// which the store treats as a password change. The password itself is the same, so a temporary password keeps its status and cutoff.
+    /// </remarks>
+    public override async Task<bool> CheckPasswordAsync(TUser user, string password) {
+        if (user?.PasswordIsTemporary != true) {
+            return await base.CheckPasswordAsync(user!, password);
+        }
+        var (passwordHash, passwordExpired, passwordExpirationDate) = (user.PasswordHash, user.PasswordExpired, user.PasswordExpirationDate);
+        var succeeded = await base.CheckPasswordAsync(user, password);
+        if (succeeded && !user.PasswordIsTemporary && user.PasswordHash != passwordHash) {
+            user.PasswordIsTemporary = true;
+            user.PasswordExpired = passwordExpired;
+            user.PasswordExpirationDate = passwordExpirationDate;
+            await UpdateAsync(user);
+        }
+        return succeeded;
     }
 
     /// <inheritdoc />

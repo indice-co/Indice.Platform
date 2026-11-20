@@ -35,6 +35,7 @@ public class TemporaryPasswordTests : IAsyncLifetime
     private const string InitialPassword = "Xk9#mTq2!vLp";
     private const string NewPassword = "Zr4$hWn8@bQe";
     private readonly List<IHost> _hosts = [];
+    private readonly List<HttpClient> _httpClients = [];
 
     [Fact]
     public async Task MarkPasswordAsTemporary_FlagsPassword_And_SetsCutoffFromLifetime() {
@@ -48,8 +49,8 @@ public class TemporaryPasswordTests : IAsyncLifetime
         Assert.True(result.Succeeded);
         Assert.True(user.PasswordIsTemporary);
         Assert.True(user.PasswordExpired);
-        Assert.NotNull(user.PasswordExpirationDate);
-        Assert.InRange(user.PasswordExpirationDate.Value, DateTimeOffset.UtcNow.AddHours(23), DateTimeOffset.UtcNow.AddHours(25));
+        var cutoff = Assert.NotNull(user.PasswordExpirationDate);
+        Assert.InRange(cutoff, DateTimeOffset.UtcNow.AddHours(23), DateTimeOffset.UtcNow.AddHours(25));
         Assert.False(user.HasExpiredTemporaryPassword());
         Assert.True(user.HasExpiredTemporaryPassword(DateTimeOffset.UtcNow.AddDays(2)));
     }
@@ -189,8 +190,8 @@ public class TemporaryPasswordTests : IAsyncLifetime
             Assert.NotNull(user);
             Assert.False(user.PasswordIsTemporary);
             Assert.False(user.PasswordExpired);
-            Assert.NotNull(user.PasswordExpirationDate);
-            Assert.InRange(user.PasswordExpirationDate.Value, DateTimeOffset.UtcNow.AddDays(29), DateTimeOffset.UtcNow.AddDays(31));
+            var expirationDate = Assert.NotNull(user.PasswordExpirationDate);
+            Assert.InRange(expirationDate, DateTimeOffset.UtcNow.AddDays(29), DateTimeOffset.UtcNow.AddDays(31));
         }
     }
 
@@ -251,8 +252,106 @@ public class TemporaryPasswordTests : IAsyncLifetime
         Assert.NotNull(user);
         Assert.True(user.PasswordIsTemporary);
         Assert.True(user.PasswordExpired);
-        Assert.NotNull(user.PasswordExpirationDate);
-        Assert.InRange(user.PasswordExpirationDate.Value, DateTimeOffset.UtcNow.AddHours(23), DateTimeOffset.UtcNow.AddHours(25));
+        var cutoff = Assert.NotNull(user.PasswordExpirationDate);
+        Assert.InRange(cutoff, DateTimeOffset.UtcNow.AddHours(23), DateTimeOffset.UtcNow.AddHours(25));
+    }
+
+    [Fact]
+    public async Task CreateUserApi_WithChangePasswordAfterFirstSignIn_ReturnsTemporaryState() {
+        var (_, httpClient) = CreateHost(new() { ["IdentityOptions:Password:TemporaryPasswordLifetime"] = "1.00:00:00" });
+        var id = Guid.NewGuid().ToString();
+
+        var response = await httpClient.PostAsJsonAsync("/api/users", new CreateUserRequest {
+            Email = $"{id}@indice.gr",
+            UserName = $"{id}@indice.gr",
+            Password = InitialPassword,
+            ChangePasswordAfterFirstSignIn = true
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var user = await response.Content.ReadFromJsonAsync<SingleUserInfo>(TestContext.Current.CancellationToken);
+        Assert.NotNull(user);
+        Assert.True(user.PasswordIsTemporary);
+        var cutoff = Assert.NotNull(user.PasswordExpirationDate);
+        Assert.InRange(cutoff, DateTimeOffset.UtcNow.AddHours(23), DateTimeOffset.UtcNow.AddHours(25));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PasswordRehash_KeepsTemporaryPasswordState(bool expired) {
+        var hasher = new RehashingPasswordHasher();
+        var (host, _) = CreateHost(new() { ["IdentityOptions:Password:TemporaryPasswordLifetime"] = "1.00:00:00" }, hasher);
+        string userId;
+        string? passwordHash;
+        DateTimeOffset? cutoff;
+        using (var scope = host.Services.CreateScope()) {
+            var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+            var signInManager = scope.ServiceProvider.GetRequiredService<ExtendedSignInManager<User>>();
+            var user = await CreateUserAsync(userManager);
+            userId = user.Id;
+            await userManager.MarkPasswordAsTemporaryAsync(user, TestContext.Current.CancellationToken);
+            if (expired) {
+                await ExpireTemporaryPasswordAsync(userManager, user);
+            }
+            (passwordHash, cutoff) = (user.PasswordHash, user.PasswordExpirationDate);
+            hasher.RehashNeeded = true;
+
+            if (expired) {
+                var result = await signInManager.CheckPasswordSignInAsync(user, InitialPassword, lockoutOnFailure: true);
+                Assert.True(result.IsTemporaryPasswordExpired());
+            } else {
+                Assert.True(await userManager.CheckPasswordAsync(user, InitialPassword));
+            }
+        }
+        using (var scope = host.Services.CreateScope()) {
+            var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+            var user = await userManager.FindByIdAsync(userId);
+            Assert.NotNull(user);
+            Assert.NotEqual(passwordHash, user.PasswordHash);
+            Assert.True(user.PasswordIsTemporary);
+            Assert.True(user.PasswordExpired);
+            Assert.Equal(cutoff, user.PasswordExpirationDate);
+        }
+    }
+
+    [Fact]
+    public async Task ResetPasswordWithToken_ForLockedOutUser_RevokesPersistedGrants() {
+        var (host, _) = CreateHost(new() { ["IdentityOptions:Password:RevokeGrantsOnPasswordChange"] = "true" });
+        using var scope = host.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var grantStore = scope.ServiceProvider.GetRequiredService<IPersistedGrantStore>();
+        var user = await CreateUserAsync(userManager);
+        await StoreGrantAsync(grantStore, user.Id);
+        await userManager.SetLockoutEnabledAsync(user, true);
+        await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddHours(1));
+        Assert.True(await userManager.IsLockedOutAsync(user));
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await userManager.ResetPasswordAsync(user, token, NewPassword);
+
+        Assert.True(result.Succeeded, string.Join(", ", result.Errors.Select(x => x.Description)));
+        Assert.False(await userManager.IsLockedOutAsync(user));
+        Assert.Empty(await grantStore.GetAllAsync(new PersistedGrantFilter { SubjectId = user.Id }));
+    }
+
+    [Fact]
+    public async Task ChangePassword_WithBackgroundEventService_RevokesPersistedGrants() {
+        var (host, _) = CreateHost(new() { ["IdentityOptions:Password:RevokeGrantsOnPasswordChange"] = "true" }, backgroundEvents: true);
+        using var scope = host.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var grantStore = scope.ServiceProvider.GetRequiredService<IPersistedGrantStore>();
+        var user = await CreateUserAsync(userManager);
+        await StoreGrantAsync(grantStore, user.Id);
+
+        var result = await userManager.ChangePasswordAsync(user, InitialPassword, NewPassword);
+
+        Assert.True(result.Succeeded, string.Join(", ", result.Errors.Select(x => x.Description)));
+        var timeout = DateTime.UtcNow.AddSeconds(10);
+        while ((await grantStore.GetAllAsync(new PersistedGrantFilter { SubjectId = user.Id })).Any() && DateTime.UtcNow < timeout) {
+            await Task.Delay(50, TestContext.Current.CancellationToken);
+        }
+        Assert.Empty(await grantStore.GetAllAsync(new PersistedGrantFilter { SubjectId = user.Id }));
     }
 
     [Theory]
@@ -303,11 +402,23 @@ public class TemporaryPasswordTests : IAsyncLifetime
     public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
     public async ValueTask DisposeAsync() {
+        foreach (var httpClient in _httpClients) {
+            httpClient.Dispose();
+        }
         foreach (var host in _hosts) {
             await host.StopAsync();
             host.Dispose();
         }
     }
+
+    private static Task StoreGrantAsync(IPersistedGrantStore grantStore, string subjectId) => grantStore.StoreAsync(new PersistedGrant {
+        Key = Guid.NewGuid().ToString(),
+        Type = "refresh_token",
+        SubjectId = subjectId,
+        ClientId = "client",
+        CreationTime = DateTime.UtcNow,
+        Data = "{}"
+    });
 
     private static async Task<User> CreateUserAsync(ExtendedUserManager<User> userManager, PasswordExpirationPolicy? policy = null) {
         var id = Guid.NewGuid().ToString();
@@ -334,7 +445,7 @@ public class TemporaryPasswordTests : IAsyncLifetime
         Assert.True(user.HasExpiredTemporaryPassword());
     }
 
-    private (IHost Host, HttpClient HttpClient) CreateHost(Dictionary<string, string?> settings) {
+    private (IHost Host, HttpClient HttpClient) CreateHost(Dictionary<string, string?> settings, IPasswordHasher<User>? passwordHasher = null, bool backgroundEvents = false) {
         var databaseName = $"TemporaryPasswordTests_{Guid.NewGuid()}";
         var host = new HostBuilder().ConfigureWebHost(builder => {
             builder.UseTestServer();
@@ -362,7 +473,14 @@ public class TemporaryPasswordTests : IAsyncLifetime
                         .AddAspNetIdentity<User>()
                         .AddInMemoryPersistedGrants();
                 services.AddSingleton<IEmailService, FakeEmailService>();
-                services.AddDefaultPlatformEventService();
+                if (backgroundEvents) {
+                    services.AddBackgroundPlatformEventService();
+                } else {
+                    services.AddDefaultPlatformEventService();
+                }
+                if (passwordHasher is not null) {
+                    services.AddSingleton(passwordHasher);
+                }
                 services.AddEndpointParameterFluentValidation();
                 services.AddOutputCache();
                 services.AddLogging();
@@ -391,7 +509,18 @@ public class TemporaryPasswordTests : IAsyncLifetime
         var httpClient = new HttpClient(host.GetTestServer().CreateHandler()) {
             BaseAddress = new Uri("https://server")
         };
+        _httpClients.Add(httpClient);
         return (host, httpClient);
+    }
+
+    private sealed class RehashingPasswordHasher : PasswordHasher<User>
+    {
+        public bool RehashNeeded { get; set; }
+
+        public override PasswordVerificationResult VerifyHashedPassword(User user, string hashedPassword, string providedPassword) {
+            var result = base.VerifyHashedPassword(user, hashedPassword, providedPassword);
+            return RehashNeeded && result == PasswordVerificationResult.Success ? PasswordVerificationResult.SuccessRehashNeeded : result;
+        }
     }
 
     private sealed class FakeEmailService : IEmailService

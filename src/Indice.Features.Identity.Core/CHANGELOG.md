@@ -37,6 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `changePasswordAfterFirstSignIn` now also gives the password a hard cutoff. If a password expiration policy is set and the
   user does not sign in before the policy date, the password is refused instead of just forcing a change. Set
   `IdentityOptions:Password:TemporaryPasswordLifetime` to choose the cutoff explicitly.
+### Fixed
+- Resetting the password of a locked out user with a token now publishes `PasswordChangedEvent`, like every other reset.
+  Event handlers (password changed notification, grant revocation) now also run in this case.
+- When ASP.NET Identity upgrades the stored hash of a temporary password at sign-in, the password stays temporary and keeps its cutoff.
+- The background platform event dispatcher (`AddBackgroundPlatformEventService`, in `Indice.Common`) now calls handlers that
+  handle more than one event type, for example `ClientCacheInvalidationEventHandler` and `UserNameOrPasswordChangedEventHandler`.
+  Before, these handlers failed silently. Handler errors are now logged.
 
 > [!WARNING]
 > **Database update required.** Run the script for your database **before** you deploy this version. Existing users get

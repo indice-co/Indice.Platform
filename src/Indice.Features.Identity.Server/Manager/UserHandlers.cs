@@ -286,7 +286,7 @@ internal static class UserHandlers
         } else if (request.ChangePasswordAfterFirstSignIn == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
-        var response = SingleUserInfo.FromUser(user);
+        var response = user.ToSingleUserInfo();
         if (request.Roles?.Count > 0) {
             response.Roles = allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase)).Select(x => x.Name!).ToList();
         }
