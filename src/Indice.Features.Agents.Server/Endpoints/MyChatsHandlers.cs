@@ -126,4 +126,20 @@ internal static class MyChatsHandlers
         => (await chats.SetLikeAsync(user.FindSubjectId()!, chatId, messageId, request.Like, cancellationToken))
             ? TypedResults.NoContent()
             : TypedResults.NotFound();
+
+    /// <summary>GET /api/my/chats/{chatId}/files/{fileId} — downloads a file an agent produced in the chat (for example a report).</summary>
+    /// <remarks>
+    /// The file is served as an attachment with <c>nosniff</c> and <c>no-store</c>, so a generated HTML report is downloaded, never
+    /// rendered in the application's origin. The store only returns it to the user who owns the conversation.
+    /// </remarks>
+    public static async Task<Results<FileContentHttpResult, NotFound>> DownloadFile(Guid chatId, Guid fileId, ClaimsPrincipal user, IConversationFileStore files, HttpContext httpContext, CancellationToken cancellationToken) {
+        var userId = user.FindSubjectId();
+        var file = userId is null ? null : await files.GetAsync(chatId, fileId, userId, cancellationToken);
+        if (file is null) {
+            return TypedResults.NotFound();
+        }
+        httpContext.Response.Headers.XContentTypeOptions = "nosniff";
+        httpContext.Response.Headers.CacheControl = "private, no-store";
+        return TypedResults.File(file.Data, file.Reference.ContentType, fileDownloadName: file.Reference.FileName, lastModified: file.CreatedAt);
+    }
 }

@@ -60,6 +60,12 @@ public sealed class AgentsOptionsValidator : IValidateOptions<AgentsOptions>
             failures.Add("Dex:Taxonomy:Categories must contain at least one non-empty string.");
         if (options.Taxonomy.Languages.Count == 0 || options.Taxonomy.Languages.Any(string.IsNullOrWhiteSpace))
             failures.Add("Dex:Taxonomy:Languages must contain at least one non-empty string.");
+        if (options.Taxonomy.RestrictedCategories.Any(string.IsNullOrWhiteSpace))
+            failures.Add("Dex:Taxonomy:RestrictedCategories must not contain empty strings.");
+        foreach (var restricted in options.Taxonomy.RestrictedCategories.Where(category => !string.IsNullOrWhiteSpace(category))) {
+            if (!options.Taxonomy.Categories.Contains(restricted, StringComparer.OrdinalIgnoreCase))
+                failures.Add($"Dex:Taxonomy:RestrictedCategories entry '{restricted}' must also be listed in Dex:Taxonomy:Categories, otherwise ingestion rejects it.");
+        }
         if (options.Retrieval.RerankSnippetLength <= 0)
             failures.Add("Dex:Retrieval:RerankSnippetLength must be positive.");
         if (string.IsNullOrWhiteSpace(options.Routing.DefaultAgent))

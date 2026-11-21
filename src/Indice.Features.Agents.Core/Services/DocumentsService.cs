@@ -5,6 +5,7 @@ using Indice.Features.Agents.Core.Workflows.Ingestion;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -13,13 +14,15 @@ public class DocumentsService : IDocumentsService
 {
     private readonly AgentsDbContext _db;
     private readonly ISourceLinkGenerator _sourceLinkGenerator;
+    private readonly AgentsOptions.TaxonomyOptions _taxonomy;
     private readonly string _embeddingModel;
     private readonly int _embeddingDimensions;
 
     /// <summary>Creates a new <see cref="DocumentsService"/>.</summary>
-    public DocumentsService(AgentsDbContext db, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, ISourceLinkGenerator sourceLinkGenerator) {
+    public DocumentsService(AgentsDbContext db, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, ISourceLinkGenerator sourceLinkGenerator, IOptions<AgentsOptions> options) {
         _db = db ?? throw new ArgumentNullException(nameof(db));
         _sourceLinkGenerator = sourceLinkGenerator ?? throw new ArgumentNullException(nameof(sourceLinkGenerator));
+        _taxonomy = (options ?? throw new ArgumentNullException(nameof(options))).Value.Taxonomy;
         // The model that produced the vectors, as reported by whichever provider serves the Embedding role.
         var metadata = (embeddingGenerator ?? throw new ArgumentNullException(nameof(embeddingGenerator))).GetService<EmbeddingGeneratorMetadata>();
         _embeddingModel = metadata?.DefaultModelId ?? string.Empty;
@@ -113,16 +116,8 @@ public class DocumentsService : IDocumentsService
     public async Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken) {
         var sqlVector = new SqlVector<float>(queryVector);
         var maxDistance = 1 - minScore;
-        var category = filters.Category;
-        var language = filters.Language;
 
-        var candidates = _db.Set<DbChunk>().AsNoTracking();
-        if (!string.IsNullOrEmpty(category)) {
-            candidates = candidates.Where(c => c.Category == null || c.Category == category);
-        }
-        if (!string.IsNullOrEmpty(language)) {
-            candidates = candidates.Where(c => c.Language == null || c.Language == language);
-        }
+        var candidates = ApplyScope(_db.Set<DbChunk>().AsNoTracking(), filters, _taxonomy);
 
         // Stage 1: rank by vector distance and keep only the top K ids.
         // Distinct() is a no-op on {Id, Distance} (Id is the PK) but it stops EF from pushing the projection
@@ -146,6 +141,7 @@ public class DocumentsService : IDocumentsService
                 HeadingPath = x.Chunk.HeadingPath,
                 Content = x.Chunk.Content,
                 TokenCount = x.Chunk.TokenCount,
+                Category = x.Chunk.Category,
                 DocumentTitle = x.Chunk.Document.Title,
                 DocumentSource = x.Chunk.Document.Source,
                 DocumentIsPrivate = x.Chunk.Document.IsPrivate,
@@ -172,11 +168,66 @@ public class DocumentsService : IDocumentsService
                 FileName = r.BlobFileName,
             },
             Title = r.Title,
+            Category = r.Category,
             HeadingPath = r.HeadingPath,
             Content = r.Content,
             TokenCount = r.TokenCount,
             Score = 1 - r.Distance,
         }).ToList();
+    }
+
+    /// <summary>
+    /// Narrows the chunks a search may consider: the category and language filters, and the access rule for restricted
+    /// categories. Chunks of a restricted category are dropped unless <see cref="RetrievalFilters.IncludeRestricted"/> is set,
+    /// whatever the category filter says, so an ordinary search can never reach them.
+    /// </summary>
+    internal static IQueryable<DbChunk> ApplyScope(IQueryable<DbChunk> chunks, RetrievalFilters filters, AgentsOptions.TaxonomyOptions taxonomy) {
+        var category = filters.Category?.Trim();
+        var language = filters.Language;
+        var restrictedRequest = filters.IncludeRestricted && taxonomy.IsRestricted(category);
+        if (!string.IsNullOrEmpty(category)) {
+            chunks = restrictedRequest
+                // A restricted category is read on its own: no category-less fallbacks mixed in.
+                ? chunks.Where(c => c.Category != null && c.Category.ToLower() == category.ToLower())
+                : chunks.Where(c => c.Category == null || c.Category == category);
+        }
+        if (!string.IsNullOrEmpty(language)) {
+            chunks = chunks.Where(c => c.Language == null || c.Language == language);
+        }
+        if (!filters.IncludeRestricted && taxonomy.RestrictedCategories.Count > 0) {
+            // Lower-cased on both sides so the rule does not depend on the database collation.
+            var restricted = taxonomy.RestrictedCategories.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => r.Trim().ToLower()).ToArray();
+            chunks = chunks.Where(c => c.Category == null || !restricted.Contains(c.Category.ToLower()));
+        }
+        return chunks;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<KnowledgeSnippet>> FindByHeadingAsync(string category, IReadOnlyCollection<string> headingPrefixes, string? language, bool includeRestricted, CancellationToken cancellationToken) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(category);
+        if (headingPrefixes.Count == 0 || (!includeRestricted && _taxonomy.IsRestricted(category))) {
+            return [];
+        }
+        var lowerCategory = category.Trim().ToLower();
+        var rows = await _db.Set<DbChunk>()
+            .AsNoTracking()
+            .Where(c => c.Category != null && c.Category.ToLower() == lowerCategory && c.HeadingPath != null)
+            .Where(c => language == null || c.Language == null || c.Language == language)
+            .OrderBy(c => c.DocumentId).ThenBy(c => c.ChunkIndex)
+            .Select(c => new { c.HeadingPath, c.Content, c.Category })
+            .ToListAsync(cancellationToken);
+
+        // Matched in memory: a category holds a few hundred chunks, and "a segment starts with L-01" is not worth a translated LIKE.
+        return [.. rows
+            .Where(row => row.HeadingPath!.Split(" > ").Any(segment => headingPrefixes.Any(prefix => segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))))
+            .GroupBy(row => row.HeadingPath!)
+            .Select(group => new KnowledgeSnippet(group.Key, string.Join("\n\n", group.Select(row => StripBreadcrumb(row.Content, group.Key))), group.First().Category))];
+    }
+
+    // Every chunk's content starts with its heading breadcrumb and a blank line.
+    private static string StripBreadcrumb(string content, string headingPath) {
+        var prefix = headingPath + "\n\n";
+        return content.StartsWith(prefix, StringComparison.Ordinal) ? content[prefix.Length..].Trim() : content.Trim();
     }
 
     // Projection target for the two-stage vector search query
@@ -188,6 +239,7 @@ public class DocumentsService : IDocumentsService
         public string? HeadingPath { get; set; }
         public string Content { get; set; } = string.Empty;
         public int TokenCount { get; set; }
+        public string? Category { get; set; }
         public string DocumentTitle { get; set; } = string.Empty;
         public string DocumentSource { get; set; } = string.Empty;
         public bool DocumentIsPrivate { get; set; }

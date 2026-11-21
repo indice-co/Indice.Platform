@@ -15,6 +15,9 @@ public class Chunk
     /// <summary>Optional heading breadcrumb, e.g. <c>H1 &gt; H2 &gt; H3</c>.</summary>
     public string? HeadingPath { get; init; }
 
+    /// <summary>The knowledge base category of the chunk, or <c>null</c> when its document has none.</summary>
+    public string? Category { get; init; }
+
     /// <summary>The chunk body text.</summary>
     public string Content { get; init; } = string.Empty;
 

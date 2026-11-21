@@ -29,6 +29,9 @@ public class AgentsDbContext : DbContext
     /// <summary>Durable workflow checkpoint blobs, keyed per run (conversation).</summary>
     public DbSet<DbCheckpoint> Checkpoints => Set<DbCheckpoint>();
 
+    /// <summary>Files agents produced during conversations, such as generated reports.</summary>
+    public DbSet<DbFile> Files => Set<DbFile>();
+
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);

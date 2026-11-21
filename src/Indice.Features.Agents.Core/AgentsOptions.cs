@@ -189,6 +189,22 @@ public class AgentsOptions
 
         /// <summary>Allowed ISO-639-1 (or BCP-47) language codes.</summary>
         public IReadOnlyList<string> Languages { get; set; } = ["en", "el", "de", "fr", "es"];
+
+        /// <summary>
+        /// Categories whose documents are internal: an ordinary search never returns their chunks, and the categories are not
+        /// advertised to users. Only code that sets <see cref="Models.RetrievalFilters.IncludeRestricted"/> can retrieve them, which
+        /// is how an agent restricted to certain roles (see <see cref="Models.AgentInfo.RequiredRoles"/>) reads its own knowledge.
+        /// Every entry must also be listed in <see cref="Categories"/> so that ingestion accepts it.
+        /// </summary>
+        public IReadOnlyList<string> RestrictedCategories { get; set; } = [];
+
+        /// <summary><see cref="Categories"/> without the <see cref="RestrictedCategories"/>: what ordinary users may be told about.</summary>
+        public IReadOnlyList<string> PublicCategories => [.. Categories.Where(category => !IsRestricted(category))];
+
+        /// <summary>Whether <paramref name="category"/> is one of the <see cref="RestrictedCategories"/> (case-insensitive).</summary>
+        /// <param name="category">The category to test; <c>null</c> or blank is never restricted.</param>
+        public bool IsRestricted(string? category) =>
+            !string.IsNullOrWhiteSpace(category) && RestrictedCategories.Contains(category.Trim(), StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>Master intent-router behavior.</summary>
@@ -199,6 +215,26 @@ public class AgentsOptions
         /// master intent router; set it to a specific agent name (e.g. <c>knowledge</c>) to bypass routing.
         /// </summary>
         public string DefaultAgent { get; set; } = AgentsConstants.AgentNames.Auto;
+
+        /// <summary>
+        /// Grounds automatic routing in the knowledge base: the router embeds the message, looks for the categories its content
+        /// best matches, and tells the routing model which agent owns that knowledge. Only agents that declare
+        /// <see cref="Models.AgentInfo.KnowledgeCategories"/> and that the caller may use take part.
+        /// </summary>
+        public KnowledgeHintOptions KnowledgeHints { get; set; } = new();
+    }
+
+    /// <summary>Knowledge-base hints for the master intent router.</summary>
+    public class KnowledgeHintOptions
+    {
+        /// <summary>Turns the hints on. Defaults to <c>false</c>: each routed message then costs no extra embedding or search.</summary>
+        public bool Enabled { get; set; }
+
+        /// <summary>How many chunks the hint search reads before grouping them by category.</summary>
+        public int TopK { get; set; } = 8;
+
+        /// <summary>Minimum similarity for a chunk to count towards a hint.</summary>
+        public double MinScore { get; set; } = 0.3;
     }
 
     /// <summary>System-one decision model behavior.</summary>

@@ -177,6 +177,18 @@
 	<data name="StepOtpCodeSend" xml:space="preserve">
     <value>Sending verification code</value>
   </data>
+	<data name="StepRiskRequestAnalyzer" xml:space="preserve">
+    <value>Reading your request</value>
+  </data>
+	<data name="StepTransactionAnchorResolver" xml:space="preserve">
+    <value>Locating the transaction</value>
+  </data>
+	<data name="StepEvidenceCollector" xml:space="preserve">
+    <value>Collecting the evidence</value>
+  </data>
+	<data name="StepRiskReportComposer" xml:space="preserve">
+    <value>Writing the report</value>
+  </data>
 	<data name="StepOtpCodeValidator" xml:space="preserve">
     <value>Checking verification code</value>
   </data>

@@ -33,6 +33,8 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
                     nameof(AgentsConstants.PromptDefaults.IntentRouter) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentRouter),
                     nameof(AgentsConstants.PromptDefaults.IntentRouterSystemOne) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentRouterSystemOne),
                     nameof(AgentsConstants.PromptDefaults.AgentIdentity) => _handlebars.Compile(AgentsConstants.PromptDefaults.AgentIdentity),
+                    nameof(AgentsConstants.PromptDefaults.RiskRequestAnalyzer) => _handlebars.Compile(AgentsConstants.PromptDefaults.RiskRequestAnalyzer),
+                    nameof(AgentsConstants.PromptDefaults.RiskReportNarrative) => _handlebars.Compile(AgentsConstants.PromptDefaults.RiskReportNarrative),
 
                     nameof(AgentsConstants.PromptDefaults.DataRetriever) => _handlebars.Compile(AgentsConstants.PromptDefaults.DataRetriever),
                     nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions),

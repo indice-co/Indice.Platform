@@ -42,6 +42,8 @@ export class ChatPageComponent {
 
   protected readonly messages = signal<ThreadMessage[]>([]);
   protected readonly threadLoading = signal(false);
+  /** The conversation being shown, for the parts that need to fetch something from it (a generated report). */
+  protected readonly activeConversationId = this.store.activeId;
 
   protected readonly examplePrompts = EXAMPLE_PROMPTS;
   /** A brand-new, unsent chat — the hero and composer render centered, ChatGPT-style. */

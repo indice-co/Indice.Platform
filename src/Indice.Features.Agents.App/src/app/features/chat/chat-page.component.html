@@ -45,6 +45,7 @@
         [error]="error()"
         [busy]="threadLoading()"
         [questionsTotal]="questionsTotal()"
+        [conversationId]="activeConversationId()"
         (pick)="send($event)"
         (likeChanged)="setLike($event)"
       />

@@ -30,7 +30,7 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
         _options = options.Value;
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("IntentClassifier", new {
-            categories = _options.Taxonomy.Categories,
+            categories = _options.Taxonomy.PublicCategories,
             languages = _options.Taxonomy.Languages,
         });
         _agent = chatClient.AsAIAgent(options: new ChatClientAgentOptions() {

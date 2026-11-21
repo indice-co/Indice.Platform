@@ -17,6 +17,9 @@
     <ProjectReference Include="..\Indice.Features.Agents.Core\Indice.Features.Agents.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Agents.Server.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="../../docs/Agents-Product.md" Pack="true" PackagePath="docs\" />
     <None Include="../../docs/agents-logo.svg" Pack="true" PackagePath="docs\" />
   </ItemGroup>

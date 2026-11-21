@@ -129,7 +129,7 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
                 CancelText = "No, thanks"
             }, AgentsConstants.MediaTypes.Confirmation)
         };
-        var subjects = _options.Taxonomy.Categories.ToList();
+        var subjects = _options.Taxonomy.PublicCategories.ToList();
         if (subjects.Count > 0) {
             contents.Add(DataContentExtensions.JsonPart(new MultipleChoice {
                 Options = [.. subjects.Select(category => $"What can you tell me about {category}?")]

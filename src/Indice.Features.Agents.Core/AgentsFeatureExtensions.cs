@@ -108,6 +108,8 @@ public static class AgentsFeatureExtensions
         );
         services.TryAddSingleton<ISourceLinkGenerator, NoOpSourceLinkGenerator>();
         services.TryAddSingleton<AgentInfoRegistry>();
+        services.TryAddTransient<IKnowledgeHintService, KnowledgeHintService>();
+        services.TryAddTransient<IConversationFileStore, ConversationFileStore>();
         services.TryAddTransient<IntentRouterService>();
         services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
@@ -250,14 +252,7 @@ public static class AgentsFeatureExtensions
             Icon: AgentsConstants.AgentIcons.Gear));
 
 
-        services.AddClientCredentialsTokenManagement()
-                .AddClient("mcpsecurity", credentials => {
-                    // Machine-to-machine authentication (no user present, no redirect/browser).
-                    credentials.TokenEndpoint = new Uri(configuration["General:Endpoints:TokenEndpoint"]!);
-                    credentials.ClientId = ClientId.Parse(configuration["General:Secrets:ClientId"]!);
-                    credentials.ClientSecret = ClientSecret.Parse(configuration["General:Secrets:ClientSecret"]!);
-                    credentials.Scope = Scope.Parse(configuration["General:Secrets:Scope"]!);
-                });
+        services.AddMcpSecurityTokenClient(configuration);
         services.AddMcpClient("id")
                 .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
         services.AddMcpClient("cases")

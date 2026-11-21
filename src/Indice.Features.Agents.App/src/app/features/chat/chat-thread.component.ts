@@ -66,6 +66,7 @@ import { isTextPart } from './parts/part-contracts';
                           [part]="contentPart"
                           [first]="$first"
                           [interactive]="turn.isLatest && !streaming()"
+                          [conversationId]="conversationId()"
                           (pick)="pick.emit($event)"
                         />
                       }
@@ -159,7 +160,7 @@ import { isTextPart } from './parts/part-contracts';
                     <div class="flex flex-col gap-3">
                       <!-- Nothing on a still-streaming answer is actionable yet — interactive defaults to false. -->
                       @for (contentPart of live.content.parts; track $index) {
-                        <app-chat-message-part [part]="contentPart" [first]="$first" [caret]="$last" />
+                        <app-chat-message-part [part]="contentPart" [first]="$first" [caret]="$last" [conversationId]="conversationId()" />
                       }
                     </div>
                     @if ((live.citations ?? []).length > 0) {
@@ -200,6 +201,8 @@ export class ChatThreadComponent {
   readonly error = input<string | null>(null);
   readonly busy = input(false);
   readonly questionsTotal = input<number | null>(null);
+  /** The active conversation; file parts (reports) build their download URL from it. */
+  readonly conversationId = input<string | null>(null);
 
   /** Emits text the user picked from an interactive part (an option, a confirmation button), to be sent as the next user message. */
   readonly pick = output<string>();

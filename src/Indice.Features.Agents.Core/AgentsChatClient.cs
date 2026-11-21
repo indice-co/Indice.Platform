@@ -4,6 +4,7 @@ using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Steps;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
+using Indice.Features.Agents.Core.Workflows.Steps.Risk;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -37,7 +38,11 @@ public class AgentsChatClient(IServiceProvider serviceProvider, ILogger<AgentsCh
         [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
         [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
         [nameof(AuthenticationStep)] = localizer.StepOwnershipValidator,
-        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend,
+        [nameof(RiskRequestAnalyzer)] = localizer.StepRiskRequestAnalyzer,
+        [nameof(TransactionAnchorResolver)] = localizer.StepTransactionAnchorResolver,
+        [nameof(EvidenceCollector)] = localizer.StepEvidenceCollector,
+        [nameof(RiskReportComposer)] = localizer.StepRiskReportComposer
     };
 
     /// <inheritdoc/>

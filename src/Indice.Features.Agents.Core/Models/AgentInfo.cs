@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Agents.Core.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Indice.Features.Agents.Core.Models;
 
 // Rich agent metadata
 /// <summary>
@@ -39,4 +41,21 @@ public record AgentInfo(
     List<AgentLink>? Links = null,
     AgentAuthor? Author = null,
     object? Metadata = null,
-    string? Icon = null);
+    string? Icon = null)
+{
+    /// <summary>
+    /// Roles of which the caller needs at least one to discover, select or be routed to this agent. <c>null</c> or empty means
+    /// every caller. Guests and unauthenticated callers never qualify for an agent that lists roles. Server-side only: it is not
+    /// part of the discovery response.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<string>? RequiredRoles { get; init; }
+
+    /// <summary>
+    /// The knowledge categories this agent reads, typically restricted ones (<see cref="AgentsOptions.TaxonomyOptions.RestrictedCategories"/>).
+    /// The master router uses them to match a request against the knowledge base, but only for callers who may use the agent.
+    /// Server-side only: it is not part of the discovery response.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<string>? KnowledgeCategories { get; init; }
+}

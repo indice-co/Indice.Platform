@@ -4,6 +4,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { IChatMessagePart } from '../../core/services/dex-api.service';
 import { ChatCalloutComponent } from './parts/chat-callout.component';
 import { ChatConfirmComponent } from './parts/chat-confirm.component';
+import { ChatFileComponent } from './parts/chat-file.component';
 import { ChatHitlComponent } from './parts/chat-hitl.component';
 import { ChatHitlOtpComponent } from './parts/chat-hitl-otp.component';
 import { ChatHitlOperationComponent } from './parts/chat-hitl-operation.component';
@@ -15,6 +16,7 @@ import {
   HitlControlResolver,
   parseCallout,
   parseConfirmation,
+  parseFileReference,
   parseHitlRequest,
   parseImage,
   parseMultipleChoice,
@@ -41,6 +43,7 @@ import {
     MarkdownModule,
     ChatCalloutComponent,
     ChatConfirmComponent,
+    ChatFileComponent,
     ChatHitlComponent,
     ChatHitlOtpComponent,
     ChatHitlPaymentComponent,
@@ -76,6 +79,9 @@ import {
       @case ('confirm') {
         <app-chat-confirm [confirmation]="confirmation()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
       }
+      @case ('file') {
+        <app-chat-file [file]="file()" [conversationId]="conversationId()" />
+      }
       @case ('hitl-request') {
         @switch (hitlControl()) {
           @case ('hitl-request') {
@@ -107,6 +113,8 @@ export class ChatMessagePartComponent {
   readonly first = input(false);
   /** Whether to show the blinking streaming caret. Honoured only by prose — a caret on an image means nothing. */
   readonly caret = input(false);
+  /** The conversation this message belongs to; a file part needs it to build its download URL. */
+  readonly conversationId = input<string | null>(null);
 
   /** Emits text the user picked from an interactive part, to be sent as the next user message. */
   readonly pick = output<string>();
@@ -118,6 +126,7 @@ export class ChatMessagePartComponent {
   protected readonly image = computed(() => parseImage(this.part().value, this.part().contentType, this.part().name));
   protected readonly callout = computed(() => parseCallout(this.part().value));
   protected readonly confirmation = computed(() => parseConfirmation(this.part().value));
+  protected readonly file = computed(() => parseFileReference(this.part().value));
   protected readonly hitlRequest = computed(() =>
     parseHitlRequest(this.part().value, this.part().requestId, this.part().name),
   );

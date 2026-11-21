@@ -108,6 +108,12 @@ internal static class MyChatsApi
              .WithSummary("Delete a chat session and its messages.")
              .WithDescription("Permanently deletes the session and all its messages. Returns 204 on success, 404 when the session does not exist for the calling user.");
 
+        group.MapGet("{chatId:guid}/files/{fileId:guid}", MyChatsHandlers.DownloadFile)
+             .WithName(nameof(MyChatsHandlers.DownloadFile))
+             .WithSummary("Download a file an agent produced in a chat session.")
+             .WithDescription("Returns a file attached to a message of the session, such as a generated report, as an attachment. Returns 404 when the file does not exist in a session of the calling user.")
+             .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream");
+
         group.MapPut("{chatId:guid}/messages/{messageId:guid}/like", MyChatsHandlers.Like)
              .WithParameterValidation<LikeRequest>()
              .WithName(nameof(MyChatsHandlers.Like))

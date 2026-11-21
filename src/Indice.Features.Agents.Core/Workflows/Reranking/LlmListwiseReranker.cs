@@ -54,6 +54,7 @@ public class LlmListwiseReranker : ILlmReranker
         var reranked = candidates
             .Select((c, i) => new RetrievedChunk {
                 Id = c.Id,
+                Category = c.Category,
                 Source = c.Source,
                 Title = c.Title,
                 HeadingPath = c.HeadingPath,

@@ -24,6 +24,9 @@ export const CALLOUT_MEDIA_TYPE = 'application/vnd.indice.callout+json';
 /** A two-way confirmation; picking a button posts its label verbatim as the next user message. */
 export const CONFIRM_MEDIA_TYPE = 'application/vnd.indice.confirm+json';
 
+/** A file the agent produced in the conversation, such as a generated report, shown as a download button. */
+export const FILE_MEDIA_TYPE = 'application/vnd.indice.file+json';
+
 /**
  * A question the workflow is blocked on until a human answers it — the assistant half of the human-in-the-loop
  * round-trip. The answer goes back on the next user turn as a {@link HITL_RESPONSE_MEDIA_TYPE} part.
@@ -47,6 +50,7 @@ export type PartKind =
   | 'multiple-choice'
   | 'callout'
   | 'confirm'
+  | 'file'
   | 'hitl-request'
   | 'hitl-request-otp'
   | 'hitl-request-operation'
@@ -75,6 +79,8 @@ export function partKind(contentType: string | undefined): PartKind {
       return 'callout';
     case CONFIRM_MEDIA_TYPE:
       return 'confirm';
+    case FILE_MEDIA_TYPE:
+      return 'file';
     case HITL_REQUEST_MEDIA_TYPE:
       console.log('partKind: hitl-request');
       return 'hitl-request';
@@ -129,6 +135,54 @@ export interface Confirmation {
   prompt?: string;
   confirmText: string;
   cancelText: string;
+}
+
+/** A downloadable file. Mirrors the server's `FileReference`; `sha256` lets the reader verify the downloaded file. */
+export interface FileReference {
+  id: string;
+  fileName: string;
+  contentType: string;
+  length: number;
+  sha256: string;
+}
+
+/**
+ * Reads a file reference out of a part value. A payload without an id or a name renders nothing: the download URL is built from
+ * the id, and a nameless file would save as an anonymous blob.
+ */
+export function parseFileReference(value: string | undefined): FileReference | null {
+  const parsed = parseObject<{ id?: unknown; fileName?: unknown; contentType?: unknown; length?: unknown; sha256?: unknown }>(value);
+  const id = text(parsed?.id);
+  const fileName = text(parsed?.fileName);
+  // The id ends up in a request path, so only a GUID-shaped value is accepted.
+  if (!id || !fileName || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return null;
+  }
+  return {
+    id,
+    fileName,
+    contentType: text(parsed?.contentType) ?? 'application/octet-stream',
+    length: typeof parsed?.length === 'number' && parsed.length >= 0 ? parsed.length : 0,
+    sha256: text(parsed?.sha256) ?? '',
+  };
+}
+
+/** A byte count as people read it: `512 B`, `38.4 KB`, `1.2 MB`. */
+export function formatFileSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return '';
+  }
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const units = ['KB', 'MB', 'GB'];
+  let value = bytes / 1024;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit++;
+  }
+  return `${value.toFixed(value >= 100 ? 0 : 1)} ${units[unit]}`;
 }
 
 /** The server's OTP challenge, with its expiration date preserved as an ISO date string. */

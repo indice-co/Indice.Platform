@@ -1,6 +1,7 @@
 import {
   CALLOUT_MEDIA_TYPE,
   CONFIRM_MEDIA_TYPE,
+  FILE_MEDIA_TYPE,
   HITL_REQUEST_MEDIA_TYPE,
   HITL_RESPONSE_MEDIA_TYPE,
   IMAGE_MEDIA_TYPE,
@@ -25,6 +26,7 @@ describe('partKind', () => {
     [IMAGE_MEDIA_TYPE, 'image'],
     [CALLOUT_MEDIA_TYPE, 'callout'],
     [CONFIRM_MEDIA_TYPE, 'confirm'],
+    [FILE_MEDIA_TYPE, 'file'],
     [HITL_REQUEST_MEDIA_TYPE, 'hitl-request'],
     // The response half is deliberately unclassified: it only ever rides a user turn, which the dispatcher never sees.
     [HITL_RESPONSE_MEDIA_TYPE, 'unknown'],
