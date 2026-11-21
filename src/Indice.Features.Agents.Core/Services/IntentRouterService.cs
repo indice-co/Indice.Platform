@@ -1,5 +1,6 @@
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
@@ -35,7 +36,7 @@ public class IntentRouterService
     private readonly string _systemOneContext;
 
     /// <summary>Creates a new <see cref="IntentRouterService"/>.</summary>
-    public IntentRouterService([FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> agentsOptions, IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
+    public IntentRouterService([FromKeyedServices(nameof(AgentsModelRole.Reasoning))] IChatClient chatClient, IOptions<AgentsOptions> agentsOptions, IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         AgentInfoRegistry registry, UserClaimsAIContextProvider userClaimsProvider, ConversationStoreChatHistoryProvider historyProvider,
         ISystemOneClient systemOne, IConversationStore store, PersistedCheckpointStore checkpoints, AgentMessageLocalizer localizer, ILogger<IntentRouterService> logger) {
         _registry = registry;

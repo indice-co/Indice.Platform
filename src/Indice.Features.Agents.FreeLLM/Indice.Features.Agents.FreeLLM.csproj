@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks></TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <VersionPrefix>$(VersionPrefixAgents)</VersionPrefix>
+    <Description>An OpenAI-compatible model provider (FreeLLM gateways, Ollama, OpenRouter and similar) for Indice.Features.Agents. Plugs into the agents feature with UseFreeLLM().</Description>
+    <PackageTags>Agents;AI;OpenAI;Ollama;FreeLLM</PackageTags>
+    <!--<VersionSuffix>beta18</VersionSuffix>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Indice.Features.Agents.Core" Version="$(VersionPrefixAgents)-*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Features.Agents.Core\Indice.Features.Agents.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../docs/Agents-Product.md" Pack="true" PackagePath="docs\" />
+    <None Include="../../docs/agents-logo.svg" Pack="true" PackagePath="docs\" />
+  </ItemGroup>
+
+</Project>

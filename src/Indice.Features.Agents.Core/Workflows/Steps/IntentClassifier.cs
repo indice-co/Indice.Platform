@@ -1,4 +1,5 @@
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -19,16 +20,14 @@ public sealed class IntentClassifier : Executor<ChatMessage, IntentOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
-    private readonly string _model;
 
     /// <summary>Creates a new <see cref="IntentClassifier"/>.</summary>
     public IntentClassifier(
-        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient,
+        [FromKeyedServices(nameof(AgentsModelRole.Reasoning))] IChatClient chatClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         ConversationStoreChatHistoryProvider historyProvider) : base("IntentClassifier") {
         _options = options.Value;
-        _model = _options.AzureOpenAI.Deployments.Reasoning!;
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("IntentClassifier", new {
             categories = _options.Taxonomy.Categories,

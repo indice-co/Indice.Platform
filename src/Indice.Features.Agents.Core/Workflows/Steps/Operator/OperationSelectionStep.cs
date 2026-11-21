@@ -1,6 +1,6 @@
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -21,26 +21,24 @@ public class OperationSelectionStep : Executor<ChatMessage>
 {
     private const string McpServiceKey = "cases";
 
-    private readonly AzureOpenAIClient _openAIClient;
+    private readonly IChatClient _chatClient;
     private readonly IMcpClientFactory _mcpClientFactory;
     private readonly ModelsOptions _models;
     private readonly UserClaimsAIContextProvider _userClaimsProvider;
     private readonly AgentMessageLocalizer _messageLocalizer;
-    private readonly string _model;
+
     /// <summary>Creates a new <see cref="OperationSelectionStep"/>.</summary>
     public OperationSelectionStep(
-         AzureOpenAIClient openAIClient,
-        IOptions<AgentsOptions> options,
+        [FromKeyedServices(nameof(AgentsModelRole.Reasoning))] IChatClient chatClient,
         IOptions<ModelsOptions> models,
         UserClaimsAIContextProvider userClaimsProvider,
         [FromKeyedServices(McpServiceKey)] IMcpClientFactory mcpClientFactory,
         AgentMessageLocalizer messageLocalizer) : base(nameof(OperationSelectionStep)) {
         _messageLocalizer = messageLocalizer;
-        _openAIClient = openAIClient;
+        _chatClient = chatClient;
         _models = models.Value;
         _userClaimsProvider = userClaimsProvider;
         _mcpClientFactory = mcpClientFactory;
-        _model = options.Value.AzureOpenAI.Deployments.Reasoning!;
     }
 
     /// <inheritdoc/>
@@ -70,9 +68,7 @@ public class OperationSelectionStep : Executor<ChatMessage>
         chatOptions.Instructions = AgentsConstants.PromptDefaults.CaseTypeRetriever;
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
-        var agent = _openAIClient
-            .GetChatClient(_model)
-            .AsIChatClient()
+        var agent = _chatClient
             .AsAIAgent(options: new ChatClientAgentOptions {
                 ChatOptions = chatOptions,
                 AIContextProviders = [_userClaimsProvider],

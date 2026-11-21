@@ -10,7 +10,10 @@ public class AgentsOptions
     /// <summary>Default embedding vector dimensionality used when a deployment-specific value is not configured.</summary>
     public const int EmbeddingDimensionsDefault = 1536;
 
-    /// <summary>Azure OpenAI connection and deployment configuration.</summary>
+    /// <summary>
+    /// Azure AI Foundry (Azure OpenAI) connection and deployment configuration. Azure AI Foundry is the default model provider: it serves every
+    /// model role (<see cref="Providers.AgentsModelRole"/>) that no provider registered through <c>ConfigureModelProviders</c> claims.
+    /// </summary>
     public AzureOpenAIOptions AzureOpenAI { get; set; } = new();
 
     /// <summary>Retrieval-time knobs (NumberOfCandidates, NumberOfResults, query expansion, etc).</summary>

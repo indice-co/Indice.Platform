@@ -1,6 +1,6 @@
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Services.DataResolver;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
@@ -22,34 +22,29 @@ public class DataRetrieverStep : Executor<ChatMessage, OperationState>
 {
     private const string McpServiceKey = "cases";
 
-    private readonly AzureOpenAIClient _openAIClient;
-    private readonly AgentsOptions _options;
+    private readonly IChatClient _chatClient;
     private readonly ModelsOptions _models;
     private readonly IPromptTemplateRenderer _promptRenderer;
     private readonly UserClaimsAIContextProvider _userClaimsProvider;
     private readonly IMcpClientFactory _mcpClientFactory;
     private readonly CustomerDataResolverFactory _resolverFactory;
-    private readonly string _model;
     private readonly ILogger<DataRetrieverStep> _logger;
 
     /// <summary>Creates a new <see cref="DataRetrieverStep"/>.</summary>
     public DataRetrieverStep(
-        AzureOpenAIClient openAIClient,
-        IOptions<AgentsOptions> options,
+        [FromKeyedServices(nameof(AgentsModelRole.Reasoning))] IChatClient chatClient,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
         [FromKeyedServices(McpServiceKey)] IMcpClientFactory mcpClientFactory,
         CustomerDataResolverFactory resolverFactory,
         ILogger<DataRetrieverStep> logger) : base(nameof(DataRetrieverStep)) {
         _logger = logger;
-        _openAIClient = openAIClient;
-        _options = options.Value;
+        _chatClient = chatClient;
         _models = models.Value;
         _promptRenderer = prompts;
         _userClaimsProvider = userClaimsProvider;
         _mcpClientFactory = mcpClientFactory;
         _resolverFactory = resolverFactory ?? throw new ArgumentNullException(nameof(resolverFactory));
-        _model = _options.AzureOpenAI.Deployments.Reasoning!;
     }
 
     /// <inheritdoc/>
@@ -90,9 +85,7 @@ public class DataRetrieverStep : Executor<ChatMessage, OperationState>
         var capturingTools = mcpTools.Select(t => new McpCapturingToolFunction(t)).ToList();
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. capturingTools];
 
-        var agent = _openAIClient
-            .GetChatClient(_model)
-            .AsIChatClient()
+        var agent = _chatClient
             .AsAIAgent(options: new ChatClientAgentOptions {
                 ChatOptions = chatOptions,
                 AIContextProviders = [_userClaimsProvider],

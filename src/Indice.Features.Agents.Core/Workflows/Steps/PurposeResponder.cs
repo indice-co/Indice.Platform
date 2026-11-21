@@ -2,6 +2,7 @@ using System.Net.Mime;
 using System.Text;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows.Events;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -25,19 +26,17 @@ internal class PurposeResponder : Executor<IntentOutput, GroundedAnswerOutput>
 
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
-    private readonly string _model;
 
 
     /// <summary>Creates a new <see cref="PurposeResponder"/>.</summary>
     public PurposeResponder(
-        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Reasoning))] IChatClient chatClient,
+        [FromKeyedServices(nameof(AgentsModelRole.Reasoning))] IChatClient chatClient,
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         AgentIdentityAIContextProvider identityProvider,
         UserClaimsAIContextProvider userClaimsProvider,
         ConversationStoreChatHistoryProvider historyProvider) : base("PurposeResponder") {
         _options = options.Value;
-        _model = _options.AzureOpenAI.Deployments.Reasoning!;
 
         var chatOptions = models.Value.BaseReasoningModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("PurposeResponder", new {

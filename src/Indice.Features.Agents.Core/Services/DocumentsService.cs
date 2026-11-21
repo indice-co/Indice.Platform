@@ -4,7 +4,7 @@ using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Workflows.Ingestion;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.AI;
 
 namespace Indice.Features.Agents.Core.Services;
 
@@ -17,11 +17,13 @@ public class DocumentsService : IDocumentsService
     private readonly int _embeddingDimensions;
 
     /// <summary>Creates a new <see cref="DocumentsService"/>.</summary>
-    public DocumentsService(AgentsDbContext db, IOptions<AgentsOptions> options, ISourceLinkGenerator sourceLinkGenerator) {
+    public DocumentsService(AgentsDbContext db, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, ISourceLinkGenerator sourceLinkGenerator) {
         _db = db ?? throw new ArgumentNullException(nameof(db));
         _sourceLinkGenerator = sourceLinkGenerator ?? throw new ArgumentNullException(nameof(sourceLinkGenerator));
-        _embeddingModel = options.Value.AzureOpenAI.Deployments.Embedding ?? string.Empty;
-        _embeddingDimensions = options.Value.AzureOpenAI.EmbeddingDimensions;
+        // The model that produced the vectors, as reported by whichever provider serves the Embedding role.
+        var metadata = (embeddingGenerator ?? throw new ArgumentNullException(nameof(embeddingGenerator))).GetService<EmbeddingGeneratorMetadata>();
+        _embeddingModel = metadata?.DefaultModelId ?? string.Empty;
+        _embeddingDimensions = metadata?.DefaultModelDimensions ?? AgentsOptions.EmbeddingDimensionsDefault;
     }
 
     /// <inheritdoc/>

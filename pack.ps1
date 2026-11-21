@@ -36,6 +36,7 @@ dotnet pack src/Indice.Features.Risk.Server/Indice.Features.Risk.Server.csproj -
 dotnet pack src/Indice.Features.Risk.UI/Indice.Features.Risk.UI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Agents.Server/Indice.Features.Agents.Server.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Agents.Core/Indice.Features.Agents.Core.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Agents.FreeLLM/Indice.Features.Agents.FreeLLM.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Agents.UI/Indice.Features.Agents.UI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Workers.Server/Indice.Features.Workers.Server.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Workers.UI/Indice.Features.Workers.UI.csproj --no-restore --no-build -c Release -o ./artifacts

@@ -32,6 +32,7 @@
       <Deploy />
     </Project>
     <Project Path="src/Indice.Features.Agents.Core/Indice.Features.Agents.Core.csproj" />
+    <Project Path="src/Indice.Features.Agents.FreeLLM/Indice.Features.Agents.FreeLLM.csproj" />
     <Project Path="src/Indice.Features.Agents.Server/Indice.Features.Agents.Server.csproj" />
     <Project Path="src/Indice.Features.Agents.UI/Indice.Features.Agents.UI.csproj" />
     <Project Path="src/Indice.Features.Cases.App/Indice.Features.Cases.App.esproj">
@@ -93,6 +94,7 @@
     <Project Path="test/Indice.EcmaScript.Tests/Indice.EcmaScript.Tests.csproj" />
     <Project Path="test/Indice.Feature.GeoIP.Tests/Indice.Feature.GeoIP.Tests.csproj" Id="4ea7be00-fe08-43cc-ad90-02ebc3d82b1b" />
     <Project Path="test/Indice.Features.Agents.Core.Tests/Indice.Features.Agents.Core.Tests.csproj" Id="1eb2677f-15e9-422e-b733-fff82a89a3f2" />
+    <Project Path="test/Indice.Features.Agents.FreeLLM.Tests/Indice.Features.Agents.FreeLLM.Tests.csproj" Id="6ca85930-e740-406d-aae6-552feb0df79f" />
     <Project Path="test/Indice.Features.Agents.Server.Tests/Indice.Features.Agents.Server.Tests.csproj" Id="2be7f7bf-827a-4276-8508-422041ef89e9" />
     <Project Path="test/Indice.Features.Cases.AspNetCore.Tests/Indice.Features.Cases.Tests.csproj" />
     <Project Path="test/Indice.Features.GovGr.Tests/Indice.Features.GovGr.Tests.csproj" />

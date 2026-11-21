@@ -16,7 +16,6 @@ public class ChatsService : IChatsService
     private readonly IConversationStore _store;
     private readonly IDexChatClient _dexClient;
     private readonly IUsageGuardService _usageGuard;
-    private readonly AgentsOptions.AzureOpenAIDeployments _deployments;
     private readonly AgentsOptions.SessionOptions _sessionOptions;
     private readonly ILogger<ChatsService> _logger;
 
@@ -28,7 +27,6 @@ public class ChatsService : IChatsService
         _store = store;
         _dexClient = dexClient;
         _usageGuard = usageGuard;
-        _deployments = options.Value.AzureOpenAI.Deployments;
         _sessionOptions = options.Value.Session;
         _logger = logger;
     }

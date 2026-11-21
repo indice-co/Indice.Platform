@@ -1,12 +1,11 @@
 using System.Text;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
-using static Indice.Features.Agents.Core.AgentsOptions;
 
 namespace Indice.Features.Agents.Core.Workflows.Reranking;
 
@@ -27,7 +26,7 @@ public class LlmListwiseReranker : ILlmReranker
     private readonly int _snippetLength;
 
     /// <summary>Creates a new <see cref="LlmListwiseReranker"/>.</summary>
-    public LlmListwiseReranker([FromKeyedServices(nameof(AzureOpenAIDeployments.Fast))] IChatClient chatClient, 
+    public LlmListwiseReranker([FromKeyedServices(nameof(AgentsModelRole.Fast))] IChatClient chatClient, 
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, 
         IPromptTemplateRenderer prompts) {

@@ -1,4 +1,5 @@
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
 using Microsoft.Agents.AI;
@@ -18,16 +19,14 @@ public sealed class QueryRewriter : Executor<IntentOutput, QueryRewriteOutput>
 {
     private readonly AIAgent _agent;
     private readonly AgentsOptions _options;
-    private readonly string _model;
 
     /// <summary>Creates a new <see cref="QueryRewriter"/>.</summary>
     public QueryRewriter(
-        [FromKeyedServices(nameof(AgentsOptions.AzureOpenAIDeployments.Fast))] IChatClient chatClient, 
+        [FromKeyedServices(nameof(AgentsModelRole.Fast))] IChatClient chatClient, 
         IOptions<AgentsOptions> options,
         IOptions<ModelsOptions> models, IPromptTemplateRenderer prompts,
         ConversationStoreChatHistoryProvider historyProvider) : base("QueryRewriter") {
         _options = options.Value;
-        _model = _options.AzureOpenAI.Deployments.Fast!;
         var chatOptions = models.Value.BaseFastModelOptions.Clone();
         chatOptions.Instructions = prompts.Render("QueryRewriter");
         _agent = chatClient

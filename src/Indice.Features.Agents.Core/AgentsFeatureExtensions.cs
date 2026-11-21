@@ -1,12 +1,12 @@
 ﻿using System.ClientModel;
 using Azure.AI.OpenAI;
-using Azure.Messaging;
 using Duende.AccessTokenManagement;
 using Google.Protobuf;
 using Indice.Features.Agents.Core;
 using Indice.Features.Agents.Core.Data;
 using Indice.Features.Agents.Core.Extensions;
 using Indice.Features.Agents.Core.Models;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows;
 using Indice.Features.Agents.Core.Workflows.Cards;
@@ -35,7 +35,14 @@ public static class AgentsFeatureExtensions
     /// <summary>
     /// Registers Dex core services: <see cref="AgentsOptions"/> (bound from the <c>Dex</c> configuration section).
     /// </summary>
-    public static IServiceCollection AddAgentsCore(this IServiceCollection services, IConfiguration configuration, Action<AgentsOptions>? configureAction = null) {
+    /// <param name="services">The service collection to add the feature to.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="configureAction">An optional delegate to configure the <see cref="AgentsOptions"/>.</param>
+    /// <param name="configureModelProviders">
+    /// An optional delegate to plug in additional model providers (for example <c>providers.UseFreeLLM()</c>). Azure AI Foundry,
+    /// configured from <see cref="AgentsOptions.AzureOpenAI"/>, serves every model role no provider claims.
+    /// </param>
+    public static IServiceCollection AddAgentsCore(this IServiceCollection services, IConfiguration configuration, Action<AgentsOptions>? configureAction = null, Action<AgentsModelProviderBuilder>? configureModelProviders = null) {
         var optionsBuilder = services.AddOptions<AgentsOptions>().BindConfiguration("Dex");
         if (configureAction is not null) {
             optionsBuilder.Configure(configureAction);
@@ -52,32 +59,28 @@ public static class AgentsFeatureExtensions
             var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
             return new AzureOpenAIClient(new Uri(opts.Endpoint!), new ApiKeyCredential(opts.ApiKey!));
         });
-        services.AddKeyedChatClient(nameof(AzureOpenAIDeployments.Reasoning), sp => {
-            var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI.Deployments;
-            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
-            return innerClient.GetChatClient(opts.Reasoning).AsIChatClient();
-        });
-        services.AddKeyedChatClient(nameof(AzureOpenAIDeployments.Fast), sp => {
-            var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI.Deployments;
-            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
-            return innerClient.GetChatClient(opts.Fast).AsIChatClient();
-        });
-
-        services.AddEmbeddingGenerator(sp => {
-            var opts = sp.GetRequiredService<IOptions<AgentsOptions>>().Value.AzureOpenAI;
-            var innerClient = sp.GetRequiredService<AzureOpenAIClient>();
-            return innerClient.GetEmbeddingClient(opts.Deployments.Embedding!).AsIEmbeddingGenerator(opts.EmbeddingDimensions);
-        });
+        // The built-in default provider; it serves every role no provider registered through configureModelProviders claims.
+        services.TryAddSingleton<AzureAIFoundryModelProvider>();
+        services.AddKeyedChatClient(nameof(AgentsModelRole.Reasoning),
+            sp => AgentsModelProviderResolver.Resolve(sp, AgentsModelRole.Reasoning).CreateChatClient(AgentsModelRole.Reasoning));
+        services.AddKeyedChatClient(nameof(AgentsModelRole.Fast),
+            sp => AgentsModelProviderResolver.Resolve(sp, AgentsModelRole.Fast).CreateChatClient(AgentsModelRole.Fast));
+        services.AddEmbeddingGenerator(
+            sp => AgentsModelProviderResolver.Resolve(sp, AgentsModelRole.Embedding).CreateEmbeddingGenerator());
 
         services.AddHttpClient(nameof(AzureOpenAIDeployments.SystemOne));
         services.TryAddTransient<ISystemOneClient>(sp => {
             var agentsOptions = sp.GetRequiredService<IOptions<AgentsOptions>>().Value;
             var opts = agentsOptions.AzureOpenAI;
+            var enabled = agentsOptions.SystemOne.Enabled && !string.IsNullOrWhiteSpace(opts.Deployments.SystemOne);
+            if (!enabled) {
+                // Off by default. Needs no Azure settings, so hosts that serve every role from another provider can still route.
+                return DisabledSystemOneClient.Instance;
+            }
             var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(AzureOpenAIDeployments.SystemOne));
             var endpoint = string.IsNullOrWhiteSpace(opts.SystemOneEndpoint) ? opts.Endpoint! : opts.SystemOneEndpoint;
             var apiKey = string.IsNullOrWhiteSpace(opts.SystemOneApiKey) ? opts.ApiKey! : opts.SystemOneApiKey;
-            var enabled = agentsOptions.SystemOne.Enabled && !string.IsNullOrWhiteSpace(opts.Deployments.SystemOne);
-            return new FoundrySystemOneClient(httpClient, new Uri(endpoint), apiKey, opts.Deployments.SystemOne ?? string.Empty, enabled);
+            return new FoundrySystemOneClient(httpClient, new Uri(endpoint), apiKey, opts.Deployments.SystemOne!, enabled: true);
         });
 
         services.AddDbContext<AgentsDbContext>((sp, options) => {
@@ -108,6 +111,7 @@ public static class AgentsFeatureExtensions
         services.TryAddTransient<IntentRouterService>();
         services.TryAddScoped<AgentMessageLocalizer>();
         services.AddAgentsDefaultPipeline();
+        configureModelProviders?.Invoke(new AgentsModelProviderBuilder(services));
         return services;
     }
 

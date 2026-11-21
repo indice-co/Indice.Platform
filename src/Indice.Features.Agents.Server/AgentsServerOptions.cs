@@ -1,5 +1,6 @@
 ﻿
 using Indice.Features.Agents.Core;
+using Indice.Features.Agents.Core.Providers;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Agents.Server;
@@ -24,6 +25,13 @@ public class AgentsServerOptions
     /// Configure Agents core options 
     /// </summary>
     public Action<AgentsOptions>? ConfigureAgents { get; set; }
+    /// <summary>
+    /// Plug in additional model providers, for example <c>providers => providers.UseFreeLLM()</c> from the <c>Indice.Features.Agents.FreeLLM</c> package.
+    /// </summary>
+    /// <remarks>
+    /// Azure AI Foundry, configured from <c>Dex:AzureOpenAI</c>, is the default provider and serves every model role no registered provider claims.
+    /// </remarks>
+    public Action<AgentsModelProviderBuilder>? ConfigureModelProviders { get; set; }
     /// <summary>Allows unauthenticated (anonymous) callers to create a chat session through <c>POST /my/chats</c> and <c>POST /my/chats/stream</c>.</summary>
     /// <remarks>
     /// When enabled, an ephemeral guest access token is acquired from the identity provider (through the <c>urn:indice:guest</c> grant configured in <see cref="GuestToken"/>)

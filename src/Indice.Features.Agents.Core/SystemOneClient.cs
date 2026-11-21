@@ -21,6 +21,20 @@ namespace Indice.Features.Agents.Core.Services
     }
 
     /// <summary>
+    /// The <see cref="ISystemOneClient"/> used when the system-one decision model is off: every decision comes back without answers, so a caller
+    /// treats every question as unsure. It needs no Azure settings.
+    /// </summary>
+    internal sealed class DisabledSystemOneClient : ISystemOneClient
+    {
+        /// <summary>The shared instance.</summary>
+        public static readonly DisabledSystemOneClient Instance = new();
+
+        /// <inheritdoc/>
+        public Task<SystemOneDecision> DecideAsync(SystemOneDecisionRequest request, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new SystemOneDecision());
+    }
+
+    /// <summary>
     /// <see cref="ISystemOneClient"/> for a Microsoft-Decision-1 deployment on a Microsoft Foundry resource
     /// (<c>POST {endpoint}/providers/microsoft/v1/systemone</c> with an <c>api-key</c> header).
     /// </summary>

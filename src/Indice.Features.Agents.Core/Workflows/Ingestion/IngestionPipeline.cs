@@ -119,7 +119,7 @@ public class IngestionPipeline : IIngestionPipeline
 
     /// <summary>
     /// Embeds <paramref name="texts"/> in batches of <c>IngestionOptions.EmbedBatchSize</c>. Transient 429/5xx
-    /// failures are retried by the Azure OpenAI client pipeline; anything that still throws propagates to the
+    /// failures are retried by the model provider's client pipeline; anything that still throws propagates to the
     /// global exception handler.
     /// </summary>
     private async Task<IReadOnlyList<ReadOnlyMemory<float>>> EmbedAsync(IReadOnlyList<string> texts, CancellationToken cancellationToken) {

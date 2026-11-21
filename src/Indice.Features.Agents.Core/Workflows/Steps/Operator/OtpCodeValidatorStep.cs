@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -26,20 +26,17 @@ public class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
     private const string McpServiceKey = "Identity";
 
     private readonly int _maxValidationAttempts;
-    private readonly AzureOpenAIClient _openAIClient;
-    private readonly AgentsOptions _options;
+    private readonly IChatClient _chatClient;
     private readonly ModelsOptions _models;
     private readonly UserClaimsAIContextProvider _userClaimsProvider;
     private readonly IMcpClientFactory _mcpClientFactory;
     private readonly AgentMessageLocalizer _messageLocalizer;
     private readonly IPromptTemplateRenderer _prompts;
-    private readonly string _model;
     private readonly ILogger<OtpCodeValidatorStep> _logger;
 
     /// <summary>Creates a new <see cref="OtpCodeValidatorStep"/>.</summary>
     public OtpCodeValidatorStep(
-        AzureOpenAIClient openAIClient,
-        IOptions<AgentsOptions> options,
+        [FromKeyedServices(nameof(AgentsModelRole.Reasoning))] IChatClient chatClient,
         IOptions<CustomerWorkflowOptions> customerWorkflowOptions,
         IOptions<ModelsOptions> models,
         UserClaimsAIContextProvider userClaimsProvider,
@@ -48,14 +45,12 @@ public class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         IPromptTemplateRenderer prompts,
         ILogger<OtpCodeValidatorStep> logger) : base(nameof(OtpCodeValidatorStep)) {
         _logger = logger;
-        _openAIClient = openAIClient;
-        _options = options.Value;
+        _chatClient = chatClient;
         _models = models.Value;
         _userClaimsProvider = userClaimsProvider;
         _mcpClientFactory = mcpClientFactory;
         _messageLocalizer = messageLocalizer;
         _prompts = prompts;
-        _model = _options.AzureOpenAI.Deployments.Reasoning!;
         _maxValidationAttempts = customerWorkflowOptions.Value.MaxOtpValidationAttempts;
     }
 
@@ -123,9 +118,7 @@ public class OtpCodeValidatorStep : Executor<OtpRequestPort.OtpResponse>
         var capturingTools = mcpTools.Select(t => new McpCapturingToolFunction(t)).ToList();
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. capturingTools];
 
-        var agent = _openAIClient
-            .GetChatClient(_model)
-            .AsIChatClient()
+        var agent = _chatClient
             .AsAIAgent(options: new ChatClientAgentOptions {
                 ChatOptions = chatOptions,
                 AIContextProviders = [_userClaimsProvider],

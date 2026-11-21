@@ -1,5 +1,5 @@
-using Azure.AI.OpenAI;
 using Indice.Features.Agents.Core.Extensions;
+using Indice.Features.Agents.Core.Providers;
 using Indice.Features.Agents.Core.Workflows.Ports;
 using Indice.Features.Agents.Core.Workflows.Prompts;
 using Indice.Features.Agents.Core.Workflows.State;
@@ -18,20 +18,17 @@ namespace Indice.Features.Agents.Core.Workflows.Steps.Operator;
 /// </summary>
 public class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpRequest>
 {
-    private readonly AzureOpenAIClient _openAIClient;
-    private readonly AgentsOptions _options;
+    private readonly IChatClient _chatClient;
     private readonly ModelsOptions _models;
     private readonly IPromptTemplateRenderer _prompts;
     private readonly UserClaimsAIContextProvider _userClaimsProvider;
     private readonly IMcpClientFactory _mcpClientFactory;
     private readonly AgentMessageLocalizer _messageLocalizer;
-    private readonly string _model;
     private readonly ILogger<OtpCodeSendStep> _logger;
 
     /// <summary>Creates a new <see cref="OtpCodeSendStep"/>.</summary>
     public OtpCodeSendStep(
-        AzureOpenAIClient openAIClient,
-        IOptions<AgentsOptions> options,
+        [FromKeyedServices(nameof(AgentsModelRole.Reasoning))] IChatClient chatClient,
         IOptions<ModelsOptions> models,
         IPromptTemplateRenderer prompts,
         UserClaimsAIContextProvider userClaimsProvider,
@@ -39,13 +36,11 @@ public class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpReques
         AgentMessageLocalizer messageLocalizer,
         ILogger<OtpCodeSendStep> logger) : base(nameof(OtpCodeSendStep)) {
         _logger = logger;
-        _openAIClient = openAIClient;
-        _options = options.Value;
+        _chatClient = chatClient;
         _models = models.Value;
         _prompts = prompts;
         _userClaimsProvider = userClaimsProvider;
         _mcpClientFactory = mcpClientFactory;
-        _model = _options.AzureOpenAI.Deployments.Reasoning!;
         _messageLocalizer = messageLocalizer;
     }
 
@@ -88,9 +83,7 @@ public class OtpCodeSendStep : Executor<OperationState, OtpRequestPort.OtpReques
         chatOptions.Instructions = _prompts.Render(nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions));
         chatOptions.Tools = [.. (chatOptions.Tools ?? []), .. mcpTools];
 
-        var agent = _openAIClient
-            .GetChatClient(_model)
-            .AsIChatClient()
+        var agent = _chatClient
             .AsAIAgent(options: new ChatClientAgentOptions() {
                 ChatOptions = chatOptions,
                 AIContextProviders = [_userClaimsProvider],
