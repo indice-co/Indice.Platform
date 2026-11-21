@@ -83,6 +83,14 @@ public class FreeLLMCompatibilityOptions
     /// for strict servers that reject the option; the token usage of streamed answers, and with it the limit, is then not tracked. Defaults to <c>true</c>.
     /// </summary>
     public bool StreamUsage { get; set; } = true;
+
+    /// <summary>
+    /// Shortens embedding vectors that are longer than <see cref="AgentsOptions.EmbeddingDimensionsDefault"/> to that width and rescales them to unit length,
+    /// instead of rejecting them. Use it only for models trained for shortened ("Matryoshka") vectors, such as <c>gemini-embedding-001</c>, OpenAI's
+    /// <c>text-embedding-3</c> models and Qwen3-Embedding; for other models truncation silently degrades search quality. Shorter vectors are always rejected.
+    /// Defaults to <c>false</c>.
+    /// </summary>
+    public bool TruncateEmbeddings { get; set; }
 }
 
 /// <summary>How structured (typed) replies are requested from the model.</summary>

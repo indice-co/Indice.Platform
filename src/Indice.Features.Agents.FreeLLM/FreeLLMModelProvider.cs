@@ -77,7 +77,7 @@ internal sealed class FreeLLMModelProvider : IAgentsModelProvider
             throw new InvalidOperationException($"{FreeLLMOptions.SectionName}:Models:Embedding is not configured.");
         }
         var generator = _embeddingApi.Value.GetEmbeddingClient(model).AsIEmbeddingGenerator(settings.EmbeddingDimensions);
-        return new DimensionCheckingEmbeddingGenerator(generator, model);
+        return new DimensionCheckingEmbeddingGenerator(generator, model, settings.Compatibility.TruncateEmbeddings);
     }
 
     private OpenAIClient CreateClient(string endpoint, string? apiKey, FreeLLMOptions settings, bool adaptChatCompletions) {

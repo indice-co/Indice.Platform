@@ -196,6 +196,39 @@ public class FreeLLMModelProviderTests
     }
 
     [Fact]
+    public async Task Longer_vectors_are_rejected_with_a_hint_about_truncation_by_default() {
+        var handler = new StubHttpMessageHandler(_ => StubHttpMessageHandler.Json(StubHttpMessageHandler.EmbeddingResponse(3072)));
+        using var services = BuildServices(handler);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await ProviderOf(services).CreateEmbeddingGenerator().GenerateAsync(["text"], cancellationToken: TestContext.Current.CancellationToken));
+
+        Assert.Contains("3072", exception.Message);
+        Assert.Contains("TruncateEmbeddings", exception.Message);
+    }
+
+    [Fact]
+    public async Task Longer_vectors_are_shortened_and_normalized_when_truncation_is_on() {
+        var handler = new StubHttpMessageHandler(_ => StubHttpMessageHandler.Json(StubHttpMessageHandler.EmbeddingResponse(3072)));
+        using var services = BuildServices(handler, configure: o => o.Compatibility.TruncateEmbeddings = true);
+
+        var embeddings = await ProviderOf(services).CreateEmbeddingGenerator().GenerateAsync(["text"], cancellationToken: TestContext.Current.CancellationToken);
+
+        var vector = Assert.Single(embeddings).Vector.ToArray();
+        Assert.Equal(AgentsOptions.EmbeddingDimensionsDefault, vector.Length);
+        Assert.Equal(1f, MathF.Sqrt(vector.Sum(value => value * value)), precision: 4);
+    }
+
+    [Fact]
+    public async Task Shorter_vectors_are_rejected_even_when_truncation_is_on() {
+        var handler = new StubHttpMessageHandler(_ => StubHttpMessageHandler.Json(StubHttpMessageHandler.EmbeddingResponse(768)));
+        using var services = BuildServices(handler, configure: o => o.Compatibility.TruncateEmbeddings = true);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await ProviderOf(services).CreateEmbeddingGenerator().GenerateAsync(["text"], cancellationToken: TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
     public void The_provider_serves_only_the_roles_that_have_a_model() {
         using var services = BuildServices(new StubHttpMessageHandler(), withDefaults: false, configure: o => { o.Endpoint = Endpoint; o.Models.Reasoning = "reasoning-model"; });
 
