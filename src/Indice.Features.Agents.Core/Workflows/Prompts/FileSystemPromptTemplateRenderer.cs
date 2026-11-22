@@ -11,12 +11,20 @@ namespace Indice.Features.Agents.Core.Workflows.Prompts;
 public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
 {
     private readonly string _baseDir;
+    private readonly IReadOnlyDictionary<string, string> _defaults;
     private readonly IHandlebars _handlebars = Handlebars.Create();
     private readonly ConcurrentDictionary<string, HandlebarsTemplate<object, object>> _cache = new();
 
     /// <summary>Creates a new <see cref="FileSystemPromptTemplateRenderer"/>.</summary>
-    public FileSystemPromptTemplateRenderer(IHostEnvironment env) {
+    public FileSystemPromptTemplateRenderer(IHostEnvironment env) : this(env, []) {
+    }
+
+    /// <summary>Creates a new <see cref="FileSystemPromptTemplateRenderer"/> that also knows the defaults of templates registered outside this package.</summary>
+    /// <param name="env">The host environment.</param>
+    /// <param name="defaults">The registered template defaults. The last registration of a name wins.</param>
+    public FileSystemPromptTemplateRenderer(IHostEnvironment env, IEnumerable<PromptTemplateDefault> defaults) {
         _baseDir = Path.Join(env.ContentRootPath, "Prompts");
+        _defaults = defaults.GroupBy(template => template.Name, StringComparer.Ordinal).ToDictionary(group => group.Key, group => group.Last().Template, StringComparer.Ordinal);
     }
 
     /// <inheritdoc/>
@@ -24,6 +32,9 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
         var compiled = _cache.GetOrAdd(templateName, name => {
             var path = Path.Join(_baseDir, $"{name}.txt");
             if (!File.Exists(path)) {
+                if (_defaults.TryGetValue(name, out var registered)) {
+                    return _handlebars.Compile(registered);
+                }
                 return templateName switch {
                     nameof(AgentsConstants.PromptDefaults.AnswerComposer) => _handlebars.Compile(AgentsConstants.PromptDefaults.AnswerComposer),
                     nameof(AgentsConstants.PromptDefaults.Reranker) => _handlebars.Compile(AgentsConstants.PromptDefaults.Reranker),
@@ -33,8 +44,6 @@ public sealed class FileSystemPromptTemplateRenderer : IPromptTemplateRenderer
                     nameof(AgentsConstants.PromptDefaults.IntentRouter) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentRouter),
                     nameof(AgentsConstants.PromptDefaults.IntentRouterSystemOne) => _handlebars.Compile(AgentsConstants.PromptDefaults.IntentRouterSystemOne),
                     nameof(AgentsConstants.PromptDefaults.AgentIdentity) => _handlebars.Compile(AgentsConstants.PromptDefaults.AgentIdentity),
-                    nameof(AgentsConstants.PromptDefaults.RiskRequestAnalyzer) => _handlebars.Compile(AgentsConstants.PromptDefaults.RiskRequestAnalyzer),
-                    nameof(AgentsConstants.PromptDefaults.RiskReportNarrative) => _handlebars.Compile(AgentsConstants.PromptDefaults.RiskReportNarrative),
 
                     nameof(AgentsConstants.PromptDefaults.DataRetriever) => _handlebars.Compile(AgentsConstants.PromptDefaults.DataRetriever),
                     nameof(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions) => _handlebars.Compile(AgentsConstants.PromptDefaults.OtpCodeSenderInstructions),

@@ -212,11 +212,82 @@ public static class AgentsFeatureExtensions
     /// its <see cref="AgentInfo"/> metadata. The metadata is collected by <see cref="AgentInfoRegistry"/> (and the
     /// discovery endpoint) through <c>IEnumerable&lt;AgentInfo&gt;</c>. Plain <c>AddSingleton</c> registers the
     /// metadata on purpose: every <see cref="AgentInfo"/> shares one implementation type, so <c>TryAddEnumerable</c>
-    /// would dedupe them down to a single entry.
+    /// would dedupe them down to a single entry. Call after <c>AddAgentsCore(...)</c>.
     /// </summary>
-    private static IServiceCollection AddRoutableAgent(this IServiceCollection services, AgentInfo info, Func<IServiceProvider, object?, Workflow> workflowFactory) {
+    /// <param name="services">The service collection.</param>
+    /// <param name="info">The agent metadata.</param>
+    /// <param name="workflowFactory">Builds the agent's workflow.</param>
+    public static IServiceCollection AddRoutableAgent(this IServiceCollection services, AgentInfo info, Func<IServiceProvider, object?, Workflow> workflowFactory) {
         services.AddKeyedScoped(info.Name, workflowFactory);
         services.AddSingleton(info);
+        return services;
+    }
+
+    /// <summary>
+    /// Registers a routable agent whose metadata depends on other services, for example an <see cref="AgentInfo.RequiredRoles"/>
+    /// list read from options. The metadata is built once, when the <see cref="AgentInfoRegistry"/> is first resolved.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The agent name. It must match the name of the <see cref="AgentInfo"/> that <paramref name="infoFactory"/> returns.</param>
+    /// <param name="infoFactory">Builds the agent metadata.</param>
+    /// <param name="workflowFactory">Builds the agent's workflow.</param>
+    public static IServiceCollection AddRoutableAgent(this IServiceCollection services, string name, Func<IServiceProvider, AgentInfo> infoFactory, Func<IServiceProvider, object?, Workflow> workflowFactory) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        services.AddKeyedScoped(name, workflowFactory);
+        services.AddSingleton(sp => {
+            var info = infoFactory(sp);
+            if (!string.Equals(info.Name, name, StringComparison.OrdinalIgnoreCase)) {
+                throw new InvalidOperationException($"The agent registered as '{name}' describes itself as '{info.Name}'.");
+            }
+            return info;
+        });
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the label shown to the user while a workflow step runs. Use it for the steps of agents registered outside this
+    /// package; the built-in steps are labelled by <see cref="AgentMessageLocalizer"/>.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="executorId">The id of the step (executor).</param>
+    /// <param name="label">Returns the label in the current UI culture, from the request services.</param>
+    public static IServiceCollection AddAgentStepLabel(this IServiceCollection services, string executorId, Func<IServiceProvider, string> label) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(executorId);
+        ArgumentNullException.ThrowIfNull(label);
+        services.AddSingleton(new AgentStepLabel(executorId, label));
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the default text of a prompt template used by an agent registered outside this package. A host can still
+    /// override it with <c>Prompts/{name}.txt</c>, exactly like the built-in templates.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="name">The template name passed to <see cref="IPromptTemplateRenderer.Render(string, object?)"/>.</param>
+    /// <param name="template">The Handlebars template.</param>
+    public static IServiceCollection AddPromptTemplateDefault(this IServiceCollection services, string name, string template) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(template);
+        services.AddSingleton(new PromptTemplateDefault(name, template));
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the machine-to-machine token client the MCP clients of the agents host authenticate with, named
+    /// <see cref="AgentsConstants.McpSecurityClient"/>. It reads <c>General:Endpoints:TokenEndpoint</c> and <c>General:Secrets</c>.
+    /// Calling it more than once just repeats the same configuration.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration.</param>
+    public static IServiceCollection AddMcpSecurityTokenClient(this IServiceCollection services, IConfiguration configuration) {
+        services.AddClientCredentialsTokenManagement()
+                .AddClient(AgentsConstants.McpSecurityClient, credentials => {
+                    // Machine-to-machine authentication (no user present, no redirect/browser).
+                    credentials.TokenEndpoint = new Uri(configuration["General:Endpoints:TokenEndpoint"]!);
+                    credentials.ClientId = ClientId.Parse(configuration["General:Secrets:ClientId"]!);
+                    credentials.ClientSecret = ClientSecret.Parse(configuration["General:Secrets:ClientSecret"]!);
+                    credentials.Scope = Scope.Parse(configuration["General:Secrets:Scope"]!);
+                });
         return services;
     }
 
@@ -254,9 +325,9 @@ public static class AgentsFeatureExtensions
 
         services.AddMcpSecurityTokenClient(configuration);
         services.AddMcpClient("id")
-                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:IdentityMCP"]!), ClientCredentialsClientName.Parse(AgentsConstants.McpSecurityClient));
         services.AddMcpClient("cases")
-                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse("mcpsecurity"));
+                .WithClientCredentialsHttpTransport(new Uri(configuration["General:Endpoints:CasesMCP"]!), ClientCredentialsClientName.Parse(AgentsConstants.McpSecurityClient));
 
         services.TryAddKeyedTransient<ICustomerDataResolver, CaseDataResolver>(CaseDataResolver.ServiceKey);
         services.TryAddTransient<CustomerDataResolverFactory>();

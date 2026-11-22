@@ -63,8 +63,6 @@ public class MarkdownIngestionPipelineTests
         public Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken) =>
             throw new NotSupportedException();
 
-        public Task<IReadOnlyList<KnowledgeSnippet>> FindByHeadingAsync(string category, IReadOnlyCollection<string> headingPrefixes, string? language, bool includeRestricted, CancellationToken cancellationToken) => throw new NotSupportedException();
-
         public Task ClearAsync() => throw new NotSupportedException();
     }
 

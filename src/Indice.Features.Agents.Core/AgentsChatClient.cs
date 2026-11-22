@@ -4,7 +4,6 @@ using Indice.Features.Agents.Core.Models;
 using Indice.Features.Agents.Core.Services;
 using Indice.Features.Agents.Core.Workflows.Steps;
 using Indice.Features.Agents.Core.Workflows.Steps.Operator;
-using Indice.Features.Agents.Core.Workflows.Steps.Risk;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
@@ -25,7 +24,16 @@ public interface IDexChatClient : IChatClient
 /// <param name="logger">The logger instance.</param>
 public class AgentsChatClient(IServiceProvider serviceProvider, ILogger<AgentsChatClient> logger) : IDexChatClient
 {
-    private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer) => new Dictionary<string, string>(StringComparer.Ordinal) {
+    private static IReadOnlyDictionary<string, string> CreateStepLabels(AgentMessageLocalizer localizer, IServiceProvider services) {
+        var labels = BuiltInStepLabels(localizer);
+        // Steps of agents registered outside this package bring their own labels.
+        foreach (var step in services.GetServices<AgentStepLabel>()) {
+            labels[step.ExecutorId] = step.Label(services);
+        }
+        return labels;
+    }
+
+    private static Dictionary<string, string> BuiltInStepLabels(AgentMessageLocalizer localizer) => new(StringComparer.Ordinal) {
         [nameof(IntentClassifier)] = localizer.StepIntentClassifier,
         [nameof(QueryRewriter)] = localizer.StepQueryRewriter,
         [nameof(Retriever)] = localizer.StepRetriever,
@@ -38,11 +46,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider, ILogger<AgentsCh
         [nameof(OtpCodeValidatorStep)] = localizer.StepOtpCodeValidator,
         [nameof(DataPresenterStep)] = localizer.StepCaseDataPresenter,
         [nameof(AuthenticationStep)] = localizer.StepOwnershipValidator,
-        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend,
-        [nameof(RiskRequestAnalyzer)] = localizer.StepRiskRequestAnalyzer,
-        [nameof(TransactionAnchorResolver)] = localizer.StepTransactionAnchorResolver,
-        [nameof(EvidenceCollector)] = localizer.StepEvidenceCollector,
-        [nameof(RiskReportComposer)] = localizer.StepRiskReportComposer
+        [nameof(OtpCodeSendStep)] = localizer.StepOtpCodeSend
     };
 
     /// <inheritdoc/>
@@ -93,7 +97,7 @@ public class AgentsChatClient(IServiceProvider serviceProvider, ILogger<AgentsCh
         await using var _ = run;
 
         var messageLocalizer = serviceProvider.GetService<AgentMessageLocalizer>() ?? new AgentMessageLocalizer();
-        var stepLabels = CreateStepLabels(messageLocalizer);
+        var stepLabels = CreateStepLabels(messageLocalizer, serviceProvider);
 
         string? failure = null;
         RequestInfoEvent? pendingRequest = null;

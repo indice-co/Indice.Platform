@@ -54,18 +54,6 @@ public class AgentMessageLocalizer
     /// <summary>Step label shown while sending OTP in workflow step.</summary>
     public virtual string StepOtpCodeSend => AgentResources.StepOtpCodeSend;
 
-    /// <summary>Step label shown while the risk investigation reads the request.</summary>
-    public virtual string StepRiskRequestAnalyzer => AgentResources.StepRiskRequestAnalyzer;
-
-    /// <summary>Step label shown while the transaction event is located.</summary>
-    public virtual string StepTransactionAnchorResolver => AgentResources.StepTransactionAnchorResolver;
-
-    /// <summary>Step label shown while the evidence queries run.</summary>
-    public virtual string StepEvidenceCollector => AgentResources.StepEvidenceCollector;
-
-    /// <summary>Step label shown while the risk report is written.</summary>
-    public virtual string StepRiskReportComposer => AgentResources.StepRiskReportComposer;
-
     /// <summary>Error message when user exceed max verification attempts.</summary>
     public virtual string VerificationFailedMaxAttempts(int maxAttempts) => string.Format(AgentResources.VerificationFailedMaxAttempts, maxAttempts);
 

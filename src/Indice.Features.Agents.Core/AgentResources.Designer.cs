@@ -241,42 +241,6 @@ namespace Indice.Features.Agents.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reading your request.
-        /// </summary>
-        internal static string StepRiskRequestAnalyzer {
-            get {
-                return ResourceManager.GetString("StepRiskRequestAnalyzer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Locating the transaction.
-        /// </summary>
-        internal static string StepTransactionAnchorResolver {
-            get {
-                return ResourceManager.GetString("StepTransactionAnchorResolver", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Collecting the evidence.
-        /// </summary>
-        internal static string StepEvidenceCollector {
-            get {
-                return ResourceManager.GetString("StepEvidenceCollector", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Writing the report.
-        /// </summary>
-        internal static string StepRiskReportComposer {
-            get {
-                return ResourceManager.GetString("StepRiskReportComposer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Checking verification code.
         /// </summary>
         internal static string StepOtpCodeValidator {

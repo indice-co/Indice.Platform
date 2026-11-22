@@ -14,7 +14,7 @@ namespace Indice.Features.Agents.Core.Tests;
 /// </summary>
 public class KnowledgeHintServiceTests
 {
-    private const string Restricted = "antifraud-kb";
+    private const string Restricted = "internal-kb";
 
     private static AgentInfo Agent(string name, params string[] categories) =>
         new(name, $"{name} agent", ["text/plain"], ["text/markdown"]) { KnowledgeCategories = categories };
@@ -42,7 +42,7 @@ public class KnowledgeHintServiceTests
     public async Task Hints_Off_Costs_Nothing() {
         var (service, documents, embeddings) = Create(Options(enabled: false), Chunk(Restricted, 0.9));
 
-        var hints = await service.GetHintsAsync("anything", [Agent("risk", Restricted)], TestContext.Current.CancellationToken);
+        var hints = await service.GetHintsAsync("anything", [Agent("compliance", Restricted)], TestContext.Current.CancellationToken);
 
         Assert.Empty(hints);
         Assert.Equal(0, embeddings.Calls);
@@ -66,7 +66,7 @@ public class KnowledgeHintServiceTests
     public async Task A_Blank_Message_Is_Not_Embedded(string message) {
         var (service, _, embeddings) = Create(Options(), Chunk(Restricted, 0.9));
 
-        var hints = await service.GetHintsAsync(message, [Agent("risk", Restricted)], TestContext.Current.CancellationToken);
+        var hints = await service.GetHintsAsync(message, [Agent("compliance", Restricted)], TestContext.Current.CancellationToken);
 
         Assert.Empty(hints);
         Assert.Equal(0, embeddings.Calls);
@@ -77,14 +77,14 @@ public class KnowledgeHintServiceTests
         var (service, documents, _) = Create(Options(),
             Chunk(Restricted, 0.55), Chunk(Restricted, 0.71), Chunk(Restricted, 0.62),
             Chunk("faq", 0.99));   // a public category nobody declares: not a hint
-        var agents = new[] { Agent("risk", Restricted), Agent("knowledge") };
+        var agents = new[] { Agent("compliance", Restricted), Agent("knowledge") };
 
         var hints = await service.GetHintsAsync("evidence pack for a transaction", agents, TestContext.Current.CancellationToken);
 
         var hint = Assert.Single(hints);
         Assert.Equal(Restricted, hint.Category);
         Assert.Equal(0.71, hint.Score);
-        Assert.Equal(new[] { "risk" }, hint.AgentNames);
+        Assert.Equal(new[] { "compliance" }, hint.AgentNames);
         Assert.True(documents.LastFilters!.IncludeRestricted);
         Assert.Null(documents.LastFilters.Category);
         Assert.Equal(7, documents.LastTopK);
@@ -103,7 +103,7 @@ public class KnowledgeHintServiceTests
 
     [Fact]
     public async Task Chunks_Of_A_Category_No_Allowed_Agent_Declares_Are_Ignored_Even_If_The_Search_Returned_Them() {
-        // The caller may not use the risk agent, so it is not in the allowed list. Whatever the search returns for its
+        // The caller may not use the compliance agent, so it is not in the allowed list. Whatever the search returns for its
         // category must not surface as a hint.
         var (service, _, _) = Create(Options(), Chunk(Restricted, 0.95), Chunk("policy", 0.5));
 
@@ -114,13 +114,13 @@ public class KnowledgeHintServiceTests
 
     [Fact]
     public async Task Category_Matching_Is_Case_Insensitive_And_Hints_Are_Ordered_Best_First() {
-        var (service, _, _) = Create(Options(), Chunk("POLICY", 0.45), Chunk("Antifraud-KB", 0.8), Chunk(null, 0.99));
-        var agents = new[] { Agent("hr", "policy"), Agent("risk", Restricted), Agent("audit", "antifraud-kb") };
+        var (service, _, _) = Create(Options(), Chunk("POLICY", 0.45), Chunk("Internal-KB", 0.8), Chunk(null, 0.99));
+        var agents = new[] { Agent("hr", "policy"), Agent("compliance", Restricted), Agent("audit", "internal-kb") };
 
         var hints = await service.GetHintsAsync("question", agents, TestContext.Current.CancellationToken);
 
         Assert.Equal(new[] { Restricted, "policy" }, hints.Select(h => h.Category));
-        Assert.Equal(new[] { "risk", "audit" }, hints[0].AgentNames);
+        Assert.Equal(new[] { "compliance", "audit" }, hints[0].AgentNames);
     }
 
     // --- test doubles -------------------------------------------------------------------------------------------------
@@ -142,7 +142,6 @@ public class KnowledgeHintServiceTests
 
         public Task<SourceDocument?> FindBySourceAsync(string source, bool includeData, CancellationToken cancellationToken) => throw new NotSupportedException();
         public Task<Guid> ReplaceAsync(Guid? existingDocumentId, IngestedDocument document, IReadOnlyList<EmbeddedChunk> chunks, CancellationToken cancellationToken) => throw new NotSupportedException();
-        public Task<IReadOnlyList<KnowledgeSnippet>> FindByHeadingAsync(string category, IReadOnlyCollection<string> headingPrefixes, string? language, bool includeRestricted, CancellationToken cancellationToken) => throw new NotSupportedException();
         public Task ClearAsync() => throw new NotSupportedException();
     }
 

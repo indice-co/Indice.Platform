@@ -8,7 +8,7 @@ import { FileReference } from './part-contracts';
 
 const FILE: FileReference = {
   id: '3f2504e0-4f89-41d3-9a0c-0305e82c3301',
-  fileName: 'risk-evidence-9001234567.html',
+  fileName: 'report-9001234567.html',
   contentType: 'text/html',
   length: 39322,
   sha256: '0123456789abcdef0123456789abcdef',
@@ -48,7 +48,7 @@ describe('ChatFileComponent', () => {
 
   it('shows the file name, its size and the start of its hash', () => {
     const host = render(FILE);
-    expect(host.textContent).toContain('risk-evidence-9001234567.html');
+    expect(host.textContent).toContain('report-9001234567.html');
     expect(host.textContent).toContain('38.4 KB');
     expect(host.textContent).toContain('SHA-256 0123456789ab…');
   });
@@ -62,7 +62,7 @@ describe('ChatFileComponent', () => {
     button(host).click();
     expect(download).toHaveBeenCalledOnceWith('chat-1', FILE.id);
     expect(clicks).toHaveBeenCalledTimes(1);
-    expect(saved[0].download).toBe('risk-evidence-9001234567.html');
+    expect(saved[0].download).toBe('report-9001234567.html');
     expect(saved[0].href).toBe('blob:test');
   });
 
@@ -96,6 +96,6 @@ describe('ChatFileComponent', () => {
   });
 
   it('labels the button with the file it downloads, for assistive technology', () => {
-    expect(button(render(FILE)).getAttribute('aria-label')).toBe('Download risk-evidence-9001234567.html');
+    expect(button(render(FILE)).getAttribute('aria-label')).toBe('Download report-9001234567.html');
   });
 });

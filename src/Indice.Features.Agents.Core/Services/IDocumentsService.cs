@@ -26,18 +26,6 @@ public interface IDocumentsService
     /// </summary>
     Task<IReadOnlyList<RetrievedChunk>> SearchAsync(ReadOnlyMemory<float> queryVector, RetrievalFilters filters, int topK, double minScore, CancellationToken cancellationToken);
 
-    /// <summary>
-    /// The knowledge of one category whose heading has a section starting with one of <paramref name="headingPrefixes"/>, for example
-    /// <c>L-01</c> to read the "L-01 The Risk API may not have been collecting" section. Used where a document's own words have to be
-    /// quoted verbatim, which a similarity search cannot promise. Sections that were split into several chunks come back as one snippet.
-    /// </summary>
-    /// <param name="category">The category to read.</param>
-    /// <param name="headingPrefixes">Prefixes of heading segments, matched case-insensitively.</param>
-    /// <param name="language">Only chunks in this language, or without one; <c>null</c> for any.</param>
-    /// <param name="includeRestricted">Whether the category may be a restricted one. When it is restricted and this is <c>false</c> nothing is returned.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IReadOnlyList<KnowledgeSnippet>> FindByHeadingAsync(string category, IReadOnlyCollection<string> headingPrefixes, string? language, bool includeRestricted, CancellationToken cancellationToken);
-
     ///<summary> Deletes all documents and chunks.</summary>
     Task ClearAsync();
 }

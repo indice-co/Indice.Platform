@@ -202,34 +202,6 @@ public class DocumentsService : IDocumentsService
         return chunks;
     }
 
-    /// <inheritdoc/>
-    public async Task<IReadOnlyList<KnowledgeSnippet>> FindByHeadingAsync(string category, IReadOnlyCollection<string> headingPrefixes, string? language, bool includeRestricted, CancellationToken cancellationToken) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(category);
-        if (headingPrefixes.Count == 0 || (!includeRestricted && _taxonomy.IsRestricted(category))) {
-            return [];
-        }
-        var lowerCategory = category.Trim().ToLower();
-        var rows = await _db.Set<DbChunk>()
-            .AsNoTracking()
-            .Where(c => c.Category != null && c.Category.ToLower() == lowerCategory && c.HeadingPath != null)
-            .Where(c => language == null || c.Language == null || c.Language == language)
-            .OrderBy(c => c.DocumentId).ThenBy(c => c.ChunkIndex)
-            .Select(c => new { c.HeadingPath, c.Content, c.Category })
-            .ToListAsync(cancellationToken);
-
-        // Matched in memory: a category holds a few hundred chunks, and "a segment starts with L-01" is not worth a translated LIKE.
-        return [.. rows
-            .Where(row => row.HeadingPath!.Split(" > ").Any(segment => headingPrefixes.Any(prefix => segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))))
-            .GroupBy(row => row.HeadingPath!)
-            .Select(group => new KnowledgeSnippet(group.Key, string.Join("\n\n", group.Select(row => StripBreadcrumb(row.Content, group.Key))), group.First().Category))];
-    }
-
-    // Every chunk's content starts with its heading breadcrumb and a blank line.
-    private static string StripBreadcrumb(string content, string headingPath) {
-        var prefix = headingPath + "\n\n";
-        return content.StartsWith(prefix, StringComparison.Ordinal) ? content[prefix.Length..].Trim() : content.Trim();
-    }
-
     // Projection target for the two-stage vector search query
     private class SearchResultDto
     {

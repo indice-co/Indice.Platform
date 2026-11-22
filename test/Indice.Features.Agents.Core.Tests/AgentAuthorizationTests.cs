@@ -15,7 +15,7 @@ namespace Indice.Features.Agents.Core.Tests;
 
 internal static class AgentTestUsers
 {
-    public const string RiskRole = "RiskInvestigator";
+    public const string ComplianceRole = "ComplianceOfficer";
 
     public static ClaimsPrincipal Anonymous() => new(new ClaimsIdentity());
 
@@ -32,10 +32,10 @@ public class AgentInfoRegistryTests
     private static readonly AgentInfoRegistry Registry = new([
         Open(AgentsConstants.AgentNames.Auto),
         Open(AgentsConstants.AgentNames.Knowledge),
-        Restricted("risk", AgentTestUsers.RiskRole)
+        Restricted("compliance", AgentTestUsers.ComplianceRole)
     ]);
 
-    private static readonly AgentInfo RiskAgent = Registry.Find("risk")!;
+    private static readonly AgentInfo ComplianceAgent = Registry.Find("compliance")!;
 
     [Fact]
     public void An_Agent_Without_Roles_Is_Open_To_Everyone_Including_Anonymous_Callers() {
@@ -48,25 +48,25 @@ public class AgentInfoRegistryTests
 
     [Fact]
     public void A_Role_Restricted_Agent_Requires_An_Authenticated_Caller_With_The_Role() {
-        Assert.False(Registry.IsAllowed(RiskAgent, null));
-        Assert.False(Registry.IsAllowed(RiskAgent, AgentTestUsers.Anonymous()));
-        Assert.False(Registry.IsAllowed(RiskAgent, AgentTestUsers.Authenticated()));
-        Assert.False(Registry.IsAllowed(RiskAgent, AgentTestUsers.Authenticated("SomethingElse")));
-        Assert.True(Registry.IsAllowed(RiskAgent, AgentTestUsers.Authenticated(AgentTestUsers.RiskRole)));
+        Assert.False(Registry.IsAllowed(ComplianceAgent, null));
+        Assert.False(Registry.IsAllowed(ComplianceAgent, AgentTestUsers.Anonymous()));
+        Assert.False(Registry.IsAllowed(ComplianceAgent, AgentTestUsers.Authenticated()));
+        Assert.False(Registry.IsAllowed(ComplianceAgent, AgentTestUsers.Authenticated("SomethingElse")));
+        Assert.True(Registry.IsAllowed(ComplianceAgent, AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole)));
     }
 
     [Fact]
     public void The_Role_Is_Also_Recognised_On_The_Standard_Role_Claim_Type() {
-        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Role, AgentTestUsers.RiskRole)], authenticationType: "test");
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Role, AgentTestUsers.ComplianceRole)], authenticationType: "test");
 
-        Assert.True(Registry.IsAllowed(RiskAgent, new ClaimsPrincipal(identity)));
+        Assert.True(Registry.IsAllowed(ComplianceAgent, new ClaimsPrincipal(identity)));
     }
 
     [Fact]
     public void Administrators_Do_Not_Bypass_A_Role_Restriction() {
         var admin = AgentTestUsers.Authenticated("Administrator", BasicRoleNamesAgentsAdmin);
 
-        Assert.False(Registry.IsAllowed(RiskAgent, admin));
+        Assert.False(Registry.IsAllowed(ComplianceAgent, admin));
     }
 
     private const string BasicRoleNamesAgentsAdmin = "AgentsAdmin";
@@ -75,35 +75,35 @@ public class AgentInfoRegistryTests
     public void A_Restricted_Agent_Is_Reported_Exactly_Like_One_That_Does_Not_Exist() {
         var ordinary = AgentTestUsers.Authenticated();
 
-        Assert.Null(Registry.Find("risk", ordinary));
+        Assert.Null(Registry.Find("compliance", ordinary));
         Assert.Null(Registry.Find("does-not-exist", ordinary));
-        Assert.NotNull(Registry.Find("risk", AgentTestUsers.Authenticated(AgentTestUsers.RiskRole)));
-        Assert.NotNull(Registry.Find("RISK", AgentTestUsers.Authenticated(AgentTestUsers.RiskRole))); // names are case-insensitive
+        Assert.NotNull(Registry.Find("compliance", AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole)));
+        Assert.NotNull(Registry.Find("COMPLIANCE", AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole))); // names are case-insensitive
     }
 
     [Fact]
     public void Discovery_And_Routing_Lists_Are_Filtered_Per_Caller() {
         var ordinary = AgentTestUsers.Authenticated();
-        var investigator = AgentTestUsers.Authenticated(AgentTestUsers.RiskRole);
+        var officer = AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole);
 
         Assert.Equal(new[] { "auto", "knowledge" }, Registry.All(ordinary).Select(a => a.Name));
-        Assert.Equal(new[] { "auto", "knowledge", "risk" }, Registry.All(investigator).Select(a => a.Name));
+        Assert.Equal(new[] { "auto", "knowledge", "compliance" }, Registry.All(officer).Select(a => a.Name));
         // The meta router never routes to itself, for anyone.
         Assert.Equal(new[] { "knowledge" }, Registry.RoutableTargets(ordinary).Select(a => a.Name));
-        Assert.Equal(new[] { "knowledge", "risk" }, Registry.RoutableTargets(investigator).Select(a => a.Name));
+        Assert.Equal(new[] { "knowledge", "compliance" }, Registry.RoutableTargets(officer).Select(a => a.Name));
         // The unfiltered overloads stay unfiltered: they are for startup code and tests.
         Assert.Equal(3, Registry.All().Count);
     }
 
     [Fact]
     public void Authorization_Metadata_Is_Not_Part_Of_The_Discovery_Payload() {
-        var json = JsonSerializer.Serialize(new[] { RiskAgent with { KnowledgeCategories = ["antifraud-kb"] } });
+        var json = JsonSerializer.Serialize(new[] { ComplianceAgent with { KnowledgeCategories = ["internal-kb"] } });
 
         Assert.DoesNotContain("RequiredRoles", json);
-        Assert.DoesNotContain(AgentTestUsers.RiskRole, json);
+        Assert.DoesNotContain(AgentTestUsers.ComplianceRole, json);
         Assert.DoesNotContain("KnowledgeCategories", json);
-        Assert.DoesNotContain("antifraud-kb", json);
-        Assert.Contains("\"Name\":\"risk\"", json);
+        Assert.DoesNotContain("internal-kb", json);
+        Assert.Contains("\"Name\":\"compliance\"", json);
     }
 }
 
@@ -127,7 +127,7 @@ public class IntentRouterAuthorizationTests : IDisposable
         var registry = new AgentInfoRegistry([
             new AgentInfo(AgentsConstants.AgentNames.Auto, "router", ["text/plain"], ["text/markdown"]),
             new AgentInfo(AgentsConstants.AgentNames.Knowledge, "knowledge agent", ["text/plain"], ["text/markdown"]),
-            new AgentInfo("risk", "risk agent", ["text/plain"], ["text/markdown"]) { RequiredRoles = [AgentTestUsers.RiskRole] }
+            new AgentInfo("compliance", "compliance agent", ["text/plain"], ["text/markdown"]) { RequiredRoles = [AgentTestUsers.ComplianceRole] }
         ]);
         AgentsClaimsPrincipalSelector selector = () => user;
         var router = new IntentRouterService(
@@ -152,12 +152,12 @@ public class IntentRouterAuthorizationTests : IDisposable
     public async Task Selecting_A_Restricted_Agent_By_Name_Is_Refused_Exactly_Like_An_Unknown_Agent() {
         var (router, _, chat) = Create(AgentTestUsers.Authenticated());
 
-        var restricted = await router.RouteAsync(Message(), new ChatOptions { Instructions = "risk" }, TestContext.Current.CancellationToken);
+        var restricted = await router.RouteAsync(Message(), new ChatOptions { Instructions = "compliance" }, TestContext.Current.CancellationToken);
         var unknown = await router.RouteAsync(Message(), new ChatOptions { Instructions = "nope" }, TestContext.Current.CancellationToken);
 
         Assert.True(restricted.HasError);
         Assert.Null(restricted.AgentName);
-        Assert.Equal("Agent 'risk' is not registered.", restricted.Reason);
+        Assert.Equal("Agent 'compliance' is not registered.", restricted.Reason);
         Assert.Equal("Agent 'nope' is not registered.", unknown.Reason);
         Assert.Equal(0, chat.Calls);
     }
@@ -166,7 +166,7 @@ public class IntentRouterAuthorizationTests : IDisposable
     public async Task An_Anonymous_Caller_Cannot_Select_A_Restricted_Agent() {
         var (router, _, _) = Create(AgentTestUsers.Anonymous());
 
-        var decision = await router.RouteAsync(Message(), new ChatOptions { Instructions = "risk" }, TestContext.Current.CancellationToken);
+        var decision = await router.RouteAsync(Message(), new ChatOptions { Instructions = "compliance" }, TestContext.Current.CancellationToken);
 
         Assert.True(decision.HasError);
         Assert.Null(decision.AgentName);
@@ -174,20 +174,20 @@ public class IntentRouterAuthorizationTests : IDisposable
 
     [Fact]
     public async Task A_Caller_With_The_Role_Can_Select_The_Agent_By_Name() {
-        var (router, _, _) = Create(AgentTestUsers.Authenticated(AgentTestUsers.RiskRole));
+        var (router, _, _) = Create(AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole));
 
-        var decision = await router.RouteAsync(Message(), new ChatOptions { Instructions = "risk" }, TestContext.Current.CancellationToken);
+        var decision = await router.RouteAsync(Message(), new ChatOptions { Instructions = "compliance" }, TestContext.Current.CancellationToken);
 
         Assert.False(decision.HasError);
-        Assert.Equal("risk", decision.AgentName);
+        Assert.Equal("compliance", decision.AgentName);
         Assert.True(decision.IsInScope);
     }
 
     [Theory]
     [InlineData(false, new[] { "knowledge" })]
-    [InlineData(true, new[] { "knowledge", "risk" })]
+    [InlineData(true, new[] { "knowledge", "compliance" })]
     public async Task Automatic_Routing_Only_Offers_The_Model_The_Agents_The_Caller_May_Use(bool hasRole, string[] expectedOffered) {
-        var user = hasRole ? AgentTestUsers.Authenticated(AgentTestUsers.RiskRole) : AgentTestUsers.Authenticated();
+        var user = hasRole ? AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole) : AgentTestUsers.Authenticated();
         var (router, prompts, _) = Create(user);
 
         await router.RouteAsync(Message(), new ChatOptions { Instructions = "auto" }, TestContext.Current.CancellationToken);
@@ -206,8 +206,8 @@ public class IntentRouterAuthorizationTests : IDisposable
 
     [Fact]
     public async Task A_Model_Answer_Naming_An_Agent_The_Caller_May_Not_Use_Is_Out_Of_Scope() {
-        // Prompt injection or a hallucinated name: the model says "risk" although it was never offered to this caller.
-        var (router, _, _) = Create(AgentTestUsers.Authenticated(), modelAnswers: "risk");
+        // Prompt injection or a hallucinated name: the model says "compliance" although it was never offered to this caller.
+        var (router, _, _) = Create(AgentTestUsers.Authenticated(), modelAnswers: "compliance");
 
         var decision = await router.RouteAsync(Message(), new ChatOptions { Instructions = "auto" }, TestContext.Current.CancellationToken);
 
@@ -217,23 +217,23 @@ public class IntentRouterAuthorizationTests : IDisposable
 
     [Fact]
     public async Task A_Model_Answer_Naming_The_Restricted_Agent_Is_Honoured_For_A_Caller_With_The_Role() {
-        var (router, _, _) = Create(AgentTestUsers.Authenticated(AgentTestUsers.RiskRole), modelAnswers: "risk");
+        var (router, _, _) = Create(AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole), modelAnswers: "compliance");
 
         var decision = await router.RouteAsync(Message(), new ChatOptions { Instructions = "auto" }, TestContext.Current.CancellationToken);
 
-        Assert.Equal("risk", decision.AgentName);
+        Assert.Equal("compliance", decision.AgentName);
         Assert.True(decision.IsInScope);
     }
 
     [Theory]
-    [InlineData(true, "risk")]
+    [InlineData(true, "compliance")]
     [InlineData(false, "knowledge")]
     public async Task A_Workflow_Waiting_For_Input_Only_Keeps_The_Turn_While_The_Caller_Still_Has_The_Role(bool stillHasRole, string expectedAgent) {
         var conversationId = Guid.NewGuid();
         var checkpoints = new PersistedCheckpointStore(_db);
-        var checkpoint = await checkpoints.CreateCheckpointAsync(new AgentSessionId(conversationId, "risk"), JsonDocument.Parse("""{"step":1}""").RootElement);
+        var checkpoint = await checkpoints.CreateCheckpointAsync(new AgentSessionId(conversationId, "compliance"), JsonDocument.Parse("""{"step":1}""").RootElement);
         var reply = new ChatMessage(ChatRole.User, [new TextContent("123456"), new FunctionResultContent($"request-1:{checkpoint.CheckpointId}", "123456")]);
-        var user = stillHasRole ? AgentTestUsers.Authenticated(AgentTestUsers.RiskRole) : AgentTestUsers.Authenticated();
+        var user = stillHasRole ? AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole) : AgentTestUsers.Authenticated();
         var (router, _, _) = Create(user, modelAnswers: "knowledge");
 
         var decision = await router.RouteAsync(reply, new ChatOptions { ConversationId = conversationId.ToString(), Instructions = "auto" }, TestContext.Current.CancellationToken);
@@ -243,15 +243,15 @@ public class IntentRouterAuthorizationTests : IDisposable
 
     [Fact]
     public async Task Knowledge_Matches_Are_Appended_To_What_The_Routing_Model_Reads() {
-        var hints = new ScriptedHints(new KnowledgeHint("antifraud-kb", 0.624, ["risk"]));
-        var (router, _, chat) = Create(AgentTestUsers.Authenticated(AgentTestUsers.RiskRole), modelAnswers: "risk", hints: hints);
+        var hints = new ScriptedHints(new KnowledgeHint("internal-kb", 0.624, ["compliance"]));
+        var (router, _, chat) = Create(AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole), modelAnswers: "compliance", hints: hints);
 
         await router.RouteAsync(Message("trace TUN 12345"), new ChatOptions { Instructions = "auto" }, TestContext.Current.CancellationToken);
 
         var prompt = Assert.Single(chat.Prompts);
         Assert.StartsWith("trace TUN 12345", prompt);
         Assert.Contains("KNOWLEDGE MATCHES:", prompt);
-        Assert.Contains("- antifraud-kb (score 0.62) -> agent risk", prompt);
+        Assert.Contains("- internal-kb (score 0.62) -> agent compliance", prompt);
     }
 
     [Fact]
@@ -265,10 +265,10 @@ public class IntentRouterAuthorizationTests : IDisposable
 
     [Theory]
     [InlineData(false, new[] { "knowledge" })]
-    [InlineData(true, new[] { "knowledge", "risk" })]
+    [InlineData(true, new[] { "knowledge", "compliance" })]
     public async Task The_Hint_Lookup_Only_Ever_Sees_The_Agents_The_Caller_May_Use(bool hasRole, string[] expectedAgents) {
         var hints = new ScriptedHints();
-        var user = hasRole ? AgentTestUsers.Authenticated(AgentTestUsers.RiskRole) : AgentTestUsers.Authenticated();
+        var user = hasRole ? AgentTestUsers.Authenticated(AgentTestUsers.ComplianceRole) : AgentTestUsers.Authenticated();
         var (router, _, _) = Create(user, hints: hints);
 
         await router.RouteAsync(Message(), new ChatOptions { Instructions = "auto" }, TestContext.Current.CancellationToken);

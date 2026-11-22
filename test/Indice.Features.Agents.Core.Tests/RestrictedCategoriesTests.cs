@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Features.Agents.Core.Tests;
 
 /// <summary>
-/// An internal knowledge base category (the antifraud KB) must never reach an ordinary chat user. These tests pin the rules:
+/// A restricted knowledge base category must never reach an ordinary chat user. These tests pin the rules:
 /// restricted chunks are invisible to an ordinary search whatever the category filter says, only code that opts in with
 /// <see cref="RetrievalFilters.IncludeRestricted"/> reads them, and the category is not advertised to users.
 /// </summary>
 public class RestrictedCategoriesTests : IDisposable
 {
-    private const string Restricted = "antifraud-kb";
+    private const string Restricted = "internal-kb";
 
     private readonly AgentsDbContext _db = new(new DbContextOptionsBuilder<AgentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
@@ -25,9 +25,9 @@ public class RestrictedCategoriesTests : IDisposable
             ("general-faq", "faq", "en"),
             ("general-policy-el", "policy", "el"),
             ("uncategorized", null, null),
-            ("antifraud-en", Restricted, "en"),
-            ("antifraud-el", Restricted, "el"),
-            ("antifraud-mixed-case", "Antifraud-KB", "en"),
+            ("internal-en", Restricted, "en"),
+            ("internal-el", Restricted, "el"),
+            ("internal-mixed-case", "Internal-KB", "en"),
         };
         foreach (var (name, category, language) in chunks) {
             var id = Guid.NewGuid();
@@ -75,7 +75,7 @@ public class RestrictedCategoriesTests : IDisposable
     public void The_Rule_Does_Not_Depend_On_The_Casing_Stored_In_The_Database() {
         var result = Search(new RetrievalFilters(), Taxonomy(Restricted));
 
-        Assert.DoesNotContain("antifraud-mixed-case", result);
+        Assert.DoesNotContain("internal-mixed-case", result);
     }
 
     [Fact]
@@ -83,9 +83,9 @@ public class RestrictedCategoriesTests : IDisposable
         // The category filter can come from a classified intent, which is model output. It must not be a way in.
         var result = Search(new RetrievalFilters { Category = Restricted }, Taxonomy(Restricted));
 
-        Assert.DoesNotContain("antifraud-en", result);
-        Assert.DoesNotContain("antifraud-el", result);
-        Assert.DoesNotContain("antifraud-mixed-case", result);
+        Assert.DoesNotContain("internal-en", result);
+        Assert.DoesNotContain("internal-el", result);
+        Assert.DoesNotContain("internal-mixed-case", result);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class RestrictedCategoriesTests : IDisposable
         var result = Search(new RetrievalFilters { Category = Restricted, IncludeRestricted = true }, Taxonomy(Restricted));
 
         // Case-insensitive match, no category-less fallback, nothing from other categories.
-        Assert.Equal(new[] { "antifraud-en", "antifraud-el", "antifraud-mixed-case" }.ToHashSet(), result);
+        Assert.Equal(new[] { "internal-en", "internal-el", "internal-mixed-case" }.ToHashSet(), result);
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class RestrictedCategoriesTests : IDisposable
     public void The_Language_Filter_Applies_To_Restricted_Reads_Too() {
         var result = Search(new RetrievalFilters { Category = Restricted, Language = "el", IncludeRestricted = true }, Taxonomy(Restricted));
 
-        Assert.Equal(new[] { "antifraud-el" }.ToHashSet(), result);
+        Assert.Equal(new[] { "internal-el" }.ToHashSet(), result);
     }
 
     [Fact]
@@ -131,22 +131,22 @@ public class TaxonomyOptionsTests
     [Fact]
     public void PublicCategories_Leaves_Out_Restricted_Ones_Case_Insensitively() {
         var taxonomy = new AgentsOptions.TaxonomyOptions {
-            Categories = ["faq", "Antifraud-KB", "policy"],
-            RestrictedCategories = ["antifraud-kb"]
+            Categories = ["faq", "Internal-KB", "policy"],
+            RestrictedCategories = ["internal-kb"]
         };
 
         Assert.Equal(new[] { "faq", "policy" }, taxonomy.PublicCategories);
     }
 
     [Theory]
-    [InlineData("antifraud-kb", true)]
-    [InlineData("ANTIFRAUD-KB", true)]
-    [InlineData("  antifraud-kb ", true)]
+    [InlineData("internal-kb", true)]
+    [InlineData("INTERNAL-KB", true)]
+    [InlineData("  internal-kb ", true)]
     [InlineData("faq", false)]
     [InlineData("", false)]
     [InlineData(null, false)]
     public void IsRestricted_Matches_Case_And_Whitespace_Insensitively(string? category, bool expected) {
-        var taxonomy = new AgentsOptions.TaxonomyOptions { RestrictedCategories = ["antifraud-kb"] };
+        var taxonomy = new AgentsOptions.TaxonomyOptions { RestrictedCategories = ["internal-kb"] };
 
         Assert.Equal(expected, taxonomy.IsRestricted(category));
     }
@@ -175,17 +175,17 @@ public class TaxonomyOptionsTests
     public void A_Restricted_Category_Must_Also_Be_Ingestable() {
         var failures = Failures(o => {
             o.Taxonomy.Categories = ["faq"];
-            o.Taxonomy.RestrictedCategories = ["antifraud-kb"];
+            o.Taxonomy.RestrictedCategories = ["internal-kb"];
         });
 
-        Assert.Contains(failures, f => f.Contains("'antifraud-kb'") && f.Contains("Dex:Taxonomy:Categories"));
+        Assert.Contains(failures, f => f.Contains("'internal-kb'") && f.Contains("Dex:Taxonomy:Categories"));
     }
 
     [Fact]
     public void A_Consistent_Restriction_Passes_Validation() {
         var failures = Failures(o => {
-            o.Taxonomy.Categories = ["faq", "antifraud-kb"];
-            o.Taxonomy.RestrictedCategories = ["ANTIFRAUD-KB"];
+            o.Taxonomy.Categories = ["faq", "internal-kb"];
+            o.Taxonomy.RestrictedCategories = ["INTERNAL-KB"];
         });
 
         Assert.Empty(failures);

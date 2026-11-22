@@ -177,18 +177,6 @@
 	<data name="StepOtpCodeSend" xml:space="preserve">
     <value>Αποστολή κωδικού επιβεβαίωσης</value>
   </data>
-	<data name="StepRiskRequestAnalyzer" xml:space="preserve">
-    <value>Ανάγνωση του αιτήματος</value>
-  </data>
-	<data name="StepTransactionAnchorResolver" xml:space="preserve">
-    <value>Εντοπισμός της συναλλαγής</value>
-  </data>
-	<data name="StepEvidenceCollector" xml:space="preserve">
-    <value>Συλλογή της τεκμηρίωσης</value>
-  </data>
-	<data name="StepRiskReportComposer" xml:space="preserve">
-    <value>Σύνταξη του φακέλου</value>
-  </data>
 	<data name="StepOtpCodeValidator" xml:space="preserve">
     <value>Έλεγχος κωδικού επιβεβαίωσης</value>
   </data>

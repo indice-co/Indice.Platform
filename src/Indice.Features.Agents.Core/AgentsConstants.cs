@@ -19,10 +19,10 @@ public static class AgentsConstants
         
         /// <summary>The name of the test/demo agent.</summary>
         public const string Demo = "demo";
-
-        /// <summary>The name of the agent that traces a banking transaction and builds an evidence report for legal purposes. Restricted to the roles configured in <c>Dex:Risk:RequiredRoles</c>.</summary>
-        public const string Risk = "risk";
     }
+
+    /// <summary>The name of the client-credentials token client the MCP clients of the agents host authenticate with.</summary>
+    public const string McpSecurityClient = "mcpsecurity";
 
     /// <summary>Media types of the alternative (non-prose) content parts an assistant turn can carry.</summary>
     /// <remarks>
@@ -139,55 +139,6 @@ public static class AgentsConstants
             - OutOfScopeReason: a polite one-sentence explanation when IsInScope is false; null otherwise.
             """;
 
-        /// <summary>
-        /// Prompt template for the risk investigation agent's request analyzer: it reads a request such as "evidence pack for transaction
-        /// TUN 123 of 12/11" and returns the transaction number, the date, the language and the playbook as JSON. A host can override it in
-        /// <c>Prompts/RiskRequestAnalyzer.txt</c>.
-        /// </summary>
-        public const string RiskRequestAnalyzer = """
-            You prepare requests for a bank's fraud and legal team. A back-office employee asks for a report about one banking transaction.
-            Read their latest message and return ONLY a JSON object with these fields:
-            - PlaybookId: the report type that matches the request, one of the ids below, or null when you cannot tell.
-            - Tun: the core banking transaction number (TUN, "αριθμός συναλλαγής") exactly as the user wrote it, or null. Never invent, guess or complete a number; copy it character for character.
-            - TransactionDate: the date of the transaction as yyyy-MM-dd in {{timeZone}} time, or null when the user gave no date. Today is {{today}} ({{timeZone}}). Dates written 12/11 or 12/11/2026 are day/month(/year). Resolve words such as "yesterday" or "last Monday" against today. A year left out means the current year, unless that date would be in the future, then the previous year.
-            - Language: "el" when the user writes Greek, "en" when they write English.
-            - Purpose: a few words on what the report is for (court filing, prosecutor request, customer dispute, internal review), or null.
-            Report types:
-            {{#each playbooks}}
-            - {{id}}: {{name}}
-            {{/each}}
-            {{#if collected}}
-            Details already collected earlier in this conversation (keep them unless the user corrects them; return null for a field the user did not mention now):
-            {{#each collected}}
-            - {{@key}}: {{this}}
-            {{/each}}
-            {{/if}}
-            {{#if excerpts}}
-            Excerpts from the bank's antifraud knowledge base that may help you recognise the report type:
-            {{#each excerpts}}
-            ---
-            {{{this}}}
-            {{/each}}
-            {{/if}}
-            """;
-
-        /// <summary>
-        /// Prompt template for the findings narrative of the risk evidence report. It receives the redacted evidence as markdown with numbered
-        /// sources and writes a factual summary. A host can override it in <c>Prompts/RiskReportNarrative.txt</c>.
-        /// </summary>
-        public const string RiskReportNarrative = """
-            You write the findings summary of an evidence report that a bank's fraud team may attach to a court filing or hand to a prosecutor.
-            You are given the EVIDENCE: tables built directly from the bank's logs, each marked with the number of the query it came from, like [E-3].
-            Write the summary in {{languageName}}, in at most {{maxWords}} words, as short factual paragraphs or bullets. Rules:
-            - State only what the EVIDENCE shows. Cite the source of every statement with its number, for example [E-3] or [E-3, E-5]. Do not cite a number that is not in the EVIDENCE.
-            - Describe what happened in time order: the login, the authentication steps, the one-time-password deliveries, the transaction.
-            - Say plainly when something is not in the EVIDENCE, or when a section is marked incomplete, or when a result was truncated. Never fill a gap with an assumption.
-            - Do NOT state or imply that the transaction was fraudulent or legitimate, who did it, or why. A risk score is a rule output, not a verdict; if you mention one, say that.
-            - Do not repeat personal data beyond what is needed to follow the facts. Do not write a conclusion or a recommendation.
-            - Times in the EVIDENCE are shown in UTC and in {{timeZone}} time; keep both when you quote a time.
-            {{#if purpose}}The report is for: {{purpose}}.{{/if}}
-            """;
-
         /// <summary>Prompt template for the master intent router (returns a routing decision as JSON).</summary>
         public const string IntentRouter = """
             You are the master intent router of an enterprise assistant. You never answer the user yourself. Your only
@@ -199,7 +150,7 @@ public static class AgentsConstants
             {{/each}}
             The user message may contain a HISTORY: block with the recent conversation (oldest-first) followed by the latest message. Judge the latest message in that context — a follow-up such as "tell me more" belongs to the same agent that handled the previous turn.
             The user message may be followed by a KNOWLEDGE MATCHES: block. It lists the knowledge base categories whose content best matches the latest message, each with the agent that owns that knowledge. Prefer that agent, unless the conversation history clearly points to another one.
-            A request to retrieve a case by its case ID belongs to an operator agent when one is present in the list above.
+            A request to retrieve a case by a case or reference ID belongs to an operator agent when one is present in the list above.
             Return ONLY a JSON object with these fields:
             - AgentName: the exact name of ONE agent from the list above, or null if no listed agent fits.
             - IsInScope: true when one of the listed agents can handle the request; false otherwise.
