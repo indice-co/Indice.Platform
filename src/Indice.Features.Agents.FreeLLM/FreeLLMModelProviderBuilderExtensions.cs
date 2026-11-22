@@ -30,7 +30,10 @@ public static class FreeLLMModelProviderBuilderExtensions
         options.ValidateOnStart();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<FreeLLMOptions>, FreeLLMOptionsValidator>());
         // LLM calls outlive a typical HTTP timeout; FreeLLMOptions.NetworkTimeout governs instead.
-        builder.Services.AddHttpClient(FreeLLMOptions.HttpClientName, client => client.Timeout = Timeout.InfiniteTimeSpan);
+#pragma warning disable EXTEXP0001
+        builder.Services.AddHttpClient(FreeLLMOptions.HttpClientName, client => client.Timeout = Timeout.InfiniteTimeSpan)
+            .RemoveAllResilienceHandlers();
+#pragma warning restore EXTEXP0001
         return builder.AddModelProvider<FreeLLMModelProvider>();
     }
 }
