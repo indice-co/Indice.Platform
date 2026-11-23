@@ -54,6 +54,11 @@ internal static class MyCasesApi
             .WithSummary("Get case details by Id.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
+        group.MapGet("{caseId}/timeline", MyCasesHandlers.GetMyCaseTimeline)
+            .WithName(nameof(MyCasesHandlers.GetMyCaseTimeline))
+            .WithSummary("Get public timeline entries, newest first. Filter by All (default), Comments, or Checkpoints. Draft timelines are empty.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+
         group.MapPost("{caseId}/attachments", MyCasesHandlers.UploadCaseAttachment)
             .WithName(nameof(MyCasesHandlers.UploadCaseAttachment))
             .DisableAntiforgery()

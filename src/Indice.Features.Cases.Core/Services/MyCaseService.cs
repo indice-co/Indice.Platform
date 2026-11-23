@@ -126,6 +126,96 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         return @case;
     }
 
+    public async Task<List<MyTimelineEntry>?> GetTimeline(Guid caseId, UserActor user, TimelineFilter filter = TimelineFilter.All) {
+        ArgumentNullException.ThrowIfNull(user);
+        if (!Enum.IsDefined(filter)) {
+            throw new ArgumentOutOfRangeException(nameof(filter));
+        }
+        var draft = await DbContext.Cases.AsNoTracking()
+            .Where(c => c.Id == caseId)
+            .Select(c => (bool?)c.Draft)
+            .FirstOrDefaultAsync();
+        if (draft is null) {
+            return null;
+        }
+        if (draft.Value) {
+            return [];
+        }
+
+        var comments = await DbContext.Comments.AsNoTracking()
+            .Where(c => c.CaseId == caseId && !c.Private)
+            .Select(c => new {
+                c.Id, c.Text, c.IsCustomer, c.Private, c.ReplyToCommentId, c.CreatedBy,
+                Attachment = c.Attachment != null && c.Attachment.CaseId == caseId ? new CasesAttachmentLink {
+                    Id = c.Attachment.Id,
+                    FileGuid = c.Attachment.Guid,
+                    Label = c.Attachment.Name,
+                    ContentType = c.Attachment.ContentType,
+                    Size = c.Attachment.ContentLength
+                } : null
+            })
+            .ToListAsync();
+        var checkpoints = await DbContext.Checkpoints.AsNoTracking()
+            .Where(c => c.CaseId == caseId && !c.CheckpointType.Private)
+            .Select(c => new {
+                c.CreatedBy, c.CompletedDate, c.DueDate,
+                Type = new CheckpointType {
+                    Title = c.CheckpointType.Title,
+                    Description = c.CheckpointType.Description,
+                    Translations = c.CheckpointType.Translations
+                }
+            })
+            .ToListAsync();
+
+        var commentsById = comments.ToDictionary(c => c.Id);
+        Comment MapComment(Guid id) {
+            var comment = commentsById[id];
+            return new Comment {
+                Id = comment.Id,
+                Text = comment.Text!,
+                IsCustomer = comment.IsCustomer,
+                Private = comment.Private,
+                Attachment = comment.Attachment
+            };
+        }
+
+        var timeline = comments.Select(c => {
+            var comment = MapComment(c.Id);
+            if (c.ReplyToCommentId is Guid replyId && commentsById.ContainsKey(replyId)) {
+                comment.ReplyToComment = MapComment(replyId);
+            }
+            return new MyTimelineEntry {
+                Timestamp = c.CreatedBy.When!.Value,
+                CreatedBy = MaskTimelineAuthor(c.CreatedBy, user, c.IsCustomer),
+                Comment = comment
+            };
+        }).Concat(checkpoints.Select(c => {
+            var type = c.Type.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            return new MyTimelineEntry {
+                Timestamp = c.CreatedBy.When!.Value,
+                CreatedBy = MaskTimelineAuthor(c.CreatedBy, user, false),
+                Checkpoint = new MyTimelineCheckpoint {
+                    CompletedDate = c.CompletedDate,
+                    DueDate = c.DueDate,
+                    CheckpointType = new MyTimelineCheckpointType {
+                        Title = type.Title,
+                        Description = type.Description,
+                        Translations = type.Translations
+                    }
+                }
+            };
+        })).Where(c => filter == TimelineFilter.All || c.IsCheckpoint == (filter == TimelineFilter.Checkpoints))
+          .OrderByDescending(c => c.Timestamp).ThenBy(c => c.IsCheckpoint).ToList();
+        return timeline;
+    }
+
+    private AuditMeta MaskTimelineAuthor(AuditMeta author, UserActor user, bool isCustomer) {
+        if (isCustomer || (!string.IsNullOrEmpty(user.Id) && author.Id == user.Id)) {
+            return author;
+        }
+        return new AuditMeta { Name = Options.CustomerTimelineStaffDisplayName, When = author.When };
+    }
+
     /// <summary>We do not return draft cases as a default behaviour either when</summary>
     /// <remarks>Change this constant to true if you want to include draft cases by default</remarks>
     private const bool DEFAULT_INCLUDE_DRAFTS = false; // We do not return draft cases as a default behaviour;

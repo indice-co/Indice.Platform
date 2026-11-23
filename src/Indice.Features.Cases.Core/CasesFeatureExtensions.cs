@@ -37,6 +37,7 @@ public static class CasesFeatureExtensions
             options.UserClaimType = casesOptions.UserClaimType;
             options.GroupIdClaimType = casesOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesOptions.ReferenceNumberEnabled;
+            options.CustomerTimelineStaffDisplayName = casesOptions.CustomerTimelineStaffDisplayName;
             options.RequiredScope = casesOptions.RequiredScope;
             options.ByPassAccessRulesForElevatedUsers = casesOptions.ByPassAccessRulesForElevatedUsers;
             options.ConfigureDbSeed = casesOptions.ConfigureDbSeed;

@@ -37,6 +37,12 @@ public interface IMyCaseService
     /// <param name="caseId">The Id of the case.</param>
     Task<Case?> GetCaseById(Guid caseId);
 
+    /// <summary>Returns public timeline entries, or null if the case does not exist. The caller must authorize case access.</summary>
+    /// <param name="caseId">The case identifier.</param>
+    /// <param name="user">The current customer, whose own audit information is preserved.</param>
+    /// <param name="filter">The types of entries to return.</param>
+    Task<List<MyTimelineEntry>?> GetTimeline(Guid caseId, UserActor user, TimelineFilter filter = TimelineFilter.All);
+
     /// <summary>Get the cases of the User.</summary>
     /// <param name="user">The Id of the user to retrieve the cases.</param>
     /// <param name="options">The user list options.</param>

@@ -37,6 +37,16 @@ internal static class MyCasesHandlers
         return @case is null ? TypedResults.NotFound() : TypedResults.Ok(@case);
     }
 
+    /// <summary>Get the public timeline of a case owned by the customer.</summary>
+    public static async Task<Results<Ok<List<MyTimelineEntry>>, NotFound, ProblemHttpResult>> GetMyCaseTimeline(Guid caseId, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService, TimelineFilter filter = TimelineFilter.All) {
+        if (!Enum.IsDefined(filter)) {
+            return TypedResults.Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Invalid timeline filter.");
+        }
+        var timeline = await myCaseService.GetTimeline(caseId, user.UserToActor(casesOptions.Value), filter);
+        return timeline is null ? TypedResults.NotFound() : TypedResults.Ok(timeline);
+    }
+
     /// <summary>Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.</summary>
     /// <param name="request">The draft.</param>
     /// <param name="user"></param>

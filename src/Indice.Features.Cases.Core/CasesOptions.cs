@@ -27,6 +27,8 @@ public class CasesOptions
 
     /// <summary>Enables the Case `ReferenceNumber` feature. Defaults to <see langword="true"/>.</summary>
     public bool ReferenceNumberEnabled { get; set; } = true;
+    /// <summary>Display name used in customer timelines for back-office authors. Defaults to <c>Case team</c>.</summary>
+    public string CustomerTimelineStaffDisplayName { get; set; } = "Case team";
     /// <summary>The claim type groupid name</summary>
     public string GroupIdClaimType { get; set; } = CasesCoreConstants.DefaultGroupIdClaimType;
     /// <summary>The claim type name for the Tax Identification number</summary>
