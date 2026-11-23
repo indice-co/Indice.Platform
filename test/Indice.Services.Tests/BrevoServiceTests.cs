@@ -59,48 +59,48 @@ public class BrevoServiceTests
           {
             "id": 2636078,
             "email": "someone@example.com",
-            "message-id": "<202610261127.96771796084@smtp-relay.domain.gr>",
-            "date": "2026-10-26 13:27:36",
+            "message-id": "<202611230838.54037636300@smtp-relay.mailin.fr>",
+            "date": "2026-11-23 10:38:19",
             "event": "request",
             "subject": "Subject Line",
             "sending_ip": "77.32.148.25",
             "ts_event": 1793014056,
             "ts": 1793014056,
             "reason": "sent",
-            "ts_epoch": 1793014056520,
-            "uuid": "24f35486-8384-4129-88c5-0de983e3b841",
+            "ts_epoch": 1795423099842,
+            "uuid": "8b4c3bfb-213f-42da-8c07-467517118470",
             "source": "API"
           },
           {
             "id": 2636078,
             "email": "someone@example.com",
-            "message-id": "<202610261127.96771796084@smtp-relay.domain.gr>",
-            "date": "2026-10-26 13:27:37",
+            "message-id": "<202611230838.54037636300@smtp-relay.mailin.fr>",
+            "date": "2026-11-23 10:38:20",
             "event": "delivered",
             "subject": "Subject Line",
             "sending_ip": "77.32.148.25",
-            "ts_event": 1793014057,
-            "ts": 1793014057,
+            "ts_event": 1795423100,
+            "ts": 1795423100,
             "reason": "sent",
-            "ts_epoch": 1793014057000,
-            "uuid": "24f35486-8384-4129-88c5-0de983e3b841",
+            "ts_epoch": 1795423100000,
+            "uuid": "8b4c3bfb-213f-42da-8c07-467517118470",
             "source": "API"
           },
           {
             "id": 2636078,
             "email": "someone@example.com",
-            "message-id": "<202610261127.96771796084@smtp-relay.domain.gr>",
-            "date": "2026-10-26 13:29:16",
+            "message-id": "<202611230838.54037636300@smtp-relay.mailin.fr>",
+            "date": "2026-11-23 10:40:00",
             "event": "unique_opened",
             "subject": "Subject Line",
             "sending_ip": "66.249.81.75",
-            "ts": 1793014156,
-            "ts_epoch": 1793014156083,
-            "ts_event": 1793014156,
+            "ts": 1795423216,
+            "ts_epoch": 1795423216083,
+            "ts_event": 1795423216,
             "link": "",
             "user_agent": "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
             "device_used": "DESKTOP",
-            "uuid": "24f35486-8384-4129-88c5-0de983e3b841",
+            "uuid": "8b4c3bfb-213f-42da-8c07-467517118470",
             "source": "API"
           }
         ]
@@ -122,21 +122,21 @@ public class BrevoServiceTests
         Assert.Collection(result.Events,
             first => {
                 Assert.Equal("request", first.EventType);
-                Assert.Equal("24f35486-8384-4129-88c5-0de983e3b841", first.MessageId);
+                Assert.Equal("<202611230838.54037636300@smtp-relay.mailin.fr>", first.MessageId);
                 Assert.Equal("someone@example.com", first.Recipient);
-                Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1793014056520), first.Timestamp);
+                Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1795423099842), first.Timestamp);
             },
             second => {
                 Assert.Equal("delivered", second.EventType);
-                Assert.Equal("24f35486-8384-4129-88c5-0de983e3b841", second.MessageId);
+                Assert.Equal("<202611230838.54037636300@smtp-relay.mailin.fr>", second.MessageId);
                 Assert.Equal("someone@example.com", second.Recipient);
-                Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1793014057000), second.Timestamp);
+                Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1795423100000), second.Timestamp);
             },
             third => {
                 Assert.Equal("unique_opened", third.EventType);
-                Assert.Equal("24f35486-8384-4129-88c5-0de983e3b841", third.MessageId);
+                Assert.Equal("<202611230838.54037636300@smtp-relay.mailin.fr>", third.MessageId);
                 Assert.Equal("someone@example.com", third.Recipient);
-                Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1793014156083), third.Timestamp);
+                Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1795423216083), third.Timestamp);
             });
 
         Assert.Equal(3, result.Events.Select(x => x.EventId).Distinct().Count());
@@ -164,7 +164,8 @@ public class BrevoServiceTests
     public async Task WebhookHandler_Parses_BrevoEventTypes(string eventType, BrevoEventType expectedType, bool expectedSucceeded) {
         var settings = Options.Create(new EmailServiceBrevoSettings());
         var handler = new BrevoWebhookHttpHandler(settings);
-        var payload = $"{{\"uuid\":\"message-id\",\"event\":\"{eventType}\"}}";
+        const string messageId = "<message-id@example.com>";
+        var payload = $"{{\"uuid\":\"brevo-event-id\",\"message-id\":\"{messageId}\",\"event\":\"{eventType}\"}}";
         using var body = new MemoryStream(Encoding.UTF8.GetBytes(payload));
 
         var result = await handler.ParseAsync(
@@ -175,6 +176,7 @@ public class BrevoServiceTests
 
         Assert.True(result.Success);
         var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal(messageId, webhookEvent.MessageId);
         Assert.Equal(eventType, webhookEvent.EventType);
         Assert.Equal(expectedType, Enum.Parse<BrevoEventType>(eventType, ignoreCase: true));
         Assert.Equal(expectedSucceeded, webhookEvent.Succeeded);

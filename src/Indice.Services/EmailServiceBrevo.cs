@@ -178,7 +178,7 @@ public sealed class BrevoWebhookHttpHandler(IOptions<EmailServiceBrevoSettings> 
         };
 
         foreach (var item in items) {
-            var messageId = GetString(item, "uuid");
+            var messageId = GetString(item, "message-id");
             if (string.IsNullOrWhiteSpace(messageId)) {
                 continue;
             }
