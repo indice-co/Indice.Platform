@@ -77,6 +77,12 @@ public static class ClaimsPrincipalExtensions
         return isSystem ?? false;
     }
 
+    /// <summary>Checks if the current principal is a machine user. A machine user is a principal that is authenticated but does not have a subject id claim.</summary>
+    /// <param name="principal">The current principal.</param>
+    /// <returns></returns>
+    public static bool IsMachine(this ClaimsPrincipal principal) =>
+        principal.Identity?.IsAuthenticated is true && principal.FindSubjectId() is null;
+
     /// <summary>Checks if the current principal is a system admin.</summary>
     /// <param name="principal">The current principal.</param>
     public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasRoleClaim("Administrator");
