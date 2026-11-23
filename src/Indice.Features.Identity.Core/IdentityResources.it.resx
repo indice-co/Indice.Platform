@@ -229,7 +229,7 @@
     <value>Seleziona il tuo numero di telefono così possiamo verificarlo prima di continuare.</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Password dimenticata</value>
+    <value>Reimposta la tua password</value>
   </data>
   <data name="ForgotPasswordConfirmationError" xml:space="preserve">
     <value>Qualcosa è andato storto.</value>

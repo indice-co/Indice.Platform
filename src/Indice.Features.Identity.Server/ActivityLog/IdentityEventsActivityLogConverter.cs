@@ -42,6 +42,7 @@ public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
         // Authentication events
         PasswordSetEvent e => CreateUserEntry(e.User, nameof(PasswordSetEvent), ActivityLogCategories.Authentication, "Password set for user"),
         PasswordChangedEvent e => CreateUserEntry(e.User, nameof(PasswordChangedEvent), ActivityLogCategories.Authentication, "Password changed"),
+        PasswordResetRequestEvent e => CreatePasswordResetRequestEntry(e),
         EmailConfirmedEvent e => CreateUserEntry(e.User, nameof(EmailConfirmedEvent), ActivityLogCategories.Authentication, "Email confirmed", attributeSubject: true),
         PhoneNumberConfirmedEvent e => CreateUserEntry(e.User, nameof(PhoneNumberConfirmedEvent), ActivityLogCategories.Authentication, "Phone number confirmed", attributeSubject: true),
         UserRequestForEmailConfirmationEvent e => CreateUserEntry(e.User, nameof(UserRequestForEmailConfirmationEvent), ActivityLogCategories.Authentication, "Email confirmation requested"),
@@ -72,6 +73,25 @@ public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
         Succeeded = true,
         SubjectId = attributeSubject ? user.Id : null,
         SubjectName = attributeSubject ? user.UserName : null
+    };
+
+    // A self-service request is anonymous, so the subject is the account the email belongs to. For an unknown email the subject name is
+    // the email that was entered, so repeated attempts (account enumeration) can be found by searching for it.
+    // When an administrator sends the email the subject is left empty, so UserInfoEnricher records the administrator as the actor.
+    private static ActivityLogEntry CreatePasswordResetRequestEntry(PasswordResetRequestEvent e) => new() {
+        EventType = nameof(PasswordResetRequestEvent),
+        Category = ActivityLogCategories.Authentication,
+        ResourceId = e.User?.Id,
+        ResourceType = "User",
+        Description = e.Outcome switch {
+            PasswordResetRequestOutcome.EmailSent when e.InitiatedByAdmin => "Password reset email sent by an administrator",
+            PasswordResetRequestOutcome.EmailSent => "Password reset email sent",
+            PasswordResetRequestOutcome.LimitReached => "Password reset email limit reached, no email sent",
+            _ => $"Password reset requested for unknown email '{Indice.Extensions.StringExtensions.Truncate(e.Email, 512)}'"
+        },
+        Succeeded = e.Succeeded,
+        SubjectId = e.InitiatedByAdmin ? null : e.User?.Id,
+        SubjectName = e.InitiatedByAdmin ? null : e.User?.UserName ?? Indice.Extensions.StringExtensions.Truncate(e.Email, 512)
     };
 
     private static ActivityLogEntry CreateDeviceEntry(UserDeviceEventContext device, string eventType, string description, UserEventContext? owner = null) => new() {

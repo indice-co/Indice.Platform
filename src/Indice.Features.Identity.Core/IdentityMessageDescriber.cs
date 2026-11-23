@@ -28,9 +28,9 @@ public class IdentityMessageDescriber
     public virtual string UpdateEmailMessageSubject => IdentityResources.EmailUpdateMessageSubject;
     /// <summary>Email verification code is {0}.</summary>
     public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string? returnUrl) where TUser : class => string.Format(IdentityResources.EmailUpdateMessageBody, token);
-    /// <summary>Forgot password.</summary>
+    /// <summary>Reset your password. Subject of the password reset email, sent both on a self-service forgot password request and when an administrator sends a password reset email.</summary>
     public virtual string ForgotPasswordMessageSubject => IdentityResources.ForgotPasswordMessageSubject;
-    /// <summary>Email verification code is {0}.</summary>
+    /// <summary>Follow this link to create your new password. Body of the password reset email when no email template is configured. Should contain the '{0}' placeholder for the reset link.</summary>
     public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token, string? confirmationUrl) where TUser : class => string.Format(IdentityResources.ForgotPasswordMessageBody, confirmationUrl);
     /// <summary>Subject sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used.</summary>
     public virtual string OtpSecuredValidatorOtpSubject => IdentityResources.OtpSecuredValidatorOtpSubject;

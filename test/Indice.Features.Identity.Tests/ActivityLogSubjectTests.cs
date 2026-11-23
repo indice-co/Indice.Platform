@@ -44,6 +44,55 @@ public class ActivityLogSubjectTests
     }
 
     [Fact]
+    public void Converter_Logs_PasswordResetRequest_For_Unknown_Email_As_Failed_Entry_Searchable_By_Email() {
+        var converter = new IdentityEventsActivityLogConverter();
+
+        var entry = converter.Convert(new PasswordResetRequestEvent("nobody@indice.gr", PasswordResetRequestOutcome.UserNotFound));
+
+        Assert.NotNull(entry);
+        Assert.False(entry!.Succeeded);
+        Assert.Equal(nameof(PasswordResetRequestEvent), entry.EventType);
+        Assert.Equal(ActivityLogCategories.Authentication, entry.Category);
+        Assert.Equal("Password reset requested for unknown email 'nobody@indice.gr'", entry.Description);
+        Assert.Null(entry.ResourceId);
+        Assert.Null(entry.SubjectId);
+        Assert.Equal("nobody@indice.gr", entry.SubjectName);
+    }
+
+    [Theory]
+    [InlineData(PasswordResetRequestOutcome.EmailSent, true, "Password reset email sent")]
+    [InlineData(PasswordResetRequestOutcome.LimitReached, false, "Password reset email limit reached, no email sent")]
+    public void Converter_Logs_PasswordResetRequest_For_Known_Account_Against_The_Account(PasswordResetRequestOutcome outcome, bool succeeded, string description) {
+        var converter = new IdentityEventsActivityLogConverter();
+        var user = CreateUserContext("user-123", "john.doe");
+
+        var entry = converter.Convert(new PasswordResetRequestEvent("john@indice.gr", outcome, user));
+
+        Assert.NotNull(entry);
+        Assert.Equal(succeeded, entry!.Succeeded);
+        Assert.Equal(description, entry.Description);
+        Assert.Equal("user-123", entry.ResourceId);
+        Assert.Equal("user-123", entry.SubjectId);
+        Assert.Equal("john.doe", entry.SubjectName);
+    }
+
+    [Fact]
+    public void Converter_Leaves_Subject_Null_For_Admin_Initiated_PasswordResetRequest() {
+        var converter = new IdentityEventsActivityLogConverter();
+        var user = CreateUserContext("user-123", "john.doe");
+
+        // The administrator is the actor, so the subject must come from the authenticated user (enricher), not the event.
+        var entry = converter.Convert(new PasswordResetRequestEvent("john@indice.gr", PasswordResetRequestOutcome.EmailSent, user, initiatedByAdmin: true));
+
+        Assert.NotNull(entry);
+        Assert.True(entry!.Succeeded);
+        Assert.Equal("Password reset email sent by an administrator", entry.Description);
+        Assert.Equal("user-123", entry.ResourceId);
+        Assert.Null(entry.SubjectId);
+        Assert.Null(entry.SubjectName);
+    }
+
+    [Fact]
     public async Task Aggregator_Runs_PostEnrichment_Filter_After_Enrichers() {
         // A synchronous enricher fills the subject; a post-enrichment filter discards when the subject is empty.
         // Because the enricher now runs before the post-filter, the entry must survive.

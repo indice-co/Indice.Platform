@@ -136,7 +136,7 @@
     <value>Confirm your account.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Follow &lt;a href="{0}" &gt;this link&lt;a&gt;to create your new password</value>
+    <value>Follow &lt;a href="{0}"&gt;this link&lt;/a&gt; to create your new password</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Suspicious login attempt OTP code is {0}.</value>
@@ -229,7 +229,7 @@
     <value>Please select your phone number so we can verify it before we continue.</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Forgot password</value>
+    <value>Reset your password</value>
   </data>
   <data name="ForgotPasswordConfirmationError" xml:space="preserve">
     <value>Something went wrong.</value>

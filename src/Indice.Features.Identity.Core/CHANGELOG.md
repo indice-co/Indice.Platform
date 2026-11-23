@@ -38,11 +38,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so support can start a recovery for the user without knowing or setting the password. The Admin UI exposes it as a
   user action.
 - `PasswordIsTemporary` is exposed in `UserEventContext`, and in the `BasicUserInfo`, `UserInfo` and `SingleUserInfo` responses of the users API.
+- `PasswordResetRequestEvent`. Every forgot password request (Identity UI `ForgotPassword` page and `POST account/forgot-password`)
+  now publishes this event with the email that was entered and its `Outcome`: `EmailSent`, `UserNotFound` (no account has the
+  email, so no email is sent) or `LimitReached` (the account is over its password reset email limit). `User` is set when the
+  account exists. `IdentityEventsActivityLogConverter` records it in the activity log as an `Authentication` entry, failed
+  unless the email was sent, so attempts to find accounts by email (account enumeration) are audited. An entry for an unknown
+  email has no subject id, and its subject name is the email entered, so it can be searched by email. Hosts that turn on
+  `EnableSubjectFilter` drop entries without a subject id, so they do not keep the unknown email entries.
+  The response does not change: it is the same for every outcome, so the account still cannot be found from it.
+  The administrator `send-password-reset` action publishes it too, with `InitiatedByAdmin` set and outcome `EmailSent`. Its
+  activity log entry is recorded against the user (`ResourceId`), and the administrator who sent it is the subject.
 ### Changed
+- The password reset email and page no longer say "Forgot password", because the same email is also sent when an administrator
+  starts a reset (`POST /api/users/{userId}/send-password-reset`). The default email subject (`ForgotPasswordMessageSubject`)
+  is now "Reset your password", and the title and header of the page that sets the new password
+  (`ForgotPasswordConfirmation_PageTitle`, `ForgotPasswordConfirmation_PageHeader`) are now "Reset your password" instead of
+  "Forgot Password Confirmation". All shipped translations are updated. The forgot password request page and the login link keep
+  their wording. Hosts that override these texts are not affected.
 - `changePasswordAfterFirstSignIn` now also gives the password a hard cutoff. If a password expiration policy is set and the
   user does not sign in before the policy date, the password is refused instead of just forcing a change. Set
   `IdentityOptions:Password:TemporaryPasswordLifetime` to choose the cutoff explicitly.
 ### Fixed
+- The default password reset email body (`ForgotPasswordMessageBody`, used when no email template is configured) closed its
+  link with `<a>` instead of `</a>` in the English, French, German, Greek and Portuguese texts.
 - Resetting the password of a locked out user with a token now publishes `PasswordChangedEvent`, like every other reset.
   Event handlers (password changed notification, grant revocation) now also run in this case.
 - When ASP.NET Identity upgrades the stored hash of a temporary password at sign-in, the password stays temporary and keeps its cutoff.

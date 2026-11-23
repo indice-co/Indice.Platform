@@ -502,10 +502,10 @@
     <value>ユーザー名</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageTitle" xml:space="preserve">
-    <value>パスワードリセットの確認</value>
+    <value>パスワードのリセット</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
-    <value>パスワードリセットの確認</value>
+    <value>パスワードのリセット</value>
   </data>
   <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
     <value>新しいパスワード</value>
