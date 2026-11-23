@@ -1007,6 +1007,34 @@ public class IdentityUILocalizer
     public virtual HtmlString Profile_No => new HtmlString(IdentityLabels.Profile_No);
     /// <summary>Gets the localized string for "Commercial communications".</summary>
     public virtual HtmlString Profile_ConsentCommercial => new HtmlString(IdentityLabels.Profile_ConsentCommercial);
+    /// <summary>Gets the localized string for "Security" (security page title and navigation item).</summary>
+    public virtual HtmlString Security_PageTitle => new HtmlString(IdentityLabels.Security_PageTitle);
+    /// <summary>Gets the localized description of the sign-in methods on the security page.</summary>
+    public virtual HtmlString Security_Description => new HtmlString(IdentityLabels.Security_Description);
+    /// <summary>Gets the localized string for "Sign-in methods".</summary>
+    public virtual HtmlString Security_SignInMethods => new HtmlString(IdentityLabels.Security_SignInMethods);
+    /// <summary>Gets the localized string for "Password".</summary>
+    public virtual HtmlString Security_Password => new HtmlString(IdentityLabels.Security_Password);
+    /// <summary>Gets the localized string for "Last changed".</summary>
+    public virtual HtmlString Security_LastChanged => new HtmlString(IdentityLabels.Security_LastChanged);
+    /// <summary>Gets the localized string for "Used for".</summary>
+    public virtual HtmlString Security_UsedFor => new HtmlString(IdentityLabels.Security_UsedFor);
+    /// <summary>Gets the localized string for "Account sign in".</summary>
+    public virtual HtmlString Security_UsedForSignIn => new HtmlString(IdentityLabels.Security_UsedForSignIn);
+    /// <summary>Gets the localized string for "Verification codes and account recovery".</summary>
+    public virtual HtmlString Security_UsedForVerification => new HtmlString(IdentityLabels.Security_UsedForVerification);
+    /// <summary>Gets the localized string for "Extra verification when you sign in".</summary>
+    public virtual HtmlString Security_UsedForTwoFactor => new HtmlString(IdentityLabels.Security_UsedForTwoFactor);
+    /// <summary>Gets the localized string for "Method".</summary>
+    public virtual HtmlString Security_Method => new HtmlString(IdentityLabels.Security_Method);
+    /// <summary>Gets the localized string for "Up to date".</summary>
+    public virtual HtmlString Security_UpToDate => new HtmlString(IdentityLabels.Security_UpToDate);
+    /// <summary>Gets the localized string for "Verified".</summary>
+    public virtual HtmlString Security_Verified => new HtmlString(IdentityLabels.Security_Verified);
+    /// <summary>Gets the localized string for "Not verified".</summary>
+    public virtual HtmlString Security_NotVerified => new HtmlString(IdentityLabels.Security_NotVerified);
+    /// <summary>Gets the localized string for "Manage".</summary>
+    public virtual HtmlString Security_Manage => new HtmlString(IdentityLabels.Security_Manage);
     /// <summary>Gets the localized string for "Verify your identity".</summary>
     public virtual HtmlString ProfileMfaChallenge_Title => new HtmlString(IdentityLabels.ProfileMfaChallenge_Title);
     /// <summary>Gets the localized prompt explaining why the profile MFA challenge is needed.</summary>

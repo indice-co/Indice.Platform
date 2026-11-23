@@ -1,0 +1,172 @@
+@page "/manage/security"
+
+@model BaseSecurityModel
+
+@inject IdentityUILocalizer Localizer
+
+@{
+    Layout = "_ProfileLayout";
+    ViewData["Title"] = Localizer.Security_PageTitle;
+    var alert = TempData.Get<AlertModel>("Alert");
+    var view = Model.View;
+}
+
+<partial name="_Alert" model="alert" />
+
+@* ---- Summary: profile picture, name and sign-in info ---- *@
+<section class="data-card">
+    <header class="data-card__header">
+        <h1 class="data-card__title">@Localizer.Security_PageTitle</h1>
+    </header>
+    <div class="security-summary">
+        <img class="avatar avatar--lg security-summary__avatar" profile-pic="128" profile-display-name="@view.DisplayName" profile-pic-background="cecece" alt="" />
+        <div class="security-summary__text">
+            <p class="security-summary__name">@view.DisplayName</p>
+            @if (view.LastSignInDate.HasValue)
+            {
+                <p class="security-summary__meta"><i class="fa-regular fa-clock" aria-hidden="true"></i> @Localizer.Profile_LastLogin(view.LastSignInDate.Value.ToLocalTime().ToString("g"))</p>
+            }
+            @if (view.CreateDate.HasValue)
+            {
+                <p class="security-summary__meta"><i class="fa-regular fa-calendar" aria-hidden="true"></i> @Localizer.Profile_AccountCreated(view.CreateDate.Value.ToLocalTime().ToString("d"))</p>
+            }
+        </div>
+    </div>
+</section>
+
+@* ---- Sign-in methods: each row expands to its details and actions ---- *@
+<section class="data-card">
+    <header class="data-card__header">
+        <h2 class="data-card__title">@Localizer.Security_SignInMethods</h2>
+    </header>
+    <p class="data-card__lead">@Localizer.Security_Description</p>
+    <div class="security-methods">
+        @* Password *@
+        <details class="security-method">
+            <summary class="security-method__summary">
+                <i class="fa-solid fa-chevron-right security-method__chevron" aria-hidden="true"></i>
+                <span class="security-method__icon"><i class="fa-solid fa-key" aria-hidden="true"></i></span>
+                <span class="security-method__name">@Localizer.Security_Password</span>
+                <span class="security-method__value"></span>
+                @if (view.HasPassword)
+                {
+                    <span class="security-method__status security-method__status--ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> @Localizer.Security_UpToDate</span>
+                }
+                else
+                {
+                    <span class="security-method__status"><i class="fa-regular fa-circle" aria-hidden="true"></i> @Localizer.Profile_NotSet</span>
+                }
+            </summary>
+            <div class="security-method__body">
+                <dl class="security-method__facts">
+                    <div class="security-method__fact" indice-if="view.HasPassword && view.LastPasswordChangeDate.HasValue">
+                        <dt>@Localizer.Security_LastChanged</dt>
+                        <dd>@view.LastPasswordChangeDate?.ToLocalTime().ToString("d")</dd>
+                    </div>
+                    <div class="security-method__fact">
+                        <dt>@Localizer.Security_UsedFor</dt>
+                        <dd>@Localizer.Security_UsedForSignIn</dd>
+                    </div>
+                </dl>
+                <div class="security-method__actions">
+                    @if (view.HasPassword)
+                    {
+                        <a class="btn security-method__action" asp-page="/ChangePassword">@Localizer.ChangePassword_PageTitle</a>
+                    }
+                    else
+                    {
+                        <a class="btn security-method__action" asp-page="/AddPassword">@Localizer.AddPassword_PageTitle</a>
+                    }
+                </div>
+            </div>
+        </details>
+
+        @* Email *@
+        <details class="security-method">
+            <summary class="security-method__summary">
+                <i class="fa-solid fa-chevron-right security-method__chevron" aria-hidden="true"></i>
+                <span class="security-method__icon"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span>
+                <span class="security-method__name">@Localizer.Email</span>
+                <span class="security-method__value">@view.Email</span>
+                @StatusBadge(view.Email, view.EmailConfirmed)
+            </summary>
+            <div class="security-method__body">
+                <dl class="security-method__facts">
+                    <div class="security-method__fact">
+                        <dt>@Localizer.Security_UsedFor</dt>
+                        <dd>@Localizer.Security_UsedForVerification</dd>
+                    </div>
+                </dl>
+                <div class="security-method__actions" indice-if="view.CanEditEmail">
+                    <a class="btn security-method__action" asp-page="/ChangeEmail">@Localizer.ChangeEmail_PageTitle</a>
+                </div>
+            </div>
+        </details>
+
+        @* Phone number *@
+        <details class="security-method">
+            <summary class="security-method__summary">
+                <i class="fa-solid fa-chevron-right security-method__chevron" aria-hidden="true"></i>
+                <span class="security-method__icon"><i class="fa-regular fa-message" aria-hidden="true"></i></span>
+                <span class="security-method__name">@Localizer.Profile_Phone_Number</span>
+                <span class="security-method__value">@view.PhoneNumber</span>
+                @StatusBadge(view.PhoneNumber, view.PhoneNumberConfirmed)
+            </summary>
+            <div class="security-method__body">
+                <dl class="security-method__facts">
+                    <div class="security-method__fact">
+                        <dt>@Localizer.Security_UsedFor</dt>
+                        <dd>@Localizer.Security_UsedForVerification</dd>
+                    </div>
+                </dl>
+                <div class="security-method__actions" indice-if="view.CanEditPhone">
+                    <a class="btn security-method__action" asp-page="/ChangePhone">@Localizer.ChangePhone_PageTitle</a>
+                </div>
+            </div>
+        </details>
+
+        @* Two-factor authentication *@
+        <details class="security-method">
+            <summary class="security-method__summary">
+                <i class="fa-solid fa-chevron-right security-method__chevron" aria-hidden="true"></i>
+                <span class="security-method__icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
+                <span class="security-method__name">@Localizer.Profile_TwoFactor</span>
+                <span class="security-method__value">@(view.TwoFactorEnabled && !string.IsNullOrWhiteSpace(view.TwoFactorMethodName) ? Localizer.GetGeneric(view.TwoFactorMethodName) : null)</span>
+                @if (view.TwoFactorEnabled)
+                {
+                    <span class="security-method__status security-method__status--ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> @Localizer.Profile_TwoFactorOn</span>
+                }
+                else
+                {
+                    <span class="security-method__status"><i class="fa-regular fa-circle" aria-hidden="true"></i> @Localizer.Profile_TwoFactorOff</span>
+                }
+            </summary>
+            <div class="security-method__body">
+                <dl class="security-method__facts">
+                    <div class="security-method__fact" indice-if="view.TwoFactorEnabled && !string.IsNullOrWhiteSpace(view.TwoFactorMethodName)">
+                        <dt>@Localizer.Security_Method</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(view.TwoFactorMethodName) ? null : Localizer.GetGeneric(view.TwoFactorMethodName))</dd>
+                    </div>
+                    <div class="security-method__fact">
+                        <dt>@Localizer.Security_UsedFor</dt>
+                        <dd>@Localizer.Security_UsedForTwoFactor</dd>
+                    </div>
+                </dl>
+                <div class="security-method__actions" indice-if="view.CanManageMfa">
+                    <a class="btn security-method__action" asp-page="/ManageMfa">@Localizer.Security_Manage</a>
+                </div>
+            </div>
+        </details>
+    </div>
+</section>
+
+@functions {
+    private Microsoft.AspNetCore.Html.IHtmlContent StatusBadge(string? value, bool confirmed) {
+        if (string.IsNullOrWhiteSpace(value)) {
+            return new Microsoft.AspNetCore.Html.HtmlString($"<span class=\"security-method__status\"><i class=\"fa-regular fa-circle\" aria-hidden=\"true\"></i> {Localizer.Profile_NotSet}</span>");
+        }
+        return confirmed
+            ? new Microsoft.AspNetCore.Html.HtmlString($"<span class=\"security-method__status security-method__status--ok\"><i class=\"fa-solid fa-circle-check\" aria-hidden=\"true\"></i> {Localizer.Security_Verified}</span>")
+            : new Microsoft.AspNetCore.Html.HtmlString($"<span class=\"security-method__status security-method__status--warning\"><i class=\"fa-solid fa-circle-exclamation\" aria-hidden=\"true\"></i> {Localizer.Security_NotVerified}</span>");
+    }
+}

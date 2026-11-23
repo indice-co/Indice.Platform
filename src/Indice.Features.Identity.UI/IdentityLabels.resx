@@ -1370,4 +1370,18 @@
 <data name="Profile_ConsentCommercial" xml:space="preserve"><value>Commercial communications</value></data>
 <data name="Profile_InvalidValue" xml:space="preserve"><value>The value of '{0}' is not valid.</value></data>
 <data name="Profile_RequiredValue" xml:space="preserve"><value>'{0}' is required.</value></data>
+<data name="Security_PageTitle" xml:space="preserve"><value>Security</value></data>
+<data name="Security_Description" xml:space="preserve"><value>The ways you sign in and verify your identity.</value></data>
+<data name="Security_SignInMethods" xml:space="preserve"><value>Sign-in methods</value></data>
+<data name="Security_Password" xml:space="preserve"><value>Password</value></data>
+<data name="Security_LastChanged" xml:space="preserve"><value>Last changed</value></data>
+<data name="Security_UsedFor" xml:space="preserve"><value>Used for</value></data>
+<data name="Security_UsedForSignIn" xml:space="preserve"><value>Account sign in</value></data>
+<data name="Security_UsedForVerification" xml:space="preserve"><value>Verification codes and account recovery</value></data>
+<data name="Security_UsedForTwoFactor" xml:space="preserve"><value>Extra verification when you sign in</value></data>
+<data name="Security_Method" xml:space="preserve"><value>Method</value></data>
+<data name="Security_UpToDate" xml:space="preserve"><value>Up to date</value></data>
+<data name="Security_Verified" xml:space="preserve"><value>Verified</value></data>
+<data name="Security_NotVerified" xml:space="preserve"><value>Not verified</value></data>
+<data name="Security_Manage" xml:space="preserve"><value>Manage</value></data>
 </root>

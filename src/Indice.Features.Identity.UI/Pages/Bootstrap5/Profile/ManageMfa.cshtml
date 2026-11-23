@@ -14,10 +14,11 @@
     var setup = Model.Setup;
     var recoveryCodes = Model.RecoveryCodes;
     var codeError = ViewContext.ModelState["code"]?.Errors.FirstOrDefault()?.ErrorMessage;
+    ViewData["MfaChallengeCancelPage"] = "/Security";
 }
 
 <section class="data-card data-card--form" inert="@(mfaChallenge is not null)">
-    <a class="data-card__back" asp-page="/Profile">&larr; @Localizer.Mfa_Back</a>
+    <a class="data-card__back" asp-page="/Security">&larr; @Localizer.Mfa_Back</a>
     <header class="data-card__header">
         <h1 class="data-card__title">@Localizer.ManageMfa_PageTitle</h1>
         <p class="data-card__lead">@Localizer.ManageMfa_Description</p>

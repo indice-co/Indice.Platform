@@ -404,3 +404,202 @@
         }
     }
 }
+
+// Security page summary: profile picture, name and sign-in info.
+.security-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: t.$space-5;
+
+    &__avatar {
+        flex: 0 0 auto;
+        width: 6rem;
+        height: 6rem;
+    }
+
+    &__text {
+        flex: 1 1 16rem;
+        min-width: 0;
+    }
+
+    &__name {
+        margin: 0 0 t.$space-2;
+        font-size: t.$font-size-lg;
+        font-weight: t.$font-weight-medium;
+        color: var(--idui-color-ink);
+        overflow-wrap: anywhere;
+    }
+
+    &__meta {
+        margin: 0 0 t.$space-1;
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+
+        i {
+            width: 1rem;
+            margin-right: .35rem;
+            color: var(--idui-color-text-subtle);
+        }
+    }
+}
+
+// Security page sign-in methods: a row per method (icon, name, value, status) that expands to its details and actions.
+.security-methods {
+    display: flex;
+    flex-direction: column;
+    gap: t.$space-2;
+}
+
+.security-method {
+    border: 1px solid var(--idui-color-border);
+    border-radius: var(--idui-radius-sm);
+    background: var(--idui-color-surface);
+
+    &__summary {
+        display: grid;
+        grid-template-columns: .75rem 2rem minmax(0, 1fr) minmax(0, 1.2fr) auto;
+        align-items: center;
+        column-gap: t.$space-3;
+        padding: t.$space-3 t.$space-4;
+        border-radius: var(--idui-radius-sm);
+        color: var(--idui-color-ink);
+        cursor: pointer;
+        list-style: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &:hover {
+            background: var(--idui-color-surface-muted);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--idui-color-ink);
+            outline-offset: -2px;
+        }
+    }
+
+    &[open] > &__summary {
+        border-bottom: 1px solid var(--idui-color-border);
+        border-radius: var(--idui-radius-sm) var(--idui-radius-sm) 0 0;
+    }
+
+    &__chevron {
+        font-size: .75rem;
+        color: var(--idui-color-text-muted);
+        transition: transform t.$transition-fast;
+    }
+
+    &[open] &__chevron {
+        transform: rotate(90deg);
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        background: var(--idui-color-surface-muted);
+        color: var(--idui-color-ink);
+    }
+
+    &__name {
+        font-weight: t.$font-weight-medium;
+    }
+
+    &__value {
+        font-size: t.$font-size-sm;
+        color: var(--idui-color-text-muted);
+        overflow-wrap: anywhere;
+    }
+
+    &__status {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: t.$font-size-sm;
+        font-weight: t.$font-weight-medium;
+        color: var(--idui-color-text-muted);
+        white-space: nowrap;
+
+        &--ok {
+            color: var(--idui-color-success);
+        }
+
+        &--warning {
+            color: var(--idui-color-warning);
+        }
+    }
+
+    // Aligned with the method name (chevron + icon + gaps).
+    &__body {
+        padding: t.$space-4 t.$space-4 t.$space-4 5.25rem;
+        border-radius: 0 0 var(--idui-radius-sm) var(--idui-radius-sm);
+        background: var(--idui-color-surface-muted);
+    }
+
+    &__facts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+        gap: t.$space-2 t.$space-5;
+        margin: 0 0 t.$space-3;
+    }
+
+    &__fact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: t.$space-1 t.$space-4;
+        font-size: t.$font-size-sm;
+
+        dt {
+            min-width: 7rem;
+            font-weight: normal;
+            color: var(--idui-color-text-muted);
+        }
+
+        dd {
+            margin: 0;
+            color: var(--idui-color-ink);
+        }
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: t.$space-2;
+    }
+
+    &__action {
+        border: 1px solid var(--idui-color-border);
+        background: var(--idui-color-surface);
+        color: var(--idui-color-ink);
+        font-size: t.$font-size-sm;
+        font-weight: t.$font-weight-medium;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--idui-color-border);
+            color: var(--idui-color-ink);
+        }
+    }
+
+    // Phones: the value moves under the name.
+    @include m.mq-down(sm) {
+        &__summary {
+            grid-template-columns: .75rem 2rem minmax(0, 1fr) auto;
+        }
+
+        &__value {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        &__body {
+            padding-left: t.$space-4;
+        }
+    }
+}

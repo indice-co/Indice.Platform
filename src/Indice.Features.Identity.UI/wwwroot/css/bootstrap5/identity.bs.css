@@ -1936,6 +1936,172 @@ body {
   border-bottom: 1px solid var(--idui-color-border);
 }
 
+.security-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+.security-summary__avatar {
+  flex: 0 0 auto;
+  width: 6rem;
+  height: 6rem;
+}
+.security-summary__text {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+.security-summary__name {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--idui-color-ink);
+  overflow-wrap: anywhere;
+}
+.security-summary__meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  color: var(--idui-color-text-muted);
+}
+.security-summary__meta i {
+  width: 1rem;
+  margin-right: 0.35rem;
+  color: var(--idui-color-text-subtle);
+}
+
+.security-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.security-method {
+  border: 1px solid var(--idui-color-border);
+  border-radius: var(--idui-radius-sm);
+  background: var(--idui-color-surface);
+}
+.security-method__summary {
+  display: grid;
+  grid-template-columns: 0.75rem 2rem minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  align-items: center;
+  -moz-column-gap: 0.75rem;
+       column-gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--idui-radius-sm);
+  color: var(--idui-color-ink);
+  cursor: pointer;
+  list-style: none;
+}
+.security-method__summary::-webkit-details-marker {
+  display: none;
+}
+.security-method__summary:hover {
+  background: var(--idui-color-surface-muted);
+}
+.security-method__summary:focus-visible {
+  outline: 2px solid var(--idui-color-ink);
+  outline-offset: -2px;
+}
+.security-method[open] > .security-method__summary {
+  border-bottom: 1px solid var(--idui-color-border);
+  border-radius: var(--idui-radius-sm) var(--idui-radius-sm) 0 0;
+}
+.security-method__chevron {
+  font-size: 0.75rem;
+  color: var(--idui-color-text-muted);
+  transition: transform 0.15s ease;
+}
+.security-method[open] .security-method__chevron {
+  transform: rotate(90deg);
+}
+.security-method__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--idui-color-surface-muted);
+  color: var(--idui-color-ink);
+}
+.security-method__name {
+  font-weight: 500;
+}
+.security-method__value {
+  font-size: 0.875rem;
+  color: var(--idui-color-text-muted);
+  overflow-wrap: anywhere;
+}
+.security-method__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--idui-color-text-muted);
+  white-space: nowrap;
+}
+.security-method__status--ok {
+  color: var(--idui-color-success);
+}
+.security-method__status--warning {
+  color: var(--idui-color-warning);
+}
+.security-method__body {
+  padding: 1rem 1rem 1rem 5.25rem;
+  border-radius: 0 0 var(--idui-radius-sm) var(--idui-radius-sm);
+  background: var(--idui-color-surface-muted);
+}
+.security-method__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.5rem 1.5rem;
+  margin: 0 0 0.75rem;
+}
+.security-method__fact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font-size: 0.875rem;
+}
+.security-method__fact dt {
+  min-width: 7rem;
+  font-weight: normal;
+  color: var(--idui-color-text-muted);
+}
+.security-method__fact dd {
+  margin: 0;
+  color: var(--idui-color-ink);
+}
+.security-method__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.security-method__action {
+  border: 1px solid var(--idui-color-border);
+  background: var(--idui-color-surface);
+  color: var(--idui-color-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.security-method__action:hover, .security-method__action:focus-visible {
+  background: var(--idui-color-border);
+  color: var(--idui-color-ink);
+}
+@media (max-width: 575.98px) {
+  .security-method__summary {
+    grid-template-columns: 0.75rem 2rem minmax(0, 1fr) auto;
+  }
+  .security-method__value {
+    grid-column: 3;
+    grid-row: 2;
+  }
+  .security-method__body {
+    padding-left: 1rem;
+  }
+}
+
 .mfa-manage__status {
   display: flex;
   align-items: center;

@@ -4145,5 +4145,131 @@ namespace Indice.Features.Identity.UI {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to Security.
+        /// </summary>
+        public static string Security_PageTitle {
+            get {
+                return ResourceManager.GetString("Security_PageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The ways you sign in and verify your identity..
+        /// </summary>
+        public static string Security_Description {
+            get {
+                return ResourceManager.GetString("Security_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sign-in methods.
+        /// </summary>
+        public static string Security_SignInMethods {
+            get {
+                return ResourceManager.GetString("Security_SignInMethods", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        public static string Security_Password {
+            get {
+                return ResourceManager.GetString("Security_Password", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Last changed.
+        /// </summary>
+        public static string Security_LastChanged {
+            get {
+                return ResourceManager.GetString("Security_LastChanged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Used for.
+        /// </summary>
+        public static string Security_UsedFor {
+            get {
+                return ResourceManager.GetString("Security_UsedFor", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account sign in.
+        /// </summary>
+        public static string Security_UsedForSignIn {
+            get {
+                return ResourceManager.GetString("Security_UsedForSignIn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verification codes and account recovery.
+        /// </summary>
+        public static string Security_UsedForVerification {
+            get {
+                return ResourceManager.GetString("Security_UsedForVerification", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Extra verification when you sign in.
+        /// </summary>
+        public static string Security_UsedForTwoFactor {
+            get {
+                return ResourceManager.GetString("Security_UsedForTwoFactor", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Method.
+        /// </summary>
+        public static string Security_Method {
+            get {
+                return ResourceManager.GetString("Security_Method", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Up to date.
+        /// </summary>
+        public static string Security_UpToDate {
+            get {
+                return ResourceManager.GetString("Security_UpToDate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verified.
+        /// </summary>
+        public static string Security_Verified {
+            get {
+                return ResourceManager.GetString("Security_Verified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not verified.
+        /// </summary>
+        public static string Security_NotVerified {
+            get {
+                return ResourceManager.GetString("Security_NotVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Manage.
+        /// </summary>
+        public static string Security_Manage {
+            get {
+                return ResourceManager.GetString("Security_Manage", resourceCulture);
+            }
+        }
+
     }
 }

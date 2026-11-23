@@ -172,7 +172,7 @@ public class ManageMfaPageTests : IAsyncLifetime
 
         var result = await page.OnPostSelectMethodAsync(AuthenticationMethodType.Email);
 
-        Assert.Equal("/Profile", Assert.IsType<RedirectToPageResult>(result).PageName);
+        Assert.Equal("/Security", Assert.IsType<RedirectToPageResult>(result).PageName);
         Assert.True(page.TempData.ContainsKey("Alert"));
         var stored = await ReloadUserAsync(user);
         Assert.True(stored.TwoFactorEnabled);
@@ -339,7 +339,7 @@ public class ManageMfaPageTests : IAsyncLifetime
         var setup = await CreatePage().OnPostSetupAuthenticatorAsync();
         var regenerate = await CreatePage().OnPostRegenerateRecoveryCodesAsync();
 
-        Assert.Equal("/Profile", Assert.IsType<RedirectToPageResult>(get).PageName);
+        Assert.Equal("/Security", Assert.IsType<RedirectToPageResult>(get).PageName);
         Assert.IsType<BadRequestResult>(select);
         Assert.IsType<BadRequestResult>(setup);
         Assert.IsType<BadRequestResult>(regenerate);

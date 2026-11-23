@@ -4,17 +4,19 @@
 
 @{
     var errors = ViewData.ModelState.TryGetValue(BaseProfileMfaChallengePageModel.MfaChallengeCodeKey, out var entry) ? entry.Errors.Select(error => error.ErrorMessage).ToArray() : [];
+    // The page the close and cancel links return to; pages set ViewData["MfaChallengeCancelPage"] to override it.
+    var cancelPage = ViewData["MfaChallengeCancelPage"] as string ?? "/Profile";
 }
 
 <div class="verify-dialog mfa-challenge" role="dialog" aria-modal="true" aria-labelledby="mfa-challenge-title" aria-describedby="mfa-challenge-prompt">
     <div class="verify-dialog__box">
-        <a class="verify-dialog__close" asp-page="/Profile" aria-label="@Localizer.ChangeEmail_Close">&times;</a>
+        <a class="verify-dialog__close" asp-page="@cancelPage" aria-label="@Localizer.ChangeEmail_Close">&times;</a>
         <h2 class="verify-dialog__title" id="mfa-challenge-title">@Localizer.ProfileMfaChallenge_Title</h2>
         @if (Model.IsBlocked)
         {
             <p class="verify-dialog__text mfa-challenge__blocked" id="mfa-challenge-prompt" role="alert">@Localizer.ProfileMfaChallenge_Blocked</p>
             <div class="verify-dialog__actions">
-                <a class="btn btn-primary" asp-page="/Profile">@Localizer.ChangeEmail_Close</a>
+                <a class="btn btn-primary" asp-page="@cancelPage">@Localizer.ChangeEmail_Close</a>
             </div>
         }
         else
@@ -45,7 +47,7 @@
                         </p>
                     }
                     <div class="verify-dialog__actions">
-                        <a class="btn mfa-challenge__cancel" asp-page="/Profile">@Localizer.ProfileMfaChallenge_Cancel</a>
+                        <a class="btn mfa-challenge__cancel" asp-page="@cancelPage">@Localizer.ProfileMfaChallenge_Cancel</a>
                         <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.ChangeEmail_Verify</button>
                     </div>
                 }
@@ -57,7 +59,7 @@
                         <p class="field__error" role="alert">@string.Join(" ", errors)</p>
                     }
                     <div class="verify-dialog__actions">
-                        <a class="btn mfa-challenge__cancel" asp-page="/Profile">@Localizer.ProfileMfaChallenge_Cancel</a>
+                        <a class="btn mfa-challenge__cancel" asp-page="@cancelPage">@Localizer.ProfileMfaChallenge_Cancel</a>
                         <button class="btn btn-primary auth-form__submit" type="submit">@Localizer.ProfileMfaChallenge_SendCode</button>
                     </div>
                 }

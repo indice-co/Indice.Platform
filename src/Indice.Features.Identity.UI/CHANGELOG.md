@@ -50,8 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `ChangeUserName_Succeeded`.
 ### Added (profile MFA management)
 - New **Manage MFA** page `/ManageMfa` (`/manage/mfa`, `BaseManageMfaModel`, view models `ManageMfaViewModel`,
-  `ManageMfaMethodViewModel` and `ManageMfaSetupAuthenticatorViewModel`), linked from a new *Two-factor authentication*
-  row in the Account section of `/Profile`. Users can:
+  `ManageMfaMethodViewModel` and `ManageMfaSetupAuthenticatorViewModel`), linked from the *Two-factor authentication*
+  row of the new `/Security` page. Users can:
   - turn MFA on by choosing a method (SMS on a confirmed phone, email on a confirmed email, or authenticator app);
   - change the preferred method;
   - set up a new authenticator app. The new key is stored only after a valid code; until then the current key keeps
@@ -64,6 +64,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New option `IdentityUIOptions.DisableMfaEdit` (default `false`) hides the link and makes the page unavailable.
 - New labels `Profile_TwoFactor*` and `ManageMfa_*` (English and Greek) and Bootstrap5 styles `mfa-manage`,
   `mfa-methods`, `mfa-method` and `account-row__status`/`__detail`.
+### Added (security page)
+- New **Security** page `/Security` (`/manage/security`, `BaseSecurityModel`, view model `SecurityViewModel`) with its
+  own *Security* menu item. It shows the user's avatar, name, last login and account creation date, and a *Sign-in
+  methods* list with expandable rows for password, email, phone and two-factor authentication. Each row shows the
+  value and status (up to date / verified / on) and, when expanded, details and a button to the existing page:
+  `/ChangePassword` or `/AddPassword`, `/ChangeEmail`, `/ChangePhone` and `/ManageMfa`. The email and phone buttons
+  follow `DisableEmailEdit` / `DisablePhoneEdit`, the two-factor button follows `DisableMfaEdit`. The rows use
+  `<details>`, so no script is needed.
+- New labels `Security_*` (English and Greek) and Bootstrap5 styles `security-summary`, `security-methods` and
+  `security-method`.
+- `Shared/_ProfileMfaChallenge` reads `ViewData["MfaChallengeCancelPage"]` for its close and cancel links
+  (default `/Profile`).
+### Changed (security page, breaking)
+- **Breaking:** the *Change password* / *Add password* menu item is replaced by *Security*. Password and MFA pages
+  now return to `/Security`: `/ManageMfa` redirects and its back and cancel links go to `/Security`, and
+  `/ChangePassword` and `/AddPassword` have a back link to `/Security`.
+- **Breaking:** the *Two-factor authentication* row moved from `/Profile` to `/Security`.
+  `ProfileViewModel.TwoFactorEnabled`, `TwoFactorMethodName` and `CanManageMfa` are removed; use
+  `SecurityViewModel` instead. Email and phone stay on `/Profile` as contact details.
 ### Changed
 - **Breaking:** the inline username editor on `/Profile` is replaced by a link to `/ChangeUserName`. The
   `BaseProfileModel.OnPostUpdateUserNameAsync` handler, the `AccountFieldEmail` / `AccountFieldPhone` /

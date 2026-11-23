@@ -120,7 +120,7 @@ public abstract class BaseManageMfaModel : BaseProfileMfaChallengePageModel
     /// <summary>Two-factor authentication management page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
         if (IsEditDisabled) {
-            return RedirectToPage("/Profile");
+            return RedirectToPage("/Security");
         }
         var user = await GetUserAsync();
         await PreparePageAsync(user);
@@ -148,7 +148,7 @@ public abstract class BaseManageMfaModel : BaseProfileMfaChallengePageModel
             return Page();
         }
         if (selected.IsCurrent) {
-            return RedirectToPage("/Profile");
+            return RedirectToPage("/Security");
         }
         var result = await UserManager.SetTwoFactorAsync(user, selected.Type.ToString());
         if (result.Succeeded && !string.IsNullOrWhiteSpace(await UserManager.GetAuthenticatorKeyAsync(user))) {
@@ -162,7 +162,7 @@ public abstract class BaseManageMfaModel : BaseProfileMfaChallengePageModel
         }
         await SignInManager.RefreshSignInAsync(user);
         TempData.Put("Alert", AlertModel.Success(Localizer.ManageMfa_Updated.Value!));
-        return RedirectToPage("/Profile");
+        return RedirectToPage("/Security");
     }
 
     /// <summary>Starts the authenticator app setup. A new key is created, but it is stored only after the user enters a valid code.</summary>
@@ -223,7 +223,7 @@ public abstract class BaseManageMfaModel : BaseProfileMfaChallengePageModel
         await SignInManager.RefreshSignInAsync(user);
         if (!await IsRecoveryCodeMethodEnabledAsync()) {
             TempData.Put("Alert", AlertModel.Success(Localizer.ManageMfa_Updated.Value!));
-            return RedirectToPage("/Profile");
+            return RedirectToPage("/Security");
         }
         return await ShowNewRecoveryCodesAsync(user);
     }
@@ -248,7 +248,7 @@ public abstract class BaseManageMfaModel : BaseProfileMfaChallengePageModel
     /// <summary>Displays the new recovery codes.</summary>
     public virtual async Task<IActionResult> OnGetRecoveryCodesAsync() {
         if (IsEditDisabled) {
-            return RedirectToPage("/Profile");
+            return RedirectToPage("/Security");
         }
         var user = await GetUserAsync();
         var codes = await PeekRecoveryCodesAsync(user);
@@ -278,7 +278,7 @@ public abstract class BaseManageMfaModel : BaseProfileMfaChallengePageModel
     public virtual IActionResult OnPostRecoveryCodesDone() {
         TempData.Remove(RecoveryCodesTempDataKey);
         TempData.Put("Alert", AlertModel.Success(Localizer.ManageMfa_Updated.Value!));
-        return RedirectToPage("/Profile");
+        return RedirectToPage("/Security");
     }
 
     /// <summary>Formats the authenticator key in groups of four lowercase characters.</summary>

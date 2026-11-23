@@ -166,7 +166,7 @@ from the view path like the framework folder, so `/Pages/Bootstrap5/Auth/Login.c
 | Folder | Layout | Shell (`<body>` class) | Pages |
 |---|---|---|---|
 | `Auth/` | `_AuthLayout` | `card` (one centered `.auth-card`); `auth` (hero aside + form) on Login, Register | Sign in/up, MFA and onboarding, verification, forgot password, consent, external login, logout, errors |
-| `Profile/` | `_ProfileLayout` | `profile` (image header band, `_ProfileNav` sidebar, `.data-card` stack) | Profile, Change/Add password, Grants |
+| `Profile/` | `_ProfileLayout` | `profile` (image header band, `_ProfileNav` sidebar, `.data-card` stack) | Profile, Security, Change/Add password, Grants |
 | `Home/` | `_HomeLayout` | `card` | Home |
 | `Article/` | `_ArticleLayout` | `article` (wide `.article-card` with rendered markdown) | Terms, Privacy, Accept terms |
 
@@ -331,6 +331,7 @@ Indice.Features.Identity.UI/
 - `/Profile` - User profile management dashboard (read only; each section links to its edit page)
 - `/ChangeProfileDetails` (`/manage/profile/details`) - Edit profile details and user editable claims
 - `/ChangePreferences` (`/manage/preferences`) - Edit the preferred language
+- `/Security` (`/manage/security`) - Sign-in methods overview (password, email, phone, two-factor authentication)
 - `/ChangePassword` - Password change form
 - `/AddEmail` - Add additional email address
 - `/AddPhone` - Add phone number
@@ -356,8 +357,15 @@ but no code-based method are blocked; users without MFA are not affected. Reques
 render `<partial name="_ProfileMfaChallenge" model="Model.MfaChallenge" />`. The username page is unavailable when
 `DisableEmailEdit` is set or the email is used as the username (`IdentityOptions:User:EmailAsUserName`).
 
+#### Security page
+`/Security` (`/manage/security`) has its own *Security* menu item. It shows the user's avatar, name and last login, and
+a *Sign-in methods* list. Each row (password, email, phone, two-factor authentication) shows the value and its status
+and expands to show details and a button to the existing page: `/ChangePassword` or `/AddPassword`, `/ChangeEmail`,
+`/ChangePhone` and `/ManageMfa`. The email, phone and two-factor buttons are hidden when `DisableEmailEdit`,
+`DisablePhoneEdit` or `DisableMfaEdit` is set. The password and MFA pages return to `/Security`.
+
 #### Profile MFA management
-`/ManageMfa` (`/manage/mfa`) is linked from the *Two-factor authentication* row of `/Profile`. Users can turn MFA on,
+`/ManageMfa` (`/manage/mfa`) is linked from the *Two-factor authentication* row of `/Security`. Users can turn MFA on,
 change the preferred method (SMS on a confirmed phone, email on a confirmed email, or authenticator app), set up a new
 authenticator app (the new key is stored only after a valid code) and regenerate recovery codes (authenticator app only).
 Turning MFA off or resetting it is not offered; those remain admin actions. When MFA is already on, every change needs

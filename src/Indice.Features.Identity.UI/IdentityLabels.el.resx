@@ -1369,4 +1369,18 @@
 <data name="Profile_ConsentCommercial" xml:space="preserve"><value>Εμπορική επικοινωνία</value></data>
 <data name="Profile_InvalidValue" xml:space="preserve"><value>Η τιμή του πεδίου '{0}' δεν είναι έγκυρη.</value></data>
 <data name="Profile_RequiredValue" xml:space="preserve"><value>Το πεδίο '{0}' είναι υποχρεωτικό.</value></data>
+<data name="Security_PageTitle" xml:space="preserve"><value>Ασφάλεια</value></data>
+<data name="Security_Description" xml:space="preserve"><value>Οι τρόποι με τους οποίους συνδέεστε και επαληθεύετε την ταυτότητά σας.</value></data>
+<data name="Security_SignInMethods" xml:space="preserve"><value>Τρόποι σύνδεσης</value></data>
+<data name="Security_Password" xml:space="preserve"><value>Κωδικός πρόσβασης</value></data>
+<data name="Security_LastChanged" xml:space="preserve"><value>Τελευταία αλλαγή</value></data>
+<data name="Security_UsedFor" xml:space="preserve"><value>Χρησιμοποιείται για</value></data>
+<data name="Security_UsedForSignIn" xml:space="preserve"><value>Σύνδεση στον λογαριασμό</value></data>
+<data name="Security_UsedForVerification" xml:space="preserve"><value>Κωδικούς επαλήθευσης και ανάκτηση λογαριασμού</value></data>
+<data name="Security_UsedForTwoFactor" xml:space="preserve"><value>Επιπλέον επαλήθευση κατά τη σύνδεση</value></data>
+<data name="Security_Method" xml:space="preserve"><value>Μέθοδος</value></data>
+<data name="Security_UpToDate" xml:space="preserve"><value>Ενημερωμένο</value></data>
+<data name="Security_Verified" xml:space="preserve"><value>Επαληθευμένο</value></data>
+<data name="Security_NotVerified" xml:space="preserve"><value>Μη επαληθευμένο</value></data>
+<data name="Security_Manage" xml:space="preserve"><value>Διαχείριση</value></data>
 </root>
