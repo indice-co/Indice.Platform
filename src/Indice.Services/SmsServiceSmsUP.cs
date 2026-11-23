@@ -214,7 +214,7 @@ public sealed class SmsUpWebhookHttpHandler : IWebhookHttpHandler
 
         var parameters = await BuildParametersAsync(requestHeaders, requestParameters, requestBody, cancellationToken);
 
-        var messageId = FirstNonEmpty(parameters, "sms_id", "smsid", "message_id", "id");
+        var messageId = FirstNonEmpty(parameters, "sms_id");
         var recipient = FirstNonEmpty(parameters, "to", "recipient", "msisdn", "destination");
         if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(recipient)) {
             return WebhookHttpResult.BadRequest("SmsUp webhook requires a message identifier and a recipient.");

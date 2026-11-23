@@ -9,15 +9,15 @@ public sealed class OmniMessagingWebhookAuthenticationTests
 {
     private const string Payload = """
         {
-          "id": 1735689600000000,
-          "campaign_id": 2501000000000001,
-          "campaign_reference": "ORDER-12345",
-          "message_id": 2501010000000001,
-          "to": "306900000000",
+          "id": 1795169620679036,
+          "campaign_id": 2611000002172989,
+          "campaign_reference": "1795169614030130",
+          "message_id": 2611001031511491,
+          "to": "306946909041",
           "type": "sms",
           "delivery_report": {
             "status": "delivered",
-            "date": "2025-01-01T00:00:00Z"
+            "date": "2026-11-20T10:13:39Z"
           }
         }
         """;
@@ -38,6 +38,8 @@ public sealed class OmniMessagingWebhookAuthenticationTests
 
         Assert.True(result.Success);
         var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal("1795169614030130", webhookEvent.MessageId);
+        Assert.Equal("1795169620679036", webhookEvent.EventId);
         Assert.True(webhookEvent.Succeeded);
     }
 
@@ -71,6 +73,33 @@ public sealed class OmniMessagingWebhookAuthenticationTests
         var webhookEvent = Assert.Single(result.Events);
         Assert.Equal(interaction, webhookEvent.EventType);
         Assert.True(webhookEvent.Succeeded);
+    }
+
+    [Fact]
+    public async Task DeliveryReport_MissingCampaignReference_ExplainsRequiredField() {
+        var settings = new SmsServiceOmniMessagingSettings {
+            WebhookAuthenticationMethod = SmsServiceOmniMessagingWebhookAuthenticationMethod.ApiKey,
+            WebhookApiKeyHeaderName = "X-API-Key",
+            WebhookSecret = "my-api-key"
+        };
+        var headers = new Dictionary<string, StringValues> {
+            ["X-API-Key"] = "my-api-key"
+        };
+        const string payload = """
+            {
+              "id": 1735689600000000,
+              "campaign_id": 2501000000000001,
+              "message_id": 2501010000000001,
+              "to": "306900000000",
+              "delivery_report": { "status": "delivered" }
+            }
+            """;
+
+        var result = await ParseAsync(settings, headers, payload);
+
+        Assert.False(result.Success);
+        Assert.Equal(400, result.Status);
+        Assert.Contains(result.Errors, error => error == "Delivery report webhook requires 'campaign_reference'.");
     }
 
     [Fact]
