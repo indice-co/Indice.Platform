@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [8.66.0]
 ### Security
 - Password reset emails are now limited per user, to stop mass reset emails being sent to one account. Both the forgot
   password API (`POST account/forgot-password`) and the Identity UI page (`/forgot-password`) count requests with
@@ -16,6 +16,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ActionRateLimiterActionNames` lists every action name used with `IActionRateLimiter`: `ForgotPassword`,
   `SendConfirmationEmail`, `ChangeEmail`, `VerificationEmail`, `ChangePhoneNumber` (Identity UI) and `PhoneNumberChange`
   (my account API). The existing values are unchanged, so current counters keep working.
+- Temporary passwords. A password set by an administrator (create user or set password with `changePasswordAfterFirstSignIn`,
+  or any admin set when `IdentityOptions:Password:RequirePasswordChangeAfterAdminSet` is `true`) is now marked with the new
+  `User.PasswordIsTemporary` column. The user must change it at the next sign-in, and it is refused after
+  `User.PasswordExpirationDate`. That date is `IdentityOptions:Password:TemporaryPasswordLifetime` (a `TimeSpan`, for example
+  `"1.00:00:00"`) after the password was set, or the date given by the password expiration policy when no lifetime is configured.
+  The expiration policy does not move the date of a temporary password. Changing or resetting the password clears both the
+  temporary status and the forced change. `ExtendedUserManager.SetPasswordExpiredAsync(user, false)` also turns it into a regular password.
+  An expired temporary password is refused with `ExtendedSignInResult.TemporaryPasswordExpired`. The Identity UI shows
+  `LoginErrorTemporaryPasswordExpired`, and the resource owner password grant returns `invalid_grant` with `error_description` `110`.
+  Before the cutoff, the password grant still issues a token, as it does for any expired password. The client reads `password_expired`
+  (userinfo or the token) and runs its change password flow. No new claim is issued. The existing `password_expiration_date` claim carries the cutoff.
+- `ExtendedUserManager.MarkPasswordAsTemporaryAsync(user)` marks the current password of a user as temporary.
+- `ExtendedUserManager.CreateAsync(user, password, validatePassword, temporaryPassword)` and
+  `ExtendedUserManager.ResetPasswordAsync(user, newPassword, validatePassword, suppressNotification, selfServicePasswordReset, temporaryPassword)`
+  store a temporary password in the same write as its hash, so the password is never stored or announced (`UserCreatedEvent`,
+  `PasswordSetEvent`) as a regular one. The users API uses them for `changePasswordAfterFirstSignIn`.
+- `IdentityOptions:Password:RevokeGrantsOnPasswordChange` (default `false`). When `true`, every refresh token, reference token
+  and consent of the user is revoked when the password is changed, reset or set by an administrator.
+- `POST /api/users/{userId}/send-password-reset` (Admin, `BeUsersWriter`) emails the user the standard password reset link,
+  so support can start a recovery for the user without knowing or setting the password. The Admin UI exposes it as a
+  user action.
+- `PasswordIsTemporary` is exposed in `UserEventContext`, and in the `BasicUserInfo`, `UserInfo` and `SingleUserInfo` responses of the users API.
+### Changed
+- `changePasswordAfterFirstSignIn` now also gives the password a hard cutoff. If a password expiration policy is set and the
+  user does not sign in before the policy date, the password is refused instead of just forcing a change. Set
+  `IdentityOptions:Password:TemporaryPasswordLifetime` to choose the cutoff explicitly.
+### Fixed
+- Resetting the password of a locked out user with a token now publishes `PasswordChangedEvent`, like every other reset.
+  Event handlers (password changed notification, grant revocation) now also run in this case.
+- When ASP.NET Identity upgrades the stored hash of a temporary password at sign-in, the password stays temporary and keeps its cutoff.
+  The upgraded hash and the temporary status are saved in a single write.
+- The background platform event dispatcher (`AddBackgroundPlatformEventService`, in `Indice.Common`) now calls handlers that
+  handle more than one event type, for example `ClientCacheInvalidationEventHandler` and `UserNameOrPasswordChangedEventHandler`.
+  Before, these handlers failed silently. Handler errors are now logged, and errors from handlers that require success are retried.
+
+> [!WARNING]
+> **Database update required.** Run the script for your database **before** you deploy this version. Existing users get
+> `PasswordIsTemporary = false`, so their behaviour does not change. The column is mapped in `UserMap` with a database default
+> of `false`, so hosts that manage the schema with EF Core migrations can run `dotnet ef migrations add` instead of the script.
+
+SQL Server: run this migration script to update the database
+```tsql
+IF COL_LENGTH(N'[auth].[User]', N'PasswordIsTemporary') IS NULL
+BEGIN
+    ALTER TABLE [auth].[User] ADD [PasswordIsTemporary] BIT NOT NULL CONSTRAINT [DF_User_PasswordIsTemporary] DEFAULT (0);
+END
+GO
+```
+
+PostgreSQL: run this migration script to update the database
+```sql
+ALTER TABLE auth."User" ADD COLUMN IF NOT EXISTS "PasswordIsTemporary" boolean NOT NULL DEFAULT false;
+```
+
+#### Seed the password claim types
+New databases get the `password_expired`, `password_expiration_date` and `password_expiration_policy` claim types from the
+initial seed. **Existing databases** can add them with the script below. It only inserts the claim types that do not exist yet.
+
+SQL Server:
+```tsql
+INSERT INTO [config].[ClaimType] ([Id], [Name], [DisplayName], [Description], [Reserved], [Required], [UserEditable], [AutoGenerated], [ValueType], [Rule])
+SELECT CAST(NEWID() AS NVARCHAR(450)), s.[Name], s.[DisplayName], s.[Description], 1, 0, 0, 1, s.[ValueType], NULL
+FROM (VALUES
+    (N'password_expired', N'Password expired', N'''true'' if the End-User''s password has expired and must be changed; otherwise ''false''.', 0),
+    (N'password_expiration_date', N'Password expiration date', N'The date and time when the End-User''s password will expire. In ISO 8601 format.', 1),
+    (N'password_expiration_policy', N'Password expiration policy', N'Defines the period in which the End-User''s password expires. One of ''Never'', ''Monthly'', ''Quarterly'', ''Semesterly'', ''Annually'' or ''Biannually''.', 3)
+) AS s ([Name], [DisplayName], [Description], [ValueType])
+WHERE NOT EXISTS (SELECT 1 FROM [config].[ClaimType] AS c WHERE c.[Name] = s.[Name]);
+GO
+```
+
+PostgreSQL:
+```sql
+INSERT INTO config."ClaimType" ("Id", "Name", "DisplayName", "Description", "Reserved", "Required", "UserEditable", "AutoGenerated", "ValueType", "Rule")
+SELECT gen_random_uuid()::text, s."Name", s."DisplayName", s."Description", true, false, false, true, s."ValueType", NULL
+FROM (VALUES
+    ('password_expired', 'Password expired', '''true'' if the End-User''s password has expired and must be changed; otherwise ''false''.', 0),
+    ('password_expiration_date', 'Password expiration date', 'The date and time when the End-User''s password will expire. In ISO 8601 format.', 1),
+    ('password_expiration_policy', 'Password expiration policy', 'Defines the period in which the End-User''s password expires. One of ''Never'', ''Monthly'', ''Quarterly'', ''Semesterly'', ''Annually'' or ''Biannually''.', 3)
+) AS s ("Name", "DisplayName", "Description", "ValueType")
+WHERE NOT EXISTS (SELECT 1 FROM config."ClaimType" AS c WHERE c."Name" = s."Name");
+```
+> `ValueType` values: `0` = Boolean, `1` = DateTime, `3` = String. `gen_random_uuid()` is built in from PostgreSQL 13.
 
 ## [8.62.0]
 ### Changed
@@ -319,4 +402,3 @@ GO
 ## [7.4.0] - 2023-09-19
 ### Added
 - Infrastructure that can detect impossible travel logins
-

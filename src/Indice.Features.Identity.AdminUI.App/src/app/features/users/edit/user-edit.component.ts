@@ -4,12 +4,12 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Observable, filter, switchMap } from 'rxjs';
 import {
   LucideActivity, LucideAppWindow, LucideArrowLeft, LucideBan, LucideCamera, LucideEllipsisVertical, LucideEraser, LucideIdCard,
-  LucideKeyRound, LucideLink, LucideLockOpen, LucideLogIn, LucideMonitorSmartphone, LucideRotateCcw, LucideSend, LucideShieldCheck,
+  LucideKeyRound, LucideLink, LucideLockOpen, LucideLogIn, LucideMail, LucideMonitorSmartphone, LucideRotateCcw, LucideSend, LucideShieldCheck,
   LucideTags, LucideTimer, LucideTrash, LucideUserCog, LucideUserRoundX
 } from '@lucide/angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IdentityApiService, SetUserBlockRequest } from 'src/app/core/services/identity-api.service';
+import { IdentityApiService, SendPasswordResetEmailRequest, SetUserBlockRequest } from 'src/app/core/services/identity-api.service';
 import { UiFeaturesService } from 'src/app/core/services/ui-features.service';
 import { ImgUserPictureDirective } from 'src/app/ui/avatar/user-picture.directive';
 import { StatusBadgeComponent } from 'src/app/ui/badges/badges';
@@ -31,7 +31,7 @@ import { ProfilePictureDialogComponent, ProfilePictureDialogData } from './profi
   imports: [
     DatePipe, RouterLink, RouterOutlet, TranslatePipe, RouteTabsComponent, StatusBadgeComponent, CopyButtonComponent, EmptyStateComponent,
     ImgUserPictureDirective, LucideArrowLeft, LucideBan, LucideCamera, LucideEllipsisVertical, LucideEraser, LucideKeyRound, LucideLockOpen,
-    LucideRotateCcw, LucideSend, LucideTimer, LucideTrash, LucideUserRoundX
+    LucideMail, LucideRotateCcw, LucideSend, LucideTimer, LucideTrash, LucideUserRoundX
   ],
   template: `
     <a routerLink="/users" class="mb-3 inline-flex items-center gap-1 text-sm text-base-content/65 hover:text-base-content">
@@ -75,6 +75,7 @@ import { ProfilePictureDialogComponent, ProfilePictureDialogData } from './profi
                 @if (user.isAdmin) { <app-status-badge tone="primary">{{ 'Users.Status.GlobalAdmin' | translate }}</app-status-badge> }
                 @if (user.blocked) { <app-status-badge tone="error">{{ 'Users.Status.Blocked' | translate }}</app-status-badge> }
                 @if (user.isLocked) { <app-status-badge tone="warning">{{ 'Users.Status.LockedOut' | translate }}</app-status-badge> }
+                @if (user.passwordIsTemporary) { <app-status-badge tone="warning">{{ 'Users.Status.TemporaryPassword' | translate }}</app-status-badge> }
                 @if (user.twoFactorEnabled) { <app-status-badge tone="success">{{ 'Users.Status.Mfa' | translate }}</app-status-badge> }
               </div>
               <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-base-content/70">
@@ -103,6 +104,9 @@ import { ProfilePictureDialogComponent, ProfilePictureDialogData } from './profi
                   </button>
                   <ul tabindex="0" class="dropdown-content menu z-30 mt-2 w-64 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg">
                     <li><button type="button" [disabled]="isSelf()" (click)="setPassword()"><svg lucideKeyRound class="size-4"></svg>{{ 'Users.Actions.SetPassword' | translate }}</button></li>
+                    @if (user.email) {
+                      <li><button type="button" [disabled]="isSelf()" (click)="sendPasswordReset()"><svg lucideMail class="size-4"></svg>{{ 'Users.Actions.SendPasswordReset' | translate }}</button></li>
+                    }
                     <li><button type="button" [disabled]="isSelf()" (click)="removePassword()"><svg lucideEraser class="size-4"></svg>{{ 'Users.Actions.RemovePassword' | translate }}</button></li>
                     @if (!user.emailConfirmed) {
                       <li><button type="button" (click)="resendConfirmation()"><svg lucideSend class="size-4"></svg>{{ 'Users.Actions.ResendConfirmation' | translate }}</button></li>
@@ -214,6 +218,13 @@ export class UserEditComponent {
   protected setPassword(): void {
     (document.activeElement as HTMLElement | null)?.blur();
     this._pane.open(['user-password', this.store.id()]);
+  }
+
+  protected sendPasswordReset(): void {
+    const t = this._translate;
+    this.confirmAndRun(t.instant('Users.Edit.SendPasswordResetTitle'), t.instant('Users.Edit.SendPasswordResetMessage', { email: this.user()?.email }),
+      t.instant('Common.Confirm'), () => this._api.sendPasswordResetEmail(this.store.id(), new SendPasswordResetEmailRequest()),
+      t.instant('Users.Edit.SendPasswordResetToast'));
   }
 
   protected removePassword(): void {

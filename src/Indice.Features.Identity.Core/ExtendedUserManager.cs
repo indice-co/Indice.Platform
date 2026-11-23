@@ -63,7 +63,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) ?? false;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) ?? false;
-
+        var temporaryPasswordLifetime = configuration.GetIdentityOption<TimeSpan?>(nameof(IdentityOptions.Password), nameof(TemporaryPasswordLifetime));
+        TemporaryPasswordLifetime = temporaryPasswordLifetime > TimeSpan.Zero ? temporaryPasswordLifetime : null;
+        RequirePasswordChangeAfterAdminSet = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.Password), nameof(RequirePasswordChangeAfterAdminSet)) ?? false;
     }
 
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
@@ -84,6 +86,17 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public bool RequirePostSignInConfirmedEmail { get; }
     /// <summary>Whether the user should confirm their phone number after signing in.</summary>
     public bool RequirePostSignInConfirmedPhoneNumber { get; }
+    /// <summary>
+    /// How long a temporary password (set by an administrator and pending a mandatory change) is accepted at sign-in.
+    /// When <see langword="null"/> a temporary password is accepted until the date given by the password expiration policy. 
+    /// Configured via <c>IdentityOptions:Password:TemporaryPasswordLifetime</c>.
+    /// </summary>
+    public TimeSpan? TemporaryPasswordLifetime { get; }
+    /// <summary>
+    /// When enabled, every password set by an administrator must be changed by the user at the next sign-in, regardless of what the administrator requested.
+    /// Configured via <c>IdentityOptions:Password:RequirePasswordChangeAfterAdminSet</c>.
+    /// </summary>
+    public bool RequirePasswordChangeAfterAdminSet { get; }
 
     /// <summary>Options for updating a user.</summary>
     /// <param name="user">The user to update.</param>
@@ -165,10 +178,41 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             return result;
         }
         if (await IsLockedOutAsync(user)) {
-            return await SetLockoutEndDateAsync(user, null);
+            result = await SetLockoutEndDateAsync(user, null);
         }
         await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
         return result;
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// When the stored hash needs an upgrade, ASP.NET Identity rehashes the password through <see cref="IUserPasswordStore{TUser}.SetPasswordHashAsync"/>, 
+    /// which the store treats as a password change. The password itself is the same, so a temporary password keeps its status and cutoff, 
+    /// saved in the same write as the upgraded hash.
+    /// </remarks>
+    public override async Task<bool> CheckPasswordAsync(TUser user, string password) {
+        if (user?.PasswordIsTemporary != true) {
+            return await base.CheckPasswordAsync(user!, password);
+        }
+        ThrowIfDisposed();
+        var passwordStore = Store as IUserPasswordStore<TUser> ?? throw new NotSupportedException("Store does not implement IUserPasswordStore<TUser>.");
+        var result = await VerifyPasswordAsync(passwordStore, user, password);
+        if (result == PasswordVerificationResult.SuccessRehashNeeded) {
+            var (passwordExpired, passwordExpirationDate) = (user.PasswordExpired, user.PasswordExpirationDate);
+            await UpdatePasswordHash(user, password, validatePassword: false);
+            user.PasswordIsTemporary = true;
+            user.PasswordExpired = passwordExpired;
+            user.PasswordExpirationDate = passwordExpirationDate;
+            var updateResult = await UpdateUserAsync(user);
+            if (!updateResult.Succeeded) {
+                Logger.LogWarning("Failed to store the upgraded password hash of user '{UserId}'.", user.Id);
+            }
+        }
+        if (result == PasswordVerificationResult.Failed) {
+            Logger.LogDebug("Invalid password for user.");
+            return false;
+        }
+        return true;
     }
 
     /// <inheritdoc />
@@ -289,6 +333,32 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         await UpdateAsync(user);
     }
 
+    /// <summary>
+    /// Marks the current password of the user as temporary. The user is forced to change it at the next sign-in and the password is 
+    /// refused once <see cref="User.PasswordExpirationDate"/> passes. That date is <see cref="TemporaryPasswordLifetime"/> after the password was set, 
+    /// or the date given by the password expiration policy when no lifetime is configured.
+    /// </summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <remarks>The temporary status is cleared automatically whenever the password of the user changes.</remarks>
+    public async Task<IdentityResult> MarkPasswordAsTemporaryAsync(TUser user, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(user);
+        SetPasswordAsTemporary(user);
+        return await UpdateAsync(user);
+    }
+
+    private void SetPasswordAsTemporary(TUser user) {
+        user.PasswordIsTemporary = false;
+        var expirationDate = TemporaryPasswordLifetime.HasValue
+            ? (user.LastPasswordChangeDate ?? DateTimeOffset.UtcNow).Add(TemporaryPasswordLifetime.Value)
+            : user.CalculatePasswordExpirationDate();
+        user.PasswordIsTemporary = true;
+        user.PasswordExpired = true;
+        user.PasswordExpirationDate = expirationDate;
+    }
+
     /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
@@ -310,13 +380,26 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="validatePassword">Whether to validate the password.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
-    public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) {
+    public Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) => CreateAsync(user, password, validatePassword, temporaryPassword: false);
+
+    /// <summary>Creates the specified <paramref name="user"/> in the backing store with given password, as an asynchronous operation.</summary>
+    /// <param name="user">The user to create.</param>
+    /// <param name="password">The password for the user to hash and store.</param>
+    /// <param name="validatePassword">Whether to validate the password.</param>
+    /// <param name="temporaryPassword">Whether the password is temporary (see <see cref="MarkPasswordAsTemporaryAsync"/>). The temporary status is stored together with the user.</param>
+    /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+    public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword, bool temporaryPassword) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(password);
         var result = await UpdatePasswordHash(user, password, validatePassword);
         if (!result.Succeeded) {
             return result;
+        }
+        if (temporaryPassword) {
+            // The store assigns the default policy on create. Assign it here, so the cutoff can fall back to the policy date.
+            user.PasswordExpirationPolicy ??= GetUserStore(throwOnFail: false)?.PasswordExpirationPolicy;
+            SetPasswordAsTemporary(user);
         }
         return await CreateAsync(user);
     }
@@ -329,12 +412,27 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="selfServicePasswordReset"> Whether the reset was executed by the user themselves</param>
     /// <returns>Whether the password was successfully updated.</returns>
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
-    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true, bool suppressNotification = false, bool selfServicePasswordReset = true) {
+    public Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true, bool suppressNotification = false, bool selfServicePasswordReset = true) =>
+        ResetPasswordAsync(user, newPassword, validatePassword, suppressNotification, selfServicePasswordReset, temporaryPassword: false);
+
+    /// <summary>Reset's a user's password.</summary>
+    /// <param name="user">The user.</param>
+    /// <param name="newPassword">The new password.</param>
+    /// <param name="validatePassword">Whether to validate the password.</param>
+    /// <param name="suppressNotification">Whether to suppress the security notification triggered after an administrator password reset.</param>
+    /// <param name="selfServicePasswordReset"> Whether the reset was executed by the user themselves</param>
+    /// <param name="temporaryPassword">Whether the new password is temporary (see <see cref="MarkPasswordAsTemporaryAsync"/>). The temporary status is stored together with the new password.</param>
+    /// <returns>Whether the password was successfully updated.</returns>
+    /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
+    public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword, bool suppressNotification, bool selfServicePasswordReset, bool temporaryPassword) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
         if (!result.Succeeded) {
             return result;
+        }
+        if (temporaryPassword) {
+            SetPasswordAsTemporary(user);
         }
         result = await UpdateAsync(user);
         if (!result.Succeeded) {

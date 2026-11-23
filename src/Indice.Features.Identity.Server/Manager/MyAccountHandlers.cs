@@ -367,31 +367,46 @@ internal static partial class MyAccountHandlers
         if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, ActionRateLimiterActionNames.ForgotPassword)) {
             return TypedResults.NoContent();
         }
+        await SendForgotPasswordEmailAsync(userManager, endpointOptions.Value, emailService, linkGenerator, httpContext, user, request.ReturnUrl, request.Email);
+        return TypedResults.NoContent();
+    }
+
+    /// <summary>Generates a password reset token for the <paramref name="user"/> and emails the reset link to the user's email address.</summary>
+    internal static async Task SendForgotPasswordEmailAsync(
+        ExtendedUserManager<User> userManager,
+        ExtendedEndpointOptions endpointOptions,
+        IEmailService emailService,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
+        User user,
+        string? returnUrl,
+        string? email = null
+    ) {
+        email ??= user.Email!;
         if (user.Claims.Count is 0) {
             _ = await userManager.GetClaimsAsync(user);
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        
+
         var data = new ForgotPasswordEmailModel {
             DisplayName = user.FindDisplayName() ?? user.Email!,
-            ReturnUrl = request.ReturnUrl,
+            ReturnUrl = returnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
             Token = code,
             User = user,
-            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })
+            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email, token = code, returnUrl })
         };
         await emailService.SendAsync(message => {
             var builder = message
                 .To(user.Email!)
                 .WithSubject(data.Subject);
-            if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.ForgotPasswordTemplate)) {
-                builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
+            if (!string.IsNullOrWhiteSpace(endpointOptions.Email.ForgotPasswordTemplate)) {
+                builder.UsingTemplate(endpointOptions.Email.ForgotPasswordTemplate)
                        .WithData(data);
             } else {
                 builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, data.Token, data.Url));
             }
         });
-        return TypedResults.NoContent();
     }
 
     internal static async Task<Results<NoContent, ValidationProblem>> ForgotPasswordConfirmation(

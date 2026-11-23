@@ -68,6 +68,8 @@ public static class IdentityBuilderExtensions
         builder.Services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
         builder.Services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
         builder.Services.AddPlatformEventHandler<PasswordSetEvent, UserPasswordSetEventHandler>();
+        builder.Services.AddPlatformEventHandler<PasswordChangedEvent, RevokeGrantsOnPasswordChangeEventHandler>();
+        builder.Services.AddPlatformEventHandler<PasswordSetEvent, RevokeGrantsOnPasswordChangeEventHandler>();
         builder.AddEntityFrameworkStores<ExtendedIdentityDbContext<TUser, Role>>()
                .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<TUser, Role>, TUser, Role>>()
                .AddUserManager<ExtendedUserManager<TUser>>();

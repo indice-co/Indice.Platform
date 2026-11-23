@@ -120,6 +120,14 @@ either sends the user to a page or passes to the next.
 - **Lockout** — failed-attempt limit and lockout duration, applied to new users too.
 - **Password rules** — length and character classes, history (`PasswordHistoryLimit`), blacklist, "not the username"
   (`MaxAllowedUserNameSubset`), `NonCommonPasswordValidator`, allowed / Unicode character validators.
+- **Temporary passwords** — a password set by an administrator can be forced to change at the next sign-in
+  (`RequirePasswordChangeAfterAdminSet`). If it is never used, it stops working after `TemporaryPasswordLifetime`, or
+  after the expiration policy date when no lifetime is set. Admins see it as *Temporary password* on the user page.
+- **Credential revocation** — `RevokeGrantsOnPasswordChange` removes the user's refresh tokens, reference tokens and
+  consents whenever the password is changed, reset or set.
+- **Back-office password reset** — an administrator can email the user a password reset link
+  (`POST api/users/{userId}/send-password-reset`, *Send password reset email* in the admin UI) instead of choosing a
+  password for them.
 - **Blacklists** — disposable email domains and specific phone numbers are rejected (`EmailBlacklist`, `PhoneBlacklist`).
 - **Headers & keys** — a configurable Content Security Policy, data-protection keys in Azure Storage or on disk, token
   signing from your own PFX.
@@ -446,13 +454,25 @@ Everything that can be a setting is a setting. Code is for the seams: grants, ac
     "PasswordHistoryLimit": 3,
     "PasswordExpirationPolicy": "Annually",  // Never · NextLogin · Monthly · Quarterly · Semesterly · Annually · Biannually
     "Blacklist": [ "123abc!" ],
-    "MaxAllowedUserNameSubset": 4
+    "MaxAllowedUserNameSubset": 4,
+    "RequirePasswordChangeAfterAdminSet": true,   // admin-set passwords are always temporary
+    "TemporaryPasswordLifetime": "3.00:00:00",    // an unused temporary password expires after 3 days
+    "RevokeGrantsOnPasswordChange": true          // a password change signs the user out of every app
   },
   "Lockout": { "AllowedForNewUsers": true, "MaxFailedAccessAttempts": 5, "DefaultLockoutTimeSpan": "00.00:05:00" }
 }
 ```
 
 - **History** stops `Password1` → `Password2` rotation; **expiration** feeds the validation chain.
+- **Temporary passwords** are the ones set from the back office (`set-password` or create user) with
+  `ChangePasswordAfterFirstSignIn`, or always when `RequirePasswordChangeAfterAdminSet` is on. The user is flagged with
+  `PasswordIsTemporary`. The password is single use, because the user must replace it at the first sign-in. It is also
+  refused after `PasswordExpirationDate`: the login error is *temporary password expired*, and the password grant returns
+  `invalid_grant` with `error_description` `110`. That date is `TemporaryPasswordLifetime` after the password was set,
+  or the expiration policy date when no lifetime is set. The policy never moves it. The same date reaches tokens through
+  the existing `password_expiration_date` claim, and `passwordIsTemporary` is returned by the users API. The flag and the
+  forced change are cleared as soon as the password changes. All three settings are off by default.
+  *Upgrading:* the `PasswordIsTemporary` column needs a one-line database script (see the Identity.Core CHANGELOG).
 - **`EnablePasswordConfirmation`** (`IdentityUIOptions`) adds a confirm-password field to the password forms.
 
 ### 📱 MFA & sign-in requirements

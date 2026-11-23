@@ -32,19 +32,24 @@ internal class BackgroundPlatformEventHostedService : BackgroundService
         using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var events = _queue.DequeueAsync(stoppingToken);
         await foreach (var @event in events) {
-            var type = typeof(IEnumerable<>).MakeGenericType(typeof(IPlatformEventHandler<>).MakeGenericType(@event.GetType()));
-            var handlers = serviceScope.ServiceProvider.GetService(type) as IEnumerable;
+            // Resolve Handle through the event specific interface, since a handler may implement it for more than one event type.
+            var handlerType = typeof(IPlatformEventHandler<>).MakeGenericType(@event.GetType());
+            var handleMethod = handlerType.GetMethod(nameof(IPlatformEventHandler<IPlatformEvent>.Handle))!;
+            var handlers = serviceScope.ServiceProvider.GetService(typeof(IEnumerable<>).MakeGenericType(handlerType)) as IEnumerable;
             handlers ??= Enumerable.Empty<IPlatformEventHandler<IPlatformEvent>>();
             foreach (var handler in handlers) {
                 var args = new PlatformEventArgs();
-                try {
-                    var handleMethod = handler.GetType().GetMethod(nameof(IPlatformEventHandler<IPlatformEvent>.Handle));
-                    if (handleMethod is not null) {
+                while (true) {
+                    try {
                         await (Task)handleMethod.Invoke(handler, [ @event, args ])!;
-                    }
-                } catch {
-                    if (args.ThrowOnError) {
-                        throw;
+                        break;
+                    } catch (Exception ex) {
+                        if (!args.ThrowOnError) {
+                            _logger.LogError(ex, "Failed to invoke handler type: {PlatformEventHandler}", handler.GetType().Name);
+                            break;
+                        }
+                        _logger.LogError(ex, "Failed to invoke required handler type: {PlatformEventHandler}; retrying.", handler.GetType().Name);
+                        await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
                     }
                 }
             }

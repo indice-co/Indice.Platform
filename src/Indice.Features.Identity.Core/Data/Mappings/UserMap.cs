@@ -13,6 +13,9 @@ internal class UserMap<TUser> : IEntityTypeConfiguration<TUser> where TUser : Us
     public void Configure(EntityTypeBuilder<TUser> entityBuilder) {
         // Configure table name and schema.
         entityBuilder.ToTable(nameof(User), "auth");
+        // Configure properties.
+        // A database default keeps existing rows, and inserts from code that predates the column, valid.
+        entityBuilder.Property(x => x.PasswordIsTemporary).HasDefaultValue(false);
         // Configure indexes.
         entityBuilder.HasIndex(x => x.UserName);
         entityBuilder.HasIndex(x => x.CreateDate);

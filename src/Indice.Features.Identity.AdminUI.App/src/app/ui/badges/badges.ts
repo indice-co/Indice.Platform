@@ -36,7 +36,8 @@ export class StatusBadgeComponent {
 
   protected toneClass(): string {
     return {
-      neutral: 'badge-neutral',
+      // daisyUI `badge-neutral` + `badge-soft` renders near-black text on a near-black tint in the dark theme; base-content adapts to both themes.
+      neutral: '[--badge-color:var(--color-base-content)] text-base-content/80',
       primary: 'badge-primary',
       secondary: 'badge-secondary',
       success: 'badge-success',
