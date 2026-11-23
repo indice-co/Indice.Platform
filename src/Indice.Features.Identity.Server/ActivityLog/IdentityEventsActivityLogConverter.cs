@@ -87,11 +87,11 @@ public class IdentityEventsActivityLogConverter : IActivityLogFromEventConverter
             PasswordResetRequestOutcome.EmailSent when e.InitiatedByAdmin => "Password reset email sent by an administrator",
             PasswordResetRequestOutcome.EmailSent => "Password reset email sent",
             PasswordResetRequestOutcome.LimitReached => "Password reset email limit reached, no email sent",
-            _ => $"Password reset requested for unknown email '{e.Email}'"
+            _ => $"Password reset requested for unknown email '{Indice.Extensions.StringExtensions.Truncate(e.Email, 512)}'"
         },
         Succeeded = e.Succeeded,
         SubjectId = e.InitiatedByAdmin ? null : e.User?.Id,
-        SubjectName = e.InitiatedByAdmin ? null : e.User?.UserName ?? e.Email
+        SubjectName = e.InitiatedByAdmin ? null : e.User?.UserName ?? Indice.Extensions.StringExtensions.Truncate(e.Email, 512)
     };
 
     private static ActivityLogEntry CreateDeviceEntry(UserDeviceEventContext device, string eventType, string description, UserEventContext? owner = null) => new() {
