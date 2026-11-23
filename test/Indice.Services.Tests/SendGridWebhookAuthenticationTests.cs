@@ -17,20 +17,20 @@ public sealed class SendGridWebhookAuthenticationTests
 [
   {
     "email":"example@test.com",
-    "timestamp":1794315393,
-    "smtp-id":"<14c5d75ce93.dfd.64b469@ismtpd-555>",
-    "event":"processed",
-    "sg_event_id":"ijmfhV44GX_kTxJh_ylK7g==",
-    "sg_message_id":"14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0"
+    "timestamp":1795424071,
+    "smtp-id":"<pvtnugixSticlBD8NlXOiw@geopod-ismtpd-9>",
+    "event":"bounce",
+    "sg_event_id":"UUztscodZbFEc5h_uG1Xzg==",
+    "sg_message_id":"pvtnugixSticlBD8NlXOiw.recvd-b4f458cf6-zmm4-1-6B03FF45-F.0",
+    "response":"550 5.7.26 Unauthenticated email from indice.gr is not accepted due to domain's DMARC policy"
   },
   {
     "email":"example@test.com",
-    "timestamp":1794315393,
-    "smtp-id":"<14c5d75ce93.dfd.64b469@ismtpd-555>",
-    "event":"delivered",
-    "sg_event_id":"UUztscodZbFEc5h_uG1Xzg==",
-    "sg_message_id":"14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0",
-    "response":"250 OK"
+    "timestamp":1795424069,
+    "smtp-id":"<pvtnugixSticlBD8NlXOiw@geopod-ismtpd-9>",
+    "event":"processed",
+    "sg_event_id":"ijmfhV44GX_kTxJh_ylK7g==",
+    "sg_message_id":"pvtnugixSticlBD8NlXOiw.recvd-b4f458cf6-zmm4-1-6B03FF45-F.0"
   }
 ]
 """;
@@ -60,9 +60,26 @@ public sealed class SendGridWebhookAuthenticationTests
         Assert.True(result.Success);
         Assert.Equal(2, result.Events.Count);
         Assert.All(result.Events, webhookEvent => Assert.Equal(EmailServiceSendGrid.ServiceName, webhookEvent.Provider));
-        Assert.Equal("processed", result.Events[0].EventType);
-        Assert.Equal("ijmfhV44GX_kTxJh_ylK7g==", result.Events[0].EventId);
+        Assert.Equal("bounce", result.Events[0].EventType);
+        Assert.Equal("UUztscodZbFEc5h_uG1Xzg==", result.Events[0].EventId);
+        Assert.Equal("pvtnugixSticlBD8NlXOiw", result.Events[0].MessageId);
         Assert.Equal("example@test.com", result.Events[0].Recipient);
+        Assert.Equal("processed", result.Events[1].EventType);
+        Assert.Equal("ijmfhV44GX_kTxJh_ylK7g==", result.Events[1].EventId);
+        Assert.Equal("pvtnugixSticlBD8NlXOiw", result.Events[1].MessageId);
+    }
+
+    [Fact]
+    public async Task SmtpIdFallback_UsesNormalizedCorrelationKey() {
+        const string payload = """
+            [{"email":"example@test.com","timestamp":1795424071,"smtp-id":"<pvtnugixSticlBD8NlXOiw@geopod-ismtpd-9>","event":"bounce"}]
+            """;
+
+        var result = await ParseAsync(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase), webhookVerificationKey: null, payload);
+
+        Assert.True(result.Success);
+        var webhookEvent = Assert.Single(result.Events);
+        Assert.Equal("pvtnugixSticlBD8NlXOiw", webhookEvent.MessageId);
     }
 
     [Fact]

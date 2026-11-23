@@ -619,7 +619,7 @@ public sealed class OmnimessagingWebhookHttpHandler : IWebhookHttpHandler
         var rootId = GetJsonValueAsString(root, "id");
         var messageId = GetJsonValueAsString(root, "campaign_reference");
         if (string.IsNullOrWhiteSpace(messageId)) {
-            error = "Delivery report webhook requires one of 'message_id', 'campaign_id' or 'id'.";
+            error = "Delivery report webhook requires 'campaign_reference'.";
             return false;
         }
         var status = GetJsonValueAsString(deliveryReport, "status");

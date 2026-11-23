@@ -142,7 +142,7 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
             var messageId = !string.IsNullOrWhiteSpace(sgMessageId)
                 ? sgMessageId.Split('.')[0]
                 : !string.IsNullOrWhiteSpace(smtpId)
-                    ? smtpId.Split('@')[0]
+                    ? smtpId.Trim('<', '>').Split('@')[0].Split('.')[0]
                     : null;
             if (string.IsNullOrWhiteSpace(messageId)) {
                 continue;
