@@ -136,7 +136,7 @@
     <value>Επιβεβαίωση λογαριασμού.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Παρακαλούμε δημιουργήστε το νέο σας κωδικό  &lt;a href="{0}" &gt;ακολουθώντας τον εξής σύνδεσμο&lt;a&gt;</value>
+    <value>Παρακαλούμε δημιουργήστε το νέο σας κωδικό  &lt;a href="{0}"&gt;ακολουθώντας τον εξής σύνδεσμο&lt;/a&gt;</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Ύποπτη προσπάθεια σύνδεσης. Ο κωδικός OTP είναι {0}.</value>
@@ -229,7 +229,7 @@
     <value>Παρακαλώ επιλέξτε τον αριθμό τηλεφώνου σας για να τον επιβεβαιώσουμε πριν προχωρήσουμε.</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Ανάκτηση κωδικού</value>
+    <value>Επαναφορά κωδικού πρόσβασης</value>
   </data>
   <data name="ForgotPasswordConfirmationError" xml:space="preserve">
     <value>Σφάλμα</value>

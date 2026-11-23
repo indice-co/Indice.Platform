@@ -17,9 +17,12 @@ using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using static IdentityServer4.IdentityServerConstants;
 #endif
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -352,6 +355,7 @@ internal static partial class MyAccountHandlers
         LinkGenerator linkGenerator,
         HttpContext httpContext,
         IActionRateLimiter actionRateLimiter,
+        IPlatformEventService eventService,
         ForgotPasswordRequest request
     ) {
         if (string.IsNullOrEmpty(request.Email)) {
@@ -361,13 +365,16 @@ internal static partial class MyAccountHandlers
         }
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null) {
+            await eventService.Publish(new PasswordResetRequestEvent(request.Email, PasswordResetRequestOutcome.UserNotFound));
             return TypedResults.NoContent();
         }
         // Same response as a sent email, so the limit does not reveal whether the account exists.
         if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, ActionRateLimiterActionNames.ForgotPassword)) {
+            await eventService.Publish(new PasswordResetRequestEvent(request.Email, PasswordResetRequestOutcome.LimitReached, UserEventContext.InitializeFromUser(user)));
             return TypedResults.NoContent();
         }
         await SendForgotPasswordEmailAsync(userManager, endpointOptions.Value, emailService, linkGenerator, httpContext, user, request.ReturnUrl, request.Email);
+        await eventService.Publish(new PasswordResetRequestEvent(request.Email, PasswordResetRequestOutcome.EmailSent, UserEventContext.InitializeFromUser(user)));
         return TypedResults.NoContent();
     }
 

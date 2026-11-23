@@ -1,7 +1,10 @@
 using Indice.AspNetCore.Features.Recaptcha;
 using Indice.AspNetCore.Filters;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Guards;
 using Indice.Features.Identity.Core.Models;
@@ -92,13 +95,16 @@ public abstract class BaseForgotPasswordModel : BasePageModel
             return Page();
         }
         var user = await UserManager.FindByEmailAsync(Input.Email ?? throw new InvalidOperationException("Email cannot be null."));
+        var eventService = ServiceProvider.GetRequiredService<IPlatformEventService>();
         if (user is null) {
+            await eventService.Publish(new PasswordResetRequestEvent(Input.Email, PasswordResetRequestOutcome.UserNotFound));
             return Page();
         }
         // Same response as a sent email, so the limit does not reveal whether the account exists.
         var actionRateLimiter = ServiceProvider.GetRequiredService<IActionRateLimiter>();
         if (!await actionRateLimiter.CheckAndAdvanceAsync(user.Id, ActionRateLimiterActionNames.ForgotPassword)) {
             Logger.LogWarning("Forgot password email limit reached for user {UserId}.", user.Id);
+            await eventService.Publish(new PasswordResetRequestEvent(Input.Email, PasswordResetRequestOutcome.LimitReached, UserEventContext.InitializeFromUser(user)));
             return Page();
         }
         if (user.Claims.Count is 0) {
@@ -125,6 +131,7 @@ public abstract class BaseForgotPasswordModel : BasePageModel
                        Url = callbackUrl
                    })
         );
+        await eventService.Publish(new PasswordResetRequestEvent(Input.Email, PasswordResetRequestOutcome.EmailSent, UserEventContext.InitializeFromUser(user)));
         return Page();
     }
 }

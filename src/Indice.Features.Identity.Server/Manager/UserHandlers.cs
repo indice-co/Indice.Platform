@@ -813,6 +813,7 @@ internal static class UserHandlers
         [Microsoft.AspNetCore.Mvc.FromServices] IEmailService emailService,
         LinkGenerator linkGenerator,
         HttpContext httpContext,
+        IPlatformEventService eventService,
         string userId,
         SendPasswordResetEmailRequest? request
     ) {
@@ -824,6 +825,7 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(ValidationErrors.AddError("email", "The user does not have an email address."));
         }
         await MyAccountHandlers.SendForgotPasswordEmailAsync(userManager, endpointOptions.Value, emailService, linkGenerator, httpContext, user, request?.ReturnUrl);
+        await eventService.Publish(new PasswordResetRequestEvent(user.Email, PasswordResetRequestOutcome.EmailSent, UserEventContext.InitializeFromUser(user), initiatedByAdmin: true));
         return TypedResults.NoContent();
     }
 

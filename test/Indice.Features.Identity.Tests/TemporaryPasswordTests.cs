@@ -18,14 +18,18 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
+using Indice.Features.Identity.Core.Guards;
 using Indice.Features.Identity.Server;
+using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
+using Indice.Features.Identity.Server.Options;
 using Indice.Features.Identity.Tests.Security;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
@@ -418,6 +422,57 @@ public class TemporaryPasswordTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task ForgotPasswordApi_ForUnknownEmail_PublishesUserNotFoundRequest() {
+        var (host, _) = CreateHost([]);
+        var recorder = host.Services.GetRequiredService<EventRecorder>();
+        var emailService = (FakeEmailService)host.Services.GetRequiredService<IEmailService>();
+        var email = $"{Guid.NewGuid()}@indice.gr";
+
+        var response = await ForgotPasswordAsync(host, email);
+
+        Assert.IsType<NoContent>(response.Result);
+        Assert.Empty(emailService.SentTo);
+        var request = Assert.Single(recorder.ResetRequests, x => x.Email == email);
+        Assert.Equal(PasswordResetRequestOutcome.UserNotFound, request.Outcome);
+        Assert.False(request.Succeeded);
+        Assert.Null(request.User);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordApi_ForKnownEmail_PublishesEmailSentRequest() {
+        var (host, _) = CreateHost([]);
+        var recorder = host.Services.GetRequiredService<EventRecorder>();
+        var emailService = (FakeEmailService)host.Services.GetRequiredService<IEmailService>();
+        var userId = await CreateUserAsync(host);
+
+        var response = await ForgotPasswordAsync(host, $"{userId}@indice.gr");
+
+        Assert.IsType<NoContent>(response.Result);
+        Assert.Single(emailService.SentTo);
+        var request = Assert.Single(recorder.ResetRequests);
+        Assert.Equal(PasswordResetRequestOutcome.EmailSent, request.Outcome);
+        Assert.True(request.Succeeded);
+        Assert.False(request.InitiatedByAdmin);
+        Assert.Equal(userId, request.User?.Id);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordApi_OverEmailLimit_PublishesLimitReachedRequest() {
+        var (host, _) = CreateHost(new() { ["IdentityOptions:ActionRateLimiter:MaxAttempts"] = "1" });
+        var recorder = host.Services.GetRequiredService<EventRecorder>();
+        var emailService = (FakeEmailService)host.Services.GetRequiredService<IEmailService>();
+        var userId = await CreateUserAsync(host);
+
+        await ForgotPasswordAsync(host, $"{userId}@indice.gr");
+        var response = await ForgotPasswordAsync(host, $"{userId}@indice.gr");
+
+        Assert.IsType<NoContent>(response.Result);
+        Assert.Single(emailService.SentTo);
+        Assert.Equal([PasswordResetRequestOutcome.EmailSent, PasswordResetRequestOutcome.LimitReached], recorder.ResetRequests.Select(x => x.Outcome));
+        Assert.Equal(userId, recorder.ResetRequests.Last().User?.Id);
+    }
+
+    [Fact]
     public async Task ChangePassword_WithBackgroundEventService_RevokesPersistedGrants() {
         var (host, _) = CreateHost(new() { ["IdentityOptions:Password:RevokeGrantsOnPasswordChange"] = "true" }, backgroundEvents: true);
         using var scope = host.Services.CreateScope();
@@ -471,6 +526,22 @@ public class TemporaryPasswordTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SendPasswordResetApi_PublishesAdminInitiatedRequest() {
+        var (host, httpClient) = CreateHost([]);
+        var recorder = host.Services.GetRequiredService<EventRecorder>();
+        var userId = await CreateUserAsync(host);
+
+        var response = await httpClient.PostAsJsonAsync($"/api/users/{userId}/send-password-reset", new SendPasswordResetEmailRequest(), TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var request = Assert.Single(recorder.ResetRequests);
+        Assert.Equal(PasswordResetRequestOutcome.EmailSent, request.Outcome);
+        Assert.True(request.InitiatedByAdmin);
+        Assert.Equal($"{userId}@indice.gr", request.Email);
+        Assert.Equal(userId, request.User?.Id);
+    }
+
+    [Fact]
     public async Task SendPasswordResetApi_ForUnknownUser_ReturnsNotFound() {
         var (host, httpClient) = CreateHost([]);
         var emailService = (FakeEmailService)host.Services.GetRequiredService<IEmailService>();
@@ -520,6 +591,24 @@ public class TemporaryPasswordTests : IAsyncLifetime
         return (await CreateUserAsync(userManager)).Id;
     }
 
+    private static async Task<Results<NoContent, NotFound, ValidationProblem>> ForgotPasswordAsync(IHost host, string email) {
+        using var scope = host.Services.CreateScope();
+        var httpContext = new DefaultHttpContext { RequestServices = scope.ServiceProvider };
+        httpContext.Request.Scheme = "https";
+        httpContext.Request.Host = new HostString("server");
+        return await MyAccountHandlers.ForgotPassword(
+            scope.ServiceProvider.GetRequiredService<ExtendedUserManager<User>>(),
+            new System.Security.Claims.ClaimsPrincipal(),
+            Microsoft.Extensions.Options.Options.Create(new ExtendedEndpointOptions()),
+            scope.ServiceProvider.GetRequiredService<IEmailService>(),
+            scope.ServiceProvider.GetRequiredService<LinkGenerator>(),
+            httpContext,
+            scope.ServiceProvider.GetRequiredService<IActionRateLimiter>(),
+            scope.ServiceProvider.GetRequiredService<IPlatformEventService>(),
+            new ForgotPasswordRequest { Email = email }
+        );
+    }
+
     private static void AssertStoredAsTemporary(IReadOnlyList<bool> saves) {
         Assert.NotEmpty(saves);
         Assert.All(saves, passwordIsTemporary => Assert.True(passwordIsTemporary));
@@ -542,6 +631,7 @@ public class TemporaryPasswordTests : IAsyncLifetime
                 services.AddSingleton<EventRecorder>();
                 services.AddPlatformEventHandler<UserCreatedEvent, RecordingEventHandler>();
                 services.AddPlatformEventHandler<PasswordSetEvent, RecordingEventHandler>();
+                services.AddPlatformEventHandler<PasswordResetRequestEvent, RecordingEventHandler>();
                 services.AddDbContext<ExtendedIdentityDbContext<User, Role>>((sp, builder) => builder.UseInMemoryDatabase(databaseName).AddInterceptors(sp.GetRequiredService<UserSaveRecorder>()));
                 services.AddDbContext<ExtendedConfigurationDbContext>(builder => builder.UseInMemoryDatabase(databaseName));
                 services.AddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User, Role> { InitialUsers = [], CustomRoles = [] });
@@ -637,12 +727,17 @@ public class TemporaryPasswordTests : IAsyncLifetime
     {
         private readonly ConcurrentQueue<(Type EventType, UserEventContext User)> _events = new();
 
+        public ConcurrentQueue<PasswordResetRequestEvent> ResetRequests { get; } = new();
+
         public void Add(Type eventType, UserEventContext user) => _events.Enqueue((eventType, user));
 
         public IReadOnlyList<UserEventContext> Users<TEvent>(string userId) => _events.Where(x => x.EventType == typeof(TEvent) && x.User.Id == userId).Select(x => x.User).ToList();
     }
 
-    private sealed class RecordingEventHandler(EventRecorder recorder) : IPlatformEventHandler<UserCreatedEvent>, IPlatformEventHandler<PasswordSetEvent>
+    private sealed class RecordingEventHandler(EventRecorder recorder) :
+        IPlatformEventHandler<UserCreatedEvent>,
+        IPlatformEventHandler<PasswordSetEvent>,
+        IPlatformEventHandler<PasswordResetRequestEvent>
     {
         Task IPlatformEventHandler<UserCreatedEvent>.Handle(UserCreatedEvent @event, PlatformEventArgs args) {
             recorder.Add(typeof(UserCreatedEvent), @event.User);
@@ -651,6 +746,11 @@ public class TemporaryPasswordTests : IAsyncLifetime
 
         Task IPlatformEventHandler<PasswordSetEvent>.Handle(PasswordSetEvent @event, PlatformEventArgs args) {
             recorder.Add(typeof(PasswordSetEvent), @event.User);
+            return Task.CompletedTask;
+        }
+
+        Task IPlatformEventHandler<PasswordResetRequestEvent>.Handle(PasswordResetRequestEvent @event, PlatformEventArgs args) {
+            recorder.ResetRequests.Enqueue(@event);
             return Task.CompletedTask;
         }
     }

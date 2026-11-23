@@ -502,10 +502,10 @@
     <value>Nom d'utilisateur</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageTitle" xml:space="preserve">
-    <value>Confirmation du mot de passe oublie</value>
+    <value>Reinitialisez votre mot de passe</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
-    <value>Confirmation du mot de passe oublie</value>
+    <value>Reinitialisez votre mot de passe</value>
   </data>
   <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
     <value>Nouveau mot de passe</value>
