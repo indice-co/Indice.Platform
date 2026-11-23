@@ -59,6 +59,11 @@ internal static class MyCasesApi
             .WithSummary("Get public timeline entries, newest first. Filter by All (default), Comments, or Checkpoints. Draft timelines are empty.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
+        group.MapPost("{caseId}/comments", MyCasesHandlers.AddMyCaseComment)
+            .WithName(nameof(MyCasesHandlers.AddMyCaseComment))
+            .WithSummary("Add a public comment or reply to a submitted, non-final case.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+
         group.MapPost("{caseId}/attachments", MyCasesHandlers.UploadCaseAttachment)
             .WithName(nameof(MyCasesHandlers.UploadCaseAttachment))
             .DisableAntiforgery()

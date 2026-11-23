@@ -40,6 +40,7 @@ public static class CaseServerFeatureExtensions
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
             options.CustomerTimelineStaffDisplayName = serverOptions.CustomerTimelineStaffDisplayName;
+            options.CustomerCommentMaxLength = serverOptions.CustomerCommentMaxLength;
         });
         // must run last in order not to override any explicit service declarations.
         builder.Services.AddCasesManagement(options => {
@@ -50,6 +51,7 @@ public static class CaseServerFeatureExtensions
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
             options.CustomerTimelineStaffDisplayName = serverOptions.CustomerTimelineStaffDisplayName;
+            options.CustomerCommentMaxLength = serverOptions.CustomerCommentMaxLength;
             options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
         });
         builder.Services.Configure<CaseServerOptions>(options => {

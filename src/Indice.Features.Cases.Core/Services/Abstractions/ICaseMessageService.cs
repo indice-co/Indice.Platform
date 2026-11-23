@@ -41,10 +41,14 @@ public interface ICaseMessageService
     Task<Guid?> Send(Guid caseId, UserActor user, Message message, AuditMeta createdBy);
 }
 
-/// <summary>Placeholder to indicate MyCase feature.</summary>
+/// <summary>Messages from the customer perspective.</summary>
 public interface IMyCaseMessageService : ICaseMessageService
 {
-
+    /// <summary>Adds a public customer comment to an accessible, submitted and non-final case.</summary>
+    /// <param name="caseId">The case identifier.</param>
+    /// <param name="user">The customer creating the comment.</param>
+    /// <param name="request">The comment and optional reply and attachment references.</param>
+    Task AddComment(Guid caseId, UserActor user, CustomerCommentRequest request);
 }
 
 /// <summary>Placeholder to indicate Admin case feature.</summary>

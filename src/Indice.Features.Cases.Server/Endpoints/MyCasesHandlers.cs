@@ -47,6 +47,13 @@ internal static class MyCasesHandlers
         return timeline is null ? TypedResults.NotFound() : TypedResults.Ok(timeline);
     }
 
+    /// <summary>Add a public customer comment or reply.</summary>
+    public static async Task<NoContent> AddMyCaseComment(Guid caseId, CustomerCommentRequest request, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseMessageService myCaseMessageService) {
+        await myCaseMessageService.AddComment(caseId, user.UserToActor(casesOptions.Value), request);
+        return TypedResults.NoContent();
+    }
+
     /// <summary>Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.</summary>
     /// <param name="request">The draft.</param>
     /// <param name="user"></param>

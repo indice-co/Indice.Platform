@@ -29,6 +29,8 @@ public class CasesOptions
     public bool ReferenceNumberEnabled { get; set; } = true;
     /// <summary>Display name used in customer timelines for back-office authors. Defaults to <c>Case team</c>.</summary>
     public string CustomerTimelineStaffDisplayName { get; set; } = "Case team";
+    /// <summary>Maximum customer comment length in characters. Defaults to 4000.</summary>
+    public int CustomerCommentMaxLength { get; set; } = 4000;
     /// <summary>The claim type groupid name</summary>
     public string GroupIdClaimType { get; set; } = CasesCoreConstants.DefaultGroupIdClaimType;
     /// <summary>The claim type name for the Tax Identification number</summary>

@@ -28,7 +28,7 @@ internal abstract class BaseCaseMessageService
         _fileService = fileService;
     }
 
-    protected async Task<Guid?> SendInternal(DbCase @case, Message message, AuditMeta createdBy) {
+    protected async Task<Guid?> SendInternal(DbCase @case, Message message, AuditMeta createdBy, bool isCustomerComment = false) {
         Guid? attachmentId = null;
         var caseId = @case.Id;
         ArgumentNullException.ThrowIfNull(message);
@@ -50,14 +50,18 @@ internal abstract class BaseCaseMessageService
         }
 
         if (message.ReplyToCommentId is Guid replyToCommentId) {
-            var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == replyToCommentId);
+            var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == replyToCommentId && (!isCustomerComment || !x.Private));
             if (!exists) {
-                throw new BusinessException("Invalid reply to comment id. Not found on the current case.");
+                throw new BusinessException("Invalid reply to comment id. No accessible comment was found on the current case.");
             }
+        }
+        if (message.AttachmentId is Guid existingAttachmentId &&
+            !await DbContext.Attachments.AnyAsync(x => x.Id == existingAttachmentId && x.CaseId == caseId)) {
+            throw new BusinessException("Invalid attachment id. Not found on the current case.");
         }
 
         if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data is null) {
-            await AddComment(createdBy, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
+            await AddComment(createdBy, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment, message.AttachmentId, isCustomerComment);
         } else if (message.FileStreamAccessor != null && message.CheckpointTypeName == null) {
             var attachment = await AddAttachment(createdBy, @case, message.Comment, message.FileName!, message.FileStreamAccessor!);
             attachmentId = attachment.Id;
@@ -93,13 +97,14 @@ internal abstract class BaseCaseMessageService
         return attachmentId;
     }
 
-    private async Task AddComment(AuditMeta createdBy, Guid caseId, string? text, Guid? replyToCommentId, bool? @private) {
+    private async Task AddComment(AuditMeta createdBy, Guid caseId, string? text, Guid? replyToCommentId, bool? @private, Guid? attachmentId = null, bool isCustomer = false) {
         var newComment = new DbComment {
-            IsCustomer = false, // todo decide if customer, from claims
-            Private = @private ?? true,
+            IsCustomer = isCustomer,
+            Private = isCustomer ? false : @private ?? true,
             CaseId = caseId,
             Text = text,
             ReplyToCommentId = replyToCommentId,
+            AttachmentId = attachmentId,
             CreatedBy = createdBy
         };
 
