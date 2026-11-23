@@ -559,25 +559,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachments.ToResultSet();
     }
 
-    public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
-        var attachment = await DbContext.Attachments
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.CaseId == caseId && x.Id == attachmentId);
-        if (attachment is null) {
-            return null;
-        }
-        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
-        if (data is null) {
-            return null;
-        }
-        return new CaseAttachment {
-            Id = attachment.Id,
-            ContentType = attachment.ContentType,
-            FileName = attachment.Name,
-            FileExtension = attachment.FileExtension,
-            Data = data
-        };
-    }
+    public Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) =>
+        GetAttachmentInternal(caseId, attachmentId);
 
     public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
         var @case = await GetCaseById(caseId, false, false);

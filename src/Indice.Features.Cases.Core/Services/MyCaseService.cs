@@ -104,9 +104,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             }));
     }
 
-    public async Task<Case?> GetCaseById(Guid caseId) {
+    public Task<Case?> GetCaseById(Guid caseId) => GetCaseById(caseId, includeAttachmentData: true);
+
+    public async Task<Case?> GetCaseById(Guid caseId, bool includeAttachmentData) {
         var query =
-            from c in GetCasesInternal(fetchPublicData: true, includeAttachmentData: true, SchemaSelector)
+            from c in GetCasesInternal(fetchPublicData: true, includeAttachmentData: includeAttachmentData, SchemaSelector)
             where c.Id == caseId 
             select c;
 
@@ -120,11 +122,16 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             throw new BusinessException("Case not found.");
         }
 
-        await PopulateAttachmentData(@case.Attachments);
+        if (includeAttachmentData) {
+            await PopulateAttachmentData(@case.Attachments);
+        }
 
         @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
+
+    public Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) =>
+        GetAttachmentInternal(caseId, attachmentId);
 
     public async Task<List<MyTimelineEntry>?> GetTimeline(Guid caseId, UserActor user, TimelineFilter filter = TimelineFilter.All) {
         ArgumentNullException.ThrowIfNull(user);

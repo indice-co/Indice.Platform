@@ -40,6 +40,25 @@ internal abstract class BaseCaseService
         }
     }
 
+    protected async Task<CaseAttachment?> GetAttachmentInternal(Guid caseId, Guid attachmentId) {
+        var attachment = await DbContext.Attachments.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.CaseId == caseId && x.Id == attachmentId);
+        if (attachment is null) {
+            return null;
+        }
+        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
+        if (data is null) {
+            return null;
+        }
+        return new CaseAttachment {
+            Id = attachment.Id,
+            ContentType = attachment.ContentType,
+            FileName = attachment.Name,
+            FileExtension = attachment.FileExtension,
+            Data = data
+        };
+    }
+
     /// <summary>Populates the binary data of the given attachments from the configured file service, for those not stored in the database.</summary>
     /// <param name="attachments">The attachments to populate.</param>
     protected async Task PopulateAttachmentData(IEnumerable<CaseAttachment>? attachments) {

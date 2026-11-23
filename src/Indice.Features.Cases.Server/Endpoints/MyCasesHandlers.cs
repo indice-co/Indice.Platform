@@ -32,9 +32,16 @@ internal static class MyCasesHandlers
     /// <summary>Get case details by Id.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="myCaseService"></param>
-    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, IMyCaseService myCaseService) {
-        var @case = await myCaseService.GetCaseById(caseId);
+    /// <param name="includeAttachmentData">Whether to include attachment content. Defaults to true.</param>
+    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, IMyCaseService myCaseService, bool includeAttachmentData = true) {
+        var @case = await myCaseService.GetCaseById(caseId, includeAttachmentData);
         return @case is null ? TypedResults.NotFound() : TypedResults.Ok(@case);
+    }
+
+    /// <summary>Download an attachment belonging to the case.</summary>
+    public static async Task<Results<FileContentHttpResult, NotFound>> GetMyCaseAttachment(Guid caseId, Guid attachmentId, IMyCaseService myCaseService) {
+        var attachment = await myCaseService.GetAttachment(caseId, attachmentId);
+        return attachment is null ? TypedResults.NotFound() : TypedResults.File(attachment.Data!, attachment.ContentType, attachment.FileName);
     }
 
     /// <summary>Get the public timeline of a case owned by the customer.</summary>
