@@ -55,9 +55,17 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
             !await DbContext.Comments.AnyAsync(c => c.CaseId == caseId && c.Id == replyId && !c.Private)) {
             throw new BusinessException("Invalid reply to comment id. No accessible comment was found on the current case.");
         }
-        if (request.AttachmentId is Guid attachmentId &&
-            !await DbContext.Attachments.AnyAsync(a => a.Id == attachmentId && a.CaseId == caseId)) {
-            throw new BusinessException("Invalid attachment id. Not found on the current case.");
+        if (request.AttachmentId is Guid attachmentId) {
+            var attachment = await DbContext.Attachments.AsNoTracking()
+                .Where(a => a.Id == attachmentId && a.CaseId == caseId)
+                .Select(a => new { a.ScanStatus })
+                .SingleOrDefaultAsync();
+            if (attachment is null) {
+                throw new BusinessException("Invalid attachment id. Not found on the current case.");
+            }
+            if (_options.AttachmentScanningEnabled && attachment.ScanStatus != AttachmentScanStatus.Safe) {
+                throw new BusinessException("The attachment must be marked safe before it can be referenced by a customer comment.");
+            }
         }
         await SendInternal(@case, new Message {
             Comment = request.Comment,

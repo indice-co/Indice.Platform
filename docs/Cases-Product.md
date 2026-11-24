@@ -411,9 +411,9 @@ builder.AddCaseServer(options => {
   database. Attachments already stored in the database keep being served from there.
 - **Attachment scanning** — set `options.AttachmentScanningEnabled = true` to allow downloads only when `scanStatus` is `Safe`.
   Pending, Unsafe and ScanFailed downloads return 409 problem details; case details retain their metadata but omit their binary content.
-  This applies to My and Manage downloads and to database and external-file storage. The flag defaults to false. New attachments
-  start as Pending even when the flag is off, so scan them before enabling it. This flag gates downloads; it does not block comments,
-  submission or workflow actions. The consuming application must provide the scanner.
+  Customer comments referencing an attachment that is not Safe return 400 problem details. This applies to My and Manage downloads
+  and to database and external-file storage. The flag defaults to false. New attachments start as Pending even when the flag is off,
+  so scan them before enabling it. Submission and workflow actions are not gated. The consuming application must provide the scanner.
 - **Scanner integration** — a trusted in-process scanner can resolve `ICaseAttachmentScanService` and call
   `SetStatus(attachmentId, AttachmentScanStatus.Safe, scannerId)` (or Unsafe / ScanFailed). Restrict access to this service to
   trusted code; no scanner HTTP endpoint is exposed. Status changes record the scanner and time, are logged, and publish
