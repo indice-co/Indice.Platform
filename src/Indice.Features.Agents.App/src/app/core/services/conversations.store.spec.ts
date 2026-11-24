@@ -114,11 +114,13 @@ describe('ConversationsStore', () => {
   it('empties the rail and starts a new chat when the guest session is cleared', () => {
     const guest = TestBed.inject(AuthGuestService);
     guest.capture({ accessToken: 'tok', expiresIn: 3600 });
+    TestBed.tick();
     store.refresh();
     controller.emit(0, listOf('c1'));
     store.select('c1');
 
     guest.clear();
+    TestBed.tick();
 
     expect(store.sessions()).withContext('rows belonged to the old guest').toEqual([]);
     expect(store.activeId()).toBeNull();

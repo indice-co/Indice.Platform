@@ -5,7 +5,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { provideMarkdown } from 'ngx-markdown';
 
@@ -21,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     // authInterceptor attaches the user or guest bearer token to HttpClient calls (not fetch — see
     // ChatStreamService). It replaces ng-auth's AuthHttpInterceptor; its doc comment says why.
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([authInterceptor])),
     // @indice/ng-auth is NgModule-based; pull its providers into the standalone bootstrap.
     importProvidersFrom(IndiceAuthModule.forRoot()),
     { provide: AUTH_SETTINGS, useFactory: () => settings.auth_settings },
