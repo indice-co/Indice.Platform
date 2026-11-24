@@ -11,6 +11,8 @@ import { ChatHitlPaymentComponent } from './parts/chat-hitl-payment.component';
 import { ChatHtmlComponent } from './parts/chat-html.component';
 import { ChatImageComponent } from './parts/chat-image.component';
 import { ChatOptionsComponent } from './parts/chat-options.component';
+import { ChatStripePaymentComponent } from './parts/chat-stripe-payment.component';
+import { ChatVivaPaymentComponent } from './parts/chat-viva-payment.component';
 import {
   HitlControlResolver,
   parseCallout,
@@ -18,6 +20,8 @@ import {
   parseHitlRequest,
   parseImage,
   parseMultipleChoice,
+  parseStripePayment,
+  parseVivaPayment,
   partKind,
 } from './parts/part-contracts';
 
@@ -48,6 +52,8 @@ import {
     ChatHtmlComponent,
     ChatImageComponent,
     ChatOptionsComponent,
+    ChatStripePaymentComponent,
+    ChatVivaPaymentComponent,
   ],
   template: `
     @switch (kind()) {
@@ -75,6 +81,12 @@ import {
       }
       @case ('confirm') {
         <app-chat-confirm [confirmation]="confirmation()" [disabled]="!interactive()" (pick)="pick.emit($event)" />
+      }
+      @case ('payment-stripe') {
+        <app-chat-stripe-payment [payment]="stripePayment()" [disabled]="!interactive()" (completed)="paymentCompleted.emit()" />
+        }
+        @case ('payment-viva') {
+          <app-chat-viva-payment [payment]="vivaPayment()" [disabled]="!interactive()" (completed)="paymentCompleted.emit()" />
       }
       @case ('hitl-request') {
         @switch (hitlControl()) {
@@ -110,6 +122,8 @@ export class ChatMessagePartComponent {
 
   /** Emits text the user picked from an interactive part, to be sent as the next user message. */
   readonly pick = output<string>();
+  /** Emits once an inline payment part has been authorized server-side. */
+  readonly paymentCompleted = output<void>();
 
   protected readonly kind = computed(() => partKind(this.part().contentType));
   protected readonly hitlControl = computed(() => HitlControlResolver(this.part().name));
@@ -118,6 +132,8 @@ export class ChatMessagePartComponent {
   protected readonly image = computed(() => parseImage(this.part().value, this.part().contentType, this.part().name));
   protected readonly callout = computed(() => parseCallout(this.part().value));
   protected readonly confirmation = computed(() => parseConfirmation(this.part().value));
+  protected readonly stripePayment = computed(() => parseStripePayment(this.part().value));
+  protected readonly vivaPayment = computed(() => parseVivaPayment(this.part().value));
   protected readonly hitlRequest = computed(() =>
     parseHitlRequest(this.part().value, this.part().requestId, this.part().name),
   );
