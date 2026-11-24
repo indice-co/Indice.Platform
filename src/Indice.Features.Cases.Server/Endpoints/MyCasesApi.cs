@@ -86,6 +86,11 @@ internal static class MyCasesApi
             .WithSummary("Submit the case by removing the draft mode.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
+        group.MapDelete("{caseId}", MyCasesHandlers.DeleteMyDraftCase)
+            .WithName(nameof(MyCasesHandlers.DeleteMyDraftCase))
+            .WithSummary("Discard an owned draft case. Submitted cases cannot be deleted.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+
         group.MapGet("{caseId}/download", MyCasesHandlers.DownloadMyCasePdf)
             .WithName(nameof(MyCasesHandlers.DownloadMyCasePdf))
             .WithSummary("Download case in a PDF format.")

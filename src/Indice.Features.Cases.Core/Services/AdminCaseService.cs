@@ -482,44 +482,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task DeleteDraft(UserActor user, Guid caseId) {
-        var @case = await DbContext.Cases.FindAsync(caseId);
-        if (@case is null) {
+        if (!await DeleteDraftInternal(caseId, user, allowCaseOwner: false)) {
             throw new CaseNotFoundException();
-        }
-
-        if (@case.CreatedBy.Id != user.Id) {
-            throw new ResourceUnauthorizedException();
-        }
-
-        if (!@case.Draft) {
-            throw new BusinessException("Cannot delete a submitted case.");
-        }
-
-        var attachmentPaths = new List<string>();
-        if (FileService is not null) {
-            var attachments = await DbContext.Attachments
-                .AsNoTracking()
-                .Where(x => x.CaseId == caseId && x.Data == null)
-                .Select(x => new { x.Guid, x.FileExtension })
-                .ToListAsync();
-            attachmentPaths = attachments.Select(x => DbAttachment.GetPath(x.Guid, x.FileExtension)).ToList();
-        }
-        DbContext.Remove(@case);
-        await DbContext.SaveChangesAsync();
-        foreach (var batch in attachmentPaths.Chunk(5)) {
-            await Task.WhenAll(batch.Select(TryDeleteAttachmentFile));
-        }
-    }
-
-    private async Task TryDeleteAttachmentFile(string path) {
-        try {
-            await FileService!.DeleteAsync(path);
-        } catch (FileServiceException) {
-            // Best effort, the case has already been deleted.
-            
-            // DEVNOTE: File service wraps inner exceptions "FileServiceException" to its own so that it normalizes 
-            // the abstraction for different implementations (Azure, FileSystem, S3 etc. with different intarnal behavior) 
-            // If the internal wrapper does not know what to do with the exception that means it should be let to bubble up
         }
     }
 

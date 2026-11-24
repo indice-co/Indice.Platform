@@ -5,6 +5,7 @@ using Indice.Events;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -130,8 +131,12 @@ internal static class AdminCasesHandlers
 
     public static async Task<Results<NoContent, NotFound>> DeleteDraftCase(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
-        await adminCaseService.DeleteDraft(currentUser.UserToActor(casesOptions.Value), caseId);
-        return TypedResults.NoContent();
+        try {
+            await adminCaseService.DeleteDraft(currentUser.UserToActor(casesOptions.Value), caseId);
+            return TypedResults.NoContent();
+        } catch (CaseNotFoundException) {
+            return TypedResults.NotFound();
+        }
     }
 
     public static async Task<Ok<List<TimelineEntry>>> GetCaseTimeline(Guid caseId, IAdminCaseService adminCaseService) {

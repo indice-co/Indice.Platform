@@ -70,6 +70,10 @@ A case's history is its list of checkpoints; its status is whatever the current 
   128 characters; legacy `Customer` / `Agent` values count as `External` / `Managed` **(next release)**.
 - **Comments, attachments, timeline** — private or public comments with replies; attachments stored with the case;
   a timeline that merges checkpoints and comments; related cases that share an `ExternalCorrelationKey` metadata value.
+- **Discard a draft** — `DELETE /my/cases/{caseId}` hard-deletes an owned draft and its data versions, checkpoints,
+  comments, access rules, approvals and attachments, then removes file-service blobs in batches. On relational databases,
+  current/public checkpoint and data references are cleared and saved before deletion within the same transaction.
+  Returns 204 on success, 404 for an unknown case, and 400 for a submitted case; submitted cases must be withdrawn through a workflow action.
 
 ### 🔄 Workflows — Elsa 2
 

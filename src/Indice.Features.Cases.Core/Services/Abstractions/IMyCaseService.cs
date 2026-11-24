@@ -33,6 +33,11 @@ public interface IMyCaseService
     /// <param name="caseId">The Id of the case.</param>
     Task Submit(UserActor user, Guid caseId);
 
+    /// <summary>Deletes an owned draft case. Returns false if the case does not exist.</summary>
+    /// <param name="user">The customer requesting deletion.</param>
+    /// <param name="caseId">The case identifier.</param>
+    Task<bool> DeleteDraft(UserActor user, Guid caseId);
+
     /// <summary>Get <see cref="Case"/> for a user by its Id.</summary>
     /// <param name="caseId">The Id of the case.</param>
     Task<Case?> GetCaseById(Guid caseId);

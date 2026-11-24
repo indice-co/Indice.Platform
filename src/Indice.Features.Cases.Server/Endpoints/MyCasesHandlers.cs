@@ -109,6 +109,13 @@ internal static class MyCasesHandlers
         return TypedResults.NoContent();
     }
 
+    /// <summary>Discards an owned draft case.</summary>
+    public static async Task<Results<NoContent, NotFound>> DeleteMyDraftCase(Guid caseId, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) =>
+        await myCaseService.DeleteDraft(user.UserToActor(casesOptions.Value), caseId)
+            ? TypedResults.NoContent()
+            : TypedResults.NotFound();
+
     /// <summary>Download case in a PDF format</summary>
     /// <param name="caseId"></param>
     /// <param name="myCaseService"></param>

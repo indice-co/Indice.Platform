@@ -2,6 +2,7 @@
 using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
@@ -37,6 +38,71 @@ internal abstract class BaseCaseService
             return await FileService.GetAsync(DbAttachment.GetPath(guid, fileExtension));
         } catch (FileNotFoundServiceException) {
             return null;
+        }
+    }
+
+    protected async Task<bool> DeleteDraftInternal(Guid caseId, UserActor user, bool allowCaseOwner) {
+        ArgumentNullException.ThrowIfNull(user);
+        var @case = await DbContext.Cases.SingleOrDefaultAsync(x => x.Id == caseId);
+        if (@case is null) {
+            return false;
+        }
+        if (string.IsNullOrEmpty(user.Id) ||
+            (@case.CreatedBy.Id != user.Id && (!allowCaseOwner || @case.Owner.UserId != user.Id))) {
+            throw new ResourceUnauthorizedException();
+        }
+        if (!@case.Draft) {
+            throw new BusinessException("Cannot delete a submitted case.");
+        }
+
+        var attachmentPaths = FileService is null
+            ? []
+            : await DbContext.Attachments.AsNoTracking()
+                .Where(x => x.CaseId == caseId && x.Data == null)
+                .Select(x => DbAttachment.GetPath(x.Guid, x.FileExtension))
+                .ToListAsync();
+        var checkpoints = await DbContext.Checkpoints.Where(x => x.CaseId == caseId).ToListAsync();
+        var comments = await DbContext.Comments.Where(x => x.CaseId == caseId).ToListAsync();
+        var attachments = await DbContext.Attachments.Where(x => x.CaseId == caseId).ToListAsync();
+        var versions = await DbContext.CaseData.Where(x => x.CaseId == caseId).ToListAsync();
+        var approvals = await DbContext.CaseApprovals.Where(x => x.CaseId == caseId).ToListAsync();
+        var accessRules = await DbContext.CaseAccessRules.Where(x => x.RuleCaseId == caseId).ToListAsync();
+
+        await using var transaction = DbContext.Database.IsRelational() && DbContext.Database.CurrentTransaction is null
+            ? await DbContext.Database.BeginTransactionAsync()
+            : null;
+        @case.CheckpointId = null;
+        @case.PublicCheckpointId = null;
+        @case.DataId = null;
+        @case.PublicDataId = null;
+        // Persist the cleared references before deletion so EF can order the circular relationships.
+        await DbContext.SaveChangesAsync();
+
+        DbContext.RemoveRange(approvals);
+        DbContext.RemoveRange(accessRules);
+        DbContext.RemoveRange(comments);
+        DbContext.RemoveRange(attachments);
+        DbContext.RemoveRange(versions);
+        DbContext.RemoveRange(checkpoints);
+        DbContext.Cases.Remove(@case);
+        await DbContext.SaveChangesAsync();
+        if (transaction is not null) {
+            await transaction.CommitAsync();
+        }
+
+        if (FileService is not null) {
+            foreach (var batch in attachmentPaths.Chunk(5)) {
+                await Task.WhenAll(batch.Select(DeleteAttachmentFile));
+            }
+        }
+        return true;
+    }
+
+    private async Task DeleteAttachmentFile(string path) {
+        try {
+            await FileService!.DeleteAsync(path);
+        } catch (FileServiceException) {
+            // File service deletion is best-effort after the database case has been removed.
         }
     }
 

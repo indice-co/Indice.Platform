@@ -75,6 +75,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         await _caseMessageService.Send(caseId, user, new Message { Data = data });
     }
 
+    public Task<bool> DeleteDraft(UserActor user, Guid caseId) =>
+        DeleteDraftInternal(caseId, user, allowCaseOwner: true);
+
     public async Task Submit(UserActor user, Guid caseId) {
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 

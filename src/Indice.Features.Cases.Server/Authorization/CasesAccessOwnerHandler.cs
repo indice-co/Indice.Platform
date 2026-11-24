@@ -62,11 +62,15 @@ public class CasesAccessOwnerHandler : AuthorizationHandler<CasesOwnerAccessRequ
 
         var isOwner = await CheckOwnershipAsync(actor, caseId);
         if (!isOwner) {
-            _logger.LogInformation("User {UserId} is not a member.", actor.Id);
-
-        } else {
-            context.Succeed(requirement);
+            var caseExists = await dbContext.Cases.AnyAsync(c => c.Id == caseId);
+            var isDraftDeleteEndpoint = _httpContextAccessor.HttpContext!.GetEndpoint()?
+                .Metadata.GetMetadata<IEndpointNameMetadata>()?.EndpointName == "DeleteMyDraftCase";
+            if (caseExists || !isDraftDeleteEndpoint) {
+                _logger.LogInformation("User {UserId} is not a member.", actor.Id);
+                return;
+            }
         }
+        context.Succeed(requirement);
     }
 
     private async Task<bool> CheckOwnershipAsync(UserActor actor, Guid caseId) {
