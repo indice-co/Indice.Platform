@@ -130,6 +130,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        @case.CheckpointType = @case.CheckpointType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true)!;
         return @case;
     }
 

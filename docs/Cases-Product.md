@@ -121,7 +121,8 @@ Three layers: what your role allows, which records you were granted, and what yo
 - **`my/case-types`** — the case types a customer can open, with translated schema and layout.
 - **`my/cases`** — create a draft, update it, upload attachments, submit, list, get, download the PDF.
 - **Public view only** — the customer sees the public checkpoint, the published data and, on rejection, the reason;
-  never internal steps or back-office comments.
+  never internal steps or back-office comments. Case details translate the checkpoint title and description using the
+  request culture, falling back to the original values when no translation exists.
 - **Same pipeline** — a customer-submitted case starts the same workflow as a staff-created one.
 
 ### 👥 Back-office surface — the `manage` API

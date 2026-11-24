@@ -10,10 +10,12 @@ using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -65,6 +67,10 @@ public class MyCaseAttachmentTests
                 }
             });
             builder.Configure(app => {
+                app.UseRequestLocalization(new RequestLocalizationOptions()
+                    .SetDefaultCulture("en-US")
+                    .AddSupportedCultures("en-US", "el-GR")
+                    .AddSupportedUICultures("en-US", "el-GR"));
                 app.UseRouting();
                 app.UseAuthentication();
                 app.UseAuthorization();
@@ -77,16 +83,30 @@ public class MyCaseAttachmentTests
         using (var scope = host.Services.CreateScope()) {
             var db = scope.ServiceProvider.GetRequiredService<CasesDbContext>();
             var caseType = new DbCaseType { Id = Guid.NewGuid(), Code = "T", Title = "Type", DataSchema = "{}" };
-            var checkpointType = new DbCheckpointType { Id = Guid.NewGuid(), CaseTypeId = caseType.Id, Code = "OPEN" };
+            var checkpointType = new DbCheckpointType {
+                Id = Guid.NewGuid(), CaseTypeId = caseType.Id, Code = "OPEN", Title = "Draft title", Description = "Draft description",
+                Translations = new TranslationDictionary<CheckpointTypeTranslation> {
+                    ["el"] = new() { Title = "Translated draft", Description = "Translated draft description" }
+                }
+            };
+            var publicType = new DbCheckpointType {
+                Id = Guid.NewGuid(), CaseTypeId = caseType.Id, Code = "PUBLIC", Title = "Public title", Description = "Public description",
+                Translations = new TranslationDictionary<CheckpointTypeTranslation> {
+                    ["el"] = new() { Title = "Translated public", Description = "Translated public description" }
+                }
+            };
             var audit = new AuditMeta { Id = "owner", Name = "Owner", Email = "owner@example.test", When = DateTimeOffset.UtcNow };
             var checkpoint = new DbCheckpoint { Id = Guid.NewGuid(), CaseId = caseId, CheckpointTypeId = checkpointType.Id, CreatedBy = audit.Clone() };
+            var publicCheckpoint = new DbCheckpoint { Id = Guid.NewGuid(), CaseId = otherCaseId, CheckpointTypeId = publicType.Id, CreatedBy = audit.Clone() };
+            var privateCheckpoint = new DbCheckpoint { Id = Guid.NewGuid(), CaseId = otherCaseId, CheckpointTypeId = checkpointType.Id, CreatedBy = audit.Clone() };
             var version = new DbCaseData { CaseId = caseId, CreatedBy = audit.Clone(), Data = System.Text.Json.Nodes.JsonNode.Parse("{}") };
+            var publicVersion = new DbCaseData { CaseId = otherCaseId, CreatedBy = audit.Clone(), Data = System.Text.Json.Nodes.JsonNode.Parse("{}") };
             db.CaseTypes.Add(caseType);
-            db.CheckpointTypes.Add(checkpointType);
+            db.CheckpointTypes.AddRange(checkpointType, publicType);
             db.Cases.Add(new DbCase { Id = caseId, CaseTypeId = caseType.Id, Channel = "web", Draft = true, CreatedBy = audit, Owner = new ContactMeta { UserId = "owner" }, CheckpointId = checkpoint.Id, DataId = version.Id });
-            db.Cases.Add(new DbCase { Id = otherCaseId, CaseTypeId = caseType.Id, Channel = "web", CreatedBy = audit.Clone(), Owner = new ContactMeta { UserId = "owner" } });
-            db.Checkpoints.Add(checkpoint);
-            db.CaseData.Add(version);
+            db.Cases.Add(new DbCase { Id = otherCaseId, CaseTypeId = caseType.Id, Channel = "web", Draft = false, CreatedBy = audit.Clone(), Owner = new ContactMeta { UserId = "owner" }, CheckpointId = privateCheckpoint.Id, PublicCheckpointId = publicCheckpoint.Id, PublicDataId = publicVersion.Id });
+            db.Checkpoints.AddRange(checkpoint, publicCheckpoint, privateCheckpoint);
+            db.CaseData.AddRange(version, publicVersion);
             var attachment = new DbAttachment(caseId);
             using var stream = new MemoryStream(content);
             attachment.PopulateFrom("document.txt", stream, saveData: !fileServiceEnabled);
@@ -102,6 +122,7 @@ public class MyCaseAttachmentTests
 
         using var client = host.GetTestClient();
         client.DefaultRequestHeaders.Add("X-Test-User", "owner");
+        client.DefaultRequestHeaders.AcceptLanguage.ParseAdd("el-GR");
         var download = await client.GetAsync($"/my/cases/{caseId}/attachments/{attachmentId}");
         Assert.Equal(HttpStatusCode.OK, download.StatusCode);
         Assert.Equal(content, await download.Content.ReadAsByteArrayAsync());
@@ -113,6 +134,10 @@ public class MyCaseAttachmentTests
             var response = await client.GetAsync($"/my/cases/{caseId}{query}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            var checkpoint = body.GetProperty("checkpointType");
+            Assert.Equal("Translated draft", checkpoint.GetProperty("title").GetString());
+            Assert.Equal("Translated draft description", checkpoint.GetProperty("description").GetString());
+            Assert.True(checkpoint.GetProperty("translations").TryGetProperty("el", out _));
             var attachment = Assert.Single(body.GetProperty("attachments").EnumerateArray());
             Assert.Equal("document.txt", attachment.GetProperty("fileName").GetString());
             if (query.EndsWith("false")) {
@@ -121,6 +146,23 @@ public class MyCaseAttachmentTests
                 Assert.Equal(content, attachment.GetProperty("data").GetBytesFromBase64());
             }
         }
+        var publicResponse = await client.GetAsync($"/my/cases/{otherCaseId}?includeAttachmentData=false");
+        Assert.Equal(HttpStatusCode.OK, publicResponse.StatusCode);
+        var publicBody = await publicResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var publicCheckpointResponse = publicBody.GetProperty("checkpointType");
+        Assert.Equal("PUBLIC", publicCheckpointResponse.GetProperty("code").GetString());
+        Assert.Equal("Translated public", publicCheckpointResponse.GetProperty("title").GetString());
+        Assert.Equal("Translated public description", publicCheckpointResponse.GetProperty("description").GetString());
+
+        client.DefaultRequestHeaders.AcceptLanguage.Clear();
+        client.DefaultRequestHeaders.AcceptLanguage.ParseAdd("en-US");
+        var fallbackResponse = await client.GetAsync($"/my/cases/{otherCaseId}?includeAttachmentData=false");
+        Assert.Equal(HttpStatusCode.OK, fallbackResponse.StatusCode);
+        var fallbackBody = await fallbackResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var fallbackCheckpoint = fallbackBody.GetProperty("checkpointType");
+        Assert.Equal("Public title", fallbackCheckpoint.GetProperty("title").GetString());
+        Assert.Equal("Public description", fallbackCheckpoint.GetProperty("description").GetString());
+
         client.DefaultRequestHeaders.Remove("X-Test-User");
         client.DefaultRequestHeaders.Add("X-Test-User", "other");
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync($"/my/cases/{caseId}/attachments/{attachmentId}")).StatusCode);

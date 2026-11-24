@@ -51,7 +51,7 @@ internal static class MyCasesApi
 
         group.MapGet("{caseId}", MyCasesHandlers.GetMyCaseById)
             .WithName(nameof(MyCasesHandlers.GetMyCaseById))
-            .WithSummary("Get case details. Set includeAttachmentData=false to omit attachment content; the default is true.")
+            .WithSummary("Get case details with checkpoint title and description translated to the request culture. Set includeAttachmentData=false to omit attachment content; the default is true.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
         group.MapGet("{caseId}/attachments/{attachmentId:guid}", MyCasesHandlers.GetMyCaseAttachment)
