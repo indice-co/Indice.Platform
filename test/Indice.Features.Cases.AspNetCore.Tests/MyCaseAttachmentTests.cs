@@ -8,6 +8,8 @@ using Indice.Events;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
+using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -35,9 +37,11 @@ namespace Indice.Features.Cases.Tests;
 public class MyCaseAttachmentTests
 {
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Customer_download_and_details_respect_ownership_and_content_option(bool fileServiceEnabled) {
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Customer_download_and_details_respect_ownership_and_content_option(bool fileServiceEnabled, bool scanningEnabled) {
         var database = Guid.NewGuid().ToString();
         var caseId = Guid.NewGuid();
         var otherCaseId = Guid.NewGuid();
@@ -47,6 +51,7 @@ public class MyCaseAttachmentTests
             builder.ConfigureServices(services => {
                 services.AddRouting();
                 services.AddOptions();
+                services.Configure<CasesOptions>(options => options.AttachmentScanningEnabled = scanningEnabled);
                 services.AddLogging();
                 services.AddHttpContextAccessor();
                 services.AddDistributedMemoryCache();
@@ -57,11 +62,14 @@ public class MyCaseAttachmentTests
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(Substitute.For<IPlatformEventService>());
                 services.AddSingleton(Substitute.For<IMyCaseMessageService>());
+                services.AddSingleton(Substitute.For<IAdminCaseMessageService>());
                 services.AddSingleton(Substitute.For<IJsonTranslationService>());
                 services.AddSingleton(Substitute.For<ICaseTemplateService>());
                 services.AddSingleton(Substitute.For<ICasePdfService>());
                 services.AddSingleton(new CaseSharedResourceService(Substitute.For<IStringLocalizerFactory>()));
                 services.AddTransient<IMyCaseService, MyCaseService>();
+                services.AddTransient<IAdminCaseService, AdminCaseService>();
+                services.AddTransient<ICaseAttachmentScanService, CaseAttachmentScanService>();
                 if (fileServiceEnabled) {
                     services.AddFiles(builder => builder.AddFilesInMemory(CasesCoreConstants.FileServiceKey));
                 }
@@ -116,6 +124,7 @@ public class MyCaseAttachmentTests
             var otherAttachment = new DbAttachment(otherCaseId) { Name = "other.txt", FileExtension = ".txt", ContentType = "text/plain", Data = content };
             attachmentId = attachment.Id;
             otherAttachmentId = otherAttachment.Id;
+            version.Data = System.Text.Json.Nodes.JsonNode.Parse($"{{\"document\":\"{attachment.Id}\"}}");
             db.Attachments.AddRange(attachment, otherAttachment);
             await db.SaveChangesAsync();
         }
@@ -123,6 +132,61 @@ public class MyCaseAttachmentTests
         using var client = host.GetTestClient();
         client.DefaultRequestHeaders.Add("X-Test-User", "owner");
         client.DefaultRequestHeaders.AcceptLanguage.ParseAdd("el-GR");
+        foreach (var status in new[] { AttachmentScanStatus.Pending, AttachmentScanStatus.Unsafe, AttachmentScanStatus.ScanFailed }) {
+            using (var scope = host.Services.CreateScope()) {
+                var scanner = scope.ServiceProvider.GetRequiredService<ICaseAttachmentScanService>();
+                Assert.True(await scanner.SetStatus(attachmentId, status, "scanner"));
+                var admin = scope.ServiceProvider.GetRequiredService<IAdminCaseService>();
+                var adminCase = await admin.GetCaseById(caseId, fetchPublicData: false, includeAttachmentData: true);
+                var adminAttachment = Assert.Single(adminCase!.Attachments);
+                Assert.Equal(status, adminAttachment.ScanStatus);
+                Assert.Equal(scanningEnabled ? null : content, adminAttachment.Data);
+                Assert.Equal(status, Assert.Single((await admin.GetAttachments(caseId)).Items).ScanStatus);
+                if (scanningEnabled) {
+                    await Assert.ThrowsAsync<AttachmentNotSafeException>(() => admin.GetAttachment(caseId, attachmentId));
+                    await Assert.ThrowsAsync<AttachmentNotSafeException>(() => admin.GetAttachmentById(attachmentId));
+                    await Assert.ThrowsAsync<AttachmentNotSafeException>(() => admin.GetAttachmentByField(new UserActor { Id = "owner" }, caseId, "document"));
+                } else {
+                    Assert.Equal(content, (await admin.GetAttachment(caseId, attachmentId))!.Data);
+                    Assert.Equal(content, (await admin.GetAttachmentById(attachmentId))!.Data);
+                    Assert.Equal(content, (await admin.GetAttachmentByField(new UserActor { Id = "owner" }, caseId, "document"))!.Data);
+                }
+            }
+            var blockedDownload = await client.GetAsync($"/my/cases/{caseId}/attachments/{attachmentId}");
+            Assert.Equal(scanningEnabled ? HttpStatusCode.Conflict : HttpStatusCode.OK, blockedDownload.StatusCode);
+            if (scanningEnabled) {
+                Assert.Equal("application/problem+json", blockedDownload.Content.Headers.ContentType!.MediaType);
+            }
+            var detailsResponse = await client.GetAsync($"/my/cases/{caseId}");
+            Assert.Equal(HttpStatusCode.OK, detailsResponse.StatusCode);
+            var details = await detailsResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var item = Assert.Single(details.GetProperty("attachments").EnumerateArray());
+            Assert.Equal(status.ToString(), item.GetProperty("scanStatus").GetString());
+            if (scanningEnabled) {
+                Assert.True(!item.TryGetProperty("data", out var unsafeData) || unsafeData.ValueKind == JsonValueKind.Null);
+            } else {
+                Assert.Equal(content, item.GetProperty("data").GetBytesFromBase64());
+            }
+        }
+        using (var scope = host.Services.CreateScope()) {
+            var scanner = scope.ServiceProvider.GetRequiredService<ICaseAttachmentScanService>();
+            Assert.True(await scanner.SetStatus(attachmentId, AttachmentScanStatus.Safe, "scanner"));
+            Assert.True(await scanner.SetStatus(attachmentId, AttachmentScanStatus.Safe, "scanner"));
+            Assert.False(await scanner.SetStatus(Guid.NewGuid(), AttachmentScanStatus.Safe, "scanner"));
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => scanner.SetStatus(attachmentId, (AttachmentScanStatus)999, "scanner"));
+            await Assert.ThrowsAsync<ArgumentException>(() => scanner.SetStatus(attachmentId, AttachmentScanStatus.Safe, " "));
+            var db = scope.ServiceProvider.GetRequiredService<CasesDbContext>();
+            var scanned = await db.Attachments.SingleAsync(x => x.Id == attachmentId);
+            Assert.Equal("scanner", scanned.ScanStatusChangedBy);
+            Assert.NotNull(scanned.ScanStatusChangedAt);
+            var events = scope.ServiceProvider.GetRequiredService<IPlatformEventService>();
+            await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => e is CaseAttachmentScannedEvent &&
+                ((CaseAttachmentScannedEvent)e).AttachmentId == attachmentId &&
+                ((CaseAttachmentScannedEvent)e).CaseId == caseId &&
+                ((CaseAttachmentScannedEvent)e).PreviousStatus == AttachmentScanStatus.ScanFailed &&
+                ((CaseAttachmentScannedEvent)e).Status == AttachmentScanStatus.Safe &&
+                ((CaseAttachmentScannedEvent)e).ScannerId == "scanner"));
+        }
         var download = await client.GetAsync($"/my/cases/{caseId}/attachments/{attachmentId}");
         Assert.Equal(HttpStatusCode.OK, download.StatusCode);
         Assert.Equal(content, await download.Content.ReadAsByteArrayAsync());

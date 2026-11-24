@@ -409,6 +409,19 @@ builder.AddCaseServer(options => {
   Call `options.UseFileServiceAzure()` (Azure Blob Storage, container `{environment}-cases`, connection string `StorageConnection`)
   or `options.UseFileServiceLocal()` (local file system) to store them in a file service instead; only the metadata stay in the
   database. Attachments already stored in the database keep being served from there.
+- **Attachment scanning** — set `options.AttachmentScanningEnabled = true` to allow downloads only when `scanStatus` is `Safe`.
+  Pending, Unsafe and ScanFailed downloads return 409 problem details; case details retain their metadata but omit their binary content.
+  This applies to My and Manage downloads and to database and external-file storage. The flag defaults to false. New attachments
+  start as Pending even when the flag is off, so scan them before enabling it. This flag gates downloads; it does not block comments,
+  submission or workflow actions. The consuming application must provide the scanner.
+- **Scanner integration** — a trusted in-process scanner can resolve `ICaseAttachmentScanService` and call
+  `SetStatus(attachmentId, AttachmentScanStatus.Safe, scannerId)` (or Unsafe / ScanFailed). Restrict access to this service to
+  trusted code; no scanner HTTP endpoint is exposed. Status changes record the scanner and time, are logged, and publish
+  `CaseAttachmentScannedEvent` after the database save. Event delivery is not transactional with the database update.
+- **Database upgrade** — before deploying this version to an existing database, run the matching one-time SQL statement set in the
+  Cases Core changelog. These statements backfill existing attachments as Safe and set Pending as the default for new rows. Adjust
+  the schema name if needed. The upgrade is required even when scanning is disabled; the Cases database currently uses
+  `EnsureCreated`, not EF migrations.
 
 ### 🔀 Workflows
 

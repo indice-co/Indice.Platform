@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Configuration;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Server;
@@ -31,7 +32,8 @@ internal static class AdminCasesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).WithHandledException<BusinessException>();
+        ).WithHandledException<BusinessException>()
+         .WithHandledException<AttachmentNotSafeException>(StatusCodes.Status409Conflict);
 
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 

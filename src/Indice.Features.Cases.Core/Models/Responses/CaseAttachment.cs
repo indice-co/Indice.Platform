@@ -15,6 +15,9 @@ public class CaseAttachment
     /// <summary>The extension of the attachment.</summary>
     public string? FileExtension { get; set; }
 
+    /// <summary>The antivirus scan status.</summary>
+    public AttachmentScanStatus ScanStatus { get; set; }
+
     /// <summary>The binary data of the attachment.</summary>
     public byte[]? Data { get; set; }
 }

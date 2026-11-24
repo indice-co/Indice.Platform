@@ -112,6 +112,7 @@ internal abstract class BaseCaseService
         if (attachment is null) {
             return null;
         }
+        EnsureAttachmentSafe(attachment.ScanStatus);
         var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
         if (data is null) {
             return null;
@@ -121,8 +122,15 @@ internal abstract class BaseCaseService
             ContentType = attachment.ContentType,
             FileName = attachment.Name,
             FileExtension = attachment.FileExtension,
+            ScanStatus = attachment.ScanStatus,
             Data = data
         };
+    }
+
+    protected void EnsureAttachmentSafe(AttachmentScanStatus status) {
+        if (Options.AttachmentScanningEnabled && status != AttachmentScanStatus.Safe) {
+            throw new AttachmentNotSafeException();
+        }
     }
 
     /// <summary>Populates the binary data of the given attachments from the configured file service, for those not stored in the database.</summary>
@@ -131,7 +139,7 @@ internal abstract class BaseCaseService
         if (FileService is null || attachments is null) {
             return;
         }
-        var missing = attachments.Where(x => x.Data is null).ToList();
+        var missing = attachments.Where(x => x.Data is null && (!Options.AttachmentScanningEnabled || x.ScanStatus == AttachmentScanStatus.Safe)).ToList();
         if (missing.Count == 0) {
             return;
         }
@@ -178,6 +186,7 @@ internal abstract class BaseCaseService
     /// <param name="includeAttachmentData">Include the attachment binary data to the response.</param>
     /// <param name="schemaKey">The schemaKey for the case type JSON schema/layout. Can be "frontend", "backoffice" or null</param>
     protected IQueryable<Case> GetCasesInternal(bool fetchPublicData, bool includeAttachmentData = false, string? schemaKey = null) {
+        var scanningEnabled = Options.AttachmentScanningEnabled;
         var query =
             from c in DbContext.Cases.AsQueryable().AsNoTracking()
             let publicData = !c.Draft && fetchPublicData // if fetchPublicData works only for non-draft cases
@@ -220,7 +229,8 @@ internal abstract class BaseCaseService
                     FileName = attachment.Name,
                     ContentType = attachment.ContentType,
                     FileExtension = attachment.FileExtension,
-                    Data = includeAttachmentData ? attachment.Data : null
+                    ScanStatus = attachment.ScanStatus,
+                    Data = includeAttachmentData && (!scanningEnabled || attachment.ScanStatus == AttachmentScanStatus.Safe) ? attachment.Data : null
                 }).ToList(),
                 Data = publicData ? c.PublicData.Data : c.Data.Data,
                 AssignedToName = c.AssignedTo!.Name,

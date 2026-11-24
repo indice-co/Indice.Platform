@@ -41,6 +41,7 @@ public static class CaseServerFeatureExtensions
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
             options.CustomerTimelineStaffDisplayName = serverOptions.CustomerTimelineStaffDisplayName;
             options.CustomerCommentMaxLength = serverOptions.CustomerCommentMaxLength;
+            options.AttachmentScanningEnabled = serverOptions.AttachmentScanningEnabled;
         });
         // must run last in order not to override any explicit service declarations.
         builder.Services.AddCasesManagement(options => {
@@ -52,6 +53,7 @@ public static class CaseServerFeatureExtensions
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
             options.CustomerTimelineStaffDisplayName = serverOptions.CustomerTimelineStaffDisplayName;
             options.CustomerCommentMaxLength = serverOptions.CustomerCommentMaxLength;
+            options.AttachmentScanningEnabled = serverOptions.AttachmentScanningEnabled;
             options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
         });
         builder.Services.Configure<CaseServerOptions>(options => {

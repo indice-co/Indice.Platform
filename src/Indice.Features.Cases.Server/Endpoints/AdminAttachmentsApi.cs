@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
@@ -30,7 +31,8 @@ internal static class AdminAttachmentsApi
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
             .RequireCasesAccess(CasesAccessLevel.Manage) // equivalent to BeCasesManager
-        ).WithHandledException<BusinessException>();
+        ).WithHandledException<BusinessException>()
+         .WithHandledException<AttachmentNotSafeException>(StatusCodes.Status409Conflict);
 
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

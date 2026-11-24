@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Optional attachment scan-status download gating for My and Manage case APIs, and a trusted scanner service.
+- Before deploying to an existing database, run the matching one-time script below, even when scanning is disabled.
+  Replace the `case` schema if necessary. Existing attachments are backfilled as Safe (`1`); new rows default to Pending (`0`).
+
+```sql
+-- SQL Server
+BEGIN TRANSACTION;
+ALTER TABLE [case].[Attachment] ADD [ScanStatus] int NULL, [ScanStatusChangedAt] datetimeoffset NULL, [ScanStatusChangedBy] nvarchar(max) NULL;
+UPDATE [case].[Attachment] SET [ScanStatus] = 1;
+ALTER TABLE [case].[Attachment] ALTER COLUMN [ScanStatus] int NOT NULL;
+ALTER TABLE [case].[Attachment] ADD CONSTRAINT [DF_Attachment_ScanStatus] DEFAULT 0 FOR [ScanStatus];
+COMMIT;
+```
+
+```sql
+-- PostgreSQL
+BEGIN;
+ALTER TABLE "case"."Attachment" ADD COLUMN "ScanStatus" integer NOT NULL DEFAULT 1,
+    ADD COLUMN "ScanStatusChangedAt" timestamp with time zone NULL,
+    ADD COLUMN "ScanStatusChangedBy" text NULL;
+ALTER TABLE "case"."Attachment" ALTER COLUMN "ScanStatus" SET DEFAULT 0;
+COMMIT;
+```
+
 ## [8.64.0]
 ### Added Azure Storage / file system support for the case attachments.
 - The binary data of the case attachments can now be stored to a file service instead of the database. Only the attachment metadata

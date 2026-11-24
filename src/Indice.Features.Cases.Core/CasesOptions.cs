@@ -31,6 +31,8 @@ public class CasesOptions
     public string CustomerTimelineStaffDisplayName { get; set; } = "Case team";
     /// <summary>Maximum customer comment length in characters. Defaults to 4000.</summary>
     public int CustomerCommentMaxLength { get; set; } = 4000;
+    /// <summary>When enabled, only attachments marked safe can be downloaded or inlined. Defaults to false.</summary>
+    public bool AttachmentScanningEnabled { get; set; }
     /// <summary>The claim type groupid name</summary>
     public string GroupIdClaimType { get; set; } = CasesCoreConstants.DefaultGroupIdClaimType;
     /// <summary>The claim type name for the Tax Identification number</summary>

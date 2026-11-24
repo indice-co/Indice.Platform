@@ -495,6 +495,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             return null;
         }
 
+        EnsureAttachmentSafe(attachment.ScanStatus);
         var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
         if (data is null) {
             return null;
@@ -505,7 +506,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             ContentType = attachment.ContentType,
             Data = data,
             FileExtension = attachment.FileExtension,
-            FileName = attachment.Name
+            FileName = attachment.Name,
+            ScanStatus = attachment.ScanStatus
         };
     }
 
@@ -517,7 +519,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 Id = db.Id,
                 ContentType = db.ContentType,
                 FileName = db.Name,
-                FileExtension = db.FileExtension
+                FileExtension = db.FileExtension,
+                ScanStatus = db.ScanStatus
             })
             .ToListAsync();
         return attachments.ToResultSet();
