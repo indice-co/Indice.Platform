@@ -300,7 +300,8 @@ Everything that can be a setting is a setting. Code is for agents, tools and the
 | Section | What it controls |
 |---|---|
 | `ConnectionStrings:DexDb` | the database (schema `dex`): conversations, documents, vectors, profiles, checkpoints |
-| `General:Authority` / `General:Api` | identity server, API resource, `chat` and `ingest` scopes, client used for guest tokens |
+| `General:Authority` / `General:Api` | host identity server and API resource configuration |
+| `AgentsServerOptions.GuestToken` (configure in `AddAgents`) | guest token authority/token endpoint, client ID, client secret and scopes; not automatically bound from `General` |
 | `Dex:AzureOpenAI` | endpoint, key, deployments per role, embedding dimensions |
 | `Dex:Models` | temperature and output limits per role |
 | `Dex:Retrieval` / `Dex:Pipeline` | candidates, results, query expansion, minimum score; rerank, rewrite and strict-grounding switches |
