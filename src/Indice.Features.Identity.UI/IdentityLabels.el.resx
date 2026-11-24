@@ -502,10 +502,10 @@
     <value>Όνομα Χρήστη</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageTitle" xml:space="preserve">
-    <value>Επιβεβαίωση Υπενθύμισης Κωδικού</value>
+    <value>Επαναφορά κωδικού πρόσβασης</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
-    <value>Επιβεβαίωση Υπενθύμισης Κωδικού</value>
+    <value>Επαναφορά κωδικού πρόσβασης</value>
   </data>
   <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
     <value>Νέος Κωδικός</value>

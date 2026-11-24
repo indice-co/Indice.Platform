@@ -1348,7 +1348,7 @@ namespace Indice.Features.Identity.UI {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Forgot Password Confirmation.
+        ///   Looks up a localized string similar to Reset your password.
         /// </summary>
         public static string ForgotPasswordConfirmation_PageHeader {
             get {
@@ -1357,7 +1357,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Forgot Password Confirmation.
+        ///   Looks up a localized string similar to Reset your password.
         /// </summary>
         public static string ForgotPasswordConfirmation_PageTitle {
             get {

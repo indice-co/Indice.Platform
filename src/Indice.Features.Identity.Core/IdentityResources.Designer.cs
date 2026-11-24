@@ -322,7 +322,7 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Follow &lt;a href=&quot;{0}&quot; &gt;this link&lt;a&gt;to create your new password.
+        ///   Looks up a localized string similar to Follow &lt;a href=&quot;{0}&quot;&gt;this link&lt;/a&gt; to create your new password.
         /// </summary>
         internal static string ForgotPasswordMessageBody {
             get {
@@ -331,7 +331,7 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Forgot password.
+        ///   Looks up a localized string similar to Reset your password.
         /// </summary>
         internal static string ForgotPasswordMessageSubject {
             get {

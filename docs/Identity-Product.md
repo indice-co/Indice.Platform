@@ -150,7 +150,7 @@ An audit trail of every sign-in attempt, written off the request path.
 A second audit trail, of what changed rather than who signed in.
 
 - **From platform events** — `IdentityEventsActivityLogConverter` turns identity events (user created, email or
-  password changed, client created or updated, devices, blocks …) into activity entries.
+  password changed, password reset requests including unknown emails, client created or updated, devices, blocks …) into activity entries.
 - **Own database** — `ActivityLogsDb`, with its own queue, enrichers and retention.
 - **Your events too** — write an `IActivityLogFromEventConverter` for your own platform events.
 
@@ -411,7 +411,7 @@ app.MapMultiFactorAuthenticationHub();    // /mfa SignalR hub
 
 - **Platform events** — `UserCreatedEvent`, `UserUpdatedEvent`, `UserDeletedEvent`, `UserBlockedEvent`,
   `UserUnBlockedEvent`, `UserEmailChangedEvent`, `EmailConfirmedEvent`, `PhoneNumberConfirmedEvent`,
-  `PasswordChangedEvent`, `AccountLockedEvent`, `ClientCreatedEvent`, `ClientUpdatedEvent`, `Device*Event`,
+  `PasswordChangedEvent`, `PasswordResetRequestEvent`, `AccountLockedEvent`, `ClientCreatedEvent`, `ClientUpdatedEvent`, `Device*Event`,
   `TwoFactorPreferenceChangedEvent`, `SecurityNotificationEvent`, login success / failure events and more.
 - **Subscribe** — implement `IPlatformEventHandler<TEvent>`; activity logs are one subscriber among others.
 

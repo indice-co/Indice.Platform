@@ -136,7 +136,7 @@
     <value>Bestätigen Sie Ihr Konto.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Folgen Sie &lt;a href="{0}" &gt;diesem Link&lt;a&gt;, um Ihr neues Passwort zu erstellen</value>
+    <value>Folgen Sie &lt;a href="{0}"&gt;diesem Link&lt;/a&gt;, um Ihr neues Passwort zu erstellen</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Verdächtiger Anmeldeversuch OTP-Code ist {0}.</value>
@@ -229,7 +229,7 @@
     <value>Bitte wählen Sie Ihre Telefonnummer aus, damit wir sie verifizieren können, bevor wir fortfahren.</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Passwort vergessen</value>
+    <value>Passwort zurücksetzen</value>
   </data>
   <data name="ForgotPasswordConfirmationError" xml:space="preserve">
     <value>Etwas ist schiefgelaufen.</value>

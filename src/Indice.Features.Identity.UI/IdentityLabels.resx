@@ -505,10 +505,10 @@
     <value>Username</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageTitle" xml:space="preserve">
-    <value>Forgot Password Confirmation</value>
+    <value>Reset your password</value>
   </data>
   <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
-    <value>Forgot Password Confirmation</value>
+    <value>Reset your password</value>
   </data>
   <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
     <value>New Password</value>

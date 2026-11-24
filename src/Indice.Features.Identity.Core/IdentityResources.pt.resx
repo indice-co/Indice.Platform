@@ -136,7 +136,7 @@
     <value>Confirme a sua conta.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Siga &lt;a href="{0}" &gt;este link&lt;a&gt; para criar a sua nova senha</value>
+    <value>Siga &lt;a href="{0}"&gt;este link&lt;/a&gt; para criar a sua nova senha</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Código OTP de tentativa de login suspeita é {0}.</value>
@@ -229,7 +229,7 @@
     <value>Por favor, selecione o seu número de telefone para que possamos verificá-lo antes de continuar.</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Esqueci a senha</value>
+    <value>Redefina a sua senha</value>
   </data>
   <data name="ForgotPasswordConfirmationError" xml:space="preserve">
     <value>Algo correu mal.</value>

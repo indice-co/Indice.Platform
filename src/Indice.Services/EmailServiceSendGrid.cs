@@ -136,7 +136,14 @@ public sealed class SendGridWebhookHttpHandler(IOptions<EmailServiceSendGridSett
 
     private IEnumerable<WebhookEvent> ParseEvents(JsonArray payload) {
         foreach (var item in payload.OfType<JsonObject>()) {
-            var messageId = GetString(item, "sg_message_id") ?? GetString(item, "smtp-id");
+            var sgMessageId = GetString(item, "sg_message_id");
+            var smtpId = GetString(item, "smtp-id");
+
+            var messageId = !string.IsNullOrWhiteSpace(sgMessageId)
+                ? sgMessageId.Split('.')[0]
+                : !string.IsNullOrWhiteSpace(smtpId)
+                    ? smtpId.Trim('<', '>').Split('@')[0].Split('.')[0]
+                    : null;
             if (string.IsNullOrWhiteSpace(messageId)) {
                 continue;
             }
