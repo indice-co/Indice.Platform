@@ -11,6 +11,15 @@
 // =============================================================================
 
 :root[data-theme='columns'] {
+    @include theme.palette(#85463e, #69342f, #422f2c, #75605b, #806a64, #faf3ed, #f0e5dc, #e8d9cf, #d2bcb0);
+    --idui-color-brand: #683d3c;
+    --idui-color-brand-accent: #a76451;
+    --idui-color-brand-bright: #d6a28d;
+    --idui-hero-image: radial-gradient(ellipse at 0% 15%, transparent 48%, rgba(255, 218, 183, .2) calc(48% + 1px), transparent calc(48% + 2px)), radial-gradient(ellipse at 0% 5%, #a96555 0%, transparent 60%), linear-gradient(160deg, #79483f, #583337 65%, #3c3036);
+    --idui-hero-overlay: transparent;
+    --idui-hero-overlay-strong: rgba(41, 22, 27, .16);
+    --idui-page-bg: var(--idui-color-surface-muted);
+
     @include m.mq(lg) {
         body:not(.shell-profile):has(.site-body > .site-hero) {
             --idui-page-bg: var(--idui-color-surface-muted);

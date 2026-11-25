@@ -4,6 +4,21 @@
 // a host puts in its own stylesheet to define a theme without recompiling (see README).
 // =============================================================================
 
+/// Shared runtime palette; Bootstrap controls consume the same values as BEM components.
+@mixin palette($ink, $hover, $text, $muted, $subtle, $page, $sunken, $border, $strong) {
+    --idui-color-ink: #{$ink};
+    --idui-color-ink-hover: #{$hover};
+    --idui-color-text: #{$text};
+    --idui-color-text-muted: #{$muted};
+    --idui-color-text-subtle: #{$subtle};
+    --idui-color-surface-muted: #{$page};
+    --idui-color-surface-sunken: #{$sunken};
+    --idui-color-border: #{$border};
+    --idui-color-border-strong: #{$strong};
+    --idui-color-focus: #{$ink};
+    --idui-shadow-focus: 0 0 0 .2rem color-mix(in srgb, #{$ink} 25%, transparent);
+}
+
 /// Header over an image / dark background: white text, dark-background logo.
 @mixin header-on-image {
     --idui-header-color: var(--idui-color-on-dark);
@@ -23,8 +38,8 @@
     --idui-footer-menu-toggle-bg: rgba(255, 255, 255, .16);
     --idui-footer-menu-toggle-hover-bg: rgba(255, 255, 255, .28);
     --idui-footer-menu-toggle-color: var(--idui-color-on-dark);
-    --idui-footer-menu-bg: rgba(255, 255, 255, .16);
-    --idui-footer-menu-shadow: none;
+    --idui-footer-menu-bg: var(--idui-color-brand);
+    --idui-footer-menu-shadow: var(--idui-shadow-menu);
     --idui-footer-menu-item-color: var(--idui-color-on-dark);
     --idui-footer-menu-item-active-bg: rgba(0, 0, 0, .85);
     --idui-footer-menu-item-active-color: var(--idui-color-on-dark);

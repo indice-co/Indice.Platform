@@ -1,0 +1,73 @@
+// Keep Bootstrap's interactive states in sync when a host switches themes at runtime.
+.btn-primary {
+    --bs-btn-bg: var(--idui-color-ink);
+    --bs-btn-border-color: var(--idui-color-ink);
+    --bs-btn-hover-bg: var(--idui-color-ink-hover);
+    --bs-btn-hover-border-color: var(--idui-color-ink-hover);
+    --bs-btn-active-bg: var(--idui-color-ink-hover);
+    --bs-btn-active-border-color: var(--idui-color-ink-hover);
+    --bs-btn-disabled-bg: var(--idui-color-ink);
+    --bs-btn-disabled-border-color: var(--idui-color-ink);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--idui-color-ink);
+    --bs-btn-border-color: var(--idui-color-ink);
+    --bs-btn-hover-bg: var(--idui-color-ink);
+    --bs-btn-hover-border-color: var(--idui-color-ink);
+    --bs-btn-active-bg: var(--idui-color-ink-hover);
+    --bs-btn-active-border-color: var(--idui-color-ink-hover);
+    --bs-btn-disabled-color: var(--idui-color-ink);
+    --bs-btn-disabled-border-color: var(--idui-color-ink);
+}
+
+.form-control,
+.form-select {
+    color: var(--idui-color-text);
+    background-color: var(--idui-color-surface);
+    border-color: var(--idui-color-border-strong);
+
+    &::placeholder {
+        color: var(--idui-color-text-subtle);
+    }
+
+    &:focus {
+        color: var(--idui-color-text);
+        background-color: var(--idui-color-surface);
+        border-color: var(--idui-color-focus);
+        box-shadow: var(--idui-shadow-focus);
+    }
+}
+
+.form-select {
+    --bs-form-select-bg-img: var(--idui-icon-chevron-down);
+}
+
+.form-check-input {
+    border-color: var(--idui-color-border-strong);
+
+    &:checked {
+        background-color: var(--idui-color-ink);
+        border-color: var(--idui-color-ink);
+    }
+
+    &:focus {
+        border-color: var(--idui-color-focus);
+        box-shadow: var(--idui-shadow-focus);
+    }
+}
+
+.btn-close {
+    background: currentColor;
+    color: var(--idui-color-text);
+    mask: var(--idui-icon-x) center / 1em no-repeat;
+}
+
+@media (forced-colors: active) {
+    .btn-close,
+    .field__reveal::before,
+    .password-rules__item::before {
+        forced-color-adjust: none;
+        background-color: CanvasText;
+    }
+}

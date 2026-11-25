@@ -39,7 +39,7 @@
             <form method="post" asp-page-handler="RecoveryCodesDone" class="auth-form" novalidate>
                 <div class="auth-form__actions mfa-manage__actions">
                     <a asp-page-handler="DownloadRecoveryCodes" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-download" aria-hidden="true"></i> @Localizer.MfaOnBoardingRecoveryCodes_Download
+                        <i class="idui-icon idui-icon--download" aria-hidden="true"></i> @Localizer.MfaOnBoardingRecoveryCodes_Download
                     </a>
                     <button class="btn btn-primary" type="submit">@Localizer.MfaOnBoardingRecoveryCodes_Continue</button>
                 </div>
@@ -85,7 +85,7 @@
     {
         <div class="mfa-manage">
             <p class="mfa-manage__status @(Model.View.TwoFactorEnabled ? "mfa-manage__status--on" : null)" role="status">
-                <i class="mfa-manage__status-icon fa-solid @(Model.View.TwoFactorEnabled ? "fa-shield-halved" : "fa-circle-info")" aria-hidden="true"></i>
+                <i class="mfa-manage__status-icon idui-icon @(Model.View.TwoFactorEnabled ? "idui-icon--shield-check" : "idui-icon--circle-alert")" aria-hidden="true"></i>
                 @if (Model.View.TwoFactorEnabled && current is not null)
                 {
                     @Localizer.ManageMfa_StatusOn(Localizer.GetGeneric(current.DisplayName).Value!)
@@ -151,7 +151,7 @@
             @if (current?.Type == AuthenticationMethodType.AuthenticatorApp && Model.View.Methods.Any(method => !method.IsCurrent && method.IsAvailable && method.Type != AuthenticationMethodType.AuthenticatorApp))
             {
                 <p class="mfa-manage__warning">
-                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    <i class="idui-icon idui-icon--triangle-alert" aria-hidden="true"></i>
                     @Localizer.ManageMfa_AuthenticatorRemoved
                 </p>
             }
@@ -163,7 +163,7 @@
                     <p class="mfa-manage__text">@Localizer.ManageMfa_RecoveryCodesDescription</p>
                     <form method="post" asp-page-handler="RegenerateRecoveryCodes" novalidate>
                         <button class="btn btn-outline-secondary" type="submit">
-                            <i class="fa-solid fa-rotate" aria-hidden="true"></i> @Localizer.ManageMfa_RegenerateRecoveryCodes
+                            <i class="idui-icon idui-icon--refresh-cw" aria-hidden="true"></i> @Localizer.ManageMfa_RegenerateRecoveryCodes
                         </button>
                     </form>
                 </div>
@@ -192,10 +192,10 @@
 
 @functions {
     private static string GetIcon(string code) => code.ToLowerInvariant() switch {
-        "viber" => "fa-brands fa-viber",
-        "sms" => "fa-regular fa-message",
-        "email" => "fa-regular fa-envelope",
-        "authenticatorapp" => "fa-solid fa-shield-halved",
-        _ => "fa-solid fa-key"
+        "viber" => "idui-icon idui-icon--phone",
+        "sms" => "idui-icon idui-icon--message-square",
+        "email" => "idui-icon idui-icon--mail",
+        "authenticatorapp" => "idui-icon idui-icon--shield-check",
+        _ => "idui-icon idui-icon--key-round"
     };
 }

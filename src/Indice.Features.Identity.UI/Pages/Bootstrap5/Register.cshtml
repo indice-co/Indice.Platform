@@ -76,7 +76,7 @@
             <div class="field">
                 <label asp-for="Input.UserName" class="field__label">
                     @Localizer.Register_Username <span class="field__required" aria-hidden="true">*</span>
-                    <span class="field__hint" tabindex="0" title="@Localizer.Register_Choose_A_Username_And_A_Password" aria-label="@Localizer.Register_Choose_A_Username_And_A_Password"><i class="fa-regular fa-circle-question" aria-hidden="true"></i></span>
+                    <span class="field__hint" tabindex="0" title="@Localizer.Register_Choose_A_Username_And_A_Password" aria-label="@Localizer.Register_Choose_A_Username_And_A_Password"><i class="idui-icon idui-icon--circle-help" aria-hidden="true"></i></span>
                 </label>
                 <input class="form-control field__control" type="text" asp-for="Input.UserName" placeholder="@Localizer.Register_Username" autocomplete="off" aria-describedby="Input_UserName-error Input_UserName-hint" />
                 <span asp-validation-for="Input.UserName" class="field__error" id="Input_UserName-error"></span>
@@ -86,7 +86,7 @@
         <div class="field">
             <label asp-for="Input.Password" class="field__label">
                 @Localizer.Register_Password <span class="field__required" aria-hidden="true">*</span>
-                <span class="field__hint" tabindex="0" title="@Localizer.Register_Credentials_Notice" aria-label="@Localizer.Register_Credentials_Notice"><i class="fa-regular fa-circle-question" aria-hidden="true"></i></span>
+                <span class="field__hint" tabindex="0" title="@Localizer.Register_Credentials_Notice" aria-label="@Localizer.Register_Credentials_Notice"><i class="idui-icon idui-icon--circle-help" aria-hidden="true"></i></span>
             </label>
             <div class="field__group">
                 <input class="form-control field__control password" type="password" placeholder="@Localizer.Register_Password" data-sbind="event: { keyup: passwordChanged }" asp-for="Input.Password" autocomplete="new-password" aria-describedby="Input_Password-error password-rules" />

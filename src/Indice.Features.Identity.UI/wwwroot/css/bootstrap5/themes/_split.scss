@@ -10,6 +10,15 @@
 // =============================================================================
 
 :root[data-theme='split'] {
+    @include theme.palette(#164e63, #103b4b, #1d3440, #526671, #647580, #edf4f6, #dfeaed, #d5e1e6, #b6cbd3);
+    --idui-color-brand: #103b4b;
+    --idui-color-brand-accent: #267c91;
+    --idui-color-brand-bright: #7bc5c8;
+    --idui-hero-image: radial-gradient(ellipse at 115% 0%, transparent 42%, rgba(151, 221, 216, .12) calc(42% + 1px), rgba(151, 221, 216, .04) 60%, transparent calc(60% + 1px)), radial-gradient(ellipse at 95% 0%, #326b78 0%, transparent 62%), linear-gradient(155deg, #163d50 10%, #123343 55%, #1c5964 100%);
+    --idui-hero-overlay: transparent;
+    --idui-hero-overlay-strong: rgba(8, 34, 47, .2);
+    --idui-shadow-card: 0 20px 60px rgba(5, 28, 40, .18);
+
     // ---- Login keeps the image on every viewport --------------------------------
     body.login {
         --idui-page-bg: var(--idui-hero-bg);

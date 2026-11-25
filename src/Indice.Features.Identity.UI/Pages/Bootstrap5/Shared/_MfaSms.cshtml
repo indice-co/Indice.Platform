@@ -7,14 +7,14 @@
     {
         return method?.Code.ToLowerInvariant() switch
         {
-            "viber" => "fa-brands fa-viber",
-            "sms" => "fa-regular fa-message",
-            "email" => "fa-regular fa-envelope",
-            "authenticatorapp" => "fa-solid fa-shield-halved",
-            "trusteddevice" => "fa-solid fa-mobile-screen",
-            "fido2" => "fa-solid fa-fingerprint",
-            "recoverycode" => "fa-solid fa-square-binary",
-            _ => "fa-regular fa-message"
+            "viber" => "idui-icon idui-icon--phone",
+            "sms" => "idui-icon idui-icon--message-square",
+            "email" => "idui-icon idui-icon--mail",
+            "authenticatorapp" => "idui-icon idui-icon--shield-check",
+            "trusteddevice" => "idui-icon idui-icon--smartphone",
+            "fido2" => "idui-icon idui-icon--fingerprint",
+            "recoverycode" => "idui-icon idui-icon--square-asterisk",
+            _ => "idui-icon idui-icon--message-square"
         };
     }
 }

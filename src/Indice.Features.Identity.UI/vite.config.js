@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { globSync } from 'glob';
 import autoprefixer from 'autoprefixer';
+import { readFileSync } from 'node:fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,6 +22,45 @@ scssFiles.forEach(file => {
 });
 console.log('SCSS entry points:', scssInputs);
 const stripComments = (contents) => contents.toString().replace(/\/\*[\s\S]*?\*\/|^\s*\/\/.*/gm, '');
+// CSS masks work with server-rendered and Knockout-created content, without an icon runtime.
+const lucideIcons = [
+    'arrow-left', 'arrow-right', 'camera', 'calendar', 'check', 'chevron-down',
+    'chevron-right', 'circle', 'circle-alert', 'circle-check', 'circle-help',
+    'circle-minus', 'clock', 'contact', 'download', 'ellipsis-vertical', 'external-link',
+    'eye', 'eye-off', 'fingerprint', 'key-round', 'lock-keyhole', 'log-out', 'mail',
+    'message-square', 'phone', 'refresh-cw', 'server', 'shield-check', 'shield-off',
+    'smartphone', 'square-asterisk', 'square-pen', 'triangle-alert', 'user-round', 'x'
+];
+const lucideStyles = () => ({
+    name: 'identity-lucide-icons',
+    generateBundle() {
+        const masks = lucideIcons.map(name => {
+            const svg = readFileSync(path.resolve(__dirname, `node_modules/lucide-static/icons/${name}.svg`), 'utf8');
+            return `--idui-icon-${name}: url("data:image/svg+xml,${encodeURIComponent(svg)}");`;
+        }).join('\n');
+        const classes = lucideIcons.map(name => `.idui-icon--${name} { mask-image: var(--idui-icon-${name}); }`).join('\n');
+        this.emitFile({
+            type: 'asset',
+            fileName: 'css/lucide.css',
+            source: `/* Generated from lucide-static. License: ../lib/lucide/LICENSE */\n:root {\n${masks}\n}\n.idui-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    vertical-align: -.15em;
+    background-color: currentColor;
+    mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+}\n${classes}\n@media (forced-colors: active) {
+    .idui-icon {
+        forced-color-adjust: none;
+        background-color: CanvasText;
+    }
+}\n`
+        });
+    }
+});
 export default defineConfig({
     root: './',
     base: './',
@@ -77,6 +117,7 @@ export default defineConfig({
         }
     },
     plugins: [
+        lucideStyles(),
         viteStaticCopy({
             targets: [
                 // Copy Bootstrap
@@ -187,23 +228,9 @@ export default defineConfig({
                     dest: 'lib/@fingerprintjs/fingerprintjs/dist',
                     rename: 'LICENSE.md'
                 },
-                // Copy Font Awesome 4.7
                 {
-                    src: 'node_modules/font-awesome/css/font-awesome.min.css',
-                    dest: 'lib/font-awesome/css'
-                },
-                {
-                    src: 'node_modules/font-awesome/fonts/*',
-                    dest: 'lib/font-awesome/fonts'
-                },
-                // Copy FontAwesome Free
-                {
-                    src: 'node_modules/@fortawesome/fontawesome-free/css/all.min.css',
-                    dest: 'lib/@fortawesome/fontawesome-free/css'
-                },
-                {
-                    src: 'node_modules/@fortawesome/fontawesome-free/webfonts/*',
-                    dest: 'lib/@fortawesome/fontawesome-free/webfonts'
+                    src: 'node_modules/lucide-static/LICENSE',
+                    dest: 'lib/lucide'
                 },
                 // Copy Swiper
                 {

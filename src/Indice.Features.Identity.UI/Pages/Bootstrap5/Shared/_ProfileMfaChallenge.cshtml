@@ -77,7 +77,7 @@
                                     <span class="choice-list__body">
                                         <span class="choice-list__title">@Localizer.GetGeneric(alternative.DisplayName)</span>
                                     </span>
-                                    <i class="fa-solid fa-chevron-right choice-list__chevron" aria-hidden="true"></i>
+                                    <i class="idui-icon idui-icon--chevron-right choice-list__chevron" aria-hidden="true"></i>
                                 </button>
                             </li>
                         }
@@ -90,10 +90,10 @@
 
 @functions {
     private static string GetIcon(AuthenticationMethod method) => method.Code.ToLowerInvariant() switch {
-        "viber" => "fa-brands fa-viber",
-        "sms" => "fa-regular fa-message",
-        "email" => "fa-regular fa-envelope",
-        "authenticatorapp" => "fa-solid fa-shield-halved",
-        _ => "fa-regular fa-message"
+        "viber" => "idui-icon idui-icon--phone",
+        "sms" => "idui-icon idui-icon--message-square",
+        "email" => "idui-icon idui-icon--mail",
+        "authenticatorapp" => "idui-icon idui-icon--shield-check",
+        _ => "idui-icon idui-icon--message-square"
     };
 }

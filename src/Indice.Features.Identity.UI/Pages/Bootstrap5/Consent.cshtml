@@ -33,7 +33,7 @@
     <form asp-page="/Consent" class="auth-form consent-form">
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <fieldset indice-if="Model.View.IdentityScopes.Any()" class="consent__group">
-            <legend class="consent__legend"><i class="fa-regular fa-address-card" aria-hidden="true"></i> @Localizer.Consent_Personal_Information</legend>
+            <legend class="consent__legend"><i class="idui-icon idui-icon--contact" aria-hidden="true"></i> @Localizer.Consent_Personal_Information</legend>
             <ul class="choice-list">
                 @foreach (var scope in Model.View.IdentityScopes)
                 {
@@ -42,7 +42,7 @@
             </ul>
         </fieldset>
         <fieldset indice-if="Model.View.ApiScopes.Any()" class="consent__group">
-            <legend class="consent__legend"><i class="fa-solid fa-key" aria-hidden="true"></i> @Localizer.Consent_Application_Access</legend>
+            <legend class="consent__legend"><i class="idui-icon idui-icon--key-round" aria-hidden="true"></i> @Localizer.Consent_Application_Access</legend>
             <ul class="choice-list">
                 @foreach (var scope in Model.View.ApiScopes)
                 {

@@ -1,0 +1,82 @@
+<!doctype html>
+<!-- Presentation fixture using the Razor component contract. No authentication endpoints or credentials. -->
+<html lang="en" data-theme="split">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Identity UI presentation fixture</title>
+    <link rel="stylesheet" href="/css/bootstrap5/bootstrap.bs.css">
+    <link rel="stylesheet" href="/css/bootstrap5/identity.bs.css">
+    <link rel="stylesheet" href="/css/lucide.css">
+</head>
+<body class="anonymous shell-auth login">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="site">
+        <header class="site-header">
+            <a class="site-header__brand" href="#" aria-label="Identity">
+                <img class="site-header__logo site-header__logo--light" src="/img/logo.svg" alt="">
+                <img class="site-header__logo site-header__logo--dark" src="/img/logo-dark-bg.svg" alt="">
+            </a>
+        </header>
+        <div class="site-body">
+            <aside class="site-hero">
+                <div class="site-hero__content">
+                    <h2 class="site-hero__title">Welcome to our Digital Services <strong>Portal</strong></h2>
+                </div>
+            </aside>
+            <main id="main" class="site-main">
+                <section class="auth-card">
+                    <header class="auth-card__header">
+                        <h1 class="auth-card__title">Sign in</h1>
+                    </header>
+                    <div class="alert alert-danger" role="alert" hidden>Check your details and try again.</div>
+                    <form class="auth-form" onsubmit="return false">
+                        <div class="field" id="registration-name" hidden>
+                            <label for="full-name" class="field__label">Full name</label>
+                            <input class="form-control field__control" id="full-name" autocomplete="name" placeholder="Full name">
+                        </div>
+                        <div class="field">
+                            <label for="username" class="field__label">Email</label>
+                            <input class="form-control field__control" id="username" autocomplete="username" placeholder="Email" aria-describedby="username-error">
+                            <span class="field__error" id="username-error"></span>
+                        </div>
+                        <div class="field">
+                            <label for="password" class="field__label">Password</label>
+                            <div class="field__group">
+                                <input class="form-control field__control password" id="password" type="password" autocomplete="current-password" placeholder="Password">
+                                <button type="button" class="field__reveal" aria-pressed="false" aria-label="Show password" title="Show password" data-label-show="Show password" data-label-hide="Hide password"></button>
+                            </div>
+                        </div>
+                        <div class="auth-form__row">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="remember">
+                                <label for="remember" class="form-check-label">Remember me</label>
+                            </div>
+                            <a class="auth-form__link" href="#">Forgot password?</a>
+                        </div>
+                        <div class="auth-form__actions">
+                            <button class="btn btn-primary auth-form__submit" type="submit">Sign in</button>
+                        </div>
+                    </form>
+                    <div class="divider"><span class="divider__label">or</span></div>
+                    <ul class="provider-list">
+                        <li><a class="btn provider-btn provider-btn--microsoft" href="#" aria-label="Microsoft"><span class="provider-btn__logo" aria-hidden="true"></span><span class="provider-btn__label">Microsoft</span></a></li>
+                        <li><a class="btn provider-btn provider-btn--google" href="#" aria-label="Google"><span class="provider-btn__logo" aria-hidden="true"></span><span class="provider-btn__label">Google</span></a></li>
+                    </ul>
+                    <p class="auth-card__switch"><span>Don't have an account?</span><a href="#">Join us</a></p>
+                </section>
+            </main>
+        </div>
+        <footer class="site-footer">
+            <div class="site-footer__links"><a class="site-footer__link" href="#">Terms of service</a><a class="site-footer__link" href="#">Privacy policy</a></div>
+            <div class="lang-switcher dropdown">
+                <button class="lang-switcher__toggle" data-bs-toggle="dropdown" aria-expanded="false">English <i class="idui-icon idui-icon--chevron-down" aria-hidden="true"></i></button>
+                <ul class="dropdown-menu lang-switcher__menu"><li><a class="dropdown-item lang-switcher__item" href="#" lang="el">Ελληνικά</a></li></ul>
+            </div>
+        </footer>
+    </div>
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/reveal-password.js"></script>
+</body>
+</html>
