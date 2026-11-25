@@ -13,30 +13,38 @@
 //      to `[data-theme="name"]` (see themes/). No markup differs between themes.
 // =============================================================================
 
+@use 'sass:color';
+
 // -----------------------------------------------------------------------------
-// Palette
+// Palette — "Aurora" (the split theme, and the default). Every other built-in theme
+// declares its own palette in themes/ (see README > Themes).
 // -----------------------------------------------------------------------------
-$color-ink: #242221 !default;            // primary actions, headings
-$color-ink-hover: #151515 !default;
-$color-text: #252525 !default;
-$color-text-muted: #6b6b6b !default;     // 5.7:1 on white
-$color-text-subtle: #767676 !default;    // 4.5:1 on white (placeholders, meta)
+$color-primary: #6d28d9 !default;        // actions, links, selection, focus (7.1:1 with white)
+$color-primary-hover: #5b21b6 !default;
+$color-on-primary: #ffffff !default;
+$color-ink: #1e1b4b !default;            // headings, strong text
+$color-ink-hover: #312e81 !default;
+$color-text: #27253d !default;
+$color-text-muted: #5f5b78 !default;     // 6.4:1 on white
+$color-text-subtle: #6e6a86 !default;    // 5.2:1 on white (placeholders, meta)
 $color-surface: #ffffff !default;
-$color-surface-muted: #f6f6f5 !default;  // page background (minimal theme, mobile)
-$color-surface-sunken: #ececec !default;
-$color-border: #e1e1e1 !default;
-$color-border-strong: #cfcfcf !default;
-$color-brand: #0e3f49 !default;          // deep teal (hero overlay, avatar initials)
-$color-brand-accent: #1f6f7c !default;
-$color-brand-bright: #2f98ab !default;   // floating panel theme page background
-$color-success: #1e7e34 !default;
-$color-danger: #d2232a !default;
-$color-warning: #b26a00 !default;
-$color-info: #1f6f7c !default;
-$color-focus: #1f6f7c !default;
+$color-surface-muted: #f6f5fb !default;  // page background (minimal theme, mobile)
+$color-surface-sunken: #ebe9f4 !default;
+$color-border: #e6e3f1 !default;
+$color-border-strong: #cdc8e0 !default;
+$color-brand: #0b1026 !default;          // hero base colour (behind the hero artwork)
+$color-brand-accent: #7c3aed !default;   // environment ribbon
+$color-brand-bright: #8b5cf6 !default;
+$color-success: #15803d !default;
+$color-danger: #dc2626 !default;
+$color-warning: #b45309 !default;
+$color-info: #0e7490 !default;
+$color-focus: $color-primary !default;
 $color-on-dark: #ffffff !default;
-$hero-overlay: rgba(11, 64, 74, .45) !default;
-$hero-overlay-strong: rgba(11, 64, 74, .6) !default;
+// Compile-time equivalents of the runtime tints (--idui-color-primary-soft) for Bootstrap's Sass maps.
+$color-primary-soft: color.mix($color-primary, $color-surface, 10%) !default;
+$hero-overlay: rgba(11, 16, 38, .12) !default;
+$hero-overlay-strong: rgba(11, 16, 38, .3) !default;
 
 // -----------------------------------------------------------------------------
 // Typography
@@ -83,9 +91,9 @@ $radius-pill: 50rem !default;
 // -----------------------------------------------------------------------------
 // Shadows
 // -----------------------------------------------------------------------------
-$shadow-card: 0 12px 32px rgba(17, 24, 39, .10) !default;
-$shadow-panel: 0 24px 64px rgba(0, 0, 0, .25) !default;
-$shadow-menu: 0 8px 24px rgba(0, 0, 0, .12) !default;
+$shadow-card: 0 12px 32px rgba(30, 27, 75, .10) !default;
+$shadow-panel: 0 24px 64px rgba(11, 16, 38, .35) !default;
+$shadow-menu: 0 8px 24px rgba(30, 27, 75, .12) !default;
 $focus-ring-width: .2rem !default;
 $focus-ring-color: rgba($color-focus, .35) !default;
 $shadow-focus: 0 0 0 $focus-ring-width $focus-ring-color !default;
@@ -125,6 +133,10 @@ $transition-fast: .15s ease !default;
 // =============================================================================
 :root {
     // ---- Palette ------------------------------------------------------------
+    // A theme sets these on `:root[data-theme="name"]`; the tints below are derived from them.
+    --idui-color-primary: #{$color-primary};
+    --idui-color-primary-hover: #{$color-primary-hover};
+    --idui-color-on-primary: #{$color-on-primary};
     --idui-color-ink: #{$color-ink};
     --idui-color-ink-hover: #{$color-ink-hover};
     --idui-color-text: #{$color-text};
@@ -141,8 +153,12 @@ $transition-fast: .15s ease !default;
     --idui-color-success: #{$color-success};
     --idui-color-danger: #{$color-danger};
     --idui-color-warning: #{$color-warning};
-    --idui-color-focus: #{$color-focus};
+    --idui-color-focus: var(--idui-color-primary);
     --idui-color-on-dark: #{$color-on-dark};
+    // Derived tints: selected / active backgrounds and icon chips.
+    --idui-color-primary-soft: color-mix(in srgb, var(--idui-color-primary) 10%, var(--idui-color-surface));
+    --idui-color-primary-soft-hover: color-mix(in srgb, var(--idui-color-primary) 16%, var(--idui-color-surface));
+    --idui-color-primary-border: color-mix(in srgb, var(--idui-color-primary) 35%, var(--idui-color-surface));
 
     // ---- Type, radii, shadows ----------------------------------------------
     --idui-font-family: #{$font-family-base};
@@ -153,7 +169,8 @@ $transition-fast: .15s ease !default;
     --idui-shadow-card: #{$shadow-card};
     --idui-shadow-panel: #{$shadow-panel};
     --idui-shadow-menu: #{$shadow-menu};
-    --idui-shadow-focus: #{$shadow-focus};
+    --idui-shadow-focus: 0 0 0 #{$focus-ring-width} color-mix(in srgb, var(--idui-color-focus) 35%, transparent);
+    --idui-shadow-primary: 0 10px 24px -10px color-mix(in srgb, var(--idui-color-primary) 70%, transparent);
 
     // ---- Sizes ---------------------------------------------------------------
     --idui-card-width: #{$card-width};
@@ -172,9 +189,10 @@ $transition-fast: .15s ease !default;
     --idui-avatar-lg: #{$avatar-lg};
 
     // ---- Hero image ------------------------------------------------------------
-    // Override the image / overlay on the same element (`:root` or `[data-theme]`) so the
-    // composed backgrounds below pick them up.
-    --idui-hero-image: url('../../img/hero.jpg');
+    // Each built-in theme ships its own artwork (img/backgrounds/*.svg). Override the image /
+    // overlay on the same element (`:root` or `[data-theme]`) so the composed backgrounds below
+    // pick them up; a photo works too, raise the overlay alpha to keep the copy readable.
+    --idui-hero-image: url('../../img/backgrounds/aurora.svg');
     --idui-hero-overlay: #{$hero-overlay};
     --idui-hero-overlay-strong: #{$hero-overlay-strong};
     --idui-hero-bg: linear-gradient(var(--idui-hero-overlay), var(--idui-hero-overlay)), var(--idui-hero-image) center / cover no-repeat var(--idui-color-brand);

@@ -1,10 +1,36 @@
 ﻿// =============================================================================
 // Theme "minimal" — a single centered column over the light page; the hero is never shown.
 // This is exactly the :root default of the layout contract (abstracts/_tokens.scss), so the
-// theme only pins the two values that matter. <html data-theme="minimal">
+// theme only pins the layout values that matter. <html data-theme="minimal">
+// Palette "Mint": emerald actions over a soft green / sky mesh; the hero artwork only
+// appears as the profile header band.
 // =============================================================================
 
 :root[data-theme='minimal'] {
-    --idui-page-bg: var(--idui-color-surface-muted);
+    --idui-color-primary: #047857;
+    --idui-color-primary-hover: #065f46;
+    --idui-color-ink: #052e2b;
+    --idui-color-ink-hover: #134e4a;
+    --idui-color-text: #1c2b29;
+    --idui-color-text-muted: #4f6460;
+    --idui-color-text-subtle: #5f736f;
+    --idui-color-surface-muted: #f0f7f4;
+    --idui-color-surface-sunken: #e3efea;
+    --idui-color-border: #dbe9e4;
+    --idui-color-border-strong: #bfd6ce;
+    --idui-color-brand: #022c22;
+    --idui-color-brand-accent: #059669;
+    --idui-color-brand-bright: #10b981;
+    --idui-hero-image: url('../../img/backgrounds/mint.svg');
+    --idui-hero-overlay: rgba(2, 44, 34, .12);
+    --idui-hero-overlay-strong: rgba(2, 44, 34, .3);
+    --idui-shadow-card: 0 12px 32px rgba(5, 46, 43, .08);
+    --idui-shadow-menu: 0 8px 24px rgba(5, 46, 43, .12);
+
+    --idui-page-bg:
+        radial-gradient(48rem 36rem at 0% 0%, #d1fae5, transparent 70%) fixed,
+        radial-gradient(44rem 32rem at 100% 10%, #e0f2fe, transparent 70%) fixed,
+        radial-gradient(52rem 34rem at 60% 100%, #ecfccb, transparent 70%) fixed,
+        var(--idui-color-surface-muted);
     --idui-hero-display: none;
 }

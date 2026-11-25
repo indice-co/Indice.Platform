@@ -15,7 +15,7 @@
     <div id="panel-main">
         <p class="mfa__user">@Model.View.User?.UserName</p>
         <p class="mfa__notice">
-            <i class="mfa__notice-icon fa-solid fa-mobile-screen" aria-hidden="true"></i>
+            <span class="mfa__notice-icon"><icon name="smartphone" /></span>
             <span>@Localizer.Mfa_Because_Youve_Turned_On_Two_Step_Verification_You_Need_To_Approve_Request_On_Your_Mobile_App</span>
         </p>
         <div class="form-check" indice-if="!Model.View.IsExistingBrowser">

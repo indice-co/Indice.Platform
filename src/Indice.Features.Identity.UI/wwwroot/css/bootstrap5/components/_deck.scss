@@ -28,21 +28,15 @@
 
         &:hover,
         &:focus-visible {
-            border-color: var(--idui-color-ink);
+            border-color: var(--idui-color-primary-border);
             box-shadow: var(--idui-shadow-card);
             transform: translateY(-2px);
         }
     }
 
     &__icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 3rem;
-        height: 3rem;
+        @include m.icon-chip(3rem);
         border-radius: 50%;
-        background: var(--idui-color-surface-muted);
-        font-size: 1.25rem;
     }
 
     &__image img {

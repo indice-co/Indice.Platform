@@ -40,9 +40,9 @@
         font-weight: t.$font-weight-medium;
         color: var(--idui-color-ink);
 
-        i {
+        .icon {
             margin-right: .35rem;
-            color: var(--idui-color-text-muted);
+            color: var(--idui-color-primary);
         }
     }
 
@@ -309,6 +309,12 @@
     text-align: center;
     color: var(--idui-color-ink);
 
+    &__icon {
+        font-size: 3rem;
+        color: var(--idui-color-primary);
+        --idui-icon-stroke-width: 1.5;
+    }
+
     &__text {
         margin: 0;
         font-size: t.$font-size-lg;
@@ -382,8 +388,8 @@
             transition: transform t.$transition-fast;
         }
 
-        i {
-            color: var(--idui-color-text-muted);
+        .icon {
+            color: var(--idui-color-primary);
         }
     }
 
@@ -436,8 +442,7 @@
         font-size: t.$font-size-sm;
         color: var(--idui-color-text-muted);
 
-        i {
-            width: 1rem;
+        .icon {
             margin-right: .35rem;
             color: var(--idui-color-text-subtle);
         }
@@ -476,7 +481,7 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--idui-color-ink);
+            outline: 2px solid var(--idui-color-focus);
             outline-offset: -2px;
         }
     }
@@ -497,14 +502,8 @@
     }
 
     &__icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 2rem;
-        height: 2rem;
+        @include m.icon-chip(2rem, 1rem);
         border-radius: 50%;
-        background: var(--idui-color-surface-muted);
-        color: var(--idui-color-ink);
     }
 
     &__name {
@@ -582,8 +581,9 @@
 
         &:hover,
         &:focus-visible {
-            background: var(--idui-color-border);
-            color: var(--idui-color-ink);
+            border-color: var(--idui-color-primary-border);
+            background: var(--idui-color-primary-soft);
+            color: var(--idui-color-primary-hover);
         }
     }
 

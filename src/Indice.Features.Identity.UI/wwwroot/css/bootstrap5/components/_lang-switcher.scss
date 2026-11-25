@@ -48,8 +48,8 @@
 
         &--active,
         &.active {
-            background: var(--idui-color-surface-muted);
-            color: var(--idui-color-ink);
+            background: var(--idui-color-primary-soft);
+            color: var(--idui-color-primary-hover);
             font-weight: t.$font-weight-medium;
         }
     }

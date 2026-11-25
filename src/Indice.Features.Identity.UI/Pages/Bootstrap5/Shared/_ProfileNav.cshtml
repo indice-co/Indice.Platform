@@ -9,15 +9,15 @@
 
 <nav class="profile-nav" aria-label="@Localizer.Account_NavLabel">
     <a class="profile-nav__link" asp-page="/Profile" aria-current="@Current("/Profile")">
-        <i class="fa-regular fa-circle-user profile-nav__icon" aria-hidden="true"></i>
+        <icon name="circle-user-round" class="profile-nav__icon" />
         <span>@Localizer.Profile_PageTitle</span>
     </a>
     <a class="profile-nav__link" asp-page="/Security" aria-current="@Current("/Security")">
-        <i class="fa-solid fa-lock profile-nav__icon" aria-hidden="true"></i>
+        <icon name="lock-keyhole" class="profile-nav__icon" />
         <span>@Localizer.Security_PageTitle</span>
     </a>
     <a class="profile-nav__link" asp-page="/Grants" aria-current="@Current("/Grants")">
-        <i class="fa-solid fa-shield-halved profile-nav__icon" aria-hidden="true"></i>
+        <icon name="shield-check" class="profile-nav__icon" />
         <span>@Localizer.Grants_PageTitle</span>
     </a>
 </nav>

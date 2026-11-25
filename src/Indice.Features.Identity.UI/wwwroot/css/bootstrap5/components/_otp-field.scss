@@ -46,7 +46,7 @@
         padding: 0;
         border: 0;
         background: none;
-        color: var(--idui-color-ink);
+        color: var(--idui-color-primary);
         font: inherit;
         font-weight: t.$font-weight-medium;
         text-decoration: underline;
@@ -88,17 +88,14 @@
         margin: 0 0 t.$space-5;
         padding: t.$space-3 t.$space-4;
         border-radius: var(--idui-radius);
-        background: var(--idui-color-surface-muted);
+        background: var(--idui-color-primary-soft);
         color: var(--idui-color-text);
         font-size: t.$font-size-sm;
     }
 
     &__notice-icon {
-        flex: 0 0 2rem;
-        width: 2rem;
-        font-size: 1.75rem;
-        text-align: center;
-        color: var(--idui-color-ink);
+        @include m.icon-chip;
+        background: var(--idui-color-surface);
     }
 
     &__user {
@@ -118,7 +115,7 @@
         padding: 0;
         border: 0;
         background: none;
-        color: var(--idui-color-ink);
+        color: var(--idui-color-primary);
         font: inherit;
         font-weight: t.$font-weight-medium;
         text-decoration: underline;
@@ -137,7 +134,7 @@
         text-decoration: none;
 
         &:hover {
-            color: var(--idui-color-ink);
+            color: var(--idui-color-primary);
         }
     }
 
@@ -242,7 +239,7 @@
         background: var(--idui-color-surface-muted);
 
         .choice-list__chevron {
-            color: var(--idui-color-ink);
+            color: var(--idui-color-primary);
         }
     }
 }

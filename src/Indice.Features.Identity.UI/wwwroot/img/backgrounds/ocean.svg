@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid slice">
+  <!-- Ocean: deep navy with cobalt, cyan and indigo light under topographic wave lines. Panel theme hero artwork. -->
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1b4d"/>
+      <stop offset=".55" stop-color="#0c2363"/>
+      <stop offset="1" stop-color="#071236"/>
+    </linearGradient>
+    <radialGradient id="blue">
+      <stop offset="0" stop-color="#2563eb" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#2563eb" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cyan">
+      <stop offset="0" stop-color="#06b6d4" stop-opacity=".65"/>
+      <stop offset="1" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="indigo">
+      <stop offset="0" stop-color="#6366f1" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#base)"/>
+  <ellipse cx="300" cy="220" rx="720" ry="520" fill="url(#blue)"/>
+  <ellipse cx="1300" cy="980" rx="720" ry="500" fill="url(#cyan)"/>
+  <ellipse cx="1260" cy="240" rx="520" ry="380" fill="url(#indigo)"/>
+
+  <g fill="none" stroke="#e0f2fe" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-60 180 C 220 120 420 260 700 200 S 1180 80 1660 170" stroke-opacity=".1" stroke-width="1.5"/>
+    <path d="M-60 260 C 220 200 440 340 720 280 S 1200 160 1660 250" stroke-opacity=".12" stroke-width="1.5"/>
+    <path d="M-60 340 C 230 280 460 420 740 360 S 1220 240 1660 330" stroke-opacity=".14" stroke-width="1.5"/>
+    <path d="M-60 420 C 240 360 480 500 760 440 S 1240 320 1660 410" stroke-opacity=".16" stroke-width="1.5"/>
+    <path d="M-60 500 C 250 440 500 580 780 520 S 1260 400 1660 490" stroke-opacity=".18" stroke-width="1.5"/>
+    <path d="M-60 580 C 260 520 520 660 800 600 S 1280 480 1660 570" stroke-opacity=".2" stroke-width="1.5"/>
+    <path d="M-60 660 C 270 600 540 740 820 680 S 1300 560 1660 650" stroke-opacity=".18" stroke-width="1.5"/>
+    <path d="M-60 740 C 280 680 560 820 840 760 S 1320 640 1660 730" stroke-opacity=".16" stroke-width="1.5"/>
+    <path d="M-60 820 C 290 760 580 900 860 840 S 1340 720 1660 810" stroke-opacity=".14" stroke-width="1.5"/>
+    <path d="M-60 900 C 300 840 600 980 880 920 S 1360 800 1660 890" stroke-opacity=".12" stroke-width="1.5"/>
+    <path d="M-60 980 C 310 920 620 1060 900 1000 S 1380 880 1660 970" stroke-opacity=".1" stroke-width="1.5"/>
+    <path d="M-60 1060 C 320 1000 640 1140 920 1080 S 1400 960 1660 1050" stroke-opacity=".08" stroke-width="1.5"/>
+  </g>
+
+  <g fill="none" stroke="#67e8f9" stroke-linecap="round">
+    <path d="M-60 580 C 260 520 520 660 800 600 S 1280 480 1660 570" stroke-width="90" stroke-opacity=".05"/>
+    <path d="M-60 580 C 260 520 520 660 800 600 S 1280 480 1660 570" stroke-width="3" stroke-opacity=".35"/>
+  </g>
+
+  <g fill="#e0f2fe">
+    <circle cx="1240" cy="1010" r="5" opacity=".6"/>
+    <circle cx="1240" cy="1010" r="16" opacity=".1"/>
+    <circle cx="300" cy="180" r="3" opacity=".45"/>
+  </g>
+</svg>

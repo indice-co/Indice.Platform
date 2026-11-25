@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid slice">
+  <!-- Sunset: plum sky, coral sun and layered dunes. Columns theme hero artwork; composed around
+       the centre so it works as a tall column and as a wide strip. The lower third stays dark for copy. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b0f2a"/>
+      <stop offset=".45" stop-color="#6b1d3a"/>
+      <stop offset=".62" stop-color="#b3364a"/>
+      <stop offset="1" stop-color="#2b0f2a"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#fb923c" stop-opacity=".95"/>
+      <stop offset=".4" stop-color="#f97316" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rose">
+      <stop offset="0" stop-color="#e11d48" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#e11d48" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fuchsia">
+      <stop offset="0" stop-color="#a21caf" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#a21caf" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="amber">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset=".55" stop-color="#fb923c"/>
+      <stop offset="1" stop-color="#e11d48"/>
+    </linearGradient>
+    <linearGradient id="dune-1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7c2d4a"/>
+      <stop offset="1" stop-color="#4a1538"/>
+    </linearGradient>
+    <linearGradient id="dune-2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a1538"/>
+      <stop offset="1" stop-color="#2b0f2a"/>
+    </linearGradient>
+    <linearGradient id="dune-3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b0f2a"/>
+      <stop offset="1" stop-color="#160615"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#sky)"/>
+  <ellipse cx="260" cy="200" rx="620" ry="460" fill="url(#fuchsia)"/>
+  <ellipse cx="1380" cy="260" rx="560" ry="420" fill="url(#rose)"/>
+  <ellipse cx="1120" cy="560" rx="380" ry="260" fill="url(#amber)"/>
+  <ellipse cx="800" cy="660" rx="700" ry="420" fill="url(#glow)"/>
+
+  <circle cx="800" cy="640" r="150" fill="url(#sun)" opacity=".92"/>
+  <g stroke="#2b0f2a" stroke-linecap="round" opacity=".35">
+    <path d="M640 640 H960" stroke-width="10"/>
+    <path d="M650 690 H950" stroke-width="14"/>
+    <path d="M670 740 H930" stroke-width="18"/>
+  </g>
+
+  <path d="M0 760 C 180 700 360 720 560 760 S 980 700 1180 730 S 1480 780 1600 740 V1200 H0 Z" fill="url(#dune-1)"/>
+  <path d="M0 860 C 240 800 460 860 720 840 S 1180 780 1400 830 S 1560 860 1600 850 V1200 H0 Z" fill="url(#dune-2)"/>
+  <path d="M0 960 C 300 910 560 980 860 950 S 1340 900 1600 950 V1200 H0 Z" fill="url(#dune-3)"/>
+
+  <g fill="none" stroke="#fde68a" stroke-linecap="round">
+    <path d="M0 860 C 240 800 460 860 720 840 S 1180 780 1400 830 S 1560 860 1600 850" stroke-width="1.5" stroke-opacity=".18"/>
+    <path d="M0 760 C 180 700 360 720 560 760 S 980 700 1180 730 S 1480 780 1600 740" stroke-width="1.5" stroke-opacity=".22"/>
+  </g>
+
+  <g fill="#fff7ed">
+    <circle cx="300" cy="120" r="1.6" opacity=".6"/>
+    <circle cx="520" cy="70" r="1.2" opacity=".5"/>
+    <circle cx="980" cy="110" r="1.4" opacity=".55"/>
+    <circle cx="1240" cy="60" r="1.1" opacity=".5"/>
+    <circle cx="1480" cy="150" r="1.5" opacity=".45"/>
+    <circle cx="140" cy="320" r="1.1" opacity=".4"/>
+  </g>
+</svg>

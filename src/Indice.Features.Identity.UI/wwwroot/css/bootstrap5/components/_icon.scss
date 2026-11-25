@@ -1,0 +1,17 @@
+// Lucide icon rendered by the <icon name="…" /> tag helper:
+//   <svg class="icon" aria-hidden="true"><use href="/lib/lucide/sprite.svg#mail"></use></svg>
+// Icons scale with the font size and take the current text color.
+
+.icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    vertical-align: -.125em;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--idui-icon-stroke-width, 2);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}

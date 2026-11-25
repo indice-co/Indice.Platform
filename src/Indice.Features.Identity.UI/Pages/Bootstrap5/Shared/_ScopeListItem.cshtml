@@ -16,7 +16,7 @@
         }
         <label class="form-check-label choice-list__title" for="scopes_@Model.Value">
             @(!string.IsNullOrWhiteSpace(Model.DisplayName) ? @Localizer.GetGeneric(Model.DisplayName) : string.Empty)
-            <i indice-if="Model.Emphasize" class="fa-solid fa-circle-exclamation choice-list__emphasis" aria-hidden="true"></i>
+            <icon indice-if="Model.Emphasize" name="circle-alert" class="choice-list__emphasis" />
             <em indice-if="Model.Required" class="choice-list__required">(@Localizer.AddPassword_Required)</em>
         </label>
     </div>

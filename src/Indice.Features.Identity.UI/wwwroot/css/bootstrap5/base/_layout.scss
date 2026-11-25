@@ -59,8 +59,8 @@ body {
     left: t.$space-3;
     z-index: t.$z-skip-link;
     padding: t.$space-2 t.$space-4;
-    background: var(--idui-color-ink);
-    color: var(--idui-color-on-dark);
+    background: var(--idui-color-primary);
+    color: var(--idui-color-on-primary);
     border-radius: var(--idui-radius-sm);
     text-decoration: none;
     transform: translateY(-200%);

@@ -23,21 +23,21 @@
     </div>
     <nav class="account-panel__nav" aria-label="@Localizer.Account_NavLabel">
         <a class="account-panel__link" asp-page="/Profile" aria-current="@Current("/Profile")">
-            <i class="fa-regular fa-circle-user account-panel__icon" aria-hidden="true"></i>
+            <icon name="circle-user-round" class="account-panel__icon" />
             <span>@Localizer.Profile_PageTitle</span>
         </a>
         <a class="account-panel__link" asp-page="/Security" aria-current="@Current("/Security")">
-            <i class="fa-solid fa-lock account-panel__icon" aria-hidden="true"></i>
+            <icon name="lock-keyhole" class="account-panel__icon" />
             <span>@Localizer.Security_PageTitle</span>
         </a>
         <a class="account-panel__link" asp-page="/Grants" aria-current="@Current("/Grants")">
-            <i class="fa-solid fa-shield-halved account-panel__icon" aria-hidden="true"></i>
+            <icon name="shield-check" class="account-panel__icon" />
             <span>@Localizer.Grants_PageTitle</span>
         </a>
     </nav>
     <div class="account-panel__footer">
         <a class="account-panel__link account-panel__logout" asp-page="/Logout" target="_top">
-            <i class="fa-solid fa-arrow-right-from-bracket account-panel__icon" aria-hidden="true"></i>
+            <icon name="log-out" class="account-panel__icon" />
             <span>@Localizer.LoggedOut_PageTitle</span>
         </a>
     </div>

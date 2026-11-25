@@ -7,9 +7,16 @@
 //   Register: inset hero image column left, light content column (header, form, footer) right.
 //   Other pages (auth, card, article shells; signed in or not): centered card over the hero image (desktop), light page (mobile).
 // Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
+// Palette "Aurora": the :root defaults in abstracts/_tokens.scss (violet actions, northern-lights
+// hero artwork), so a host can still re-colour this theme from `:root`.
 // =============================================================================
 
 :root[data-theme='split'] {
+    --idui-page-bg:
+        radial-gradient(48rem 34rem at 0% 0%, #ede9fe, transparent 70%) fixed,
+        radial-gradient(44rem 32rem at 100% 100%, #cffafe, transparent 70%) fixed,
+        var(--idui-color-surface-muted);
+
     // ---- Login keeps the image on every viewport --------------------------------
     body.login {
         --idui-page-bg: var(--idui-hero-bg);

@@ -8,12 +8,42 @@
 //   pages, and login/register without a rendered hero, show the usual centered card over the coloured page.
 //   Mobile: light single column, hero hidden.
 // Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
+// Palette "Ocean": cobalt actions on cool neutrals; a deep blue / cyan page with topographic hero artwork.
 // =============================================================================
 
 :root[data-theme='panel'] {
+    --idui-color-primary: #1d4ed8;
+    --idui-color-primary-hover: #1e40af;
+    --idui-color-ink: #0b1b3f;
+    --idui-color-ink-hover: #172554;
+    --idui-color-text: #1e293b;
+    --idui-color-text-muted: #51607a;
+    --idui-color-text-subtle: #64748b;
+    --idui-color-surface-muted: #f4f7fd;
+    --idui-color-surface-sunken: #e8eef9;
+    --idui-color-border: #e2e8f3;
+    --idui-color-border-strong: #c8d3e6;
+    --idui-color-brand: #0b1b4d;
+    --idui-color-brand-accent: #0891b2;
+    --idui-color-brand-bright: #1d4ed8;
+    --idui-hero-image: url('../../img/backgrounds/ocean.svg');
+    --idui-hero-overlay: rgba(11, 27, 77, .12);
+    --idui-hero-overlay-strong: rgba(11, 27, 77, .25);
+    --idui-shadow-card: 0 12px 32px rgba(11, 27, 63, .08);
+    --idui-shadow-panel: 0 32px 80px -12px rgba(8, 20, 60, .55);
+    --idui-shadow-menu: 0 8px 24px rgba(11, 27, 63, .12);
+    --idui-page-bg:
+        radial-gradient(48rem 34rem at 0% 0%, #dbeafe, transparent 70%) fixed,
+        radial-gradient(44rem 32rem at 100% 100%, #cffafe, transparent 70%) fixed,
+        var(--idui-color-surface-muted);
+
     @include m.mq(lg) {
         body:not(.shell-profile) {
-            --idui-page-bg: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--idui-color-brand-bright), white 12%), var(--idui-color-brand-bright) 45%, color-mix(in srgb, var(--idui-color-brand-bright), black 15%) 100%);
+            --idui-page-bg:
+                radial-gradient(60rem 42rem at 12% 8%, rgba(56, 189, 248, .45), transparent 70%) fixed,
+                radial-gradient(56rem 40rem at 92% 96%, rgba(34, 211, 238, .35), transparent 70%) fixed,
+                radial-gradient(40rem 30rem at 75% 15%, rgba(99, 102, 241, .35), transparent 70%) fixed,
+                linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 52%, #0369a1 100%) fixed;
             @include theme.chrome-on-image;
         }
 

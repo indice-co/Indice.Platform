@@ -1,4 +1,5 @@
 ﻿@use '../abstracts/tokens' as t;
+@use '../abstracts/mixins' as m;
 
 // A vertical list of selectable options (consent scopes, MFA methods):
 // each item has a control, a title, an optional description and optional icon.
@@ -72,12 +73,7 @@
     }
 
     &__icon {
-        flex: 0 0 2.25rem;
-        width: 2.25rem;
-        font-size: 1.6rem;
-        line-height: 1;
-        text-align: center;
-        color: var(--idui-color-ink);
+        @include m.icon-chip;
     }
 
     &__body {
@@ -101,7 +97,8 @@
     }
 
     &__item--selected &__label {
-        background: var(--idui-color-surface-muted);
+        background: var(--idui-color-primary-soft);
+        box-shadow: inset 0 0 0 1px var(--idui-color-primary-border);
     }
 
     // Title and description are spans (valid inside <button>/<label>); stack them.
@@ -138,9 +135,9 @@
         font-size: t.$font-size-lg;
         color: var(--idui-color-ink);
 
-        i {
+        .icon {
             margin-right: .35rem;
-            color: var(--idui-color-text-muted);
+            color: var(--idui-color-primary);
         }
     }
 

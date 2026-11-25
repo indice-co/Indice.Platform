@@ -53,8 +53,8 @@
 
     &:hover,
     &:focus-visible {
-        border-color: var(--idui-color-ink);
-        background: var(--idui-color-surface-muted);
+        border-color: var(--idui-color-primary-border);
+        background: var(--idui-color-primary-soft);
         color: var(--idui-color-ink);
     }
 

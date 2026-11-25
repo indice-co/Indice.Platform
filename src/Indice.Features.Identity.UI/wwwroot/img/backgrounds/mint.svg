@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <!-- Mint: deep forest green with emerald, teal, sky and lime light. Minimal theme hero artwork. -->
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#064e3b"/>
+      <stop offset="1" stop-color="#022c22"/>
+    </linearGradient>
+    <radialGradient id="emerald">
+      <stop offset="0" stop-color="#10b981" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="teal">
+      <stop offset="0" stop-color="#14b8a6" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#14b8a6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sky">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lime">
+      <stop offset="0" stop-color="#a3e635" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#a3e635" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#base)"/>
+  <ellipse cx="200" cy="120" rx="700" ry="480" fill="url(#emerald)"/>
+  <ellipse cx="1400" cy="160" rx="620" ry="440" fill="url(#sky)"/>
+  <ellipse cx="900" cy="760" rx="760" ry="420" fill="url(#teal)"/>
+  <ellipse cx="1250" cy="620" rx="420" ry="280" fill="url(#lime)"/>
+
+  <g fill="none" stroke="#d1fae5" stroke-linecap="round">
+    <path d="M-80 640 C 240 520 520 760 860 600 S 1420 420 1680 520" stroke-width="120" stroke-opacity=".04"/>
+    <path d="M-80 640 C 240 520 520 760 860 600 S 1420 420 1680 520" stroke-width="2" stroke-opacity=".22"/>
+    <path d="M-80 700 C 260 590 540 820 880 660 S 1420 490 1680 590" stroke-width="1.5" stroke-opacity=".14"/>
+    <path d="M-80 580 C 220 460 500 700 840 540 S 1420 360 1680 450" stroke-width="1.5" stroke-opacity=".14"/>
+    <path d="M-80 760 C 280 660 560 880 900 720 S 1420 560 1680 660" stroke-width="1" stroke-opacity=".1"/>
+  </g>
+
+  <g fill="#ecfdf5">
+    <circle cx="1180" cy="260" r="90" opacity=".06"/>
+    <circle cx="1180" cy="260" r="46" opacity=".08"/>
+    <circle cx="380" cy="820" r="140" opacity=".04"/>
+  </g>
+</svg>

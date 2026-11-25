@@ -98,12 +98,12 @@ body.shell-profile {
 
         &:hover {
             background: var(--idui-color-surface);
-            color: var(--idui-color-ink);
+            color: var(--idui-color-primary);
         }
 
         &[aria-current="page"] {
-            background: var(--idui-color-ink);
-            color: var(--idui-color-on-dark);
+            background: var(--idui-color-primary-soft);
+            color: var(--idui-color-primary-hover);
         }
     }
 

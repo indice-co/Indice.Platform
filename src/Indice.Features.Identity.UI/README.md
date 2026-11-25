@@ -187,8 +187,42 @@ A host can replace a group layout by shipping e.g. `Pages/Shared/_AuthLayout.csh
   `wwwroot/css/**/*.css` files are committed.
 - Hosts override styles by shipping `wwwroot/css/bootstrap5/identity.bs.css` (replaces the stylesheet) or by adding rules to a
   `wwwroot/css/bootstrap5/_custom.scss` that the package imports last when the SCSS imports feature is enabled.
-- The hero image is `wwwroot/img/hero.jpg`; ship a file at the same path to replace it, or set
-  `--idui-hero-image` on `:root` / `[data-theme]`.
+- The hero image is set per theme with `--idui-hero-image` (SVG artwork in `wwwroot/img/backgrounds/`). Set
+  `--idui-hero-image` (and `--idui-hero-overlay` / `--idui-hero-overlay-strong` for a photo) on the same selector as the
+  theme to replace it. `wwwroot/img/hero.jpg` is still shipped for hosts that reference it.
+
+#### Palettes
+
+Every built-in theme carries its own palette, declared on `:root[data-theme='name']` in `themes/`:
+
+| Theme | Palette | Primary | Hero artwork |
+|-------|---------|---------|--------------|
+| `split` (default) | Aurora | `#6d28d9` violet | `backgrounds/aurora.svg` (northern lights) |
+| `minimal` | Mint | `#047857` emerald | `backgrounds/mint.svg` (profile header band; soft green mesh page) |
+| `columns` | Sunset | `#c2410c` burnt orange | `backgrounds/sunset.svg` (plum sky, sun and dunes) |
+| `panel` | Ocean | `#1d4ed8` cobalt | `backgrounds/ocean.svg` (topographic waves; deep blue page) |
+
+- `--idui-color-primary` / `-primary-hover` / `-on-primary` drive actions, links, selection and focus (buttons,
+  checkboxes, active navigation, icon chips). `--idui-color-ink` stays for headings and strong text.
+- `--idui-color-primary-soft`, `-primary-soft-hover` and `-primary-border` are derived from the primary with
+  `color-mix()`, as are `--idui-color-focus`, `--idui-shadow-focus` and `--idui-shadow-primary`, so overriding the
+  primary re-tints them.
+- Aurora is also the `:root` default, so a host can re-colour the split theme from `:root`. The other themes set their
+  palette on `:root[data-theme='name']`; override it on the same selector, e.g.
+  `:root[data-theme='panel'] { --idui-color-primary: #0f766e; --idui-color-primary-hover: #115e59; }`.
+
+#### Icons
+
+Icons are [Lucide](https://lucide.dev) (ISC), served as one SVG sprite. Write `<icon name="shield-check" />` (tag helper,
+`TagHelpers/IconTagHelper.cs`); it renders `<svg class="icon"><use href="~/lib/lucide/sprite.svg#shield-check"></use></svg>`
+sized to `1em` in `currentColor`. Add `aria-label` for a meaningful icon; otherwise it is `aria-hidden`.
+
+- `npm run build` writes `wwwroot/lib/lucide/sprite.svg` with only the icons used by `Pages/**/*.cshtml` and
+  `IdentityUIIcons.cs`; an unknown name fails the build. Dynamic icons must be listed in `IdentityUIIcons.cs`.
+- `IdentityUIIcons.ForAuthenticationMethod(code)` maps MFA methods to icons; `IdentityUIIcons.GetSpriteHref(ViewContext)`
+  returns the versioned sprite URL for client-side bindings.
+- Host pages that need other icons can ship their own sprite or inline SVG; the `.icon` class styles any inline SVG.
+- Stroke width is `--idui-icon-stroke-width` (default `2`).
 
 A typical form field:
 
@@ -299,7 +333,7 @@ Indice.Features.Identity.UI/
 - **Input Models**: Data transfer objects with validation attributes
 - **Validators**: FluentValidation rules for form validation
 - **View Components**: Reusable UI components (ProfileSidebar, PageHeading, etc.)
-- **Tag Helpers**: Custom HTML helpers (ProfilePictureImageTagHelper)
+- **Tag Helpers**: Custom HTML helpers (ProfilePictureImageTagHelper, IconTagHelper)
 - **Event Handlers**: Extensible event system for custom business logic
 
 ### Dependencies
@@ -311,7 +345,7 @@ Indice.Features.Identity.UI/
 | HtmlAgilityPack | 1.12.3 | HTML parsing and manipulation |
 | Bootstrap | 5.3.6 | UI framework |
 | jQuery | 3.7.1 | JavaScript functionality |
-| Font Awesome | 6.7.2 | Icons |
+| Lucide (`lucide-static`) | 1.80.0 | Icons (build-time SVG sprite) |
 
 ## 🌐 Available Pages
 

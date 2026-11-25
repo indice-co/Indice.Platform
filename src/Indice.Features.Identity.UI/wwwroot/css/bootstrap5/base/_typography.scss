@@ -29,12 +29,12 @@ h1, h2, h3, h4, h5, h6,
 }
 
 a {
-    color: var(--idui-color-ink);
+    color: var(--idui-color-primary);
     text-underline-offset: .15em;
     transition: color t.$transition-fast;
 
     &:hover {
-        color: var(--idui-color-ink-hover);
+        color: var(--idui-color-primary-hover);
     }
 }
 

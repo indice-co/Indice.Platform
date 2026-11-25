@@ -8,7 +8,7 @@
 @import 'bootstrap/scss/functions';
 
 // ---- Color system ------------------------------------------------------------
-$primary: t.$color-ink;
+$primary: t.$color-primary;
 $secondary: t.$color-text-muted;
 $success: t.$color-success;
 $info: t.$color-info;
@@ -22,8 +22,8 @@ $body-bg: t.$color-surface-muted;
 $body-secondary-color: t.$color-text-muted;
 $secondary-color: t.$color-text-muted;
 $border-color: t.$color-border;
-$link-color: t.$color-ink;
-$link-hover-color: t.$color-ink-hover;
+$link-color: t.$color-primary;
+$link-hover-color: t.$color-primary-hover;
 $link-decoration: underline;
 // null: no `a:hover { text-decoration }` rule, which would out-specify `text-decoration: none` on nav links.
 $link-hover-decoration: null;
@@ -82,8 +82,8 @@ $form-select-border-radius: t.$radius;
 $form-check-input-width: 1.125em;
 $form-check-input-border: 1px solid t.$color-border-strong;
 $form-check-input-border-radius: .3em;
-$form-check-input-checked-bg-color: t.$color-ink;
-$form-check-input-checked-border-color: t.$color-ink;
+$form-check-input-checked-bg-color: t.$color-primary;
+$form-check-input-checked-border-color: t.$color-primary;
 $form-check-input-focus-border: t.$color-focus;
 $form-check-input-focus-box-shadow: t.$shadow-focus;
 $form-feedback-font-size: t.$font-size-sm;
@@ -106,17 +106,17 @@ $alert-padding-x: 1rem;
 $dropdown-border-radius: t.$radius;
 $dropdown-border-color: t.$color-border;
 $dropdown-box-shadow: t.$shadow-menu;
-$dropdown-link-active-bg: t.$color-surface-muted;
-$dropdown-link-active-color: t.$color-ink;
-$dropdown-link-hover-bg: t.$color-surface-muted;
+$dropdown-link-active-bg: t.$color-primary-soft;
+$dropdown-link-active-color: t.$color-primary-hover;
+$dropdown-link-hover-bg: t.$color-primary-soft;
 $offcanvas-horizontal-width: 22rem;
 $offcanvas-bg-color: t.$color-surface-muted;
 $offcanvas-border-color: transparent;
 $offcanvas-padding-x: 0;
 $offcanvas-padding-y: 0;
 $list-group-border-color: t.$color-border;
-$list-group-active-color: t.$color-ink;
-$list-group-active-bg: t.$color-surface-muted;
+$list-group-active-color: t.$color-primary-hover;
+$list-group-active-bg: t.$color-primary-soft;
 $list-group-active-border-color: t.$color-border;
 $card-border-radius: t.$radius-lg;
 $card-border-color: t.$color-border;
@@ -134,8 +134,10 @@ $card-border-color: t.$color-border;
     --bs-body-bg: var(--idui-color-surface-muted);
     --bs-heading-color: var(--idui-color-ink);
     --bs-secondary-color: var(--idui-color-text-muted);
-    --bs-link-color: var(--idui-color-ink);
-    --bs-link-hover-color: var(--idui-color-ink-hover);
+    --bs-link-color: var(--idui-color-primary);
+    --bs-link-hover-color: var(--idui-color-primary-hover);
+    --bs-primary: var(--idui-color-primary);
+    --bs-focus-ring-color: color-mix(in srgb, var(--idui-color-focus) 35%, transparent);
     --bs-border-color: var(--idui-color-border);
     --bs-border-radius: var(--idui-radius);
     --bs-border-radius-sm: var(--idui-radius-sm);
@@ -143,7 +145,30 @@ $card-border-color: t.$color-border;
     --bs-border-radius-xl: var(--idui-radius-xl);
 }
 
-.btn-primary,
+.btn-primary {
+    --bs-btn-color: var(--idui-color-on-primary);
+    --bs-btn-bg: var(--idui-color-primary);
+    --bs-btn-border-color: var(--idui-color-primary);
+    --bs-btn-hover-color: var(--idui-color-on-primary);
+    --bs-btn-hover-bg: var(--idui-color-primary-hover);
+    --bs-btn-hover-border-color: var(--idui-color-primary-hover);
+    --bs-btn-active-color: var(--idui-color-on-primary);
+    --bs-btn-active-bg: var(--idui-color-primary-hover);
+    --bs-btn-active-border-color: var(--idui-color-primary-hover);
+    --bs-btn-disabled-color: var(--idui-color-on-primary);
+    --bs-btn-disabled-bg: var(--idui-color-primary);
+    --bs-btn-disabled-border-color: var(--idui-color-primary);
+
+    &:hover,
+    &:focus-visible {
+        box-shadow: var(--idui-shadow-primary);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--idui-shadow-primary), var(--idui-shadow-focus);
+    }
+}
+
 .btn-dark {
     --bs-btn-bg: var(--idui-color-ink);
     --bs-btn-border-color: var(--idui-color-ink);
@@ -155,7 +180,17 @@ $card-border-color: t.$color-border;
     --bs-btn-disabled-border-color: var(--idui-color-ink);
 }
 
-.btn-outline-primary,
+.btn-outline-primary {
+    --bs-btn-color: var(--idui-color-primary);
+    --bs-btn-border-color: var(--idui-color-primary);
+    --bs-btn-hover-color: var(--idui-color-on-primary);
+    --bs-btn-hover-bg: var(--idui-color-primary);
+    --bs-btn-hover-border-color: var(--idui-color-primary);
+    --bs-btn-active-color: var(--idui-color-on-primary);
+    --bs-btn-active-bg: var(--idui-color-primary-hover);
+    --bs-btn-active-border-color: var(--idui-color-primary-hover);
+}
+
 .btn-outline-dark {
     --bs-btn-color: var(--idui-color-ink);
     --bs-btn-border-color: var(--idui-color-ink);
@@ -163,6 +198,17 @@ $card-border-color: t.$color-border;
     --bs-btn-hover-border-color: var(--idui-color-ink);
     --bs-btn-active-bg: var(--idui-color-ink);
     --bs-btn-active-border-color: var(--idui-color-ink);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--idui-color-text);
+    --bs-btn-border-color: var(--idui-color-border-strong);
+    --bs-btn-hover-color: var(--idui-color-primary-hover);
+    --bs-btn-hover-bg: var(--idui-color-primary-soft);
+    --bs-btn-hover-border-color: var(--idui-color-primary-border);
+    --bs-btn-active-color: var(--idui-color-primary-hover);
+    --bs-btn-active-bg: var(--idui-color-primary-soft-hover);
+    --bs-btn-active-border-color: var(--idui-color-primary-border);
 }
 
 .form-control,
@@ -180,8 +226,8 @@ $card-border-color: t.$color-border;
     border-color: var(--idui-color-border-strong);
 
     &:checked {
-        background-color: var(--idui-color-ink);
-        border-color: var(--idui-color-ink);
+        background-color: var(--idui-color-primary);
+        border-color: var(--idui-color-primary);
     }
 
     &:focus {
@@ -194,9 +240,10 @@ $card-border-color: t.$color-border;
     --bs-dropdown-border-radius: var(--idui-radius);
     --bs-dropdown-border-color: var(--idui-color-border);
     --bs-dropdown-box-shadow: var(--idui-shadow-menu);
-    --bs-dropdown-link-hover-bg: var(--idui-color-surface-muted);
-    --bs-dropdown-link-active-bg: var(--idui-color-surface-muted);
-    --bs-dropdown-link-active-color: var(--idui-color-ink);
+    --bs-dropdown-link-hover-bg: var(--idui-color-primary-soft);
+    --bs-dropdown-link-hover-color: var(--idui-color-primary-hover);
+    --bs-dropdown-link-active-bg: var(--idui-color-primary-soft);
+    --bs-dropdown-link-active-color: var(--idui-color-primary-hover);
 }
 
 .offcanvas {

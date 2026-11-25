@@ -1,5 +1,6 @@
 ﻿@use '../abstracts/tokens' as t;
 @use '../abstracts/mixins' as m;
+@use '../abstracts/icons';
 
 // A labelled form control with optional hint, reveal button, error and help text.
 // Markup:
@@ -74,7 +75,7 @@
         cursor: pointer;
 
         &:hover {
-            color: var(--idui-color-ink);
+            color: var(--idui-color-primary);
         }
 
         &:focus-visible {
@@ -84,13 +85,14 @@
         &::before {
             content: "";
             display: block;
-            width: 1.6em;
+            width: 1.25em;
             aspect-ratio: 1 / 1;
-            background: url('../../img/reveal.svg') center / contain no-repeat;
+            @include icons.mask(icons.$eye);
         }
 
         &[aria-pressed="true"]::before {
-            background-image: url('../../img/reveal-hide.svg');
+            -webkit-mask-image: icons.$eye-off;
+            mask-image: icons.$eye-off;
         }
     }
 

@@ -1,0 +1,21 @@
+// =============================================================================
+// Lucide (https://lucide.dev, ISC License) glyphs for pseudo-elements that cannot host an <icon> element.
+// Glyphs are applied as masks so they take the current text color: `@include icons.mask(icons.$eye);`.
+// =============================================================================
+
+$_svg-open: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E";
+
+@function _glyph($body) {
+    @return url("#{$_svg-open}#{$body}%3C/svg%3E");
+}
+
+$eye: _glyph("%3Cpath d='M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E");
+$eye-off: _glyph("%3Cpath d='M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49'/%3E%3Cpath d='M14.084 14.158a3 3 0 0 1-4.242-4.242'/%3E%3Cpath d='M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143'/%3E%3Cpath d='m2 2 20 20'/%3E");
+$x: _glyph("%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E");
+$check: _glyph("%3Cpath d='M20 6 9 17l-5-5'/%3E");
+
+@mixin mask($glyph) {
+    background-color: currentColor;
+    -webkit-mask: $glyph center / contain no-repeat;
+    mask: $glyph center / contain no-repeat;
+}

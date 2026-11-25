@@ -15,12 +15,12 @@
                     self.selectedMethodType(first.type);
                 }
             },
-            authenticationMethod: function (displayName, description, type, selected, iconClass) {
+            authenticationMethod: function (displayName, description, type, selected, iconHref) {
                 return {
                     displayName: displayName,
                     description: description,
                     type: type,
-                    iconClass: iconClass,
+                    iconHref: iconHref,
                     selected: ko.observable(selected)
                 };
             },

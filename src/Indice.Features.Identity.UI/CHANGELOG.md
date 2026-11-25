@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - next major
+### Changed (palettes and icons, breaking)
+- **New palettes per theme.** Every built-in theme has its own colours and hero artwork: `split` Aurora (violet, the
+  `:root` default), `minimal` Mint (emerald), `columns` Sunset (burnt orange) and `panel` Ocean (cobalt). The hero
+  artwork is SVG (`wwwroot/img/backgrounds/aurora.svg`, `mint.svg`, `sunset.svg`, `ocean.svg`); the minimal theme gets a
+  soft mesh page background and the panel theme a deep blue gradient page.
+- New primary tokens `--idui-color-primary`, `-primary-hover`, `-on-primary` (Sass `$color-primary`, `$color-primary-hover`,
+  `$color-on-primary`) and derived `--idui-color-primary-soft`, `-primary-soft-hover`, `-primary-border` and
+  `--idui-shadow-primary`. Primary buttons, links, checkboxes, focus rings, active navigation, dropdown items and badges
+  now use the primary colour instead of ink. `--idui-color-focus` and `--idui-shadow-focus` follow the primary.
+- MFA methods, choice lists, the service deck and security methods show their icon in a tinted chip (`m.icon-chip`).
+- **Breaking:** the default hero image is no longer `img/hero.jpg` (still shipped). Hosts that replaced the file at that path
+  must now set `--idui-hero-image`. Theme palettes are scoped to `:root[data-theme='name']`, so host colour overrides
+  on `:root` only apply to the split theme; override the other themes on the same selector.
+- **Breaking:** Font Awesome is removed (stylesheet link, npm packages and `lib/font-awesome` / `lib/@fortawesome`). Icons are Lucide, rendered
+  by the new `<icon name="..." />` tag helper from a build-time sprite (`lib/lucide/sprite.svg`). `IdentityUIIcons`
+  maps MFA methods to icons (Viber uses `message-circle`, Lucide has no brand icons). Pages that override views and use
+  `fa-*` classes must switch to `<icon>` or ship Font Awesome themselves. Component CSS now targets `.icon` instead of `i`.
+- **Breaking:** removed the unused legacy images `img/mfa/*`, `img/icons/*`, `img/reveal.svg`, `img/reveal-hide.svg`,
+  `img/eye.svg`, `img/view-on.svg` and `img/view-off.svg`. The password reveal and password rules use Lucide glyphs as CSS masks.
+- The MFA onboarding view model binds `iconHref` (sprite URL) instead of `iconClass`.
 ### Added (profile edit pages)
 - New **Edit profile details** page `/ChangeProfileDetails` (`/manage/profile/details`, `BaseChangeProfileDetailsModel`,
   input `ProfileDetailsInputModel` with `ProfileDetailsInputModelValidator`, view model `ProfileDetailsViewModel`). Besides

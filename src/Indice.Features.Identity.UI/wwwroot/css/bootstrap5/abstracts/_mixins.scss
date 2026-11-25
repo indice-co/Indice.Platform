@@ -53,6 +53,21 @@
     background: var(--idui-hero-bg);
 }
 
+/// Rounded tile framing an icon in the primary tint (choice lists, MFA methods, service deck).
+@mixin icon-chip($size: 2.5rem, $icon-size: 1.25rem) {
+    display: inline-flex;
+    flex: 0 0 $size;
+    align-items: center;
+    justify-content: center;
+    width: $size;
+    height: $size;
+    border-radius: var(--idui-radius);
+    background: var(--idui-color-primary-soft);
+    color: var(--idui-color-primary);
+    font-size: $icon-size;
+    line-height: 1;
+}
+
 /// Truncate to one line with an ellipsis.
 @mixin truncate {
     overflow: hidden;

@@ -24,7 +24,7 @@
 
     <div class="auth-form__actions">
         <a asp-page-handler="Download" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary auth-form__submit">
-            <i class="fa-solid fa-download" aria-hidden="true"></i> @Localizer.MfaOnBoardingRecoveryCodes_Download
+            <icon name="download" /> @Localizer.MfaOnBoardingRecoveryCodes_Download
         </a>
     </div>
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate class="auth-form">

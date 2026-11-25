@@ -8,12 +8,36 @@
 //   footer. Applies to every non-profile page that renders a hero (the page defines the "hero" section);
 //   pages without a hero keep the default single centered column. Mobile: light single column, hero hidden.
 // Only custom property values; the layout engine in layouts/_anonymous-shell.scss reads them.
+// Palette "Sunset": burnt orange actions on warm neutrals; plum / coral / amber hero artwork.
 // =============================================================================
 
 :root[data-theme='columns'] {
+    --idui-color-primary: #c2410c;
+    --idui-color-primary-hover: #9a3412;
+    --idui-color-ink: #2a1215;
+    --idui-color-ink-hover: #4a1d1f;
+    --idui-color-text: #2b2220;
+    --idui-color-text-muted: #6b5a55;
+    --idui-color-text-subtle: #7a6760;
+    --idui-color-surface-muted: #fdf7f2;
+    --idui-color-surface-sunken: #f6ebe2;
+    --idui-color-border: #f0e4da;
+    --idui-color-border-strong: #dcc9bb;
+    --idui-color-brand: #2b0f2a;
+    --idui-color-brand-accent: #e11d48;
+    --idui-color-brand-bright: #f97316;
+    --idui-hero-image: url('../../img/backgrounds/sunset.svg');
+    --idui-hero-overlay: rgba(43, 15, 42, .12);
+    --idui-hero-overlay-strong: rgba(43, 15, 42, .32);
+    --idui-shadow-card: 0 12px 32px rgba(42, 18, 21, .08);
+    --idui-shadow-menu: 0 8px 24px rgba(42, 18, 21, .12);
+    --idui-page-bg:
+        radial-gradient(48rem 34rem at 100% 0%, #ffedd5, transparent 70%) fixed,
+        radial-gradient(44rem 32rem at 0% 100%, #ffe4e6, transparent 70%) fixed,
+        var(--idui-color-surface-muted);
+
     @include m.mq(lg) {
         body:not(.shell-profile):has(.site-body > .site-hero) {
-            --idui-page-bg: var(--idui-color-surface-muted);
             @include theme.header-on-image;
             --idui-site-columns: minmax(0, var(--idui-hero-column)) minmax(0, 1fr);
             --idui-site-areas: 'header main' 'hero main' 'hero footer';
