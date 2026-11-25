@@ -1,10 +1,18 @@
 ﻿// =============================================================================
 // Theme "minimal" — a single centered column over the light page; the hero is never shown.
-// This is exactly the :root default of the layout contract (abstracts/_tokens.scss), so the
-// theme only pins the two values that matter. <html data-theme="minimal">
+// Quiet iris palette, fine architectural lines and a crisp white form.
 // =============================================================================
 
+@use '../abstracts/theme' as theme;
+
 :root[data-theme='minimal'] {
-    --idui-page-bg: var(--idui-color-surface-muted);
+    @include theme.palette(#574676, #403057, #353043, #686173, #777080, #f3f1f7, #eae5f0, #ded8e8, #c3b9d1);
+    --idui-color-brand: #493958;
+    --idui-color-brand-accent: #77628c;
+    --idui-color-brand-bright: #c9b9d9;
+    --idui-hero-image: linear-gradient(125deg, #69517b, #342d49);
+    --idui-hero-overlay: transparent;
+    --idui-shadow-card: 0 16px 48px rgba(62, 42, 84, .08);
+    --idui-page-bg: linear-gradient(90deg, transparent calc(50% - 1px), #e5dfed 50%, transparent calc(50% + 1px)) center / min(80vw, 72rem) 100%, linear-gradient(135deg, #f6f3f9, #eeedf5);
     --idui-hero-display: none;
 }

@@ -71,6 +71,7 @@ body.shell-article {
     }
 
     &__title {
+        color: inherit;
         margin: 0 0 t.$space-3;
         font-size: t.$font-size-hero;
         line-height: 1.15;

@@ -8,7 +8,7 @@
         var hasImage = !string.IsNullOrWhiteSpace(item.ImageSrc);
         <li class="deck__item" indice-if="item.Visible">
             <a class="deck__link @item.CssClass @itemCssClass" href="@Url.Content(item.Link)">
-                <span indice-if="!hasImage" class="deck__icon" aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                <span indice-if="!hasImage" class="deck__icon" aria-hidden="true"><i class="idui-icon idui-icon--external-link"></i></span>
                 <span indice-if="hasImage" class="deck__image"><img src="@item.ImageSrc" alt="" /></span>
                 <span class="deck__title">@Localizer.GetGeneric(item.DisplayName)</span>
             </a>

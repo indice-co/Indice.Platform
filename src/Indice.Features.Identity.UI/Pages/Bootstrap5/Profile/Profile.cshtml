@@ -39,7 +39,7 @@
     <form asp-page-handler="UploadPicture" enctype="multipart/form-data" method="post" class="avatar-upload">
         <label class="avatar-upload__control" for="profile_picture">
             <img class="avatar avatar--lg" profile-pic="128" profile-display-name="@Model.Input.DisplayName" profile-pic-background="cecece" alt="" />
-            <span class="avatar-upload__cta"><i class="fa-solid fa-camera" aria-hidden="true"></i> @Localizer.Profile_PhotoUpload</span>
+            <span class="avatar-upload__cta"><i class="idui-icon idui-icon--camera" aria-hidden="true"></i> @Localizer.Profile_PhotoUpload</span>
         </label>
         <input type="file" id="profile_picture" name="file" accept="image/*" class="avatar-upload__input" aria-describedby="profile_picture-help" />
         <div class="avatar-upload__text">
@@ -82,20 +82,20 @@
         <div class="account-row">
             <span class="account-row__label">
                 @Localizer.Email
-                <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" class="field__label-action">(@Localizer.Profile_Confirmation <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>)</a>
+                <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" class="field__label-action">(@Localizer.Profile_Confirmation <i class="idui-icon idui-icon--arrow-right" aria-hidden="true"></i>)</a>
             </span>
             <span class="account-row__value">@Model.View.Email</span>
-            <a indice-if="canEditEmail" asp-page="/ChangeEmail" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Email"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
+            <a indice-if="canEditEmail" asp-page="/ChangeEmail" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Email"><i class="idui-icon idui-icon--square-pen" aria-hidden="true"></i></a>
         </div>
         <div class="account-row">
             <span class="account-row__label">@Localizer.Profile_Phone_Number</span>
             <span class="account-row__value">@phoneDisplay</span>
-            <a indice-if="canEditPhone" asp-page="/ChangePhone" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Phone_Number"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
+            <a indice-if="canEditPhone" asp-page="/ChangePhone" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Phone_Number"><i class="idui-icon idui-icon--square-pen" aria-hidden="true"></i></a>
         </div>
         <div class="account-row">
             <span class="account-row__label">@Localizer.Profile_Username</span>
             <span class="account-row__value">@Model.View.UserName</span>
-            <a indice-if="canEditUserName" asp-page="/ChangeUserName" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Username"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
+            <a indice-if="canEditUserName" asp-page="/ChangeUserName" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_Username"><i class="idui-icon idui-icon--square-pen" aria-hidden="true"></i></a>
         </div>
     </div>
 </section>
@@ -108,7 +108,7 @@
 <section class="data-card">
     <header class="data-card__header">
         <h2 class="data-card__title">@Localizer.Profile_DetailsSection</h2>
-        <a asp-page="/ChangeProfileDetails" class="data-card__action"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> @Localizer.Profile_Edit</a>
+        <a asp-page="/ChangeProfileDetails" class="data-card__action"><i class="idui-icon idui-icon--square-pen" aria-hidden="true"></i> @Localizer.Profile_Edit</a>
     </header>
     <div class="account-rows">
         @if (Model.View.ShowFullName)
@@ -172,7 +172,7 @@
         <div class="account-row">
             <span class="account-row__label">@Localizer.Profile_PreferredLanguage</span>
             <span class="account-row__value">@DisplayValue(localeDisplay)</span>
-            <a asp-page="/ChangePreferences" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_PreferredLanguage"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a>
+            <a asp-page="/ChangePreferences" class="account-row__toggle" aria-label="@Localizer.Profile_Edit @Localizer.Profile_PreferredLanguage"><i class="idui-icon idui-icon--square-pen" aria-hidden="true"></i></a>
         </div>
     </div>
 </section>
@@ -212,7 +212,7 @@
                         <input asp-for="InputLoginLink.LoginProvider" type="hidden" value="@provider.LoginProvider" />
                         <input asp-for="InputLoginLink.ProviderKey" type="hidden" value="@provider.ProviderKey" />
                         <button type="submit" class="provider-row__action remove-idp" disabled="@(!Model.View.CanRemoveProvider)">
-                            <i class="fa-regular fa-circle-minus" aria-hidden="true"></i> @Localizer.Profile_Remove
+                            <i class="idui-icon idui-icon--circle-minus" aria-hidden="true"></i> @Localizer.Profile_Remove
                         </button>
                     </form>
                 </li>

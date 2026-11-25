@@ -188,7 +188,28 @@ A host can replace a group layout by shipping e.g. `Pages/Shared/_AuthLayout.csh
 - Hosts override styles by shipping `wwwroot/css/bootstrap5/identity.bs.css` (replaces the stylesheet) or by adding rules to a
   `wwwroot/css/bootstrap5/_custom.scss` that the package imports last when the SCSS imports feature is enabled.
 - The hero image is `wwwroot/img/hero.jpg`; ship a file at the same path to replace it, or set
-  `--idui-hero-image` on `:root` / `[data-theme]`.
+  `--idui-hero-image` on `:root` / `[data-theme]`. The four built-in themes now use CSS artwork
+  instead of the stock photograph; set this property on the selected `[data-theme]` to supply a host image.
+
+The built-in palettes are **Split** (marine blue, full-bleed atmospheric background), **Panel**
+(forest green inset panel on warm sand), **Columns** (clay and linen, full-height oxblood hero),
+and **Minimal** (quiet iris with fine background lines). Their layout identities and theme names
+are unchanged. Palette tokens also drive Bootstrap buttons, form controls and their interactive
+states, including when switching themes at runtime.
+
+UI icons use locally bundled **Lucide** SVG masks (`css/lucide.css`), generated from the pinned
+`lucide-static` dependency by Vite. Add a name to `lucideIcons` in `vite.config.js`, then use
+`<i class="idui-icon idui-icon--shield-check" aria-hidden="true"></i>`. Use the same icon names in
+dynamic MFA class mappings. Masks inherit text colour, need no JavaScript and make no external
+requests. Keep accessible names on their controls. Password visibility, password rules, select
+carets and close buttons use the same set. Provider-owned sign-in logos remain recognizable
+brand assets, not UI icons; Viber's MFA channel uses Lucide's phone symbol with its existing label.
+
+Run `npm run build`, `npx playwright install chromium` (first run only), then `npm run test:ui`
+for responsive presentation checks at desktop and mobile widths. Set `IDUI_SCREENSHOT_DIR` to
+an output directory to capture each template's login, registration and security presentation.
+The fixture uses the production CSS and password-reveal script; it does not replace live-host
+authentication-flow testing.
 
 A typical form field:
 

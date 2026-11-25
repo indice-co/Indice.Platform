@@ -14,13 +14,7 @@
     {
         <h1 class="visually-hidden">@Localizer.Grants_PageHeader</h1>
         <div class="empty-state" role="status">
-            <svg class="empty-state__icon" width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-                <circle cx="24" cy="5" r="2.5" stroke="currentColor" stroke-width="2.5" />
-                <path d="M8 38V22a16 14 0 0 1 32 0v16" stroke="currentColor" stroke-width="3" stroke-linejoin="round" />
-                <path d="M18 38V14M30 38V14M24 38V8" stroke="currentColor" stroke-width="2.5" />
-                <path d="M18 30h6" stroke="currentColor" stroke-width="2.5" />
-                <rect x="4" y="38" width="40" height="6" rx="1.5" fill="#9b87f5" stroke="currentColor" stroke-width="2.5" />
-            </svg>
+            <i class="idui-icon idui-icon--shield-off empty-state__icon" aria-hidden="true"></i>
             <p class="empty-state__text">@Localizer.Grants_No_Applications_Provided</p>
         </div>
     }
@@ -51,7 +45,7 @@
                 </form>
             </header>
             <details indice-if="grant.IdentityGrantNames.Any()" class="grant__group" open>
-                <summary class="grant__summary"><i class="fa-regular fa-address-card" aria-hidden="true"></i> Identity Grants</summary>
+                <summary class="grant__summary"><i class="idui-icon idui-icon--contact" aria-hidden="true"></i> Identity Grants</summary>
                 <ul class="grant__list">
                     @foreach (var name in grant.IdentityGrantNames)
                     {
@@ -60,7 +54,7 @@
                 </ul>
             </details>
             <details indice-if="grant.ApiGrantNames.Any()" class="grant__group">
-                <summary class="grant__summary"><i class="fa-solid fa-server" aria-hidden="true"></i> API Grants</summary>
+                <summary class="grant__summary"><i class="idui-icon idui-icon--server" aria-hidden="true"></i> API Grants</summary>
                 <ul class="grant__list">
                     @foreach (var name in grant.ApiGrantNames)
                     {

@@ -309,6 +309,10 @@
     text-align: center;
     color: var(--idui-color-ink);
 
+    &__icon {
+        font-size: 3rem;
+    }
+
     &__text {
         margin: 0;
         font-size: t.$font-size-lg;

@@ -86,11 +86,12 @@
             display: block;
             width: 1.6em;
             aspect-ratio: 1 / 1;
-            background: url('../../img/reveal.svg') center / contain no-repeat;
+            background-color: currentColor;
+            mask: var(--idui-icon-eye) center / contain no-repeat;
         }
 
         &[aria-pressed="true"]::before {
-            background-image: url('../../img/reveal-hide.svg');
+            mask-image: var(--idui-icon-eye-off);
         }
     }
 

@@ -3,7 +3,7 @@
 
 // =============================================================================
 // Theme "panel". <html data-theme="panel">
-//   Desktop: solid brand-coloured page; login/register live in a centered two-column
+//   Desktop: warm sand page; login/register live in a centered two-column
 //   floating panel (image left, flat form right) between the header and the footer. Other
 //   pages, and login/register without a rendered hero, show the usual centered card over the coloured page.
 //   Mobile: light single column, hero hidden.
@@ -11,10 +11,20 @@
 // =============================================================================
 
 :root[data-theme='panel'] {
+    @include theme.palette(#285543, #193e30, #263d32, #596b5f, #657468, #f3f2e9, #e6e9dd, #dcdfd1, #bac5b4);
+    --idui-color-brand: #234d3d;
+    --idui-color-brand-accent: #46765a;
+    --idui-color-brand-bright: #dae3c9;
+    --idui-hero-image: radial-gradient(ellipse at 5% 0%, #56755b 0%, transparent 65%), linear-gradient(165deg, #2e5746, #153e30 70%, #1e4936);
+    --idui-hero-overlay: transparent;
+    --idui-hero-overlay-strong: rgba(11, 37, 26, .12);
+    --idui-shadow-panel: 0 28px 72px rgba(47, 57, 34, .16);
+    --idui-page-bg: linear-gradient(135deg, #e9ebdb, #f3eee1 55%, #e1e7d5);
+
     @include m.mq(lg) {
         body:not(.shell-profile) {
-            --idui-page-bg: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--idui-color-brand-bright), white 12%), var(--idui-color-brand-bright) 45%, color-mix(in srgb, var(--idui-color-brand-bright), black 15%) 100%);
-            @include theme.chrome-on-image;
+            --idui-page-bg: linear-gradient(135deg, #e9ebdb, #f3eee1 55%, #e1e7d5);
+            @include theme.chrome-light;
         }
 
         body.shell-auth:has(.site-body > .site-hero) {
