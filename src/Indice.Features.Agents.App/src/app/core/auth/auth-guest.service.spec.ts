@@ -72,14 +72,17 @@ describe('AuthGuestService', () => {
     expect(stored()).toBeNull();
   });
 
-  it('clear resets the session to null and removes the key', () => {
+  it('clear resets the session, emits cleared$ exactly once and removes the key', () => {
     const service = create();
     service.capture({ accessToken: 'tok', expiresIn: 3600 });
     expect(service.session()).toEqual(jasmine.objectContaining({ accessToken: 'tok' }));
+    let cleared = 0;
+    service.cleared$.subscribe(() => cleared++);
 
     service.clear();
     service.clear();
 
+    expect(cleared).toBe(1);
     expect(service.session()).toBeNull();
     expect(stored()).toBeNull();
     expect(service.isActive).toBeFalse();

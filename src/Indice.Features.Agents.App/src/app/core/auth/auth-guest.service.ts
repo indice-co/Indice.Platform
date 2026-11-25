@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { AuthService } from '@indice/ng-auth';
-import { filter } from 'rxjs';
+import { Subject, filter } from 'rxjs';
 
 import { EMBED_MODE } from '../embed/embed-mode';
 
@@ -48,8 +48,15 @@ export class AuthGuestService {
   private readonly state = signal<GuestSessionState | null>(readStored(this.storageKey));
   private name: string | null = null;
 
+  private readonly clearedSubject = new Subject<void>();
+
   /** The guest credential, or `null`. Changes on capture and on clear. */
   readonly session = this.state.asReadonly();
+  /**
+   * Emits synchronously, once, each time a live credential is dropped. An event rather than a read of `session`:
+   * an effect only sees snapshots, so a clear followed by a recapture before it runs would go unnoticed.
+   */
+  readonly cleared$ = this.clearedSubject.asObservable();
 
   constructor() {
     // A signed-in user never sends guest credentials: drop the guest session the moment one appears
@@ -119,14 +126,17 @@ export class AuthGuestService {
     }
   }
 
-  /** Forget the credential. No-op when there is none, so readers see no spurious change. */
+  /** Forget the credential. No-op when there is none, so `cleared$` sees no spurious event. */
   clear(): void {
     try {
       sessionStorage.removeItem(this.storageKey);
     } catch {
       // Storage unavailable — nothing was persisted to begin with.
     }
-    this.state.set(null);
+    if (this.state() !== null) {
+      this.state.set(null);
+      this.clearedSubject.next();
+    }
   }
 }
 

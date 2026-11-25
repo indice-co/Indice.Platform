@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
@@ -42,17 +42,11 @@ export class ConversationsStore {
   constructor() {
     // When the guest credential goes away (expired, rejected, or superseded by a sign-in) the rail it
     // populated no longer belongs to the caller — empty it and start fresh rather than 401 on every row.
-    let previous = untracked(this.guest.session);
-    effect(() => {
-      const current = this.guest.session();
-      if (previous !== null && current === null) {
-        untracked(() => {
-          this.cancelRefresh();
-          this.sessions.set([]);
-          this.startNew();
-        });
-      }
-      previous = current;
+    // Synchronous, so a new guest captured right after the clear never inherits the old one's rail.
+    this.guest.cleared$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.cancelRefresh();
+      this.sessions.set([]);
+      this.startNew();
     });
   }
 
