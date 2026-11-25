@@ -60,11 +60,11 @@ public class CasesAccessOwnerHandler : AuthorizationHandler<CasesOwnerAccessRequ
             return;
         }
 
-        var isOwner = await CheckOwnershipAsync(actor, caseId);
+        var isDraftDeleteEndpoint = _httpContextAccessor.HttpContext!.GetEndpoint()?
+            .Metadata.GetMetadata<IEndpointNameMetadata>()?.EndpointName == "DeleteMyDraftCase";
+        var isOwner = await CheckOwnershipAsync(actor, caseId, requireCaseOwnerOnly: isDraftDeleteEndpoint);
         if (!isOwner) {
             var caseExists = await dbContext.Cases.AnyAsync(c => c.Id == caseId);
-            var isDraftDeleteEndpoint = _httpContextAccessor.HttpContext!.GetEndpoint()?
-                .Metadata.GetMetadata<IEndpointNameMetadata>()?.EndpointName == "DeleteMyDraftCase";
             if (caseExists || !isDraftDeleteEndpoint) {
                 _logger.LogInformation("User {UserId} is not a member.", actor.Id);
                 return;
@@ -73,16 +73,19 @@ public class CasesAccessOwnerHandler : AuthorizationHandler<CasesOwnerAccessRequ
         context.Succeed(requirement);
     }
 
-    private async Task<bool> CheckOwnershipAsync(UserActor actor, Guid caseId) {
+    private async Task<bool> CheckOwnershipAsync(UserActor actor, Guid caseId, bool requireCaseOwnerOnly) {
         var isOwner = false;
-        var cacheKey = $"owner:{actor.Id}-caseId:{caseId}";
+        var cacheKey = $"{(requireCaseOwnerOnly ? "case-owner" : "owner-access")}:{actor.Id}-caseId:{caseId}";
         var value = await _cache.GetStringAsync(cacheKey);
         var entryExists = value != null;
         if (entryExists) {
             bool.TryParse(value, out isOwner);
             return isOwner;
         }
-        isOwner = await dbContext.Cases.AnyAsync(c => c.Id == caseId && (c.Owner.UserId == actor.Id || c.CreatedBy.Id == actor.Id));
+        var caseQuery = dbContext.Cases.Where(c => c.Id == caseId);
+        isOwner = requireCaseOwnerOnly
+            ? await caseQuery.AnyAsync(c => c.Owner.UserId == actor.Id)
+            : await caseQuery.AnyAsync(c => c.Owner.UserId == actor.Id || c.CreatedBy.Id == actor.Id);
         // Add to cache. 
         var cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(60));
         await _cache.SetStringAsync(cacheKey, $"{isOwner}", cacheEntryOptions);

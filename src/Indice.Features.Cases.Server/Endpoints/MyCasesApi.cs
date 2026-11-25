@@ -53,7 +53,7 @@ internal static class MyCasesApi
 
         group.MapGet("{caseId}", MyCasesHandlers.GetMyCaseById)
             .WithName(nameof(MyCasesHandlers.GetMyCaseById))
-            .WithSummary("Get case details with checkpoint title and description translated to the request culture. Set includeAttachmentData=false to omit attachment content; the default is true.")
+            .WithSummary("Get case details. Checkpoint text is translated; set includeAttachmentData=false to omit attachment content.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
         group.MapGet("{caseId}/attachments/{attachmentId:guid}", MyCasesHandlers.GetMyCaseAttachment)
@@ -63,7 +63,7 @@ internal static class MyCasesApi
 
         group.MapGet("{caseId}/timeline", MyCasesHandlers.GetMyCaseTimeline)
             .WithName(nameof(MyCasesHandlers.GetMyCaseTimeline))
-            .WithSummary("Get public timeline entries, newest first. Filter by All (default), Comments, or Checkpoints. Draft timelines are empty.")
+            .WithSummary("Get the public timeline, newest first. Draft cases return an empty timeline.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
         group.MapPost("{caseId}/comments", MyCasesHandlers.AddMyCaseComment)
@@ -74,7 +74,7 @@ internal static class MyCasesApi
         group.MapPost("{caseId}/attachments", MyCasesHandlers.UploadCaseAttachment)
             .WithName(nameof(MyCasesHandlers.UploadCaseAttachment))
             .DisableAntiforgery()
-            .WithSummary("Add an attachment to an existing case regardless of its status and mode (draft or not).")
+            .WithSummary("Upload an attachment to the case.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
         group.MapPut("{caseId}", MyCasesHandlers.UpdateCase)

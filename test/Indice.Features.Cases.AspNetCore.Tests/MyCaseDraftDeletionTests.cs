@@ -13,6 +13,7 @@ using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -123,12 +124,21 @@ public class MyCaseDraftDeletionTests : IAsyncDisposable
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
+        using (var scope = host.Services.CreateScope()) {
+            var service = scope.ServiceProvider.GetRequiredService<IMyCaseService>();
+            await Assert.ThrowsAsync<Indice.Features.Cases.Core.Exceptions.ResourceUnauthorizedException>(
+                () => service.DeleteDraft(new UserActor { Id = "creator" }, draftId));
+        }
+
         using var client = host.GetTestClient();
         client.DefaultRequestHeaders.Add("X-Test-User", "owner");
         Assert.Equal(HttpStatusCode.NotFound, (await client.DeleteAsync($"/my/cases/{Guid.NewGuid()}", TestContext.Current.CancellationToken)).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.DeleteAsync($"/my/cases/{submittedId}", TestContext.Current.CancellationToken)).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-User");
         client.DefaultRequestHeaders.Add("X-Test-User", "unauthorized");
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync($"/my/cases/{draftId}", TestContext.Current.CancellationToken)).StatusCode);
+        client.DefaultRequestHeaders.Remove("X-Test-User");
+        client.DefaultRequestHeaders.Add("X-Test-User", "creator");
         Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync($"/my/cases/{draftId}", TestContext.Current.CancellationToken)).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-User");
         client.DefaultRequestHeaders.Add("X-Test-User", "owner");
@@ -147,6 +157,72 @@ public class MyCaseDraftDeletionTests : IAsyncDisposable
             var fileService = scope.ServiceProvider.GetRequiredKeyedService<IFileService>(CasesCoreConstants.FileServiceKey);
             var missingFile = await Assert.ThrowsAsync<Exception>(() => fileService.GetAsync(attachmentPath));
             Assert.Contains("not found", missingFile.Message, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public async Task Blob_cleanup_failure_keeps_draft_for_retry() {
+        var connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.DraftDeletionFailure_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true";
+        _sqlServerOptions = new DbContextOptionsBuilder<CasesDbContext>()
+            .UseSqlServer(connectionString)
+            .Options;
+        var caseId = Guid.NewGuid();
+        var dataId = Guid.NewGuid();
+        var attachmentId = Guid.NewGuid();
+        var attachmentPath = string.Empty;
+        await using (var db = new CasesDbContext(_sqlServerOptions)) {
+            await db.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
+            var caseType = new DbCaseType { Id = Guid.NewGuid(), Code = "T", Title = "Test", DataSchema = JsonNode.Parse("{}")! };
+            var now = DateTimeOffset.UtcNow;
+            var owner = new AuditMeta { Id = "owner", Name = "Owner", Email = "owner@example.test", When = now };
+            var draft = new DbCase {
+                Id = caseId,
+                CaseTypeId = caseType.Id,
+                Channel = "web",
+                Draft = true,
+                CreatedBy = owner,
+                Owner = new ContactMeta { UserId = "owner" }
+            };
+            db.CaseTypes.Add(caseType);
+            db.Cases.Add(draft);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            var version = new DbCaseData { Id = dataId, CaseId = caseId, CreatedBy = owner.Clone(), Data = JsonNode.Parse("{}") };
+            var attachment = new DbAttachment(caseId) {
+                Id = attachmentId,
+                Name = "draft.txt",
+                FileExtension = ".txt",
+                ContentType = "text/plain"
+            };
+            attachmentPath = attachment.GetPath();
+            draft.DataId = dataId;
+            db.CaseData.Add(version);
+            db.Attachments.Add(attachment);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        var fileService = Substitute.For<IFileService>();
+        fileService.DeleteAsync(attachmentPath, false)
+            .Returns(Task.FromException<bool>(new FileServiceException("Blob deletion failed.")));
+        await using (var db = new CasesDbContext(_sqlServerOptions)) {
+            var service = new MyCaseService(
+                db,
+                Options.Create(new CasesOptions()),
+                Substitute.For<IPlatformEventService>(),
+                Substitute.For<IMyCaseMessageService>(),
+                Substitute.For<IJsonTranslationService>(),
+                new CaseSharedResourceService(Substitute.For<IStringLocalizerFactory>()),
+                fileService);
+            var exception = await Assert.ThrowsAsync<FileServiceException>(() => service.DeleteDraft(new UserActor { Id = "owner" }, caseId));
+            Assert.Equal("Blob deletion failed.", exception.Message);
+        }
+
+        await using (var db = new CasesDbContext(_sqlServerOptions)) {
+            var draft = await db.Cases.SingleAsync(c => c.Id == caseId, TestContext.Current.CancellationToken);
+            Assert.True(draft.Draft);
+            Assert.Equal(dataId, draft.DataId);
+            Assert.True(await db.Attachments.AnyAsync(a => a.Id == attachmentId, TestContext.Current.CancellationToken));
+            Assert.True(await db.CaseData.AnyAsync(d => d.Id == dataId, TestContext.Current.CancellationToken));
         }
     }
 

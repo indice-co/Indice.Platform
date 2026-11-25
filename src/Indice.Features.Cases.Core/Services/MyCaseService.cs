@@ -76,7 +76,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     }
 
     public Task<bool> DeleteDraft(UserActor user, Guid caseId) =>
-        DeleteDraftInternal(caseId, user, allowCaseOwner: true);
+        DeleteDraftInternal(caseId, user, requireCaseOwner: true);
 
     public async Task Submit(UserActor user, Guid caseId) {
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));

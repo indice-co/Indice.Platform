@@ -41,14 +41,14 @@ internal abstract class BaseCaseService
         }
     }
 
-    protected async Task<bool> DeleteDraftInternal(Guid caseId, UserActor user, bool allowCaseOwner) {
+    protected async Task<bool> DeleteDraftInternal(Guid caseId, UserActor user, bool requireCaseOwner) {
         ArgumentNullException.ThrowIfNull(user);
         var @case = await DbContext.Cases.SingleOrDefaultAsync(x => x.Id == caseId);
         if (@case is null) {
             return false;
         }
         if (string.IsNullOrEmpty(user.Id) ||
-            (@case.CreatedBy.Id != user.Id && (!allowCaseOwner || @case.Owner.UserId != user.Id))) {
+            (requireCaseOwner ? @case.Owner.UserId != user.Id : @case.CreatedBy.Id != user.Id)) {
             throw new ResourceUnauthorizedException();
         }
         if (!@case.Draft) {
@@ -78,6 +78,12 @@ internal abstract class BaseCaseService
         // Persist the cleared references before deletion so EF can order the circular relationships.
         await DbContext.SaveChangesAsync();
 
+        if (FileService is not null) {
+            foreach (var path in attachmentPaths) {
+                await DeleteAttachmentFile(path);
+            }
+        }
+
         DbContext.RemoveRange(approvals);
         DbContext.RemoveRange(accessRules);
         DbContext.RemoveRange(comments);
@@ -90,19 +96,13 @@ internal abstract class BaseCaseService
             await transaction.CommitAsync();
         }
 
-        if (FileService is not null) {
-            foreach (var batch in attachmentPaths.Chunk(5)) {
-                await Task.WhenAll(batch.Select(DeleteAttachmentFile));
-            }
-        }
         return true;
     }
 
     private async Task DeleteAttachmentFile(string path) {
         try {
             await FileService!.DeleteAsync(path);
-        } catch (FileServiceException) {
-            // File service deletion is best-effort after the database case has been removed.
+        } catch (FileNotFoundServiceException) {
         }
     }
 

@@ -482,7 +482,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task DeleteDraft(UserActor user, Guid caseId) {
-        if (!await DeleteDraftInternal(caseId, user, allowCaseOwner: false)) {
+        if (!await DeleteDraftInternal(caseId, user, requireCaseOwner: false)) {
             throw new CaseNotFoundException();
         }
     }
