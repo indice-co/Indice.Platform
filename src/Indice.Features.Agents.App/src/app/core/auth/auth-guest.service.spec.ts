@@ -45,17 +45,15 @@ describe('AuthGuestService', () => {
     expect(service.getAuthorizationHeaderValue()).toBe('');
   });
 
-  it('capture emits the session and mirrors it to sessionStorage', () => {
+  it('capture sets the session and mirrors it to sessionStorage', () => {
     const service = create();
-    const seen: (GuestSessionState | null)[] = [];
-    service.session$.subscribe((session) => seen.push(session));
+    expect(service.session()).toBeNull();
 
     service.capture({ accessToken: 'tok', tokenType: 'Bearer', expiresIn: 3600, subject: 'g-1' });
 
     expect(service.isActive).toBeTrue();
     expect(service.getAuthorizationHeaderValue()).toBe('Bearer tok');
-    expect(seen.length).withContext('initial null + capture').toBe(2);
-    expect(seen[1]?.subject).toBe('g-1');
+    expect(service.session()?.subject).toBe('g-1');
     expect(stored()?.accessToken).toBe('tok');
   });
 
@@ -74,16 +72,18 @@ describe('AuthGuestService', () => {
     expect(stored()).toBeNull();
   });
 
-  it('clear emits null exactly once and removes the key', () => {
+  it('clear resets the session, emits cleared$ exactly once and removes the key', () => {
     const service = create();
     service.capture({ accessToken: 'tok', expiresIn: 3600 });
-    const seen: (GuestSessionState | null)[] = [];
-    service.session$.subscribe((session) => seen.push(session));
+    expect(service.session()).toEqual(jasmine.objectContaining({ accessToken: 'tok' }));
+    let cleared = 0;
+    service.cleared$.subscribe(() => cleared++);
 
     service.clear();
     service.clear();
 
-    expect(seen).toEqual([jasmine.objectContaining({ accessToken: 'tok' }), null]);
+    expect(cleared).toBe(1);
+    expect(service.session()).toBeNull();
     expect(stored()).toBeNull();
     expect(service.isActive).toBeFalse();
   });

@@ -1,6 +1,6 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription, filter, pairwise } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { AuthGuestService } from '../auth/auth-guest.service';
 import { ChatTopic, ConversationListItem, DexApiService } from './dex-api.service';
@@ -42,17 +42,12 @@ export class ConversationsStore {
   constructor() {
     // When the guest credential goes away (expired, rejected, or superseded by a sign-in) the rail it
     // populated no longer belongs to the caller — empty it and start fresh rather than 401 on every row.
-    this.guest.session$
-      .pipe(
-        pairwise(),
-        filter(([previous, current]) => previous !== null && current === null),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.cancelRefresh();
-        this.sessions.set([]);
-        this.startNew();
-      });
+    // Synchronous, so a new guest captured right after the clear never inherits the old one's rail.
+    this.guest.cleared$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.cancelRefresh();
+      this.sessions.set([]);
+      this.startNew();
+    });
   }
 
   /** (Re)fetch the session list — called on startup and after a turn settles. */

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 
@@ -8,6 +8,7 @@ import { assistantName } from '../models/brand';
 @Component({
   selector: 'app-logged-out',
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex min-h-screen flex-col items-center justify-center gap-6 bg-base-200 p-6 text-center">
       <div>

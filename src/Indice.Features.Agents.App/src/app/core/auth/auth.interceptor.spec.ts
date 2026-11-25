@@ -1,4 +1,4 @@
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -30,7 +30,7 @@ describe('authInterceptor', () => {
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
-        provideHttpClient(withInterceptors([authInterceptor])),
+        provideHttpClient(withXhr(), withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
         { provide: AuthService, useValue: auth },
       ],
@@ -97,7 +97,7 @@ describe('authInterceptor', () => {
       TestBed.configureTestingModule({
         providers: [
           provideZonelessChangeDetection(),
-          provideHttpClient(withInterceptors([authInterceptor])),
+          provideHttpClient(withXhr(), withInterceptors([authInterceptor])),
           provideHttpClientTesting(),
           { provide: AuthService, useValue: auth },
           { provide: EMBED_MODE, useValue: true },

@@ -124,4 +124,30 @@ describe('ConversationsStore', () => {
     expect(store.activeId()).toBeNull();
     sessionStorage.removeItem('dex.guest.session');
   });
+
+  it('resets synchronously when a cleared guest is replaced before any change detection', () => {
+    const guest = TestBed.inject(AuthGuestService);
+    guest.capture({ accessToken: 'old', expiresIn: 3600 });
+    store.refresh();
+    controller.emit(0, listOf('c1'));
+    store.select('c1');
+
+    guest.clear();
+    guest.capture({ accessToken: 'new', expiresIn: 3600 });
+
+    expect(store.sessions()).withContext('rows belonged to the old guest').toEqual([]);
+    expect(store.activeId()).toBeNull();
+    sessionStorage.removeItem('dex.guest.session');
+  });
+
+  it('resets when a guest is captured and cleared before any change detection', () => {
+    const guest = TestBed.inject(AuthGuestService);
+    store.select('c1');
+
+    guest.capture({ accessToken: 'tok', expiresIn: 3600 });
+    guest.clear();
+
+    expect(store.activeId()).toBeNull();
+    sessionStorage.removeItem('dex.guest.session');
+  });
 });

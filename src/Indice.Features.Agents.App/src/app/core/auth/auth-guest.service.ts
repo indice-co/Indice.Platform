@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { AuthService } from '@indice/ng-auth';
-import { BehaviorSubject, filter } from 'rxjs';
+import { Subject, filter } from 'rxjs';
 
 import { EMBED_MODE } from '../embed/embed-mode';
 
@@ -38,18 +38,25 @@ const MAX_DISPLAY_NAME_LENGTH = 100;
 const EXPIRY_SKEW_MS = 30_000;
 
 /**
- * The tab's guest credential. `session$` is the single source of truth; `sessionStorage` is a mirror
+ * The tab's guest credential. The `session` signal is the single source of truth; `sessionStorage` is a mirror
  * so it survives a reload. Consumers never read storage themselves.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthGuestService {
   private readonly embed = inject(EMBED_MODE);
   private readonly storageKey = this.embed ? EMBED_STORAGE_KEY : STORAGE_KEY;
-  private readonly state = new BehaviorSubject<GuestSessionState | null>(readStored(this.storageKey));
+  private readonly state = signal<GuestSessionState | null>(readStored(this.storageKey));
   private name: string | null = null;
 
-  /** The guest credential, or `null`. Emits on capture and on clear. */
-  readonly session$ = this.state.asObservable();
+  private readonly clearedSubject = new Subject<void>();
+
+  /** The guest credential, or `null`. Changes on capture and on clear. */
+  readonly session = this.state.asReadonly();
+  /**
+   * Emits synchronously, once, each time a live credential is dropped. An event rather than a read of `session`:
+   * an effect only sees snapshots, so a clear followed by a recapture before it runs would go unnoticed.
+   */
+  readonly cleared$ = this.clearedSubject.asObservable();
 
   constructor() {
     // A signed-in user never sends guest credentials: drop the guest session the moment one appears
@@ -77,7 +84,7 @@ export class AuthGuestService {
 
   /** The live credential — `null` when absent or expired (an expired one is cleared as a side effect). */
   get current(): GuestSessionState | null {
-    const session = this.state.getValue();
+    const session = this.state();
     if (!session) {
       return null;
     }
@@ -111,7 +118,7 @@ export class AuthGuestService {
       expiresAt:
         payload.expiresIn && payload.expiresIn > 0 ? Date.now() + payload.expiresIn * 1000 : null,
     };
-    this.state.next(session);
+    this.state.set(session);
     try {
       sessionStorage.setItem(this.storageKey, JSON.stringify(session));
     } catch {
@@ -119,15 +126,16 @@ export class AuthGuestService {
     }
   }
 
-  /** Forget the credential. No-op when there is none, so subscribers see no spurious `null`. */
+  /** Forget the credential. No-op when there is none, so `cleared$` sees no spurious event. */
   clear(): void {
     try {
       sessionStorage.removeItem(this.storageKey);
     } catch {
       // Storage unavailable — nothing was persisted to begin with.
     }
-    if (this.state.getValue() !== null) {
-      this.state.next(null);
+    if (this.state() !== null) {
+      this.state.set(null);
+      this.clearedSubject.next();
     }
   }
 }
