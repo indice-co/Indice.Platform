@@ -117,11 +117,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         }
 
         if (result.Succeeded) {
-            var initialRoles = SupportsUserRole && user.Roles.Count > 0 ? await GetRolesAsync(user) : [];
             await _eventService.Publish(new UserCreatedEvent(UserEventContext.InitializeFromUser(user)));
-            if (initialRoles.Count > 0) {
-                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), initialRoles, []));
-            }
         }
 
         return result;

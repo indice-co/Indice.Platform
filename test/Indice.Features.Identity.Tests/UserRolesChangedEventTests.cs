@@ -94,7 +94,7 @@ public class UserRolesChangedEventTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateUser_WithInitialRoles_PublishesAddedRoles() {
+    public async Task CreateUser_WithInitialRoles_DoesNotPublishRoleChanges() {
         var manager = _services.GetRequiredService<ExtendedUserManager<User>>();
         var role = await CreateRoleAsync("Developer");
         var user = new User("initial@example.com");
@@ -102,11 +102,15 @@ public class UserRolesChangedEventTests : IDisposable
 
         Assert.True((await manager.CreateAsync(user)).Succeeded);
 
+        var created = Assert.IsType<UserCreatedEvent>(Assert.Single(_events));
+        Assert.Equal(user.Id, created.User.Id);
+        Assert.Equal(new[] { "Developer" }, await manager.GetRolesAsync(user));
+
+        _events.Clear();
+        Assert.True((await manager.RemoveFromRoleAsync(user, "Developer")).Succeeded);
         var changed = Assert.Single(_events.OfType<UserRolesChangedEvent>());
-        Assert.Equal(user.Id, changed.User.Id);
-        Assert.Equal(new[] { "Developer" }, changed.AddedRoles);
-        Assert.Empty(changed.RemovedRoles);
-        Assert.IsType<UserCreatedEvent>(_events[0]);
+        Assert.Empty(changed.AddedRoles);
+        Assert.Equal(new[] { "Developer" }, changed.RemovedRoles);
     }
 
     private async Task<Role> CreateRoleAsync(string name) {
