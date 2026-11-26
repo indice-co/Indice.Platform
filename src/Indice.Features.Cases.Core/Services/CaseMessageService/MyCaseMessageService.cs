@@ -43,7 +43,9 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
         }
         var @case = await DbContext.Cases
             .Include(c => c.Checkpoint).ThenInclude(c => c.CheckpointType)
-            .FirstOrDefaultAsync(c => c.Id == caseId && (c.CreatedBy.Id == user.Id || c.Owner.UserId == user.Id));
+            .Where(c => c.Id == caseId)
+            .Where(DbCase.ContactAccessPredicate(user.Id, ContactPermission.Contributor))
+            .FirstOrDefaultAsync();
         if (@case is null || string.IsNullOrEmpty(user.Id)) {
             throw new BusinessException("Case not found.");
         }
@@ -83,7 +85,11 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
         if (string.IsNullOrEmpty(userId)) {
             throw new ArgumentException(nameof(userId));
         }
-        var @case = await DbContext.Cases.AsQueryable().FirstOrDefaultAsync(c => c.Id == caseId && c.CreatedBy.Id == userId);
+        // Updating the data and uploading attachments need the contributor permission, as the owner, a co-owner or the creator of the case.
+        var @case = await DbContext.Cases
+            .Where(c => c.Id == caseId)
+            .Where(DbCase.ContactAccessPredicate(userId, ContactPermission.Contributor))
+            .FirstOrDefaultAsync();
         if (@case == null) {
             throw new ArgumentNullException(nameof(caseId), "Case not found");
         }

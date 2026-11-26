@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -29,8 +30,9 @@ public static class CasesAuthorizationExtensions
 
     /// <summary>Requires cases ownership.</summary>
     /// <param name="builder">Used for building policies during application startup.</param>
-    public static AuthorizationPolicyBuilder RequireCasesOwnershipAccess(this AuthorizationPolicyBuilder builder) =>
-        builder.AddRequirements(new CasesOwnerAccessRequirement());
+    /// <param name="minimumContactPermission">The minimum required contact permission</param>
+    public static AuthorizationPolicyBuilder RequireCasesOwnershipAccess(this AuthorizationPolicyBuilder builder, ContactPermission minimumContactPermission = ContactPermission.Reader) =>
+        builder.AddRequirements(new CasesOwnerAccessRequirement(minimumContactPermission));
 
     /// <summary>Requires cases management Authorization of some level.</summary>
     /// <param name="builder">Used for building policies during application startup.</param>

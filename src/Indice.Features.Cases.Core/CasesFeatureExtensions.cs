@@ -43,6 +43,7 @@ public static class CasesFeatureExtensions
             options.RequiredScope = casesOptions.RequiredScope;
             options.ByPassAccessRulesForElevatedUsers = casesOptions.ByPassAccessRulesForElevatedUsers;
             options.ConfigureDbSeed = casesOptions.ConfigureDbSeed;
+            options.CoOwnerLimit = casesOptions.CoOwnerLimit;
         });
 
         var seedOptions = new CasesDbIntialDataOptions();
@@ -80,6 +81,7 @@ public static class CasesFeatureExtensions
         services.TryAddTransient<IMyCaseService, MyCaseService>();
         services.TryAddTransient<IMyCaseMessageService, MyCaseMessageService>();
         services.TryAddTransient<ICaseAttachmentScanService, CaseAttachmentScanService>();
+        services.TryAddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
 
         // Workflow integration
         services.TryAddTransient<ICasesWorkflowManager, DefaultCasesWorkflowManager>();

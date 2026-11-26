@@ -58,6 +58,9 @@ public class CasesOptions
     /// Configuration <see cref="Action"/> for internal seed of the <see cref="CasesDbContext"/>. 
     /// </summary>
     public Action<CasesDbIntialDataOptions>? ConfigureDbSeed { get; set; }
+
+    /// <summary>The maximum number of co-owners allowed for a case. Defaults to 1.</summary>
+    public int CoOwnerLimit { get; set; } = 1;
 }
 
 /// <summary>Options for configuring <see cref="ContactProviderIdentityServer"/>.</summary>

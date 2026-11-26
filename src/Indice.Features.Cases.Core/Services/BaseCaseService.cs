@@ -47,8 +47,14 @@ internal abstract class BaseCaseService
         if (@case is null) {
             return false;
         }
-        if (string.IsNullOrEmpty(user.Id) ||
-            (requireCaseOwner ? @case.Owner.UserId != user.Id : @case.CreatedBy.Id != user.Id)) {
+        var coOwners = await DbContext.CaseCoOwners.Where(x => x.CaseId == caseId).ToListAsync();
+        // A customer discards a draft as its owner, or as a co-owner that was given the owner permission.
+        var canDelete = !string.IsNullOrEmpty(user.Id) && (requireCaseOwner
+            ? (@case.Owner.UserId == user.Id
+                ? @case.Owner.Permission >= ContactPermission.Owner
+                : coOwners.Any(x => x.CoOwner.UserId == user.Id && x.CoOwner.Permission >= ContactPermission.Owner))
+            : @case.CreatedBy.Id == user.Id);
+        if (!canDelete) {
             throw new ResourceUnauthorizedException();
         }
         if (!@case.Draft) {
@@ -85,6 +91,7 @@ internal abstract class BaseCaseService
         }
 
         DbContext.RemoveRange(approvals);
+        DbContext.RemoveRange(coOwners);
         DbContext.RemoveRange(accessRules);
         DbContext.RemoveRange(comments);
         DbContext.RemoveRange(attachments);
@@ -222,6 +229,7 @@ internal abstract class BaseCaseService
                 OwnerName = c.Owner.FullName,
                 OwnerTin = c.Owner.Tin,
                 UserId = c.Owner.UserId,
+                OwnerPermission = c.Owner.Permission,
                 GroupId = c.GroupId,
                 Metadata = c.Metadata,
                 Attachments = c.Attachments.Select(attachment => new CaseAttachment {
@@ -245,16 +253,18 @@ internal abstract class BaseCaseService
         return query;
     }
 
-    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="UserActor"/> of the customer.</summary>
+    /// <summary>Get the case as requested by a Customer. The customer must have at least the given permission on the case, as its owner, co-owner or creator.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="customer">The customer that initiated the request.</param>
+    /// <param name="minimumPermission">The minimum permission the customer needs on the case.</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, UserActor customer) {
-        var userId = customer.Id;
+    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, UserActor customer, ContactPermission minimumPermission) {
         var @case = await DbContext.Cases
             .Include(c => c.CaseType)
-            .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Owner.UserId == userId));
+            .Where(p => p.Id == caseId)
+            .Where(DbCase.ContactAccessPredicate(customer.Id, minimumPermission))
+            .FirstOrDefaultAsync();
         if (@case == null) {
             throw new BusinessException("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
         }
@@ -298,7 +308,15 @@ internal abstract class BaseCaseService
             CaseTypeId = caseType.Id,
             Priority = Priority.Normal,
             GroupId = groupId,
-            Owner = customer ?? new(),
+            // A new case always starts with a full owner, whatever the request carries. Only an administrator can lower the permission afterwards.
+            Owner = new ContactMeta {
+                UserId = customer?.UserId,
+                Reference = customer?.Reference,
+                FirstName = customer?.FirstName,
+                LastName = customer?.LastName,
+                Tin = customer?.Tin,
+                Permission = ContactPermission.Owner
+            },
             CreatedBy = userMeta,
             Metadata = metadata,
             Draft = true,

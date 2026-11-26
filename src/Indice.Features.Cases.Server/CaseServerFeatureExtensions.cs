@@ -42,6 +42,7 @@ public static class CaseServerFeatureExtensions
             options.CustomerTimelineStaffDisplayName = serverOptions.CustomerTimelineStaffDisplayName;
             options.CustomerCommentMaxLength = serverOptions.CustomerCommentMaxLength;
             options.AttachmentScanningEnabled = serverOptions.AttachmentScanningEnabled;
+            options.CoOwnerLimit = serverOptions.CoOwnerLimit;
         });
         // must run last in order not to override any explicit service declarations.
         builder.Services.AddCasesManagement(options => {
@@ -55,6 +56,7 @@ public static class CaseServerFeatureExtensions
             options.CustomerCommentMaxLength = serverOptions.CustomerCommentMaxLength;
             options.AttachmentScanningEnabled = serverOptions.AttachmentScanningEnabled;
             options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
+            options.CoOwnerLimit = serverOptions.CoOwnerLimit;
         });
         builder.Services.Configure<CaseServerOptions>(options => {
             options.PathPrefix = serverOptions.PathPrefix;

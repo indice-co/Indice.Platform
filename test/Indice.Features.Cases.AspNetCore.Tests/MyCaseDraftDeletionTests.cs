@@ -67,6 +67,7 @@ public class MyCaseDraftDeletionTests : IAsyncDisposable
                 services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Bearer", _ => { });
                 services.AddAuthorization();
                 services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
+                services.AddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(Substitute.For<IPlatformEventService>());
                 services.AddSingleton(Substitute.For<IMyCaseMessageService>());
@@ -105,10 +106,10 @@ public class MyCaseDraftDeletionTests : IAsyncDisposable
             var version = new DbCaseData { Id = Guid.NewGuid(), CaseId = draftId, CreatedBy = CreatedBy("creator"), Data = JsonNode.Parse("{\"draft\":true}") };
             db.CaseTypes.Add(caseType);
             db.CheckpointTypes.Add(checkpointType);
-            var draft = new DbCase { Id = draftId, CaseTypeId = caseType.Id, Channel = "web", Draft = true, CreatedBy = CreatedBy("creator"), Owner = new ContactMeta { UserId = "owner" } };
+            var draft = new DbCase { Id = draftId, CaseTypeId = caseType.Id, Channel = "web", Draft = true, CreatedBy = CreatedBy("creator"), Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner } };
             db.Cases.AddRange(
                 draft,
-                new DbCase { Id = submittedId, CaseTypeId = caseType.Id, Channel = "web", Draft = false, CreatedBy = CreatedBy("owner"), Owner = new ContactMeta { UserId = "owner" } });
+                new DbCase { Id = submittedId, CaseTypeId = caseType.Id, Channel = "web", Draft = false, CreatedBy = CreatedBy("owner"), Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner } });
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             db.Checkpoints.Add(draftCheckpoint);
@@ -181,7 +182,7 @@ public class MyCaseDraftDeletionTests : IAsyncDisposable
                 Channel = "web",
                 Draft = true,
                 CreatedBy = owner,
-                Owner = new ContactMeta { UserId = "owner" }
+                Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner }
             };
             db.CaseTypes.Add(caseType);
             db.Cases.Add(draft);

@@ -31,6 +31,100 @@ ALTER TABLE "case"."Attachment" ALTER COLUMN "ScanStatus" SET DEFAULT 0;
 COMMIT;
 ```
 
+### Added co-owners and contact permissions for cases
+- A case can have co-owners: other customers that work on the same case next to its owner. The back-office adds and removes them;
+  customers cannot do that themselves.
+- The owner and every co-owner have a permission on the case, `ContactPermission`, that decides what they can do through the My cases API:
+
+  | Permission | Allows |
+  |---|---|
+  | `Reader` | View the case, its attachments, timeline, PDF and co-owners. |
+  | `Contributor` | Everything a reader can, plus comment, edit the data, upload attachments and submit. |
+  | `Owner` | Everything a contributor can, plus discard the case while it is a draft. |
+
+  The owner of a case has the `Owner` permission unless an administrator lowers it. A co-owner gets `Reader` unless the request says otherwise.
+  The user that created a case without being its owner or a co-owner keeps what that user could already do: everything except discard it.
+- The customer's list of cases (`GET /my/cases`) now includes the cases that the customer co-owns.
+- New and changed endpoints in the Manage cases API. The first three need the administrator access level (`CasesAdministrator` role, admin or system client):
+  - `PUT /manage/cases/{caseId}/co-owners` adds a co-owner, or updates the permission and contact details of that user when already a co-owner.
+  - `DELETE /manage/cases/{caseId}/co-owners/{userId}` removes a co-owner.
+  - `PUT /manage/cases/{caseId}/owner/permission` changes the permission of the owner.
+  - `GET /manage/cases/{caseId}/co-owners` lists the co-owners with their contact details, permission and who added them.
+  - `GET /manage/cases/{caseId}` now returns the `coOwners` of the case and the `ownerPermission`.
+- New endpoint in the My cases API: `GET /my/cases/{caseId}/co-owners` lists the co-owners with their names and permission.
+- A co-owner cannot be the owner of the case. Co-owners and permissions cannot change once the case has reached a final checkpoint
+  (status `Completed` or `Deleted`), except that a co-owner can always be removed.
+- `CasesOptions.CoOwnerLimit` sets how many co-owners a case can have. It defaults to `1`; `0` allows none.
+```csharp
+builder.AddCaseServer(options => {
+    options.CoOwnerLimit = 2;
+});
+```
+- The `CaseCoOwnerAddedEvent` and `CaseCoOwnerRemovedEvent` are published when a co-owner is added and removed. Handle them with `AddCaseEventHandler`.
+- The permission of a customer on a case is cached for five minutes and the entry is removed as soon as the back-office changes it,
+  so a change takes effect on the next request. The cache is the registered `IDistributedCache`. With the in-memory one and more than
+  one instance of the host, the other instances pick the change up when their entry expires, at most five minutes later. Register a shared
+  distributed cache to avoid that.
+- Changes that can affect existing code:
+  - The owner permission is now enforced. A case created through `IMyCaseService.CreateDraft` or `IAdminCaseService.CreateDraft` always gets a full owner.
+    Code that inserts a `DbCase` itself must set `Owner.Permission` to `ContactPermission.Owner`, because a new `ContactMeta` starts as `Reader`.
+  - The owner of a case that someone else created can now edit its data and upload attachments. That used to work for the creator only.
+  - `IAdminCaseService` has the new members `GetCoOwners`, `AssignCoOwner`, `RemoveCoOwner` and `UpdateOwnerPermission`, and `IMyCaseService` has `GetCoOwners`.
+  - The constructor of `CasesAccessOwnerHandler` now takes the new `ICaseContactPermissionService` instead of the cache and the authorization provider.
+- Before deploying to an existing database, run the matching one-time script below. Replace the `case` schema if necessary.
+  Existing cases are backfilled with the `Owner` permission (`2`). The column keeps that default, so cases inserted by an instance of the
+  previous version during the rollout also get a full owner.
+
+```sql
+-- SQL Server
+BEGIN TRANSACTION;
+ALTER TABLE [case].[Case] ADD [OwnerPermission] int NOT NULL CONSTRAINT [DF_Case_OwnerPermission] DEFAULT 2;
+CREATE TABLE [case].[CaseCoOwner] (
+    [Id] uniqueidentifier NOT NULL,
+    [CaseId] uniqueidentifier NOT NULL,
+    [AddedById] nvarchar(64) NOT NULL,
+    [AddedByName] nvarchar(128) NOT NULL,
+    [AddedByEmail] nvarchar(128) NOT NULL,
+    [AddedByWhen] datetimeoffset NOT NULL,
+    [CoOwnerUserId] nvarchar(64) NOT NULL,
+    [CoOwnerReference] nvarchar(128) NULL,
+    [CoOwnerFirstName] nvarchar(128) NULL,
+    [CoOwnerLastName] nvarchar(128) NULL,
+    [CoOwnerTin] nvarchar(32) NULL,
+    [CoOwnerPermission] int NOT NULL,
+    CONSTRAINT [PK_CaseCoOwner] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_CaseCoOwner_Case_CaseId] FOREIGN KEY ([CaseId]) REFERENCES [case].[Case] ([Id]) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX [IX_CaseCoOwner_CaseId_CoOwnerUserId] ON [case].[CaseCoOwner] ([CaseId], [CoOwnerUserId]);
+CREATE INDEX [IX_CaseCoOwner_CoOwnerUserId] ON [case].[CaseCoOwner] ([CoOwnerUserId]);
+COMMIT;
+```
+
+```sql
+-- PostgreSQL
+BEGIN;
+ALTER TABLE "case"."Case" ADD COLUMN "OwnerPermission" integer NOT NULL DEFAULT 2;
+CREATE TABLE "case"."CaseCoOwner" (
+    "Id" uuid NOT NULL,
+    "CaseId" uuid NOT NULL,
+    "AddedById" character varying(64) NOT NULL,
+    "AddedByName" character varying(128) NOT NULL,
+    "AddedByEmail" character varying(128) NOT NULL,
+    "AddedByWhen" timestamp with time zone NOT NULL,
+    "CoOwnerUserId" character varying(64) NOT NULL,
+    "CoOwnerReference" character varying(128) NULL,
+    "CoOwnerFirstName" character varying(128) NULL,
+    "CoOwnerLastName" character varying(128) NULL,
+    "CoOwnerTin" character varying(32) NULL,
+    "CoOwnerPermission" integer NOT NULL,
+    CONSTRAINT "PK_CaseCoOwner" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_CaseCoOwner_Case_CaseId" FOREIGN KEY ("CaseId") REFERENCES "case"."Case" ("Id") ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX "IX_CaseCoOwner_CaseId_CoOwnerUserId" ON "case"."CaseCoOwner" ("CaseId", "CoOwnerUserId");
+CREATE INDEX "IX_CaseCoOwner_CoOwnerUserId" ON "case"."CaseCoOwner" ("CoOwnerUserId");
+COMMIT;
+```
+
 ## [8.64.0]
 ### Added Azure Storage / file system support for the case attachments.
 - The binary data of the case attachments can now be stored to a file service instead of the database. Only the attachment metadata

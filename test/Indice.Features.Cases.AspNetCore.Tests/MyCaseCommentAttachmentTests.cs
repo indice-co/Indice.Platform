@@ -8,6 +8,7 @@ using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Core.Services.CaseMessageService;
 using Indice.Features.Cases.Server;
@@ -57,6 +58,7 @@ public class MyCaseCommentAttachmentTests
                 services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Bearer", _ => { });
                 services.AddAuthorization();
                 services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
+                services.AddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(events);
                 services.AddSingleton(Substitute.For<ISchemaValidator>());
@@ -82,8 +84,8 @@ public class MyCaseCommentAttachmentTests
             db.CaseTypes.Add(type);
             db.CheckpointTypes.Add(checkpointType);
             db.Cases.AddRange(
-                new DbCase { Id = caseId, CaseTypeId = type.Id, Channel = "External", Draft = false, CreatedBy = audit, Owner = new ContactMeta { UserId = "owner" }, CheckpointId = checkpoint.Id },
-                new DbCase { Id = otherCaseId, CaseTypeId = type.Id, Channel = "External", Draft = false, CreatedBy = audit.Clone(), Owner = new ContactMeta { UserId = "owner" } });
+                new DbCase { Id = caseId, CaseTypeId = type.Id, Channel = "External", Draft = false, CreatedBy = audit, Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner }, CheckpointId = checkpoint.Id },
+                new DbCase { Id = otherCaseId, CaseTypeId = type.Id, Channel = "External", Draft = false, CreatedBy = audit.Clone(), Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner } });
             db.Checkpoints.Add(checkpoint);
             db.Attachments.AddRange(
                 new DbAttachment(caseId) { Id = attachmentId, Name = "document.txt", FileExtension = ".txt", ContentType = "text/plain", ScanStatus = status },

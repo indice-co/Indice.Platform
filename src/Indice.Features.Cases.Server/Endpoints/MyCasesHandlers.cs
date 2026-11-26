@@ -129,6 +129,14 @@ internal static class MyCasesHandlers
         await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.External));
         return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
+    
+    /// <summary>
+    /// Gets the co-owners of a case, without their Tax identification number or reference.
+    /// </summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="myCaseService"></param>
+    public static async Task<Ok<ResultSet<MyCaseCoOwner>>> GetMyCaseCoOwners(Guid caseId, IMyCaseService myCaseService) =>
+        TypedResults.Ok(await myCaseService.GetCoOwners(caseId));
 
     /// <summary>
     /// Helper method to create a PDF from a case.

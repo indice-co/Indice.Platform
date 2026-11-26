@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Indice.Features.Cases.Core.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Indice.Features.Cases.Server.Authorization;
 
@@ -51,5 +52,10 @@ public class CasesRecordsAccessLevelRequirement : IAuthorizationRequirement
 public class CasesOwnerAccessRequirement : IAuthorizationRequirement
 {
     /// <summary>Creates a new instance of <see cref="CasesOwnerAccessRequirement"/>.</summary>
-    public CasesOwnerAccessRequirement() { }
+    public CasesOwnerAccessRequirement(ContactPermission minimumPermission = ContactPermission.Reader) {
+        MinimumPermission = minimumPermission;
+    }
+
+    /// <summary>The minimum permission needed to access the protected resources</summary>
+    public ContactPermission MinimumPermission { get; }
 }

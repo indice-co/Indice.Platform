@@ -81,7 +81,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     public async Task Submit(UserActor user, Guid caseId) {
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 
-        var @case = await GetDbCaseForCustomer(caseId, user);
+        var @case = await GetDbCaseForCustomer(caseId, user, ContactPermission.Contributor);
         if (!@case.Draft) {
             throw new BusinessException("Case status is not draft."); // todo proper exception (BadRequest)
         }
@@ -237,7 +237,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var includeData = filter is not null && filter.IncludeData == true;
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == user.Id || p.Owner.UserId == user.Id) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted);
+            // the cases the user owns, co-owns at any permission, or created
+            .Where(DbCase.ContactAccessPredicate(user.Id, ContactPermission.Reader))
+            .Where(p => p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted);
         dbCaseQueryable = WhereMetadata(dbCaseQueryable, filter?.Metadata);
 
         // IncludeDrafts does not have value or IncludeDrafts is false.
@@ -433,6 +435,22 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             .ToListAsync();
         TranslateCaseTypes(caseTypes);
         return caseTypes.ToResultSet();
+    }
+
+    /// <inheritdoc/>
+    public async Task<ResultSet<MyCaseCoOwner>> GetCoOwners(Guid caseId) {
+        var coOwners = await DbContext.CaseCoOwners
+            .AsNoTracking()
+            .Where(x => x.CaseId == caseId)
+            .OrderBy(x => x.CoOwner.AddedBy.When)
+            .Select(x => new MyCaseCoOwner {
+                UserId = x.CoOwner.UserId,
+                FirstName = x.CoOwner.FirstName,
+                LastName = x.CoOwner.LastName,
+                Permission = x.CoOwner.Permission
+            })
+            .ToListAsync();
+        return coOwners.ToResultSet();
     }
 
     private void TranslateCaseTypes(List<CaseTypePartial> caseTypes) {

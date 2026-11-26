@@ -79,4 +79,12 @@ public interface IMyCaseService
     /// <summary>Get case types list.</summary>
     /// <param name="options">The <see cref="GetMyCaseTypesListFilter"/> options.</param>
     Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options);
+
+    /// <summary>
+    /// Gets the co-owners of a case, without the owner and without their Tax identification number or reference.
+    /// The caller must authorize case access. Co-owners are added and removed by the back-office only.
+    /// </summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <returns>The co-owners, empty when the case has none or does not exist.</returns>
+    Task<ResultSet<MyCaseCoOwner>> GetCoOwners(Guid caseId);
 }

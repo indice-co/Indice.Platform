@@ -59,6 +59,7 @@ public class MyCaseAttachmentTests
                 services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Bearer", _ => { });
                 services.AddAuthorization();
                 services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
+                services.AddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(Substitute.For<IPlatformEventService>());
                 services.AddSingleton(Substitute.For<IMyCaseMessageService>());
@@ -111,8 +112,8 @@ public class MyCaseAttachmentTests
             var publicVersion = new DbCaseData { CaseId = otherCaseId, CreatedBy = audit.Clone(), Data = System.Text.Json.Nodes.JsonNode.Parse("{}") };
             db.CaseTypes.Add(caseType);
             db.CheckpointTypes.AddRange(checkpointType, publicType);
-            db.Cases.Add(new DbCase { Id = caseId, CaseTypeId = caseType.Id, Channel = "web", Draft = true, CreatedBy = audit, Owner = new ContactMeta { UserId = "owner" }, CheckpointId = checkpoint.Id, DataId = version.Id });
-            db.Cases.Add(new DbCase { Id = otherCaseId, CaseTypeId = caseType.Id, Channel = "web", Draft = false, CreatedBy = audit.Clone(), Owner = new ContactMeta { UserId = "owner" }, CheckpointId = privateCheckpoint.Id, PublicCheckpointId = publicCheckpoint.Id, PublicDataId = publicVersion.Id });
+            db.Cases.Add(new DbCase { Id = caseId, CaseTypeId = caseType.Id, Channel = "web", Draft = true, CreatedBy = audit, Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner }, CheckpointId = checkpoint.Id, DataId = version.Id });
+            db.Cases.Add(new DbCase { Id = otherCaseId, CaseTypeId = caseType.Id, Channel = "web", Draft = false, CreatedBy = audit.Clone(), Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner }, CheckpointId = privateCheckpoint.Id, PublicCheckpointId = publicCheckpoint.Id, PublicDataId = publicVersion.Id });
             db.Checkpoints.AddRange(checkpoint, publicCheckpoint, privateCheckpoint);
             db.CaseData.AddRange(version, publicVersion);
             var attachment = new DbAttachment(caseId);

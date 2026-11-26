@@ -55,7 +55,7 @@ public class MyCaseTimelineTests
         var staff = new AuditMeta { Id = "staff", Name = "Staff", Email = "staff@example.test", When = Time.AddMinutes(1) };
         db.CaseTypes.Add(type);
         db.CheckpointTypes.AddRange(publicType, privateType);
-        db.Cases.Add(new DbCase { Id = CaseId, CaseTypeId = type.Id, Channel = "web", Draft = draft, CreatedBy = owner, Owner = new ContactMeta { UserId = "owner" } });
+        db.Cases.Add(new DbCase { Id = CaseId, CaseTypeId = type.Id, Channel = "web", Draft = draft, CreatedBy = owner, Owner = new ContactMeta { UserId = "owner", Permission = ContactPermission.Owner } });
         db.Checkpoints.AddRange(
             new DbCheckpoint { Id = Guid.NewGuid(), CaseId = CaseId, CheckpointTypeId = publicType.Id, CreatedBy = staff },
             new DbCheckpoint { Id = Guid.NewGuid(), CaseId = CaseId, CheckpointTypeId = privateType.Id, CreatedBy = staff.Clone() });
@@ -146,6 +146,7 @@ public class MyCaseTimelineTests
                 services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Bearer", _ => { });
                 services.AddAuthorization();
                 services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
+                services.AddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(Substitute.For<IPlatformEventService>());
                 services.AddSingleton(Substitute.For<IMyCaseMessageService>());
