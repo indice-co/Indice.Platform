@@ -117,9 +117,45 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         }
 
         if (result.Succeeded) {
+            var initialRoles = SupportsUserRole && user.Roles.Count > 0 ? await GetRolesAsync(user) : [];
             await _eventService.Publish(new UserCreatedEvent(UserEventContext.InitializeFromUser(user)));
+            if (initialRoles.Count > 0) {
+                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), initialRoles, []));
+            }
         }
 
+        return result;
+    }
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> AddToRoleAsync(TUser user, string role) =>
+        ChangeRolesAsync(user, () => base.AddToRoleAsync(user, role));
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> AddToRolesAsync(TUser user, IEnumerable<string> roles) =>
+        ChangeRolesAsync(user, () => base.AddToRolesAsync(user, roles));
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> RemoveFromRoleAsync(TUser user, string role) =>
+        ChangeRolesAsync(user, () => base.RemoveFromRoleAsync(user, role));
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> RemoveFromRolesAsync(TUser user, IEnumerable<string> roles) =>
+        ChangeRolesAsync(user, () => base.RemoveFromRolesAsync(user, roles));
+
+    private async Task<IdentityResult> ChangeRolesAsync(TUser user, Func<Task<IdentityResult>> changeRoles) {
+        var previousRoles = await GetRolesAsync(user);
+        var result = await changeRoles();
+        if (result.Succeeded) {
+            var currentRoles = await GetRolesAsync(user);
+            var previousNames = previousRoles.Select(NormalizeName).ToHashSet();
+            var currentNames = currentRoles.Select(NormalizeName).ToHashSet();
+            var addedRoles = currentRoles.Where(role => !previousNames.Contains(NormalizeName(role))).ToArray();
+            var removedRoles = previousRoles.Where(role => !currentNames.Contains(NormalizeName(role))).ToArray();
+            if (addedRoles.Length > 0 || removedRoles.Length > 0) {
+                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), addedRoles, removedRoles));
+            }
+        }
         return result;
     }
 
