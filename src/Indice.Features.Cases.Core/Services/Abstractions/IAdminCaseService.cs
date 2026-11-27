@@ -4,6 +4,8 @@ using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Types;
 using Json.Patch;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Core.Services.Abstractions;
 
@@ -181,7 +183,36 @@ public interface IAdminCaseService
     /// </summary>
     /// <param name="caseId">The case id</param>
     Task<bool> PublishData(Guid caseId);
-    
+
+    /// <summary>Gets the co-owners of a case, oldest first.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <returns>The co-owners with their contact details, permission and who added them. Empty when the case has none or does not exist.</returns>
+    Task<ResultSet<CaseCoOwner>> GetCoOwners(Guid caseId);
+
+    /// <summary>
+    /// Adds a co-owner to a case, or updates the permission and contact details of that user when already a co-owner.
+    /// The co-owner cannot be the owner of the case, and adding must not exceed <see cref="CasesOptions.CoOwnerLimit"/>.
+    /// Publishes a <c>CaseCoOwnerAddedEvent</c> when the co-owner is added, and a <c>CaseContactPermissionChangedEvent</c> when an existing co-owner is updated.
+    /// </summary>
+    /// <param name="user">The back-office user that makes the change.</param>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="coOwner">The co-owner and the permission to give.</param>
+    /// <returns>False when the case does not exist.</returns>
+    Task<bool> AssignCoOwner(UserActor user, Guid caseId, ContactMeta coOwner);
+
+    /// <summary>Removes a co-owner from a case and publishes a <c>CaseCoOwnerRemovedEvent</c>.</summary>
+    /// <param name="user">The back-office user that makes the change.</param>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="coOwnerUserId">The user id of the co-owner to remove.</param>
+    /// <returns>False when the case does not exist or the user is not one of its co-owners.</returns>
+    Task<bool> RemoveCoOwner(UserActor user, Guid caseId, string coOwnerUserId);
+
+    /// <summary>Changes the permission of the owner of a case and publishes a <c>CaseContactPermissionChangedEvent</c>.</summary>
+    /// <param name="user">The back-office user that makes the change.</param>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="permission">The new permission of the owner.</param>
+    /// <returns>False when the case does not exist.</returns>
+    Task<bool> UpdateOwnerPermission(UserActor user, Guid caseId, ContactPermission permission);
 }
 
 /// <summary>

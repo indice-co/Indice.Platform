@@ -25,6 +25,7 @@ public class CaseAttachmentFileServiceTests
         services.AddSingleton(Substitute.For<IPlatformEventService>());
         services.AddSingleton(Substitute.For<ISchemaValidator>());
         services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
+        services.AddLogging();
         services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
         services.AddTransient<IAdminCaseService, AdminCaseService>();
         if (useFileService) {

@@ -9,9 +9,12 @@ namespace Indice.Features.Cases.Core.Models;
 /// </summary>
 public class Message
 {
-    /// <summary>The Id of the Checkpoint the message is replying to.</summary>
+    /// <summary>The Id of the comment the message is replying to.</summary>
     public Guid? ReplyToCommentId { get; set; }
-    
+
+    /// <summary>The Id of an existing attachment associated with the comment.</summary>
+    public Guid? AttachmentId { get; set; }
+
     /// <summary>The name of the checkpoint the case must proceed.</summary>
     public string? CheckpointTypeName { get; set; }
     

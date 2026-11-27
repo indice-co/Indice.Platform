@@ -42,6 +42,9 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
                         .HasColumnName($"{prefix}{nameof(DbCase.Owner.Tin)}")
                         .HasMaxLength(TextSizePresets.S32);
                     actionBuilder
+                        .Property(p => p.Permission)
+                        .HasColumnName($"{prefix}{nameof(DbCase.Owner.Permission)}");
+                    actionBuilder
                         .Ignore(p => p.FullName);
                 });
         builder

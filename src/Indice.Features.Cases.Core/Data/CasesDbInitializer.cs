@@ -64,7 +64,8 @@ public static class CasesDbInitalizerExtesnions
                 LastName = "Doe",
                 UserId = "6a4bbee1-53c9-404c-b09f-db134688df6f",
                 Reference = "0000000",
-                Tin = "999999999"
+                Tin = "999999999",
+                Permission = ContactPermission.Owner
             }
         };
         var sampleCaseData = new DbCaseData() {

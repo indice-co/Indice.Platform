@@ -1608,4 +1608,82 @@
   <data name="categories.translations.hint" xml:space="preserve">
     <value>The name and description shown per language. Leave empty to use the values above.</value>
   </data>
+  <data name="breadcrumb.caseCustomerAccess" xml:space="preserve">
+    <value>Customer access</value>
+  </data>
+  <data name="customerAccess.title" xml:space="preserve">
+    <value>Customer access</value>
+  </data>
+  <data name="customerAccess.subtitle" xml:space="preserve">
+    <value>What the owner and the co-owners of the case can do on it as customers.</value>
+  </data>
+  <data name="customerAccess.owner" xml:space="preserve">
+    <value>Case owner</value>
+  </data>
+  <data name="customerAccess.coOwner" xml:space="preserve">
+    <value>Co-owner</value>
+  </data>
+  <data name="customerAccess.coOwners" xml:space="preserve">
+    <value>Co-owners</value>
+  </data>
+  <data name="customerAccess.noCoOwners" xml:space="preserve">
+    <value>The case has no co-owners.</value>
+  </data>
+  <data name="customerAccess.permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="customerAccess.permissionOf" xml:space="preserve">
+    <value>Permission of {{name}}</value>
+  </data>
+  <data name="customerAccess.addedBy" xml:space="preserve">
+    <value>Added by {{name}}</value>
+  </data>
+  <data name="customerAccess.remove" xml:space="preserve">
+    <value>Remove co-owner</value>
+  </data>
+  <data name="customerAccess.removeAction" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="customerAccess.removeConfirm" xml:space="preserve">
+    <value>{{name}} will no longer have access to the case.</value>
+  </data>
+  <data name="customerAccess.add.title" xml:space="preserve">
+    <value>Add a co-owner</value>
+  </data>
+  <data name="customerAccess.add.hint" xml:space="preserve">
+    <value>Find the customer and choose what they can do on the case.</value>
+  </data>
+  <data name="customerAccess.add.action" xml:space="preserve">
+    <value>Add co-owner</value>
+  </data>
+  <data name="customerAccess.add.noUserId" xml:space="preserve">
+    <value>This customer has no user id and cannot be added.</value>
+  </data>
+  <data name="customerAccess.add.isOwner" xml:space="preserve">
+    <value>This customer is the owner of the case.</value>
+  </data>
+  <data name="customerAccess.add.alreadyCoOwner" xml:space="preserve">
+    <value>This customer is already a co-owner of the case.</value>
+  </data>
+  <data name="customerAccess.saved" xml:space="preserve">
+    <value>The customer access was updated.</value>
+  </data>
+  <data name="contactPermissions.reader.label" xml:space="preserve">
+    <value>Reader</value>
+  </data>
+  <data name="contactPermissions.reader.hint" xml:space="preserve">
+    <value>Views the case, its attachments and its timeline.</value>
+  </data>
+  <data name="contactPermissions.contributor.label" xml:space="preserve">
+    <value>Contributor</value>
+  </data>
+  <data name="contactPermissions.contributor.hint" xml:space="preserve">
+    <value>Also comments, edits the data, uploads attachments and submits the case.</value>
+  </data>
+  <data name="contactPermissions.owner.label" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="contactPermissions.owner.hint" xml:space="preserve">
+    <value>Also discards the case while it is a draft.</value>
+  </data>
 </root>

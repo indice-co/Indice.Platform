@@ -27,6 +27,12 @@ public class CasesOptions
 
     /// <summary>Enables the Case `ReferenceNumber` feature. Defaults to <see langword="true"/>.</summary>
     public bool ReferenceNumberEnabled { get; set; } = true;
+    /// <summary>Display name used in customer timelines for back-office authors. Defaults to <c>Case team</c>.</summary>
+    public string CustomerTimelineStaffDisplayName { get; set; } = "Case team";
+    /// <summary>Maximum customer comment length in characters. Defaults to 4000.</summary>
+    public int CustomerCommentMaxLength { get; set; } = 4000;
+    /// <summary>When enabled, only attachments marked safe can be downloaded or inlined. Defaults to false.</summary>
+    public bool AttachmentScanningEnabled { get; set; }
     /// <summary>The claim type groupid name</summary>
     public string GroupIdClaimType { get; set; } = CasesCoreConstants.DefaultGroupIdClaimType;
     /// <summary>The claim type name for the Tax Identification number</summary>
@@ -52,6 +58,9 @@ public class CasesOptions
     /// Configuration <see cref="Action"/> for internal seed of the <see cref="CasesDbContext"/>. 
     /// </summary>
     public Action<CasesDbIntialDataOptions>? ConfigureDbSeed { get; set; }
+
+    /// <summary>The maximum number of co-owners allowed for a case. Defaults to 1.</summary>
+    public int CoOwnerLimit { get; set; } = 1;
 }
 
 /// <summary>Options for configuring <see cref="ContactProviderIdentityServer"/>.</summary>

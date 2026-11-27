@@ -482,44 +482,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task DeleteDraft(UserActor user, Guid caseId) {
-        var @case = await DbContext.Cases.FindAsync(caseId);
-        if (@case is null) {
+        if (!await DeleteDraftInternal(caseId, user, requireCaseOwner: false)) {
             throw new CaseNotFoundException();
-        }
-
-        if (@case.CreatedBy.Id != user.Id) {
-            throw new ResourceUnauthorizedException();
-        }
-
-        if (!@case.Draft) {
-            throw new BusinessException("Cannot delete a submitted case.");
-        }
-
-        var attachmentPaths = new List<string>();
-        if (FileService is not null) {
-            var attachments = await DbContext.Attachments
-                .AsNoTracking()
-                .Where(x => x.CaseId == caseId && x.Data == null)
-                .Select(x => new { x.Guid, x.FileExtension })
-                .ToListAsync();
-            attachmentPaths = attachments.Select(x => DbAttachment.GetPath(x.Guid, x.FileExtension)).ToList();
-        }
-        DbContext.Remove(@case);
-        await DbContext.SaveChangesAsync();
-        foreach (var batch in attachmentPaths.Chunk(5)) {
-            await Task.WhenAll(batch.Select(TryDeleteAttachmentFile));
-        }
-    }
-
-    private async Task TryDeleteAttachmentFile(string path) {
-        try {
-            await FileService!.DeleteAsync(path);
-        } catch (FileServiceException) {
-            // Best effort, the case has already been deleted.
-            
-            // DEVNOTE: File service wraps inner exceptions "FileServiceException" to its own so that it normalizes 
-            // the abstraction for different implementations (Azure, FileSystem, S3 etc. with different intarnal behavior) 
-            // If the internal wrapper does not know what to do with the exception that means it should be let to bubble up
         }
     }
 
@@ -531,6 +495,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             return null;
         }
 
+        EnsureAttachmentSafe(attachment.ScanStatus);
         var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
         if (data is null) {
             return null;
@@ -541,7 +506,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             ContentType = attachment.ContentType,
             Data = data,
             FileExtension = attachment.FileExtension,
-            FileName = attachment.Name
+            FileName = attachment.Name,
+            ScanStatus = attachment.ScanStatus
         };
     }
 
@@ -553,31 +519,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 Id = db.Id,
                 ContentType = db.ContentType,
                 FileName = db.Name,
-                FileExtension = db.FileExtension
+                FileExtension = db.FileExtension,
+                ScanStatus = db.ScanStatus
             })
             .ToListAsync();
         return attachments.ToResultSet();
     }
 
-    public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
-        var attachment = await DbContext.Attachments
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.CaseId == caseId && x.Id == attachmentId);
-        if (attachment is null) {
-            return null;
-        }
-        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
-        if (data is null) {
-            return null;
-        }
-        return new CaseAttachment {
-            Id = attachment.Id,
-            ContentType = attachment.ContentType,
-            FileName = attachment.Name,
-            FileExtension = attachment.FileExtension,
-            Data = data
-        };
-    }
+    public Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) =>
+        GetAttachmentInternal(caseId, attachmentId);
 
     public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
         var @case = await GetCaseById(caseId, false, false);
@@ -832,6 +782,90 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         @case.PublicDataId = @case.DataId;
         DbContext.Cases.Update(@case);
         await DbContext.SaveChangesAsync();
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<ResultSet<CaseCoOwner>> GetCoOwners(Guid caseId) {
+        var coOwners = await DbContext.CaseCoOwners
+            .AsNoTracking()
+            .Where(x => x.CaseId == caseId)
+            .OrderBy(x => x.AddedBy.When)
+            .Select(x => new CaseCoOwner {
+                UserId = x.CoOwner.UserId,
+                Reference = x.CoOwner.Reference,
+                FirstName = x.CoOwner.FirstName,
+                LastName = x.CoOwner.LastName,
+                Tin = x.CoOwner.Tin,
+                Permission = x.CoOwner.Permission,
+                AddedBy = new AuditMeta {
+                    Id = x.AddedBy.Id,
+                    Name = x.AddedBy.Name,
+                    Email = x.AddedBy.Email,
+                    When = x.AddedBy.When
+                }
+            })
+            .ToListAsync();
+        return coOwners.ToResultSet();
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> AssignCoOwner(UserActor user, Guid caseId, ContactMeta coOwner) {
+        var @case = await DbContext.Cases
+            .Where(c => c.Id == caseId)
+            .Select(c => new {
+                IsOwner = c.Owner.UserId == coOwner.UserId,
+                IsCoOwner = c.CoOwners.Any(x => x.CoOwner.UserId == coOwner.UserId),
+                CoOwners = c.CoOwners.Count()
+            })
+            .FirstOrDefaultAsync();
+        if (@case is null) {
+            return false;
+        }
+        if (@case.IsOwner) {
+            throw new BusinessException("The owner of the case cannot be added as a co-owner.");
+        }
+        if (@case.IsCoOwner) {
+            await DbContext.CaseCoOwners
+                .Where(x => x.CaseId == caseId && x.CoOwner.UserId == coOwner.UserId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.CoOwner.Reference, coOwner.Reference)
+                    .SetProperty(x => x.CoOwner.FirstName, coOwner.FirstName)
+                    .SetProperty(x => x.CoOwner.LastName, coOwner.LastName)
+                    .SetProperty(x => x.CoOwner.Tin, coOwner.Tin)
+                    .SetProperty(x => x.CoOwner.Permission, coOwner.Permission));
+            await _platformEventService.Publish(new CaseContactPermissionChangedEvent { CaseId = caseId, UserId = coOwner.UserId, Permission = coOwner.Permission, ChangedBy = AuditMeta.Create(user) });
+            return true;
+        }
+        if (@case.CoOwners >= Options.CoOwnerLimit) {
+            throw new BusinessException($"The case cannot have more than {Options.CoOwnerLimit} co-owner(s).");
+        }
+        var addedBy = AuditMeta.Create(user);
+        DbContext.CaseCoOwners.Add(new DbCoownsCase { Id = Guid.NewGuid(), CaseId = caseId, CoOwner = coOwner, AddedBy = addedBy });
+        await DbContext.SaveChangesAsync();
+        await _platformEventService.Publish(new CaseCoOwnerAddedEvent { CaseId = caseId, UserId = coOwner.UserId, Permission = coOwner.Permission, AddedBy = addedBy });
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> RemoveCoOwner(UserActor user, Guid caseId, string coOwnerUserId) {
+        var removed = await DbContext.CaseCoOwners.Where(x => x.CaseId == caseId && x.CoOwner.UserId == coOwnerUserId).ExecuteDeleteAsync();
+        if (removed == 0) {
+            return false;
+        }
+        await _platformEventService.Publish(new CaseCoOwnerRemovedEvent { CaseId = caseId, UserId = coOwnerUserId, RemovedBy = AuditMeta.Create(user) });
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateOwnerPermission(UserActor user, Guid caseId, ContactPermission permission) {
+        var updated = await DbContext.Cases.Where(c => c.Id == caseId).ExecuteUpdateAsync(setters => setters.SetProperty(c => c.Owner.Permission, permission));
+        if (updated == 0) {
+            return false;
+        }
+        // The event names the owner, so that the cached access of that user is removed.
+        var ownerUserId = await DbContext.Cases.Where(c => c.Id == caseId).Select(c => c.Owner.UserId).FirstOrDefaultAsync();
+        await _platformEventService.Publish(new CaseContactPermissionChangedEvent { CaseId = caseId, UserId = ownerUserId, Permission = permission, ChangedBy = AuditMeta.Create(user) });
         return true;
     }
 }

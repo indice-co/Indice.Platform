@@ -75,10 +75,13 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         await _caseMessageService.Send(caseId, user, new Message { Data = data });
     }
 
+    public Task<bool> DeleteDraft(UserActor user, Guid caseId) =>
+        DeleteDraftInternal(caseId, user, requireCaseOwner: true);
+
     public async Task Submit(UserActor user, Guid caseId) {
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 
-        var @case = await GetDbCaseForCustomer(caseId, user);
+        var @case = await GetDbCaseForCustomer(caseId, user, ContactPermission.Contributor);
         if (!@case.Draft) {
             throw new BusinessException("Case status is not draft."); // todo proper exception (BadRequest)
         }
@@ -104,9 +107,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             }));
     }
 
-    public async Task<Case?> GetCaseById(Guid caseId) {
+    public Task<Case?> GetCaseById(Guid caseId) => GetCaseById(caseId, includeAttachmentData: true);
+
+    public async Task<Case?> GetCaseById(Guid caseId, bool includeAttachmentData) {
         var query =
-            from c in GetCasesInternal(fetchPublicData: true, includeAttachmentData: true, SchemaSelector)
+            from c in GetCasesInternal(fetchPublicData: true, includeAttachmentData: includeAttachmentData, SchemaSelector)
             where c.Id == caseId 
             select c;
 
@@ -120,10 +125,106 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             throw new BusinessException("Case not found.");
         }
 
-        await PopulateAttachmentData(@case.Attachments);
+        if (includeAttachmentData) {
+            await PopulateAttachmentData(@case.Attachments);
+        }
 
         @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        @case.CheckpointType = @case.CheckpointType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true)!;
         return @case;
+    }
+
+    public Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) =>
+        GetAttachmentInternal(caseId, attachmentId);
+
+    public async Task<List<MyTimelineEntry>?> GetTimeline(Guid caseId, UserActor user, TimelineFilter filter = TimelineFilter.All) {
+        ArgumentNullException.ThrowIfNull(user);
+        if (!Enum.IsDefined(filter)) {
+            throw new ArgumentOutOfRangeException(nameof(filter));
+        }
+        var draft = await DbContext.Cases.AsNoTracking()
+            .Where(c => c.Id == caseId)
+            .Select(c => (bool?)c.Draft)
+            .FirstOrDefaultAsync();
+        if (draft is null) {
+            return null;
+        }
+        if (draft.Value) {
+            return [];
+        }
+
+        var comments = await DbContext.Comments.AsNoTracking()
+            .Where(c => c.CaseId == caseId && !c.Private)
+            .Select(c => new {
+                c.Id, c.Text, c.IsCustomer, c.Private, c.ReplyToCommentId, c.CreatedBy,
+                Attachment = c.Attachment != null && c.Attachment.CaseId == caseId ? new CasesAttachmentLink {
+                    Id = c.Attachment.Id,
+                    FileGuid = c.Attachment.Guid,
+                    Label = c.Attachment.Name,
+                    ContentType = c.Attachment.ContentType,
+                    Size = c.Attachment.ContentLength
+                } : null
+            })
+            .ToListAsync();
+        var checkpoints = await DbContext.Checkpoints.AsNoTracking()
+            .Where(c => c.CaseId == caseId && !c.CheckpointType.Private)
+            .Select(c => new {
+                c.CreatedBy, c.CompletedDate, c.DueDate,
+                Type = new CheckpointType {
+                    Title = c.CheckpointType.Title,
+                    Description = c.CheckpointType.Description,
+                    Translations = c.CheckpointType.Translations
+                }
+            })
+            .ToListAsync();
+
+        var commentsById = comments.ToDictionary(c => c.Id);
+        Comment MapComment(Guid id) {
+            var comment = commentsById[id];
+            return new Comment {
+                Id = comment.Id,
+                Text = comment.Text!,
+                IsCustomer = comment.IsCustomer,
+                Private = comment.Private,
+                Attachment = comment.Attachment
+            };
+        }
+
+        var timeline = comments.Select(c => {
+            var comment = MapComment(c.Id);
+            if (c.ReplyToCommentId is Guid replyId && commentsById.ContainsKey(replyId)) {
+                comment.ReplyToComment = MapComment(replyId);
+            }
+            return new MyTimelineEntry {
+                Timestamp = c.CreatedBy.When!.Value,
+                CreatedBy = MaskTimelineAuthor(c.CreatedBy, user, c.IsCustomer),
+                Comment = comment
+            };
+        }).Concat(checkpoints.Select(c => {
+            var type = c.Type.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            return new MyTimelineEntry {
+                Timestamp = c.CreatedBy.When!.Value,
+                CreatedBy = MaskTimelineAuthor(c.CreatedBy, user, false),
+                Checkpoint = new MyTimelineCheckpoint {
+                    CompletedDate = c.CompletedDate,
+                    DueDate = c.DueDate,
+                    CheckpointType = new MyTimelineCheckpointType {
+                        Title = type.Title,
+                        Description = type.Description,
+                        Translations = type.Translations
+                    }
+                }
+            };
+        })).Where(c => filter == TimelineFilter.All || c.IsCheckpoint == (filter == TimelineFilter.Checkpoints))
+          .OrderByDescending(c => c.Timestamp).ThenBy(c => c.IsCheckpoint).ToList();
+        return timeline;
+    }
+
+    private AuditMeta MaskTimelineAuthor(AuditMeta author, UserActor user, bool isCustomer) {
+        if (isCustomer || (!string.IsNullOrEmpty(user.Id) && author.Id == user.Id)) {
+            return author;
+        }
+        return new AuditMeta { Name = Options.CustomerTimelineStaffDisplayName, When = author.When };
     }
 
     /// <summary>We do not return draft cases as a default behaviour either when</summary>
@@ -136,7 +237,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var includeData = filter is not null && filter.IncludeData == true;
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == user.Id || p.Owner.UserId == user.Id) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted);
+            // the cases the user owns, co-owns at any permission, or created
+            .Where(DbCase.ContactAccessPredicate(user.Id, ContactPermission.Reader))
+            .Where(p => p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted);
         dbCaseQueryable = WhereMetadata(dbCaseQueryable, filter?.Metadata);
 
         // IncludeDrafts does not have value or IncludeDrafts is false.
@@ -332,6 +435,22 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             .ToListAsync();
         TranslateCaseTypes(caseTypes);
         return caseTypes.ToResultSet();
+    }
+
+    /// <inheritdoc/>
+    public async Task<ResultSet<MyCaseCoOwner>> GetCoOwners(Guid caseId) {
+        var coOwners = await DbContext.CaseCoOwners
+            .AsNoTracking()
+            .Where(x => x.CaseId == caseId)
+            .OrderBy(x => x.AddedBy.When)
+            .Select(x => new MyCaseCoOwner {
+                UserId = x.CoOwner.UserId,
+                FirstName = x.CoOwner.FirstName,
+                LastName = x.CoOwner.LastName,
+                Permission = x.CoOwner.Permission
+            })
+            .ToListAsync();
+        return coOwners.ToResultSet();
     }
 
     private void TranslateCaseTypes(List<CaseTypePartial> caseTypes) {

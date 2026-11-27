@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Endpoints;
@@ -33,7 +34,8 @@ internal static class MyCasesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Subject)
-        ).WithHandledException<BusinessException>();
+        ).WithHandledException<BusinessException>()
+         .WithHandledException<AttachmentNotSafeException>(StatusCodes.Status409Conflict);
 
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -42,7 +44,7 @@ internal static class MyCasesApi
 
         group.MapGet(string.Empty, MyCasesHandlers.GetMyCases)
             .WithName(nameof(MyCasesHandlers.GetMyCases))
-            .WithSummary("Get the list of the customer's cases.");
+            .WithSummary("Get the list of the customer's cases: the ones the customer owns, co-owns or created.");
 
         group.MapPost(string.Empty, MyCasesHandlers.CreateDraftCase)
             .WithName(nameof(MyCasesHandlers.CreateDraftCase))
@@ -51,30 +53,55 @@ internal static class MyCasesApi
 
         group.MapGet("{caseId}", MyCasesHandlers.GetMyCaseById)
             .WithName(nameof(MyCasesHandlers.GetMyCaseById))
-            .WithSummary("Get case details by Id.")
+            .WithSummary("Get case details. Checkpoint text is translated; set includeAttachmentData=false to omit attachment content.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+
+        group.MapGet("{caseId}/attachments/{attachmentId:guid}", MyCasesHandlers.GetMyCaseAttachment)
+            .WithName(nameof(MyCasesHandlers.GetMyCaseAttachment))
+            .WithSummary("Download an attachment belonging to the case.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+
+        group.MapGet("{caseId}/timeline", MyCasesHandlers.GetMyCaseTimeline)
+            .WithName(nameof(MyCasesHandlers.GetMyCaseTimeline))
+            .WithSummary("Get the public timeline, newest first. Draft cases return an empty timeline.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+
+        group.MapPost("{caseId}/comments", MyCasesHandlers.AddMyCaseComment)
+            .WithName(nameof(MyCasesHandlers.AddMyCaseComment))
+            .WithSummary("Add a public comment or reply to a submitted, non-final case.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess(ContactPermission.Contributor));
 
         group.MapPost("{caseId}/attachments", MyCasesHandlers.UploadCaseAttachment)
             .WithName(nameof(MyCasesHandlers.UploadCaseAttachment))
             .DisableAntiforgery()
-            .WithSummary("Add an attachment to an existing case regardless of its status and mode (draft or not).")
-            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+            .WithSummary("Upload an attachment to the case.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess(ContactPermission.Contributor));
 
         group.MapPut("{caseId}", MyCasesHandlers.UpdateCase)
             .WithName(nameof(MyCasesHandlers.UpdateCase))
             .WithSummary("Update the case with the business data as defined at the specific case type.")
             .WithParameterValidation<UpdateCaseRequest>()
-            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess(ContactPermission.Contributor));
 
         group.MapPost("{caseId}/submit", MyCasesHandlers.SubmitMyCase)
             .WithName(nameof(MyCasesHandlers.SubmitMyCase))
             .WithSummary("Submit the case by removing the draft mode.")
-            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess(ContactPermission.Contributor));
+
+        group.MapDelete("{caseId}", MyCasesHandlers.DeleteMyDraftCase)
+            .WithName(nameof(MyCasesHandlers.DeleteMyDraftCase))
+            .WithSummary("Discard an owned draft case. Submitted cases cannot be deleted.")
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess(ContactPermission.Owner));
 
         group.MapGet("{caseId}/download", MyCasesHandlers.DownloadMyCasePdf)
             .WithName(nameof(MyCasesHandlers.DownloadMyCasePdf))
             .WithSummary("Download case in a PDF format.")
             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf)
+            .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
+
+        group.MapGet("{caseId}/co-owners", MyCasesHandlers.GetMyCaseCoOwners)
+            .WithName(nameof(MyCasesHandlers.GetMyCaseCoOwners))
+            .WithSummary("Get the co-owners of the case with their names and permission. Co-owners are managed by the back-office.")
             .RequireAuthorization(policy => policy.RequireCasesOwnershipAccess());
 
         return routes;

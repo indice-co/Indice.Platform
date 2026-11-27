@@ -117,6 +117,10 @@ export const routes: Routes = [
     path: 'case-group', outlet: SIDE_PANE_OUTLET, data: { paneSize: 'sm', breadcrumb: { title: 'breadcrumb.caseGroup' } },
     loadComponent: () => import('./features/cases/case-group-pane/case-group-pane.component').then(m => m.CaseGroupPaneComponent)
   },
+  {
+    path: 'case-customer-access', outlet: SIDE_PANE_OUTLET, data: { paneSize: 'md', breadcrumb: { title: 'breadcrumb.caseCustomerAccess' } },
+    loadComponent: () => import('./features/cases/case-customer-access-pane/case-customer-access-pane.component').then(m => m.CaseCustomerAccessPaneComponent)
+  },
 
   {
     path: '**', component: StatusPageComponent,

@@ -5,6 +5,7 @@ using Indice.Events;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -125,13 +126,22 @@ internal static class AdminCasesHandlers
 
     public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, bool fetchPublicData = false) {
         var @case = await adminCareService.GetCaseById(caseId, fetchPublicData, false);
-        return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
+        if (@case is null) {
+            return TypedResults.NotFound();
+        }
+        // the back-office sees who co-owns the case, next to the permission of its owner
+        @case.CoOwners = [.. (await adminCareService.GetCoOwners(caseId)).Items];
+        return TypedResults.Ok(@case);
     }
 
     public static async Task<Results<NoContent, NotFound>> DeleteDraftCase(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
-        await adminCaseService.DeleteDraft(currentUser.UserToActor(casesOptions.Value), caseId);
-        return TypedResults.NoContent();
+        try {
+            await adminCaseService.DeleteDraft(currentUser.UserToActor(casesOptions.Value), caseId);
+            return TypedResults.NoContent();
+        } catch (CaseNotFoundException) {
+            return TypedResults.NotFound();
+        }
     }
 
     public static async Task<Ok<List<TimelineEntry>>> GetCaseTimeline(Guid caseId, IAdminCaseService adminCaseService) {
@@ -330,4 +340,37 @@ internal static class AdminCasesHandlers
             ? TypedResults.Ok(JsonNode.Parse("{}"))
             : TypedResults.Ok(data);
     }
+
+    /// <summary>Adds a co-owner to the case, or updates that co-owner when the user already is one.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="request">The co-owner and the permission to give.</param>
+    /// <param name="currentUser"></param>
+    /// <param name="casesOptions"></param>
+    /// <param name="adminCaseService"></param>
+    public static async Task<Results<NoContent, NotFound>> AssignCoOwner(Guid caseId, AssignCoOwnerRequest request, ClaimsPrincipal currentUser, IOptions<CasesOptions> casesOptions, IAdminCaseService adminCaseService) =>
+        await adminCaseService.AssignCoOwner(currentUser.UserToActor(casesOptions.Value), caseId, request.CoOwner) ? TypedResults.NoContent() : TypedResults.NotFound();
+
+    /// <summary>Removes a co-owner from the case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="userId">The user id of the co-owner.</param>
+    /// <param name="currentUser"></param>
+    /// <param name="casesOptions"></param>
+    /// <param name="adminCaseService"></param>
+    public static async Task<Results<NoContent, NotFound>> RemoveCoOwnerFromCase(Guid caseId, string userId, ClaimsPrincipal currentUser, IOptions<CasesOptions> casesOptions, IAdminCaseService adminCaseService) =>
+        await adminCaseService.RemoveCoOwner(currentUser.UserToActor(casesOptions.Value), caseId, userId) ? TypedResults.NoContent() : TypedResults.NotFound();
+
+    /// <summary>Gets the co-owners of the case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="adminCaseService"></param>
+    public static async Task<Ok<ResultSet<CaseCoOwner>>> GetCaseCoOwners(Guid caseId, IAdminCaseService adminCaseService) =>
+        TypedResults.Ok(await adminCaseService.GetCoOwners(caseId));
+
+    /// <summary>Changes the permission of the owner of the case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="request">The new permission.</param>
+    /// <param name="currentUser"></param>
+    /// <param name="casesOptions"></param>
+    /// <param name="adminCaseService"></param>
+    public static async Task<Results<NoContent, NotFound>> UpdateCaseOwnerPermission(Guid caseId, UpdateCaseOwnerPermissionRequest request, ClaimsPrincipal currentUser, IOptions<CasesOptions> casesOptions, IAdminCaseService adminCaseService) =>
+        await adminCaseService.UpdateOwnerPermission(currentUser.UserToActor(casesOptions.Value), caseId, request.Permission) ? TypedResults.NoContent() : TypedResults.NotFound();
 }

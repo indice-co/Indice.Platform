@@ -1,4 +1,5 @@
 ﻿using Indice.Extensions;
+using Indice.Features.Cases.Core.Models;
 
 namespace Indice.Features.Cases.Core.Data.Models;
 
@@ -18,6 +19,12 @@ public class DbAttachment
     public string FileExtension { get; set; } = null!;
     public string ContentType { get; set; } = null!;
     public long ContentLength { get; set; }
+    /// <summary>The scan status. New attachments are pending.</summary>
+    public AttachmentScanStatus ScanStatus { get; set; } = AttachmentScanStatus.Pending;
+    /// <summary>The time of the last scan status change.</summary>
+    public DateTimeOffset? ScanStatusChangedAt { get; set; }
+    /// <summary>The scanner responsible for the last scan status change.</summary>
+    public string? ScanStatusChangedBy { get; set; }
     /// <summary>The binary data of the attachment. Left empty (null) when the binary is persisted to a file service.</summary>
     public byte[]? Data { get; set; }
     public virtual DbCase Case { get; set; } = null!;

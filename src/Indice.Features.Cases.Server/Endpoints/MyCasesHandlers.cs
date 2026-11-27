@@ -32,9 +32,33 @@ internal static class MyCasesHandlers
     /// <summary>Get case details by Id.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="myCaseService"></param>
-    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, IMyCaseService myCaseService) {
-        var @case = await myCaseService.GetCaseById(caseId);
+    /// <param name="includeAttachmentData">Whether to include attachment content. Defaults to true.</param>
+    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, IMyCaseService myCaseService, bool includeAttachmentData = true) {
+        var @case = await myCaseService.GetCaseById(caseId, includeAttachmentData);
         return @case is null ? TypedResults.NotFound() : TypedResults.Ok(@case);
+    }
+
+    /// <summary>Download an attachment belonging to the case.</summary>
+    public static async Task<Results<FileContentHttpResult, NotFound>> GetMyCaseAttachment(Guid caseId, Guid attachmentId, IMyCaseService myCaseService) {
+        var attachment = await myCaseService.GetAttachment(caseId, attachmentId);
+        return attachment is null ? TypedResults.NotFound() : TypedResults.File(attachment.Data!, attachment.ContentType, attachment.FileName);
+    }
+
+    /// <summary>Get the public timeline of a case owned by the customer.</summary>
+    public static async Task<Results<Ok<List<MyTimelineEntry>>, NotFound, ProblemHttpResult>> GetMyCaseTimeline(Guid caseId, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService, TimelineFilter filter = TimelineFilter.All) {
+        if (!Enum.IsDefined(filter)) {
+            return TypedResults.Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Invalid timeline filter.");
+        }
+        var timeline = await myCaseService.GetTimeline(caseId, user.UserToActor(casesOptions.Value), filter);
+        return timeline is null ? TypedResults.NotFound() : TypedResults.Ok(timeline);
+    }
+
+    /// <summary>Add a public customer comment or reply.</summary>
+    public static async Task<NoContent> AddMyCaseComment(Guid caseId, CustomerCommentRequest request, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseMessageService myCaseMessageService) {
+        await myCaseMessageService.AddComment(caseId, user.UserToActor(casesOptions.Value), request);
+        return TypedResults.NoContent();
     }
 
     /// <summary>Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.</summary>
@@ -85,6 +109,13 @@ internal static class MyCasesHandlers
         return TypedResults.NoContent();
     }
 
+    /// <summary>Discards an owned draft case.</summary>
+    public static async Task<Results<NoContent, NotFound>> DeleteMyDraftCase(Guid caseId, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) =>
+        await myCaseService.DeleteDraft(user.UserToActor(casesOptions.Value), caseId)
+            ? TypedResults.NoContent()
+            : TypedResults.NotFound();
+
     /// <summary>Download case in a PDF format</summary>
     /// <param name="caseId"></param>
     /// <param name="myCaseService"></param>
@@ -98,6 +129,14 @@ internal static class MyCasesHandlers
         await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.External));
         return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
+    
+    /// <summary>
+    /// Gets the co-owners of a case, without their Tax identification number or reference.
+    /// </summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="myCaseService"></param>
+    public static async Task<Ok<ResultSet<MyCaseCoOwner>>> GetMyCaseCoOwners(Guid caseId, IMyCaseService myCaseService) =>
+        TypedResults.Ok(await myCaseService.GetCoOwners(caseId));
 
     /// <summary>
     /// Helper method to create a PDF from a case.

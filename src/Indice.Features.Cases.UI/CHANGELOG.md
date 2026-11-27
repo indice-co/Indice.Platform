@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Customer access on the case details page: a card lists the owner of the case and its co-owners, each with their permission
+  (`Reader`, `Contributor`, `Owner`). Administrators see it on every case and get a pen that opens the new "Customer access"
+  side pane (`case-customer-access;caseId=`), where they change the permission of the owner and add, change or remove co-owners.
+  Other users see the card once the case has a co-owner or an owner without the full permission.
+  Co-owners are picked with the contact search of the case type; a contact without a user id cannot be added.
+  Translation keys: `customerAccess.*`, `contactPermissions.*`, `breadcrumb.caseCustomerAccess`.
+
 ## [8.62.0]
 ### Added
 - The case relation key: in the case details "Basic info" panel, and as a cases list filter

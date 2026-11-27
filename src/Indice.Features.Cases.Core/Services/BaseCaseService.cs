@@ -2,6 +2,7 @@
 using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
@@ -40,13 +41,112 @@ internal abstract class BaseCaseService
         }
     }
 
+    protected async Task<bool> DeleteDraftInternal(Guid caseId, UserActor user, bool requireCaseOwner) {
+        ArgumentNullException.ThrowIfNull(user);
+        var @case = await DbContext.Cases.SingleOrDefaultAsync(x => x.Id == caseId);
+        if (@case is null) {
+            return false;
+        }
+        var coOwners = await DbContext.CaseCoOwners.Where(x => x.CaseId == caseId).ToListAsync();
+        // A customer discards a draft as its owner, or as a co-owner that was given the owner permission.
+        var canDelete = !string.IsNullOrEmpty(user.Id) && (requireCaseOwner
+            ? (@case.Owner.UserId == user.Id
+                ? @case.Owner.Permission >= ContactPermission.Owner
+                : coOwners.Any(x => x.CoOwner.UserId == user.Id && x.CoOwner.Permission >= ContactPermission.Owner))
+            : @case.CreatedBy.Id == user.Id);
+        if (!canDelete) {
+            throw new ResourceUnauthorizedException();
+        }
+        if (!@case.Draft) {
+            throw new BusinessException("Cannot delete a submitted case.");
+        }
+
+        var attachmentPaths = FileService is null
+            ? []
+            : await DbContext.Attachments.AsNoTracking()
+                .Where(x => x.CaseId == caseId && x.Data == null)
+                .Select(x => DbAttachment.GetPath(x.Guid, x.FileExtension))
+                .ToListAsync();
+        var checkpoints = await DbContext.Checkpoints.Where(x => x.CaseId == caseId).ToListAsync();
+        var comments = await DbContext.Comments.Where(x => x.CaseId == caseId).ToListAsync();
+        var attachments = await DbContext.Attachments.Where(x => x.CaseId == caseId).ToListAsync();
+        var versions = await DbContext.CaseData.Where(x => x.CaseId == caseId).ToListAsync();
+        var approvals = await DbContext.CaseApprovals.Where(x => x.CaseId == caseId).ToListAsync();
+        var accessRules = await DbContext.CaseAccessRules.Where(x => x.RuleCaseId == caseId).ToListAsync();
+
+        await using var transaction = DbContext.Database.IsRelational() && DbContext.Database.CurrentTransaction is null
+            ? await DbContext.Database.BeginTransactionAsync()
+            : null;
+        @case.CheckpointId = null;
+        @case.PublicCheckpointId = null;
+        @case.DataId = null;
+        @case.PublicDataId = null;
+        // Persist the cleared references before deletion so EF can order the circular relationships.
+        await DbContext.SaveChangesAsync();
+
+        if (FileService is not null) {
+            foreach (var path in attachmentPaths) {
+                await DeleteAttachmentFile(path);
+            }
+        }
+
+        DbContext.RemoveRange(approvals);
+        DbContext.RemoveRange(coOwners);
+        DbContext.RemoveRange(accessRules);
+        DbContext.RemoveRange(comments);
+        DbContext.RemoveRange(attachments);
+        DbContext.RemoveRange(versions);
+        DbContext.RemoveRange(checkpoints);
+        DbContext.Cases.Remove(@case);
+        await DbContext.SaveChangesAsync();
+        if (transaction is not null) {
+            await transaction.CommitAsync();
+        }
+
+        return true;
+    }
+
+    private async Task DeleteAttachmentFile(string path) {
+        try {
+            await FileService!.DeleteAsync(path);
+        } catch (FileNotFoundServiceException) {
+        }
+    }
+
+    protected async Task<CaseAttachment?> GetAttachmentInternal(Guid caseId, Guid attachmentId) {
+        var attachment = await DbContext.Attachments.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.CaseId == caseId && x.Id == attachmentId);
+        if (attachment is null) {
+            return null;
+        }
+        EnsureAttachmentSafe(attachment.ScanStatus);
+        var data = await GetAttachmentData(attachment.Guid, attachment.FileExtension, attachment.Data);
+        if (data is null) {
+            return null;
+        }
+        return new CaseAttachment {
+            Id = attachment.Id,
+            ContentType = attachment.ContentType,
+            FileName = attachment.Name,
+            FileExtension = attachment.FileExtension,
+            ScanStatus = attachment.ScanStatus,
+            Data = data
+        };
+    }
+
+    protected void EnsureAttachmentSafe(AttachmentScanStatus status) {
+        if (Options.AttachmentScanningEnabled && status != AttachmentScanStatus.Safe) {
+            throw new AttachmentNotSafeException();
+        }
+    }
+
     /// <summary>Populates the binary data of the given attachments from the configured file service, for those not stored in the database.</summary>
     /// <param name="attachments">The attachments to populate.</param>
     protected async Task PopulateAttachmentData(IEnumerable<CaseAttachment>? attachments) {
         if (FileService is null || attachments is null) {
             return;
         }
-        var missing = attachments.Where(x => x.Data is null).ToList();
+        var missing = attachments.Where(x => x.Data is null && (!Options.AttachmentScanningEnabled || x.ScanStatus == AttachmentScanStatus.Safe)).ToList();
         if (missing.Count == 0) {
             return;
         }
@@ -93,6 +193,7 @@ internal abstract class BaseCaseService
     /// <param name="includeAttachmentData">Include the attachment binary data to the response.</param>
     /// <param name="schemaKey">The schemaKey for the case type JSON schema/layout. Can be "frontend", "backoffice" or null</param>
     protected IQueryable<Case> GetCasesInternal(bool fetchPublicData, bool includeAttachmentData = false, string? schemaKey = null) {
+        var scanningEnabled = Options.AttachmentScanningEnabled;
         var query =
             from c in DbContext.Cases.AsQueryable().AsNoTracking()
             let publicData = !c.Draft && fetchPublicData // if fetchPublicData works only for non-draft cases
@@ -128,6 +229,7 @@ internal abstract class BaseCaseService
                 OwnerName = c.Owner.FullName,
                 OwnerTin = c.Owner.Tin,
                 UserId = c.Owner.UserId,
+                OwnerPermission = c.Owner.Permission,
                 GroupId = c.GroupId,
                 Metadata = c.Metadata,
                 Attachments = c.Attachments.Select(attachment => new CaseAttachment {
@@ -135,7 +237,8 @@ internal abstract class BaseCaseService
                     FileName = attachment.Name,
                     ContentType = attachment.ContentType,
                     FileExtension = attachment.FileExtension,
-                    Data = includeAttachmentData ? attachment.Data : null
+                    ScanStatus = attachment.ScanStatus,
+                    Data = includeAttachmentData && (!scanningEnabled || attachment.ScanStatus == AttachmentScanStatus.Safe) ? attachment.Data : null
                 }).ToList(),
                 Data = publicData ? c.PublicData.Data : c.Data.Data,
                 AssignedToName = c.AssignedTo!.Name,
@@ -150,16 +253,18 @@ internal abstract class BaseCaseService
         return query;
     }
 
-    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="UserActor"/> of the customer.</summary>
+    /// <summary>Get the case as requested by a Customer. The customer must have at least the given permission on the case, as its owner or co-owner.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="customer">The customer that initiated the request.</param>
+    /// <param name="minimumPermission">The minimum permission the customer needs on the case.</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, UserActor customer) {
-        var userId = customer.Id;
+    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, UserActor customer, ContactPermission minimumPermission) {
         var @case = await DbContext.Cases
             .Include(c => c.CaseType)
-            .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Owner.UserId == userId));
+            .Where(p => p.Id == caseId)
+            .Where(DbCase.ContactAccessPredicate(customer.Id, minimumPermission))
+            .FirstOrDefaultAsync();
         if (@case == null) {
             throw new BusinessException("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
         }
@@ -203,7 +308,15 @@ internal abstract class BaseCaseService
             CaseTypeId = caseType.Id,
             Priority = Priority.Normal,
             GroupId = groupId,
-            Owner = customer ?? new(),
+            // A new case always starts with a full owner, whatever the request carries. Only an administrator can lower the permission afterwards.
+            Owner = new ContactMeta {
+                UserId = customer?.UserId,
+                Reference = customer?.Reference,
+                FirstName = customer?.FirstName,
+                LastName = customer?.LastName,
+                Tin = customer?.Tin,
+                Permission = ContactPermission.Owner
+            },
             CreatedBy = userMeta,
             Metadata = metadata,
             Draft = true,

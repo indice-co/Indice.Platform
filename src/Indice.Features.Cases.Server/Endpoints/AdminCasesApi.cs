@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Configuration;
+using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Server;
@@ -31,7 +32,8 @@ internal static class AdminCasesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).WithHandledException<BusinessException>();
+        ).WithHandledException<BusinessException>()
+         .WithHandledException<AttachmentNotSafeException>(StatusCodes.Status409Conflict);
 
         group.WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
@@ -97,7 +99,7 @@ internal static class AdminCasesApi
 
         group.MapGet("{caseId}", AdminCasesHandlers.GetCaseById)
             .WithName(nameof(AdminCasesHandlers.GetCaseById))
-            .WithSummary("Gets a case with the specified id.")
+            .WithSummary("Gets a case with the specified id, with its co-owners and the permission of its owner.")
             .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
 
         group.MapDelete("{caseId}", AdminCasesHandlers.DeleteDraftCase)
@@ -163,6 +165,28 @@ internal static class AdminCasesApi
             .WithName(nameof(AdminCasesHandlers.PublishCasePrivateData))
             .WithSummary("Publish private data to public data of a case.")
             .RequireAuthorization(policy => policy.RequireCasesRecordAccess(CasesAccessLevel.Manage));
+
+        group.MapGet("{caseId}/co-owners", AdminCasesHandlers.GetCaseCoOwners)
+            .WithName(nameof(AdminCasesHandlers.GetCaseCoOwners))
+            .WithSummary("Gets the co-owners of the case with their contact details, permission and who added them.")
+            .RequireAuthorization(policy => policy.RequireCasesRecordAccess());
+
+        group.MapPut("{caseId}/co-owners", AdminCasesHandlers.AssignCoOwner)
+            .WithName(nameof(AdminCasesHandlers.AssignCoOwner))
+            .WithSummary("Adds a co-owner to the case, or updates the permission and contact details of that user when already a co-owner.")
+            .WithParameterValidation<AssignCoOwnerRequest>()
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
+
+        group.MapDelete("{caseId}/co-owners/{userId}", AdminCasesHandlers.RemoveCoOwnerFromCase)
+            .WithName(nameof(AdminCasesHandlers.RemoveCoOwnerFromCase))
+            .WithSummary("Removes a co-owner from the case, by the user id of the co-owner.")
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
+
+        group.MapPut("{caseId}/owner/permission", AdminCasesHandlers.UpdateCaseOwnerPermission)
+            .WithName(nameof(AdminCasesHandlers.UpdateCaseOwnerPermission))
+            .WithSummary("Changes the permission of the owner of the case, which decides what the owner can do with it.")
+            .WithParameterValidation<UpdateCaseOwnerPermissionRequest>()
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
         return group;
     }
 }

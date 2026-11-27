@@ -11,7 +11,7 @@ import {
 } from '@lucide/angular';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import {
-  ActionRequest, Case, CaseActions, CasePartial, CaseStatus, CasesApiService, CustomCaseAction, TimelineEntry
+  ActionRequest, Case, CaseActions, CaseCoOwner, CasePartial, CaseStatus, CasesApiService, ContactPermission, CustomCaseAction, TimelineEntry
 } from 'src/app/core/services/cases-api.service';
 import { ApprovalButtonsComponent } from 'src/app/shared/components/approval-buttons/approval-buttons.component';
 import { CaseCustomActionComponent, CustomActionEvent } from 'src/app/shared/components/case-custom-action/case-custom-action.component';
@@ -24,6 +24,7 @@ import { TABS } from 'src/app/ui/tabs/tabs';
 import { CaseAccessRulesComponent } from './case-access-rules/case-access-rules.component';
 import { CaseAttachmentsComponent } from './case-attachments/case-attachments.component';
 import { CaseCommentComposerComponent } from './case-comment-composer/case-comment-composer.component';
+import { CaseCustomerAccessComponent } from './case-customer-access/case-customer-access.component';
 import { CaseDataVersionsComponent } from './case-data-versions/case-data-versions.component';
 import { CaseFormComponent } from './case-form/case-form.component';
 import { CasePrintPdfComponent } from './case-print-pdf/case-print-pdf.component';
@@ -35,7 +36,7 @@ import { RelatedCasesComponent } from './related-cases/related-cases.component';
   templateUrl: './case-detail-page.component.html',
   imports: [
     DatePipe, RouterLink, TranslatePipe, ApprovalButtonsComponent, CaseAttachmentsComponent, CaseCommentComposerComponent, CaseCustomActionComponent,
-    CaseAccessRulesComponent, CaseDataVersionsComponent, CaseDetailInfoComponent, CaseFormComponent,
+    CaseAccessRulesComponent, CaseCustomerAccessComponent, CaseDataVersionsComponent, CaseDetailInfoComponent, CaseFormComponent,
     CasePrintPdfComponent, CaseTimelineComponent, RelatedCasesComponent, EmptyStateComponent, TABS,
     LucideArrowLeft, LucideCalendar, LucideFolderX, LucideInbox, LucideLink, LucidePlus, LucideTrash, LucideUser, LucideUserCheck
   ]
@@ -140,11 +141,18 @@ export class CaseDetailPageComponent {
   protected readonly headerActions = computed(() => (this.caseActions()?.customActions ?? []).filter(a => !a.description && !a.hasInput));
   protected readonly panelActions = computed(() => (this.caseActions()?.customActions ?? []).filter(a => !!a.description || !!a.hasInput));
 
-  /** Administrators edit the case's relations and group. */
+  /** Administrators edit the case's relations, group and customer access. */
   protected readonly canAdminister = this._auth.isAdmin() || this._auth.hasRole('CasesAdministrator');
 
   /** Opens the relations side pane; administrators only. */
   protected readonly relationsLink = computed(() => this.paneLink('case-relations'));
+  /** Opens the customer access side pane; administrators only. */
+  protected readonly customerAccessLink = computed(() => this.paneLink('case-customer-access'));
+  /** The customer access card is shown to administrators, who edit it, and to everyone once it differs from a single full owner. */
+  protected readonly showCustomerAccess = computed(() => {
+    const { ownerPermission, coOwners } = this.adminFields();
+    return this.canAdminister || coOwners.length > 0 || (!!ownerPermission && ownerPermission !== ContactPermission.Owner);
+  });
 
   protected readonly caseFacts = computed<InfoEntry[]>(() => {
     const model = this.model();
@@ -328,9 +336,11 @@ export class CaseDetailPageComponent {
 interface AdminFields {
   groupId?: string;
   relationKey?: string;
+  ownerPermission?: ContactPermission;
+  coOwners: CaseCoOwner[];
 }
 
 function adminFieldsOf(model: Case | undefined): AdminFields {
-  return { groupId: model?.groupId, relationKey: model?.relationKey };
+  return { groupId: model?.groupId, relationKey: model?.relationKey, ownerPermission: model?.ownerPermission, coOwners: model?.coOwners ?? [] };
 }
 

@@ -37,9 +37,13 @@ public static class CasesFeatureExtensions
             options.UserClaimType = casesOptions.UserClaimType;
             options.GroupIdClaimType = casesOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesOptions.ReferenceNumberEnabled;
+            options.CustomerTimelineStaffDisplayName = casesOptions.CustomerTimelineStaffDisplayName;
+            options.CustomerCommentMaxLength = casesOptions.CustomerCommentMaxLength;
+            options.AttachmentScanningEnabled = casesOptions.AttachmentScanningEnabled;
             options.RequiredScope = casesOptions.RequiredScope;
             options.ByPassAccessRulesForElevatedUsers = casesOptions.ByPassAccessRulesForElevatedUsers;
             options.ConfigureDbSeed = casesOptions.ConfigureDbSeed;
+            options.CoOwnerLimit = casesOptions.CoOwnerLimit;
         });
 
         var seedOptions = new CasesDbIntialDataOptions();
@@ -76,8 +80,9 @@ public static class CasesFeatureExtensions
         // My Services
         services.TryAddTransient<IMyCaseService, MyCaseService>();
         services.TryAddTransient<IMyCaseMessageService, MyCaseMessageService>();
+        services.TryAddTransient<ICaseAttachmentScanService, CaseAttachmentScanService>();
 
-        // Workflow integration 
+        // Workflow integration
         services.TryAddTransient<ICasesWorkflowManager, DefaultCasesWorkflowManager>();
 
         // register services

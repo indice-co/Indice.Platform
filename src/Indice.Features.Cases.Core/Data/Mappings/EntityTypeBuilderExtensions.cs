@@ -39,6 +39,42 @@ internal static class EntityTypeBuilderExtensions
                 .HasMaxLength(TextSizePresets.M128)
                 .IsRequired(required);
             actionBuilder
+                    .Property(p => p.When)
+                .HasColumnName($"{prefix}{nameof(AuditMeta.When)}")
+                .IsRequired(required);
+        });
+        return builder;
+    }
+
+    /// <summary>Map the <see cref="AuditMeta"/> property of an owned type.</summary>
+    /// <param name="builder">The builder of the owned type.</param>
+    /// <param name="navigationExpression">The navigation expression.</param>
+    /// <param name="required">Define the property required or not. Default is false.</param>
+    public static OwnedNavigationBuilder<TOwnerEntity, TEntity> OwnsOneAudit<TOwnerEntity, TEntity>(
+    this OwnedNavigationBuilder<TOwnerEntity, TEntity> builder,
+    Expression<Func<TEntity, AuditMeta?>> navigationExpression,
+    bool required = false)
+    where TOwnerEntity : class
+    where TEntity : class {
+
+        builder.OwnsOne(navigationExpression, actionBuilder => {
+            var prefix = $"{typeof(TEntity).Name}{((MemberExpression)navigationExpression.Body).Member.Name}";
+            actionBuilder
+                .Property(p => p.Id)
+                .HasColumnName($"{prefix}{nameof(AuditMeta.Id)}")
+                .HasMaxLength(TextSizePresets.S64)
+                .IsRequired(required);
+            actionBuilder
+                .Property(p => p.Email)
+                .HasColumnName($"{prefix}{nameof(AuditMeta.Email)}")
+                .HasMaxLength(TextSizePresets.M128)
+                .IsRequired(required);
+            actionBuilder
+                .Property(p => p.Name)
+                .HasColumnName($"{prefix}{nameof(AuditMeta.Name)}")
+                .HasMaxLength(TextSizePresets.M128)
+                .IsRequired(required);
+            actionBuilder
                 .Property(p => p.When)
                 .HasColumnName($"{prefix}{nameof(AuditMeta.When)}")
                 .IsRequired(required);

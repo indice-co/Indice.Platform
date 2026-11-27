@@ -40,6 +40,9 @@ public class CasesDbContext : DbContext
     /// <summary>Case type category.</summary>
     public DbSet<DbCategory> Categories { get; set; } = null!;
 
+    /// <summary>Case co-owners</summary>
+    public DbSet<DbCoownsCase> CaseCoOwners { get; set; } = null!;
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.ApplyJsonFunctions(Database.ProviderName);

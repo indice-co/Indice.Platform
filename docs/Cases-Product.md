@@ -70,6 +70,10 @@ A case's history is its list of checkpoints; its status is whatever the current 
   128 characters; legacy `Customer` / `Agent` values count as `External` / `Managed` **(next release)**.
 - **Comments, attachments, timeline** — private or public comments with replies; attachments stored with the case;
   a timeline that merges checkpoints and comments; related cases that share an `ExternalCorrelationKey` metadata value.
+- **Discard a draft** — `DELETE /my/cases/{caseId}` hard-deletes an owned draft and its data versions, checkpoints,
+  comments, access rules, approvals and attachments, then removes file-service blobs in batches. On relational databases,
+  current/public checkpoint and data references are cleared and saved before deletion within the same transaction.
+  Returns 204 on success, 404 for an unknown case, and 400 for a submitted case; submitted cases must be withdrawn through a workflow action.
 
 ### 🔄 Workflows — Elsa 2
 
@@ -117,7 +121,8 @@ Three layers: what your role allows, which records you were granted, and what yo
 - **`my/case-types`** — the case types a customer can open, with translated schema and layout.
 - **`my/cases`** — create a draft, update it, upload attachments, submit, list, get, download the PDF.
 - **Public view only** — the customer sees the public checkpoint, the published data and, on rejection, the reason;
-  never internal steps or back-office comments.
+  never internal steps or back-office comments. Case details translate the checkpoint title and description using the
+  request culture, falling back to the original values when no translation exists.
 - **Same pipeline** — a customer-submitted case starts the same workflow as a staff-created one.
 
 ### 👥 Back-office surface — the `manage` API
@@ -404,6 +409,19 @@ builder.AddCaseServer(options => {
   Call `options.UseFileServiceAzure()` (Azure Blob Storage, container `{environment}-cases`, connection string `StorageConnection`)
   or `options.UseFileServiceLocal()` (local file system) to store them in a file service instead; only the metadata stay in the
   database. Attachments already stored in the database keep being served from there.
+- **Attachment scanning** — set `options.AttachmentScanningEnabled = true` to allow downloads only when `scanStatus` is `Safe`.
+  Pending, Unsafe and ScanFailed downloads return 409 problem details; case details retain their metadata but omit their binary content.
+  Customer comments referencing an attachment that is not Safe return 400 problem details. This applies to My and Manage downloads
+  and to database and external-file storage. The flag defaults to false. New attachments start as Pending even when the flag is off,
+  so scan them before enabling it. Submission and workflow actions are not gated. The consuming application must provide the scanner.
+- **Scanner integration** — a trusted in-process scanner can resolve `ICaseAttachmentScanService` and call
+  `SetStatus(attachmentId, AttachmentScanStatus.Safe, scannerId)` (or Unsafe / ScanFailed). Restrict access to this service to
+  trusted code; no scanner HTTP endpoint is exposed. Status changes record the scanner and time, are logged, and publish
+  `CaseAttachmentScannedEvent` after the database save. Event delivery is not transactional with the database update.
+- **Database upgrade** — before deploying this version to an existing database, run the matching one-time SQL statement set in the
+  Cases Core changelog. These statements backfill existing attachments as Safe and set Pending as the default for new rows. Adjust
+  the schema name if needed. The upgrade is required even when scanning is disabled; the Cases database currently uses
+  `EnsureCreated`, not EF migrations.
 
 ### 🔀 Workflows
 
