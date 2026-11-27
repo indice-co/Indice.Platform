@@ -148,8 +148,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             var currentNames = currentRoles.Select(NormalizeName).ToHashSet();
             var addedRoles = currentRoles.Where(role => !previousNames.Contains(NormalizeName(role))).ToArray();
             var removedRoles = previousRoles.Where(role => !currentNames.Contains(NormalizeName(role))).ToArray();
-            if (addedRoles.Length > 0 || removedRoles.Length > 0) {
-                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), addedRoles, removedRoles));
+            foreach (var role in addedRoles) {
+                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), UserRoleChangeType.Added, role));
+            }
+            foreach (var role in removedRoles) {
+                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), UserRoleChangeType.Removed, role));
             }
         }
         return result;
@@ -175,7 +178,13 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         }
 
         if (result.Succeeded && options.previousUser != null) {
-            await _eventService.Publish(new UserUpdatedEvent(options.previousUser, UserEventContext.InitializeFromUser(user)));
+            var currentUser = UserEventContext.InitializeFromUser(user);
+            await _eventService.Publish(new UserUpdatedEvent(options.previousUser, currentUser));
+            if (options.previousUser.Admin != user.Admin) {
+                await _eventService.Publish(new UserRolesChangedEvent(currentUser,
+                    user.Admin ? UserRoleChangeType.Added : UserRoleChangeType.Removed,
+                    UserRolesChangedEvent.GlobalAdminRole, isGlobalAdmin: true));
+            }
         }
 
         return result;
