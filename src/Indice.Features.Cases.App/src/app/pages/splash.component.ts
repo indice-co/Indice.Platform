@@ -1,5 +1,5 @@
-import { Component, input } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { Component, inject, input } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LogoComponent } from '../ui/logo/logo.component';
 
 /** Full screen brand splash used while authentication redirects are in flight. */
@@ -12,11 +12,14 @@ import { LogoComponent } from '../ui/logo/logo.component';
       <app-logo [size]="48" ring="var(--color-base-200)" />
       <div class="flex items-center gap-3 text-base-content/75">
         <span class="loading loading-dots loading-sm text-primary"></span>
-        <span>{{ message() | translate }}</span>
+        @if (!translate.isLoading()) {
+          <span>{{ message() | translate }}</span>
+        }
       </div>
     </div>
   `
 })
 export class SplashComponent {
+  protected readonly translate = inject(TranslateService);
   public readonly message = input('home.pleaseWait');
 }

@@ -41,8 +41,7 @@ internal class QueryService : IQueryService
     }
 
     public async Task<bool> DeleteQuery(UserActor user, Guid queryId) {
-        var dbQuery = await _dbContext.Queries.Where(x => x.Id == queryId && x.UserId != user.Id).FirstOrDefaultAsync();
-        // someone tries to delete someone else's query!
+        var dbQuery = await _dbContext.Queries.Where(x => x.Id == queryId && x.UserId == user.Id).FirstOrDefaultAsync();
         if (dbQuery is null) {
             return false;
         }
