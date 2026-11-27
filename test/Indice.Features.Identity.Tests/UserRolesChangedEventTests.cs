@@ -31,11 +31,12 @@ public class UserRolesChangedEventTests : IDisposable
         services.AddSingleton(events.Object);
         services.AddLogging();
         services.AddLocalization();
-        services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+        var databaseName = Guid.NewGuid().ToString();
+        services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options => options.UseInMemoryDatabase(databaseName));
         services.AddIdentity<User, Role>()
                 .AddExtendedUserManager()
                 .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-                .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                .AddUserStore<InterleavingUserStore>()
                 .AddIdentityMessageDescriber();
         _services = services.BuildServiceProvider();
     }
@@ -97,6 +98,56 @@ public class UserRolesChangedEventTests : IDisposable
         Assert.Equal(2, removed.Length);
         Assert.All(removed, e => { Assert.Equal(user.Id, e.User.Id); Assert.Equal(UserRoleChangeType.Removed, e.ChangeType); });
         Assert.Equal(new[] { "Developer", "Reviewer" }, removed.Select(e => e.Role).OrderBy(x => x));
+    }
+
+    [Fact]
+    public async Task UnknownRole_DoesNotChangeMembershipOrPublishEvent() {
+        var manager = _services.GetRequiredService<ExtendedUserManager<User>>();
+        await CreateRoleAsync("Developer");
+        var user = new User("unknown-role@example.com");
+        Assert.True((await manager.CreateAsync(user)).Succeeded);
+        _events.Clear();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => manager.AddToRolesAsync(user, ["Developer", "missing"]));
+        Assert.False((await manager.RemoveFromRoleAsync(user, "missing")).Succeeded);
+        Assert.Empty(_events.OfType<UserRolesChangedEvent>());
+        Assert.Empty(await manager.GetRolesAsync(user));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ConcurrentRoleChangeAfterSave_DoesNotChangePublishedEvent(bool removeOriginalRole) {
+        var manager = _services.GetRequiredService<ExtendedUserManager<User>>();
+        var developer = await CreateRoleAsync("Developer");
+        var reviewer = await CreateRoleAsync("Reviewer");
+        var user = new User("concurrent@example.com");
+        Assert.True((await manager.CreateAsync(user)).Succeeded);
+        _events.Clear();
+
+        var store = Assert.IsType<InterleavingUserStore>(_services.GetRequiredService<IUserStore<User>>());
+        store.AfterUpdate = async () => {
+            using var scope = _services.CreateScope();
+            var otherContext = scope.ServiceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+            if (removeOriginalRole) {
+                var membership = await otherContext.UserRoles.SingleAsync(x => x.UserId == user.Id && x.RoleId == developer.Id);
+                otherContext.UserRoles.Remove(membership);
+            } else {
+                otherContext.UserRoles.Add(new IdentityUserRole<string> { UserId = user.Id, RoleId = reviewer.Id });
+            }
+            await otherContext.SaveChangesAsync();
+        };
+
+        Assert.True((await manager.AddToRoleAsync(user, "developer")).Succeeded);
+
+        var changed = Assert.Single(_events.OfType<UserRolesChangedEvent>());
+        Assert.Equal(user.Id, changed.User.Id);
+        Assert.Equal(UserRoleChangeType.Added, changed.ChangeType);
+        Assert.Equal("Developer", changed.Role);
+        using var verificationScope = _services.CreateScope();
+        var verification = verificationScope.ServiceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        Assert.Equal(!removeOriginalRole, await verification.UserRoles.AnyAsync(x => x.UserId == user.Id && x.RoleId == developer.Id));
+        Assert.Equal(!removeOriginalRole, await verification.UserRoles.AnyAsync(x => x.UserId == user.Id && x.RoleId == reviewer.Id));
     }
 
     [Fact]
@@ -168,4 +219,20 @@ public class UserRolesChangedEventTests : IDisposable
     }
 
     public void Dispose() => _services.Dispose();
+
+    private sealed class InterleavingUserStore(
+        ExtendedIdentityDbContext<User, Role> context,
+        IConfiguration configuration,
+        IdentityErrorDescriber describer) : ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>(context, configuration, describer)
+    {
+        public Func<Task>? AfterUpdate { get; set; }
+
+        public override async Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken = default) {
+            var result = await base.UpdateAsync(user, cancellationToken);
+            if (result.Succeeded && AfterUpdate is not null) {
+                await AfterUpdate();
+            }
+            return result;
+        }
+    }
 }

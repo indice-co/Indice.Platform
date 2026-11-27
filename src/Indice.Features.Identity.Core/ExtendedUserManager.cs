@@ -125,34 +125,50 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
 
     /// <inheritdoc />
     public override Task<IdentityResult> AddToRoleAsync(TUser user, string role) =>
-        ChangeRolesAsync(user, () => base.AddToRoleAsync(user, role));
+        ChangeRolesAsync(user, [role], UserRoleChangeType.Added, roles => base.AddToRoleAsync(user, roles[0]));
 
     /// <inheritdoc />
     public override Task<IdentityResult> AddToRolesAsync(TUser user, IEnumerable<string> roles) =>
-        ChangeRolesAsync(user, () => base.AddToRolesAsync(user, roles));
+        ChangeRolesAsync(user, roles, UserRoleChangeType.Added, names => base.AddToRolesAsync(user, names));
 
     /// <inheritdoc />
     public override Task<IdentityResult> RemoveFromRoleAsync(TUser user, string role) =>
-        ChangeRolesAsync(user, () => base.RemoveFromRoleAsync(user, role));
+        ChangeRolesAsync(user, [role], UserRoleChangeType.Removed, roles => base.RemoveFromRoleAsync(user, roles[0]));
 
     /// <inheritdoc />
     public override Task<IdentityResult> RemoveFromRolesAsync(TUser user, IEnumerable<string> roles) =>
-        ChangeRolesAsync(user, () => base.RemoveFromRolesAsync(user, roles));
+        ChangeRolesAsync(user, roles, UserRoleChangeType.Removed, names => base.RemoveFromRolesAsync(user, names));
 
-    private async Task<IdentityResult> ChangeRolesAsync(TUser user, Func<Task<IdentityResult>> changeRoles) {
-        var previousRoles = await GetRolesAsync(user);
-        var result = await changeRoles();
-        if (result.Succeeded) {
-            var currentRoles = await GetRolesAsync(user);
-            var previousNames = previousRoles.Select(NormalizeName).ToHashSet();
-            var currentNames = currentRoles.Select(NormalizeName).ToHashSet();
-            var addedRoles = currentRoles.Where(role => !previousNames.Contains(NormalizeName(role))).ToArray();
-            var removedRoles = previousRoles.Where(role => !currentNames.Contains(NormalizeName(role))).ToArray();
-            foreach (var role in addedRoles) {
-                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), UserRoleChangeType.Added, role));
+    private async Task<IdentityResult> ChangeRolesAsync(TUser user, IEnumerable<string> roles, UserRoleChangeType changeType, Func<string[], Task<IdentityResult>> changeRoles) {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(roles);
+        var requestedRoles = roles.ToArray();
+        if (requestedRoles.Length == 0) {
+            return await changeRoles(requestedRoles);
+        }
+        if (Store is not IRoleNameLookup roleLookup) {
+            throw new NotSupportedException($"The user store must implement {nameof(IRoleNameLookup)} to publish role change events.");
+        }
+        var roleNames = new Dictionary<string, string>();
+        foreach (var role in requestedRoles) {
+            ArgumentException.ThrowIfNullOrWhiteSpace(role);
+            var normalizedRole = NormalizeName(role);
+            if (!roleNames.ContainsKey(normalizedRole)) {
+                var roleName = await roleLookup.FindRoleNameAsync(normalizedRole, CancellationToken);
+                if (roleName is null) {
+                    if (changeType == UserRoleChangeType.Removed) {
+                        return IdentityResult.Failed(base.ErrorDescriber.UserNotInRole(role));
+                    }
+                    throw new InvalidOperationException($"Role '{normalizedRole}' does not exist.");
+                }
+                roleNames.Add(normalizedRole, roleName);
             }
-            foreach (var role in removedRoles) {
-                await _eventService.Publish(new UserRolesChangedEvent(UserEventContext.InitializeFromUser(user), UserRoleChangeType.Removed, role));
+        }
+        var result = await changeRoles(requestedRoles);
+        if (result.Succeeded) {
+            var userContext = UserEventContext.InitializeFromUser(user);
+            foreach (var roleName in roleNames.Values) {
+                await _eventService.Publish(new UserRolesChangedEvent(userContext, changeType, roleName));
             }
         }
         return result;

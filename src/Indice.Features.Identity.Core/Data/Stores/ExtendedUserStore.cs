@@ -35,7 +35,7 @@ public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, Ide
 }
 
 /// <inheritdoc/>
-public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>, IUserDeviceStore<TUser>, IUserPictureStore<TUser>
+public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>, IUserDeviceStore<TUser>, IUserPictureStore<TUser>, IRoleNameLookup
     where TContext : IdentityDbContext<TUser, TRole>
     where TUser : User
     where TRole : IdentityRole
@@ -65,6 +65,10 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
     public MfaPolicy? TwoFactorPolicy { get; protected set; }
     /// <inheritdoc/>
     public bool StorePictureAsClaim { get; protected set; }
+
+    /// <inheritdoc/>
+    public async Task<string?> FindRoleNameAsync(string normalizedRoleName, CancellationToken cancellationToken) =>
+        (await FindRoleAsync(normalizedRoleName, cancellationToken))?.Name;
 
     #region Method Overrides
     /// <inheritdoc/>
