@@ -124,6 +124,57 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     }
 
     /// <inheritdoc />
+    public override Task<IdentityResult> AddToRoleAsync(TUser user, string role) =>
+        ChangeRolesAsync(user, [role], UserRoleChangeType.Added, roles => base.AddToRoleAsync(user, roles[0]));
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> AddToRolesAsync(TUser user, IEnumerable<string> roles) =>
+        ChangeRolesAsync(user, roles, UserRoleChangeType.Added, names => base.AddToRolesAsync(user, names));
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> RemoveFromRoleAsync(TUser user, string role) =>
+        ChangeRolesAsync(user, [role], UserRoleChangeType.Removed, roles => base.RemoveFromRoleAsync(user, roles[0]));
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> RemoveFromRolesAsync(TUser user, IEnumerable<string> roles) =>
+        ChangeRolesAsync(user, roles, UserRoleChangeType.Removed, names => base.RemoveFromRolesAsync(user, names));
+
+    private async Task<IdentityResult> ChangeRolesAsync(TUser user, IEnumerable<string> roles, UserRoleChangeType changeType, Func<string[], Task<IdentityResult>> changeRoles) {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(roles);
+        var requestedRoles = roles.ToArray();
+        if (requestedRoles.Length == 0) {
+            return await changeRoles(requestedRoles);
+        }
+        if (Store is not IRoleNameLookup roleLookup) {
+            throw new NotSupportedException($"The user store must implement {nameof(IRoleNameLookup)} to publish role change events.");
+        }
+        var roleNames = new Dictionary<string, string>();
+        foreach (var role in requestedRoles) {
+            ArgumentException.ThrowIfNullOrWhiteSpace(role);
+            var normalizedRole = NormalizeName(role);
+            if (!roleNames.ContainsKey(normalizedRole)) {
+                var roleName = await roleLookup.FindRoleNameAsync(normalizedRole, CancellationToken);
+                if (roleName is null) {
+                    if (changeType == UserRoleChangeType.Removed) {
+                        return IdentityResult.Failed(base.ErrorDescriber.UserNotInRole(role));
+                    }
+                    throw new InvalidOperationException($"Role '{normalizedRole}' does not exist.");
+                }
+                roleNames.Add(normalizedRole, roleName);
+            }
+        }
+        var result = await changeRoles(requestedRoles);
+        if (result.Succeeded) {
+            var userContext = UserEventContext.InitializeFromUser(user);
+            foreach (var roleName in roleNames.Values) {
+                await _eventService.Publish(new UserRolesChangedEvent(userContext, changeType, roleName));
+            }
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
     public override Task<IdentityResult> UpdateAsync(TUser user) => UpdateAsync(new UserUpdateOptions(user: user, bypassEmailAsUserNamePolicy: false, previousUser: null));
 
     /// <summary>Updates the specified user in the backing store.</summary>
@@ -143,7 +194,13 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         }
 
         if (result.Succeeded && options.previousUser != null) {
-            await _eventService.Publish(new UserUpdatedEvent(options.previousUser, UserEventContext.InitializeFromUser(user)));
+            var currentUser = UserEventContext.InitializeFromUser(user);
+            await _eventService.Publish(new UserUpdatedEvent(options.previousUser, currentUser));
+            if (options.previousUser.Admin != user.Admin) {
+                await _eventService.Publish(new UserRolesChangedEvent(currentUser,
+                    user.Admin ? UserRoleChangeType.Added : UserRoleChangeType.Removed,
+                    UserRolesChangedEvent.GlobalAdminRole, isGlobalAdmin: true));
+            }
         }
 
         return result;
