@@ -7,10 +7,10 @@ public class CaseCoOwnerAddedEvent : ICaseEvent
 {
     /// <summary>The case identifier.</summary>
     public Guid CaseId { get; set; }
-    /// <summary>The code of the case type.</summary>
-    public string CaseTypeCode { get; set; } = null!;
-    /// <summary>The co-owner that was added, with the permission given.</summary>
-    public ContactMeta CoOwner { get; set; } = null!;
+    /// <summary>The user id of the co-owner that was added.</summary>
+    public string? UserId { get; set; }
+    /// <summary>The permission given to the co-owner.</summary>
+    public ContactPermission Permission { get; set; }
     /// <summary>The user that added the co-owner, and when.</summary>
     public AuditMeta AddedBy { get; set; } = null!;
 }

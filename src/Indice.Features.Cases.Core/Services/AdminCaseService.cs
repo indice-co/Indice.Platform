@@ -15,7 +15,6 @@ using Indice.Types;
 using Json.Patch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Core.Services;
@@ -26,22 +25,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     private readonly ICaseAuthorizationProvider _memberAuthorizationProvider;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly IPlatformEventService _platformEventService;
-    private readonly ICaseContactPermissionService _contactPermissionService;
-    private readonly ILogger<AdminCaseService> _logger;
     public AdminCaseService(
         CasesDbContext dbContext,
         IOptions<CasesOptions> options,
         ICaseAuthorizationProvider memberAuthorizationProvider,
         IAdminCaseMessageService adminCaseMessageService,
         IPlatformEventService platformEventService,
-        ICaseContactPermissionService contactPermissionService,
-        ILogger<AdminCaseService> logger,
         [FromKeyedServices(CasesCoreConstants.FileServiceKey)] IFileService? fileService = null) : base(dbContext, options, fileService) {
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
-        _contactPermissionService = contactPermissionService ?? throw new ArgumentNullException(nameof(contactPermissionService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<CreateCaseResponse> CreateDraft(UserActor user,
@@ -797,7 +790,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var coOwners = await DbContext.CaseCoOwners
             .AsNoTracking()
             .Where(x => x.CaseId == caseId)
-            .OrderBy(x => x.CoOwner.AddedBy.When)
+            .OrderBy(x => x.AddedBy.When)
             .Select(x => new CaseCoOwner {
                 UserId = x.CoOwner.UserId,
                 Reference = x.CoOwner.Reference,
@@ -806,10 +799,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 Tin = x.CoOwner.Tin,
                 Permission = x.CoOwner.Permission,
                 AddedBy = new AuditMeta {
-                    Id = x.CoOwner.AddedBy.Id,
-                    Name = x.CoOwner.AddedBy.Name,
-                    Email = x.CoOwner.AddedBy.Email,
-                    When = x.CoOwner.AddedBy.When
+                    Id = x.AddedBy.Id,
+                    Name = x.AddedBy.Name,
+                    Email = x.AddedBy.Email,
+                    When = x.AddedBy.When
                 }
             })
             .ToListAsync();
@@ -818,136 +811,61 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     /// <inheritdoc/>
     public async Task<bool> AssignCoOwner(UserActor user, Guid caseId, ContactMeta coOwner) {
-        ArgumentNullException.ThrowIfNull(user);
-        ArgumentNullException.ThrowIfNull(coOwner);
-        var coOwnerUserId = coOwner.UserId?.Trim();
-        if (string.IsNullOrEmpty(coOwnerUserId)) {
-            throw new BusinessException("The user id of the co-owner is required.");
-        }
         var @case = await DbContext.Cases
-            .Include(c => c.Checkpoint).ThenInclude(c => c.CheckpointType)
-            .Include(c => c.CoOwners)
-            .FirstOrDefaultAsync(c => c.Id == caseId);
+            .Where(c => c.Id == caseId)
+            .Select(c => new {
+                IsOwner = c.Owner.UserId == coOwner.UserId,
+                IsCoOwner = c.CoOwners.Any(x => x.CoOwner.UserId == coOwner.UserId),
+                CoOwners = c.CoOwners.Count()
+            })
+            .FirstOrDefaultAsync();
         if (@case is null) {
             return false;
         }
-        EnsureNotInFinalCheckpoint(@case);
-        // User ids are compared ignoring case here, like the database does, so the same user cannot be added twice or added next to being the owner.
-        if (string.Equals(@case.Owner.UserId, coOwnerUserId, StringComparison.OrdinalIgnoreCase)) {
+        if (@case.IsOwner) {
             throw new BusinessException("The owner of the case cannot be added as a co-owner.");
         }
-        var existing = @case.CoOwners.FirstOrDefault(x => string.Equals(x.CoOwner.UserId, coOwnerUserId, StringComparison.OrdinalIgnoreCase));
-        var added = existing is null;
-        if (existing is null) {
-            if (@case.CoOwners.Count >= Options.CoOwnerLimit) {
-                throw new BusinessException($"The case cannot have more than {Math.Max(Options.CoOwnerLimit, 0)} co-owner(s).");
-            }
-            existing = new DbCoownsCase {
-                Id = Guid.NewGuid(),
-                CaseId = caseId,
-                CoOwner = new CoOwnerContactMeta {
-                    UserId = coOwnerUserId,
-                    AddedBy = AuditMeta.Create(user)
-                }
-            };
-            DbContext.CaseCoOwners.Add(existing);
-        }
-        var previousPermission = existing.CoOwner.Permission;
-        existing.CoOwner.Reference = coOwner.Reference;
-        existing.CoOwner.FirstName = coOwner.FirstName;
-        existing.CoOwner.LastName = coOwner.LastName;
-        existing.CoOwner.Tin = coOwner.Tin;
-        existing.CoOwner.Permission = coOwner.Permission;
-        await DbContext.SaveChangesAsync();
-        // The entry of that user may hold "no access", or the previous permission.
-        await _contactPermissionService.Invalidate(existing.CoOwner.UserId!, caseId);
-
-        if (!added) {
-            _logger.LogInformation("Co-owner {CoOwnerUserId} of case {CaseId} was updated by {UserId}. Permission changed from {PreviousPermission} to {Permission}.",
-                existing.CoOwner.UserId, caseId, user.Id, previousPermission, existing.CoOwner.Permission);
+        if (@case.IsCoOwner) {
+            await DbContext.CaseCoOwners
+                .Where(x => x.CaseId == caseId && x.CoOwner.UserId == coOwner.UserId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.CoOwner.Reference, coOwner.Reference)
+                    .SetProperty(x => x.CoOwner.FirstName, coOwner.FirstName)
+                    .SetProperty(x => x.CoOwner.LastName, coOwner.LastName)
+                    .SetProperty(x => x.CoOwner.Tin, coOwner.Tin)
+                    .SetProperty(x => x.CoOwner.Permission, coOwner.Permission));
+            await _platformEventService.Publish(new CaseContactPermissionChangedEvent { CaseId = caseId, UserId = coOwner.UserId, Permission = coOwner.Permission, ChangedBy = AuditMeta.Create(user) });
             return true;
         }
-        _logger.LogInformation("Co-owner {CoOwnerUserId} was added to case {CaseId} with permission {Permission} by {UserId}.",
-            existing.CoOwner.UserId, caseId, existing.CoOwner.Permission, user.Id);
-        await _platformEventService.Publish(new CaseCoOwnerAddedEvent {
-            CaseId = caseId,
-            CaseTypeCode = await GetCaseTypeCode(@case.CaseTypeId),
-            CoOwner = ToContactMeta(existing.CoOwner),
-            AddedBy = existing.CoOwner.AddedBy.Clone()
-        });
+        if (@case.CoOwners >= Options.CoOwnerLimit) {
+            throw new BusinessException($"The case cannot have more than {Options.CoOwnerLimit} co-owner(s).");
+        }
+        var addedBy = AuditMeta.Create(user);
+        DbContext.CaseCoOwners.Add(new DbCoownsCase { Id = Guid.NewGuid(), CaseId = caseId, CoOwner = coOwner, AddedBy = addedBy });
+        await DbContext.SaveChangesAsync();
+        await _platformEventService.Publish(new CaseCoOwnerAddedEvent { CaseId = caseId, UserId = coOwner.UserId, Permission = coOwner.Permission, AddedBy = addedBy });
         return true;
     }
 
     /// <inheritdoc/>
     public async Task<bool> RemoveCoOwner(UserActor user, Guid caseId, string coOwnerUserId) {
-        ArgumentNullException.ThrowIfNull(user);
-        if (string.IsNullOrWhiteSpace(coOwnerUserId)) {
+        var removed = await DbContext.CaseCoOwners.Where(x => x.CaseId == caseId && x.CoOwner.UserId == coOwnerUserId).ExecuteDeleteAsync();
+        if (removed == 0) {
             return false;
         }
-        // Allowed in any checkpoint, so that access can always be revoked.
-        var coOwner = await DbContext.CaseCoOwners.FirstOrDefaultAsync(x => x.CaseId == caseId && x.CoOwner.UserId == coOwnerUserId);
-        if (coOwner is null) {
-            return false;
-        }
-        var caseTypeCode = await DbContext.Cases.Where(c => c.Id == caseId).Select(c => c.CaseType.Code).FirstAsync();
-        DbContext.CaseCoOwners.Remove(coOwner);
-        await DbContext.SaveChangesAsync();
-        await _contactPermissionService.Invalidate(coOwner.CoOwner.UserId!, caseId);
-
-        _logger.LogInformation("Co-owner {CoOwnerUserId} with permission {Permission} was removed from case {CaseId} by {UserId}.",
-            coOwner.CoOwner.UserId, coOwner.CoOwner.Permission, caseId, user.Id);
-        await _platformEventService.Publish(new CaseCoOwnerRemovedEvent {
-            CaseId = caseId,
-            CaseTypeCode = caseTypeCode,
-            CoOwner = ToContactMeta(coOwner.CoOwner),
-            RemovedBy = AuditMeta.Create(user)
-        });
+        await _platformEventService.Publish(new CaseCoOwnerRemovedEvent { CaseId = caseId, UserId = coOwnerUserId, RemovedBy = AuditMeta.Create(user) });
         return true;
     }
 
     /// <inheritdoc/>
     public async Task<bool> UpdateOwnerPermission(UserActor user, Guid caseId, ContactPermission permission) {
-        ArgumentNullException.ThrowIfNull(user);
-        if (!Enum.IsDefined(permission)) {
-            throw new BusinessException("The permission is not valid.");
-        }
-        var @case = await DbContext.Cases
-            .Include(c => c.Checkpoint).ThenInclude(c => c.CheckpointType)
-            .FirstOrDefaultAsync(c => c.Id == caseId);
-        if (@case is null) {
+        var updated = await DbContext.Cases.Where(c => c.Id == caseId).ExecuteUpdateAsync(setters => setters.SetProperty(c => c.Owner.Permission, permission));
+        if (updated == 0) {
             return false;
         }
-        EnsureNotInFinalCheckpoint(@case);
-        var previousPermission = @case.Owner.Permission;
-        if (previousPermission == permission) {
-            return true;
-        }
-        @case.Owner.Permission = permission;
-        await DbContext.SaveChangesAsync();
-        if (!string.IsNullOrEmpty(@case.Owner.UserId)) {
-            await _contactPermissionService.Invalidate(@case.Owner.UserId, caseId);
-        }
-        _logger.LogInformation("The permission of owner {OwnerUserId} on case {CaseId} was changed from {PreviousPermission} to {Permission} by {UserId}.",
-            @case.Owner.UserId, caseId, previousPermission, permission, user.Id);
+        // The event names the owner, so that the cached access of that user is removed.
+        var ownerUserId = await DbContext.Cases.Where(c => c.Id == caseId).Select(c => c.Owner.UserId).FirstOrDefaultAsync();
+        await _platformEventService.Publish(new CaseContactPermissionChangedEvent { CaseId = caseId, UserId = ownerUserId, Permission = permission, ChangedBy = AuditMeta.Create(user) });
         return true;
     }
-
-    /// <summary>Co-owners and permissions of a case that has reached a final checkpoint can no longer change. Removing a co-owner is the exception.</summary>
-    private static void EnsureNotInFinalCheckpoint(DbCase @case) {
-        if (@case.Checkpoint?.CheckpointType?.Status is CaseStatus.Completed or CaseStatus.Deleted) {
-            throw new BusinessException("The co-owners and permissions of a case cannot change once it has reached a final checkpoint.");
-        }
-    }
-
-    private Task<string> GetCaseTypeCode(Guid caseTypeId) =>
-        DbContext.CaseTypes.Where(x => x.Id == caseTypeId).Select(x => x.Code).FirstAsync();
-
-    private static ContactMeta ToContactMeta(ContactMeta contact) => new() {
-        UserId = contact.UserId,
-        Reference = contact.Reference,
-        FirstName = contact.FirstName,
-        LastName = contact.LastName,
-        Tin = contact.Tin,
-        Permission = contact.Permission
-    };
 }

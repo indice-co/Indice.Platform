@@ -1,6 +1,5 @@
 ﻿using Indice.Configuration;
 using Indice.Features.Cases.Core.Data.Models;
-using Indice.Features.Cases.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -52,8 +51,6 @@ internal class DbCoownsCaseConfiguration : IEntityTypeConfiguration<DbCoownsCase
                     actionBuilder
                         .Property(p => p.Permission)
                         .HasColumnName($"{prefix}{nameof(DbCoownsCase.CoOwner.Permission)}");
-                    actionBuilder
-                        .OwnsOneAudit(p => p.AddedBy, required: true, prefix: nameof(CoOwnerContactMeta.AddedBy));
                     // Serves the "cases where I am a co-owner" lookup.
                     // The unique index on (CaseId, CoOwnerUserId) spans the entity and its owned type, which the model cannot express. It ships with the database scripts.
                     actionBuilder
@@ -62,5 +59,7 @@ internal class DbCoownsCaseConfiguration : IEntityTypeConfiguration<DbCoownsCase
         builder
             .Navigation(x => x.CoOwner)
             .IsRequired();
+        builder
+            .OwnsOneAudit(x => x.AddedBy, required: true);
     }
 }

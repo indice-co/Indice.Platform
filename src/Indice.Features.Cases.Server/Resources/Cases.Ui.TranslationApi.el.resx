@@ -1608,4 +1608,82 @@
   <data name="categories.translations.hint" xml:space="preserve">
     <value>Το όνομα και η περιγραφή ανά γλώσσα. Αφήστε κενά για να χρησιμοποιηθούν οι παραπάνω τιμές.</value>
   </data>
+  <data name="breadcrumb.caseCustomerAccess" xml:space="preserve">
+    <value>Πρόσβαση πελατών</value>
+  </data>
+  <data name="customerAccess.title" xml:space="preserve">
+    <value>Πρόσβαση πελατών</value>
+  </data>
+  <data name="customerAccess.subtitle" xml:space="preserve">
+    <value>Τι μπορούν να κάνουν στην υπόθεση, ως πελάτες, ο δικαιούχος και οι συνδικαιούχοι της.</value>
+  </data>
+  <data name="customerAccess.owner" xml:space="preserve">
+    <value>Δικαιούχος</value>
+  </data>
+  <data name="customerAccess.coOwner" xml:space="preserve">
+    <value>Συνδικαιούχος</value>
+  </data>
+  <data name="customerAccess.coOwners" xml:space="preserve">
+    <value>Συνδικαιούχοι</value>
+  </data>
+  <data name="customerAccess.noCoOwners" xml:space="preserve">
+    <value>Η υπόθεση δεν έχει συνδικαιούχους.</value>
+  </data>
+  <data name="customerAccess.permission" xml:space="preserve">
+    <value>Δικαίωμα</value>
+  </data>
+  <data name="customerAccess.permissionOf" xml:space="preserve">
+    <value>Δικαίωμα: {{name}}</value>
+  </data>
+  <data name="customerAccess.addedBy" xml:space="preserve">
+    <value>Προστέθηκε από {{name}}</value>
+  </data>
+  <data name="customerAccess.remove" xml:space="preserve">
+    <value>Αφαίρεση συνδικαιούχου</value>
+  </data>
+  <data name="customerAccess.removeAction" xml:space="preserve">
+    <value>Αφαίρεση</value>
+  </data>
+  <data name="customerAccess.removeConfirm" xml:space="preserve">
+    <value>Ο συνδικαιούχος {{name}} δεν θα έχει πλέον πρόσβαση στην υπόθεση.</value>
+  </data>
+  <data name="customerAccess.add.title" xml:space="preserve">
+    <value>Προσθήκη συνδικαιούχου</value>
+  </data>
+  <data name="customerAccess.add.hint" xml:space="preserve">
+    <value>Βρείτε τον πελάτη και επιλέξτε τι μπορεί να κάνει στην υπόθεση.</value>
+  </data>
+  <data name="customerAccess.add.action" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="customerAccess.add.noUserId" xml:space="preserve">
+    <value>Ο πελάτης δεν έχει κωδικό χρήστη και δεν μπορεί να προστεθεί.</value>
+  </data>
+  <data name="customerAccess.add.isOwner" xml:space="preserve">
+    <value>Ο πελάτης είναι ο δικαιούχος της υπόθεσης.</value>
+  </data>
+  <data name="customerAccess.add.alreadyCoOwner" xml:space="preserve">
+    <value>Ο πελάτης είναι ήδη συνδικαιούχος της υπόθεσης.</value>
+  </data>
+  <data name="customerAccess.saved" xml:space="preserve">
+    <value>Η πρόσβαση πελατών ενημερώθηκε.</value>
+  </data>
+  <data name="contactPermissions.reader.label" xml:space="preserve">
+    <value>Αναγνώστης</value>
+  </data>
+  <data name="contactPermissions.reader.hint" xml:space="preserve">
+    <value>Βλέπει την υπόθεση, τα συνημμένα και το ιστορικό της.</value>
+  </data>
+  <data name="contactPermissions.contributor.label" xml:space="preserve">
+    <value>Συμβάλλων</value>
+  </data>
+  <data name="contactPermissions.contributor.hint" xml:space="preserve">
+    <value>Επιπλέον σχολιάζει, επεξεργάζεται τα δεδομένα, ανεβάζει συνημμένα και υποβάλλει την υπόθεση.</value>
+  </data>
+  <data name="contactPermissions.owner.label" xml:space="preserve">
+    <value>Κάτοχος</value>
+  </data>
+  <data name="contactPermissions.owner.hint" xml:space="preserve">
+    <value>Επιπλέον ακυρώνει την υπόθεση όσο είναι πρόχειρο.</value>
+  </data>
 </root>

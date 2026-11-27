@@ -191,8 +191,8 @@ public interface IAdminCaseService
 
     /// <summary>
     /// Adds a co-owner to a case, or updates the permission and contact details of that user when already a co-owner.
-    /// The co-owner cannot be the owner of the case, the case must not be in a final checkpoint, and adding
-    /// must not exceed <see cref="CasesOptions.CoOwnerLimit"/>. Publishes a <c>CaseCoOwnerAddedEvent</c> when the co-owner is added.
+    /// The co-owner cannot be the owner of the case, and adding must not exceed <see cref="CasesOptions.CoOwnerLimit"/>.
+    /// Publishes a <c>CaseCoOwnerAddedEvent</c> when the co-owner is added, and a <c>CaseContactPermissionChangedEvent</c> when an existing co-owner is updated.
     /// </summary>
     /// <param name="user">The back-office user that makes the change.</param>
     /// <param name="caseId">The Id of the case.</param>
@@ -200,17 +200,14 @@ public interface IAdminCaseService
     /// <returns>False when the case does not exist.</returns>
     Task<bool> AssignCoOwner(UserActor user, Guid caseId, ContactMeta coOwner);
 
-    /// <summary>
-    /// Removes a co-owner from a case and publishes a <c>CaseCoOwnerRemovedEvent</c>.
-    /// Allowed in any checkpoint, so that access can always be revoked.
-    /// </summary>
+    /// <summary>Removes a co-owner from a case and publishes a <c>CaseCoOwnerRemovedEvent</c>.</summary>
     /// <param name="user">The back-office user that makes the change.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="coOwnerUserId">The user id of the co-owner to remove.</param>
     /// <returns>False when the case does not exist or the user is not one of its co-owners.</returns>
     Task<bool> RemoveCoOwner(UserActor user, Guid caseId, string coOwnerUserId);
 
-    /// <summary>Changes the permission of the owner of a case. The case must not be in a final checkpoint.</summary>
+    /// <summary>Changes the permission of the owner of a case and publishes a <c>CaseContactPermissionChangedEvent</c>.</summary>
     /// <param name="user">The back-office user that makes the change.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="permission">The new permission of the owner.</param>

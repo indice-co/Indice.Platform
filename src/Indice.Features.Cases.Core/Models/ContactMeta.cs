@@ -27,17 +27,6 @@ public class ContactMeta
 }
 
 /// <summary>
-/// Customer metada related to the Co-Owner of the case.
-/// </summary>
-public class  CoOwnerContactMeta : ContactMeta
-{
-    /// <summary>
-    /// Gets or sets the audit metadata for the user or process that added the entity.
-    /// </summary>
-    public AuditMeta AddedBy { get; set; } = null!;
-}
-
-/// <summary>
 /// The permission level of the contact regarding the case.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter))]

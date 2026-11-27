@@ -147,6 +147,10 @@
     <aside class="min-w-0 space-y-6">
       <app-case-detail-info [title]="'caseDetails.basicInfo' | translate" [entries]="caseFacts()" />
       <app-case-detail-info [title]="'caseDetails.customerInfo' | translate" [entries]="customerInfo()" />
+      @if (showCustomerAccess()) {
+        <app-case-customer-access [ownerName]="caseModel.ownerName" [ownerId]="caseModel.ownerId" [ownerPermission]="adminFields().ownerPermission"
+          [coOwners]="adminFields().coOwners" [editLink]="customerAccessLink()" />
+      }
       @if (userInfo(); as userInfo) {
         <app-case-detail-info [title]="'caseDetails.userInfo' | translate" [entries]="userInfo" />
       }

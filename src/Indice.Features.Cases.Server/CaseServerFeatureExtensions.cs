@@ -1,6 +1,7 @@
 ﻿using Duende.AccessTokenManagement;
 using FluentValidation;
 using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
@@ -89,6 +90,10 @@ public static class CaseServerFeatureExtensions
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
+        // What the owner handler caches for a customer is removed when the back-office changes what that customer can do on a case.
+        builder.Services.AddCaseEventHandler<CaseCoOwnerAddedEvent, CasesAccessOwnerCacheInvalidationHandler>();
+        builder.Services.AddCaseEventHandler<CaseCoOwnerRemovedEvent, CasesAccessOwnerCacheInvalidationHandler>();
+        builder.Services.AddCaseEventHandler<CaseContactPermissionChangedEvent, CasesAccessOwnerCacheInvalidationHandler>();
         builder.Services.AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>();
         // Client side UI translations served as a JSON graph from the embedded resx files.
         builder.Services.AddTranslationGraph(options => {

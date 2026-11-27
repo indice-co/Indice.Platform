@@ -31,7 +31,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
@@ -46,8 +45,8 @@ public class CaseCoOwnerTests : IAsyncDisposable
     private const string Stranger = "stranger";
     private const string Administrator = "administrator";
     private const string Manager = "manager";
-    private static readonly UserActor BackOfficeUser = new() { Id = Administrator, Name = "Back Office", Email = "back-office@example.test" };
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private readonly UserActor BackOfficeUser = new() { Id = Administrator, Name = "Back Office", Email = "back-office@example.test" };
+    private readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     private readonly Guid _draftId = Guid.NewGuid();
     private readonly Guid _secondDraftId = Guid.NewGuid();
@@ -69,11 +68,10 @@ public class CaseCoOwnerTests : IAsyncDisposable
 
     [Fact]
     public async Task Assign_adds_then_updates_a_co_owner_and_enforces_the_limit() {
-        await using var db = CreateInMemoryContext();
+        await using var db = await CreateSqlServerContext();
         await Seed(db);
         var events = Substitute.For<IPlatformEventService>();
-        var permissions = Substitute.For<ICaseContactPermissionService>();
-        var service = CreateAdminService(db, events, permissions, coOwnerLimit: 1);
+        var service = CreateAdminService(db, events, coOwnerLimit: 1);
 
         var added = await service.AssignCoOwner(BackOfficeUser, _submittedId, new ContactMeta {
             UserId = "co-1", Reference = "REF-1", FirstName = "Maria", LastName = "Doe", Tin = "123456789", Permission = ContactPermission.Reader
@@ -85,18 +83,17 @@ public class CaseCoOwnerTests : IAsyncDisposable
         Assert.Equal("REF-1", row.CoOwner.Reference);
         Assert.Equal("123456789", row.CoOwner.Tin);
         Assert.Equal(ContactPermission.Reader, row.CoOwner.Permission);
-        Assert.Equal(Administrator, row.CoOwner.AddedBy.Id);
-        Assert.NotNull(row.CoOwner.AddedBy.When);
+        Assert.Equal(Administrator, row.AddedBy.Id);
+        Assert.NotNull(row.AddedBy.When);
         await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => IsAddedEvent(e, _submittedId, "co-1", ContactPermission.Reader)));
-        await permissions.Received(1).Invalidate("co-1", _submittedId);
 
-        // the same user again is an update: it does not count against the limit and publishes nothing
+        // the same user again is an update: it does not count against the limit, and publishes the permission instead of a second addition
         Assert.True(await service.AssignCoOwner(BackOfficeUser, _submittedId, new ContactMeta { UserId = "co-1", FirstName = "Maria", LastName = "Smith", Permission = ContactPermission.Contributor }));
         row = await db.CaseCoOwners.AsNoTracking().SingleAsync(x => x.CaseId == _submittedId, TestContext.Current.CancellationToken);
         Assert.Equal(ContactPermission.Contributor, row.CoOwner.Permission);
         Assert.Equal("Smith", row.CoOwner.LastName);
         await events.Received(1).Publish(Arg.Any<CaseCoOwnerAddedEvent>());
-        await permissions.Received(2).Invalidate("co-1", _submittedId);
+        await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => IsPermissionChangedEvent(e, _submittedId, "co-1", ContactPermission.Contributor)));
 
         // a second co-owner exceeds the limit of one
         await Assert.ThrowsAsync<BusinessException>(() => service.AssignCoOwner(BackOfficeUser, _submittedId, new ContactMeta { UserId = "co-2" }));
@@ -104,57 +101,54 @@ public class CaseCoOwnerTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task Assign_rejects_the_owner_a_final_checkpoint_a_zero_limit_and_an_unknown_case() {
+    public async Task Assign_rejects_the_owner_a_zero_limit_and_an_unknown_case() {
         await using var db = CreateInMemoryContext();
         await Seed(db);
         var events = Substitute.For<IPlatformEventService>();
-        var service = CreateAdminService(db, events, Substitute.For<ICaseContactPermissionService>(), coOwnerLimit: 5);
+        var service = CreateAdminService(db, events, coOwnerLimit: 5);
 
         await Assert.ThrowsAsync<BusinessException>(() => service.AssignCoOwner(BackOfficeUser, _submittedId, new ContactMeta { UserId = Owner }));
-        await Assert.ThrowsAsync<BusinessException>(() => service.AssignCoOwner(BackOfficeUser, _submittedId, new ContactMeta { UserId = " " }));
-        await Assert.ThrowsAsync<BusinessException>(() => service.AssignCoOwner(BackOfficeUser, _completedId, new ContactMeta { UserId = "co-1" }));
         Assert.False(await service.AssignCoOwner(BackOfficeUser, Guid.NewGuid(), new ContactMeta { UserId = "co-1" }));
-        // working on a draft together is allowed
+        // a draft and a finished case take co-owners like any other case
         Assert.True(await service.AssignCoOwner(BackOfficeUser, _draftId, new ContactMeta { UserId = "co-1" }));
+        Assert.True(await service.AssignCoOwner(BackOfficeUser, _completedId, new ContactMeta { UserId = "co-1" }));
 
-        var noCoOwners = CreateAdminService(db, events, Substitute.For<ICaseContactPermissionService>(), coOwnerLimit: 0);
+        var noCoOwners = CreateAdminService(db, events, coOwnerLimit: 0);
         await Assert.ThrowsAsync<BusinessException>(() => noCoOwners.AssignCoOwner(BackOfficeUser, _submittedId, new ContactMeta { UserId = "co-1" }));
 
-        Assert.Empty(await db.CaseCoOwners.Where(x => x.CaseId != _draftId).ToListAsync(TestContext.Current.CancellationToken));
+        Assert.Empty(await db.CaseCoOwners.Where(x => x.CaseId == _submittedId).ToListAsync(TestContext.Current.CancellationToken));
     }
 
     [Fact]
-    public async Task Remove_works_on_a_finished_case_and_publishes_the_event() {
-        await using var db = CreateInMemoryContext();
+    public async Task Remove_deletes_the_co_owner_and_publishes_the_event() {
+        await using var db = await CreateSqlServerContext();
         await Seed(db);
         db.CaseCoOwners.Add(CoOwner(_completedId, "co-1", ContactPermission.Contributor));
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         var events = Substitute.For<IPlatformEventService>();
-        var permissions = Substitute.For<ICaseContactPermissionService>();
-        var service = CreateAdminService(db, events, permissions);
+        var service = CreateAdminService(db, events);
 
         Assert.False(await service.RemoveCoOwner(BackOfficeUser, _completedId, "someone-else"));
         Assert.True(await service.RemoveCoOwner(BackOfficeUser, _completedId, "co-1"));
         Assert.False(await service.RemoveCoOwner(BackOfficeUser, _completedId, "co-1"));
 
         Assert.False(await db.CaseCoOwners.AnyAsync(x => x.CaseId == _completedId, TestContext.Current.CancellationToken));
-        await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => IsRemovedEvent(e, _completedId, "co-1", ContactPermission.Contributor)));
-        await permissions.Received(1).Invalidate("co-1", _completedId);
+        await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => IsRemovedEvent(e, _completedId, "co-1")));
     }
 
     [Fact]
-    public async Task Owner_permission_changes_only_before_a_final_checkpoint() {
-        await using var db = CreateInMemoryContext();
+    public async Task Owner_permission_change_is_saved_and_publishes_the_event() {
+        await using var db = await CreateSqlServerContext();
         await Seed(db);
-        var permissions = Substitute.For<ICaseContactPermissionService>();
-        var service = CreateAdminService(db, Substitute.For<IPlatformEventService>(), permissions);
+        var events = Substitute.For<IPlatformEventService>();
+        var service = CreateAdminService(db, events);
 
         Assert.True(await service.UpdateOwnerPermission(BackOfficeUser, _submittedId, ContactPermission.Reader));
         Assert.Equal(ContactPermission.Reader, (await db.Cases.AsNoTracking().SingleAsync(c => c.Id == _submittedId, TestContext.Current.CancellationToken)).Owner.Permission);
-        await permissions.Received(1).Invalidate(Owner, _submittedId);
+        await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => IsPermissionChangedEvent(e, _submittedId, Owner, ContactPermission.Reader)));
 
-        await Assert.ThrowsAsync<BusinessException>(() => service.UpdateOwnerPermission(BackOfficeUser, _completedId, ContactPermission.Reader));
-        await Assert.ThrowsAsync<BusinessException>(() => service.UpdateOwnerPermission(BackOfficeUser, _submittedId, (ContactPermission)42));
+        // a finished case is no different
+        Assert.True(await service.UpdateOwnerPermission(BackOfficeUser, _completedId, ContactPermission.Contributor));
         Assert.False(await service.UpdateOwnerPermission(BackOfficeUser, Guid.NewGuid(), ContactPermission.Reader));
     }
 
@@ -181,7 +175,7 @@ public class CaseCoOwnerTests : IAsyncDisposable
     [InlineData(false)]
     [InlineData(true)]
     public async Task Permissions_decide_what_each_participant_can_do(bool useSqlServer) {
-        using var host = await CreateHost(Substitute.For<IPlatformEventService>(), useSqlServer);
+        using var host = await CreateHost(useSqlServer);
         using (var scope = host.Services.CreateScope()) {
             var db = scope.ServiceProvider.GetRequiredService<CasesDbContext>();
             await db.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
@@ -250,11 +244,14 @@ public class CaseCoOwnerTests : IAsyncDisposable
 
     [Fact]
     public async Task Back_office_changes_take_effect_on_the_next_request() {
-        var events = Substitute.For<IPlatformEventService>();
-        using var host = await CreateHost(events, useSqlServer: false, coOwnerLimit: 1);
+        using var host = await CreateHost(useSqlServer: true, coOwnerLimit: 1);
         using (var scope = host.Services.CreateScope()) {
-            await Seed(scope.ServiceProvider.GetRequiredService<CasesDbContext>());
+            var db = scope.ServiceProvider.GetRequiredService<CasesDbContext>();
+            await db.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
+            await Seed(db);
         }
+        // the events are published for real, so that their handlers remove what the owner handler cached
+        var events = host.Services.GetRequiredService<RecordingEventService>();
         using var client = host.GetTestClient();
         var comments = $"/my/cases/{_submittedId}/comments";
         var details = $"/my/cases/{_submittedId}?includeAttachmentData=false";
@@ -278,7 +275,7 @@ public class CaseCoOwnerTests : IAsyncDisposable
         Assert.Equal(HttpStatusCode.NoContent, (await Send(client, Administrator, HttpMethod.Put, $"{manage}/co-owners", coOwner, BasicRoleNames.CasesAdministrator)).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await Send(client, Stranger, HttpMethod.Get, details)).StatusCode);
         Assert.Equal(HttpStatusCode.NoContent, (await Send(client, Stranger, HttpMethod.Post, comments, new { comment = "As contributor" })).StatusCode);
-        await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => IsAddedEvent(e, _submittedId, Stranger, ContactPermission.Contributor)));
+        Assert.Single(events.Published, e => IsAddedEvent(e, _submittedId, Stranger, ContactPermission.Contributor));
 
         // the back-office sees the co-owners on the case, with their contact details and who added them
         var caseResponse = await Send(client, Administrator, HttpMethod.Get, manage, role: BasicRoleNames.CasesAdministrator);
@@ -304,13 +301,16 @@ public class CaseCoOwnerTests : IAsyncDisposable
         Assert.Equal(HttpStatusCode.BadRequest, (await Send(client, Administrator, HttpMethod.Put, $"{manage}/co-owners", new { coOwner = new { userId = "another" } }, BasicRoleNames.CasesAdministrator)).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await Send(client, Administrator, HttpMethod.Put, $"{manage}/co-owners", new { coOwner = new { firstName = "No id" } }, BasicRoleNames.CasesAdministrator)).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await Send(client, Administrator, HttpMethod.Put, $"{manage}/co-owners", new { coOwner = new { userId = Stranger, permission = 7 } }, BasicRoleNames.CasesAdministrator)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Send(client, Administrator, HttpMethod.Put, $"{manage}/owner/permission", new { permission = 7 }, BasicRoleNames.CasesAdministrator)).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await Send(client, Administrator, HttpMethod.Put, $"/manage/cases/{Guid.NewGuid()}/co-owners", coOwner, BasicRoleNames.CasesAdministrator)).StatusCode);
 
         // a removed co-owner is refused on the very next request
         Assert.Equal(HttpStatusCode.NoContent, (await Send(client, Administrator, HttpMethod.Delete, $"{manage}/co-owners/{Stranger}", role: BasicRoleNames.CasesAdministrator)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await Send(client, Stranger, HttpMethod.Get, details)).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await Send(client, Administrator, HttpMethod.Delete, $"{manage}/co-owners/{Stranger}", role: BasicRoleNames.CasesAdministrator)).StatusCode);
-        await events.Received(1).Publish(Arg.Is<IPlatformEvent>(e => IsRemovedEvent(e, _submittedId, Stranger, ContactPermission.Reader)));
+        Assert.Single(events.Published, e => IsRemovedEvent(e, _submittedId, Stranger));
+        Assert.Single(events.Published, e => IsPermissionChangedEvent(e, _submittedId, Owner, ContactPermission.Reader));
+        Assert.Single(events.Published, e => IsPermissionChangedEvent(e, _submittedId, Stranger, ContactPermission.Reader));
     }
 
     public async ValueTask DisposeAsync() {
@@ -320,36 +320,49 @@ public class CaseCoOwnerTests : IAsyncDisposable
         }
     }
 
-    private static bool IsAddedEvent(IPlatformEvent @event, Guid caseId, string userId, ContactPermission permission) =>
+    private bool IsPermissionChangedEvent(IPlatformEvent @event, Guid caseId, string userId, ContactPermission permission) =>
+        @event is CaseContactPermissionChangedEvent changed &&
+        changed.CaseId == caseId && changed.UserId == userId && changed.Permission == permission &&
+        changed.ChangedBy.Id == Administrator && changed.ChangedBy.When is not null;
+
+    private bool IsAddedEvent(IPlatformEvent @event, Guid caseId, string userId, ContactPermission permission) =>
         @event is CaseCoOwnerAddedEvent added &&
-        added.CaseId == caseId && added.CaseTypeCode == "T" &&
-        added.CoOwner.UserId == userId && added.CoOwner.Permission == permission &&
+        added.CaseId == caseId && added.UserId == userId && added.Permission == permission &&
         added.AddedBy.Id == Administrator && added.AddedBy.When is not null;
 
-    private static bool IsRemovedEvent(IPlatformEvent @event, Guid caseId, string userId, ContactPermission permission) =>
+    private bool IsRemovedEvent(IPlatformEvent @event, Guid caseId, string userId) =>
         @event is CaseCoOwnerRemovedEvent removed &&
-        removed.CaseId == caseId && removed.CaseTypeCode == "T" &&
-        removed.CoOwner.UserId == userId && removed.CoOwner.Permission == permission &&
+        removed.CaseId == caseId && removed.UserId == userId &&
         removed.RemovedBy.Id == Administrator && removed.RemovedBy.When is not null;
 
-    private static CasesDbContext CreateInMemoryContext() =>
+    private CasesDbContext CreateInMemoryContext() =>
         new(new DbContextOptionsBuilder<CasesDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-    private static AdminCaseService CreateAdminService(CasesDbContext db, IPlatformEventService events, ICaseContactPermissionService permissions, int coOwnerLimit = 1) => new(
+    /// <summary>The back-office changes run as ExecuteUpdate and ExecuteDelete, which the in-memory provider does not support.</summary>
+    private async Task<CasesDbContext> CreateSqlServerContext() {
+        _sqlServerOptions = new DbContextOptionsBuilder<CasesDbContext>().UseSqlServer(SqlServerConnectionString(Guid.NewGuid().ToString())).Options;
+        var db = new CasesDbContext(_sqlServerOptions);
+        await db.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
+        return db;
+    }
+
+    private string SqlServerConnectionString(string database) =>
+        $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.CoOwners_{database};Trusted_Connection=True;MultipleActiveResultSets=true";
+
+    private AdminCaseService CreateAdminService(CasesDbContext db, IPlatformEventService events, int coOwnerLimit = 1) => new(
         db,
         Options.Create(new CasesOptions { CoOwnerLimit = coOwnerLimit }),
         Substitute.For<ICaseAuthorizationProvider>(),
         Substitute.For<IAdminCaseMessageService>(),
-        events,
-        permissions,
-        NullLogger<AdminCaseService>.Instance);
+        events);
 
-    private static AuditMeta Audit(string id) => new() { Id = id, Name = id, Email = $"{id}@example.test", When = DateTimeOffset.UtcNow };
+    private AuditMeta Audit(string id) => new() { Id = id, Name = id, Email = $"{id}@example.test", When = DateTimeOffset.UtcNow };
 
-    private static DbCoownsCase CoOwner(Guid caseId, string userId, ContactPermission permission, string? tin = null, string? reference = null) => new() {
+    private DbCoownsCase CoOwner(Guid caseId, string userId, ContactPermission permission, string? tin = null, string? reference = null) => new() {
         Id = Guid.NewGuid(),
         CaseId = caseId,
-        CoOwner = new CoOwnerContactMeta { UserId = userId, FirstName = userId, LastName = "Doe", Tin = tin, Reference = reference, Permission = permission, AddedBy = Audit(Administrator) }
+        CoOwner = new ContactMeta { UserId = userId, FirstName = userId, LastName = "Doe", Tin = tin, Reference = reference, Permission = permission },
+        AddedBy = Audit(Administrator)
     };
 
     /// <summary>Two drafts, a submitted case and a completed one. All of them belong to the same owner, who also created them.</summary>
@@ -390,9 +403,9 @@ public class CaseCoOwnerTests : IAsyncDisposable
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    private async Task<IHost> CreateHost(IPlatformEventService events, bool useSqlServer, int coOwnerLimit = 1) {
+    private async Task<IHost> CreateHost(bool useSqlServer, int coOwnerLimit = 1) {
         var database = Guid.NewGuid().ToString();
-        var connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.CoOwners_{database};Trusted_Connection=True;MultipleActiveResultSets=true";
+        var connectionString = SqlServerConnectionString(database);
         if (useSqlServer) {
             _sqlServerOptions = new DbContextOptionsBuilder<CasesDbContext>().UseSqlServer(connectionString).Options;
         }
@@ -423,8 +436,11 @@ public class CaseCoOwnerTests : IAsyncDisposable
                 services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
                 services.AddTransient<IAuthorizationHandler, CasesAccessRoleBasedHandler>();
                 services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
-                services.AddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
-                services.AddSingleton(events);
+                services.AddSingleton<RecordingEventService>();
+                services.AddSingleton<IPlatformEventService>(serviceProvider => serviceProvider.GetRequiredService<RecordingEventService>());
+                services.AddCaseEventHandler<CaseCoOwnerAddedEvent, CasesAccessOwnerCacheInvalidationHandler>();
+                services.AddCaseEventHandler<CaseCoOwnerRemovedEvent, CasesAccessOwnerCacheInvalidationHandler>();
+                services.AddCaseEventHandler<CaseContactPermissionChangedEvent, CasesAccessOwnerCacheInvalidationHandler>();
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(Substitute.For<IAdminCaseMessageService>());
                 services.AddSingleton(Substitute.For<IJsonTranslationService>());
@@ -452,7 +468,7 @@ public class CaseCoOwnerTests : IAsyncDisposable
         }).StartAsync(TestContext.Current.CancellationToken);
     }
 
-    private static async Task<HttpResponseMessage> Send(HttpClient client, string user, HttpMethod method, string url, object? body = null, string? role = null) {
+    private async Task<HttpResponseMessage> Send(HttpClient client, string user, HttpMethod method, string url, object? body = null, string? role = null) {
         using var request = new HttpRequestMessage(method, url);
         request.Headers.Add("X-Test-User", user);
         if (role is not null) {
@@ -464,7 +480,7 @@ public class CaseCoOwnerTests : IAsyncDisposable
         return await client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
-    private static async Task<HttpResponseMessage> Upload(HttpClient client, string user, Guid caseId) {
+    private async Task<HttpResponseMessage> Upload(HttpClient client, string user, Guid caseId) {
         using var request = new HttpRequestMessage(HttpMethod.Post, $"/my/cases/{caseId}/attachments");
         request.Headers.Add("X-Test-User", user);
         var content = new MultipartFormDataContent();
@@ -473,11 +489,24 @@ public class CaseCoOwnerTests : IAsyncDisposable
         return await client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
-    private static async Task<Guid[]> ListCases(HttpClient client, string user) {
+    private async Task<Guid[]> ListCases(HttpClient client, string user) {
         var response = await Send(client, user, HttpMethod.Get, "/my/cases");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         return [.. result.GetProperty("items").EnumerateArray().Select(x => x.GetProperty("id").GetGuid())];
+    }
+
+    /// <summary>Publishes through the default event service, which runs the handlers before it returns, and keeps what was published.</summary>
+    private sealed class RecordingEventService(IServiceProvider serviceProvider, ILogger<DefaultPlatformEventService> logger) : IPlatformEventService
+    {
+        private readonly DefaultPlatformEventService _inner = new(serviceProvider, logger);
+
+        public List<IPlatformEvent> Published { get; } = [];
+
+        public async Task Publish(IPlatformEvent @event) {
+            Published.Add(@event);
+            await _inner.Publish(@event);
+        }
     }
 
     private sealed class TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)

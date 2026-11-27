@@ -58,7 +58,6 @@ public class MyCaseCommentAttachmentTests
                 services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Bearer", _ => { });
                 services.AddAuthorization();
                 services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
-                services.AddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(events);
                 services.AddSingleton(Substitute.For<ISchemaValidator>());

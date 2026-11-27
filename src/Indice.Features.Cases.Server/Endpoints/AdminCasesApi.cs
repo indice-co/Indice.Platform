@@ -173,18 +173,18 @@ internal static class AdminCasesApi
 
         group.MapPut("{caseId}/co-owners", AdminCasesHandlers.AssignCoOwner)
             .WithName(nameof(AdminCasesHandlers.AssignCoOwner))
-            .WithSummary("Adds a co-owner to the case, or updates the permission and contact details of that user when already a co-owner. Not allowed once the case has reached a final checkpoint.")
+            .WithSummary("Adds a co-owner to the case, or updates the permission and contact details of that user when already a co-owner.")
             .WithParameterValidation<AssignCoOwnerRequest>()
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
 
         group.MapDelete("{caseId}/co-owners/{userId}", AdminCasesHandlers.RemoveCoOwnerFromCase)
             .WithName(nameof(AdminCasesHandlers.RemoveCoOwnerFromCase))
-            .WithSummary("Removes a co-owner from the case, by the user id of the co-owner. Allowed in any checkpoint.")
+            .WithSummary("Removes a co-owner from the case, by the user id of the co-owner.")
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
 
         group.MapPut("{caseId}/owner/permission", AdminCasesHandlers.UpdateCaseOwnerPermission)
             .WithName(nameof(AdminCasesHandlers.UpdateCaseOwnerPermission))
-            .WithSummary("Changes the permission of the owner of the case, which decides what the owner can do with it. Not allowed once the case has reached a final checkpoint.")
+            .WithSummary("Changes the permission of the owner of the case, which decides what the owner can do with it.")
             .WithParameterValidation<UpdateCaseOwnerPermissionRequest>()
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer));
         return group;

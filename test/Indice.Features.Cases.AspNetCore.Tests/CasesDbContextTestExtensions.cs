@@ -18,6 +18,9 @@ internal static class CasesDbContextTestExtensions
         dbContext.SaveChanges();
     }
 
+    /// <summary>The seeded cases belong to the customer that created them. Having created a case gives no access on its own.</summary>
+    private static ContactMeta Owner() => new() { UserId = "ab9769f1-d532-4b7d-9922-3da003157ebd", Permission = ContactPermission.Owner };
+
     private static void SeedInternal(CasesDbContext dbContext) {
         var principal = new ClaimsPrincipal(new ClaimsIdentity(
             [
@@ -40,6 +43,7 @@ internal static class CasesDbContextTestExtensions
             CaseTypeId = caseType.Id,
             Channel = "web",
             CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
+            Owner = Owner(),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
                     CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
@@ -51,6 +55,7 @@ internal static class CasesDbContextTestExtensions
             CaseTypeId = caseType.Id,
             Channel = "web",
             CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
+            Owner = Owner(),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
                     CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
@@ -63,6 +68,7 @@ internal static class CasesDbContextTestExtensions
             CaseTypeId = caseType.Id,
             Channel = "web",
             CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
+            Owner = Owner(),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
                     CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
@@ -75,6 +81,7 @@ internal static class CasesDbContextTestExtensions
             CaseTypeId = caseType.Id,
             Channel = "web",
             CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
+            Owner = Owner(),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
                     CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),

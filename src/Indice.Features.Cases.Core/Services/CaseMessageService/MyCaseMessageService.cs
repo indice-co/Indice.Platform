@@ -85,7 +85,7 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
         if (string.IsNullOrEmpty(userId)) {
             throw new ArgumentException(nameof(userId));
         }
-        // Updating the data and uploading attachments need the contributor permission, as the owner, a co-owner or the creator of the case.
+        // Updating the data and uploading attachments need the contributor permission, as the owner or a co-owner of the case.
         var @case = await DbContext.Cases
             .Where(c => c.Id == caseId)
             .Where(DbCase.ContactAccessPredicate(userId, ContactPermission.Contributor))

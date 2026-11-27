@@ -67,7 +67,6 @@ public class MyCaseDraftDeletionTests : IAsyncDisposable
                 services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Bearer", _ => { });
                 services.AddAuthorization();
                 services.AddTransient<IAuthorizationHandler, CasesAccessOwnerHandler>();
-                services.AddTransient<ICaseContactPermissionService, CaseContactPermissionService>();
                 services.AddSingleton(Substitute.For<ICaseAuthorizationProvider>());
                 services.AddSingleton(Substitute.For<IPlatformEventService>());
                 services.AddSingleton(Substitute.For<IMyCaseMessageService>());
@@ -140,6 +139,8 @@ public class MyCaseDraftDeletionTests : IAsyncDisposable
         Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync($"/my/cases/{draftId}", TestContext.Current.CancellationToken)).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-User");
         client.DefaultRequestHeaders.Add("X-Test-User", "creator");
+        // Having created the case gives no access to it. Only its owner and co-owners take part.
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync($"/my/cases/{draftId}/timeline", TestContext.Current.CancellationToken)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync($"/my/cases/{draftId}", TestContext.Current.CancellationToken)).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-User");
         client.DefaultRequestHeaders.Add("X-Test-User", "owner");

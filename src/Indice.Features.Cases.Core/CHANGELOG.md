@@ -43,7 +43,7 @@ COMMIT;
   | `Owner` | Everything a contributor can, plus discard the case while it is a draft. |
 
   The owner of a case has the `Owner` permission unless an administrator lowers it. A co-owner gets `Reader` unless the request says otherwise.
-  The user that created a case without being its owner or a co-owner keeps what that user could already do: everything except discard it.
+  Only the owner and the co-owners take part in a case. Having created it gives no permission on its own.
 - The customer's list of cases (`GET /my/cases`) now includes the cases that the customer co-owns.
 - New and changed endpoints in the Manage cases API. The first three need the administrator access level (`CasesAdministrator` role, admin or system client):
   - `PUT /manage/cases/{caseId}/co-owners` adds a co-owner, or updates the permission and contact details of that user when already a co-owner.
@@ -52,25 +52,27 @@ COMMIT;
   - `GET /manage/cases/{caseId}/co-owners` lists the co-owners with their contact details, permission and who added them.
   - `GET /manage/cases/{caseId}` now returns the `coOwners` of the case and the `ownerPermission`.
 - New endpoint in the My cases API: `GET /my/cases/{caseId}/co-owners` lists the co-owners with their names and permission.
-- A co-owner cannot be the owner of the case. Co-owners and permissions cannot change once the case has reached a final checkpoint
-  (status `Completed` or `Deleted`), except that a co-owner can always be removed.
+- A co-owner cannot be the owner of the case.
 - `CasesOptions.CoOwnerLimit` sets how many co-owners a case can have. It defaults to `1`; `0` allows none.
 ```csharp
 builder.AddCaseServer(options => {
     options.CoOwnerLimit = 2;
 });
 ```
-- The `CaseCoOwnerAddedEvent` and `CaseCoOwnerRemovedEvent` are published when a co-owner is added and removed. Handle them with `AddCaseEventHandler`.
-- The permission of a customer on a case is cached for five minutes and the entry is removed as soon as the back-office changes it,
-  so a change takes effect on the next request. The cache is the registered `IDistributedCache`. With the in-memory one and more than
-  one instance of the host, the other instances pick the change up when their entry expires, at most five minutes later. Register a shared
-  distributed cache to avoid that.
+- The `CaseCoOwnerAddedEvent` and `CaseCoOwnerRemovedEvent` are published when a co-owner is added and removed, and the
+  `CaseContactPermissionChangedEvent` when the back-office sets the permission of the owner or updates a co-owner. They carry the case id,
+  the user id of the customer and who made the change. Handle them with `AddCaseEventHandler`.
+- `CasesAccessOwnerHandler` caches whether a customer may call an endpoint of a case, in the registered `IDistributedCache`, for sixty
+  minutes since the last use. The case server handles the three events above to remove what is cached for that customer, so a change
+  of the back-office takes effect on the next request. That holds while the events are handled as part of the request, which the default
+  `IPlatformEventService` does, and while the instances of the host share the cache. With the in-memory cache and more than one instance,
+  the other instances keep their answer until it expires. Register a shared distributed cache to avoid that.
 - Changes that can affect existing code:
   - The owner permission is now enforced. A case created through `IMyCaseService.CreateDraft` or `IAdminCaseService.CreateDraft` always gets a full owner.
     Code that inserts a `DbCase` itself must set `Owner.Permission` to `ContactPermission.Owner`, because a new `ContactMeta` starts as `Reader`.
   - The owner of a case that someone else created can now edit its data and upload attachments. That used to work for the creator only.
+  - The user that created a case no longer reaches it through the My cases API unless that user is also its owner or a co-owner.
   - `IAdminCaseService` has the new members `GetCoOwners`, `AssignCoOwner`, `RemoveCoOwner` and `UpdateOwnerPermission`, and `IMyCaseService` has `GetCoOwners`.
-  - The constructor of `CasesAccessOwnerHandler` now takes the new `ICaseContactPermissionService` instead of the cache and the authorization provider.
 - Before deploying to an existing database, run the matching one-time script below. Replace the `case` schema if necessary.
   Existing cases are backfilled with the `Owner` permission (`2`). The column keeps that default, so cases inserted by an instance of the
   previous version during the rollout also get a full owner.

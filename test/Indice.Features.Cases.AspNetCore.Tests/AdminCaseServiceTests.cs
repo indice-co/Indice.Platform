@@ -12,7 +12,6 @@ using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
@@ -53,9 +52,7 @@ public class AdminCaseServiceTests : IAsyncLifetime
             options,
             mockCaseAuthorization,
             mockAdminCaseMessage,
-            mockCaseEventService,
-            Substitute.For<ICaseContactPermissionService>(),
-            NullLogger<AdminCaseService>.Instance
+            mockCaseEventService
         );
 
         var listOptions = new ListOptions<GetCasesListFilter> {
@@ -88,9 +85,7 @@ public class AdminCaseServiceTests : IAsyncLifetime
             options,
             caseAuthorization,
             Substitute.For<IAdminCaseMessageService>(),
-            Substitute.For<IPlatformEventService>(),
-            Substitute.For<ICaseContactPermissionService>(),
-            NullLogger<AdminCaseService>.Instance
+            Substitute.For<IPlatformEventService>()
         );
         var listOptions = new ListOptions<GetCasesListFilter> {
             Page = 1,
@@ -216,9 +211,7 @@ public class AdminCaseServiceTests : IAsyncLifetime
         ServiceProvider.GetRequiredService<IOptions<CasesOptions>>(),
         Substitute.For<ICaseAuthorizationProvider>(),
         Substitute.For<IAdminCaseMessageService>(),
-        Substitute.For<IPlatformEventService>(),
-        Substitute.For<ICaseContactPermissionService>(),
-        NullLogger<AdminCaseService>.Instance
+        Substitute.For<IPlatformEventService>()
     );
 
     private async Task<DbCase> AddCase(string? relationKey) {

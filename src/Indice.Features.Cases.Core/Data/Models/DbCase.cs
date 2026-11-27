@@ -38,14 +38,10 @@ public class DbCase
     /// <summary>The coowners of the case</summary>
     public virtual List<DbCoownsCase> CoOwners { get; set; } = [];
 
-    /// <summary>The permission of the user that created a case, when that user is neither its owner nor one of its co-owners.</summary>
-    /// <remarks>The creator can view and work on the case, but only an owner can discard it.</remarks>
-    public const ContactPermission CreatorPermission = ContactPermission.Contributor;
-
     /// <summary>
     /// Matches the cases on which a customer has at least the given permission.
-    /// The owner is judged by the permission of the owner, a co-owner by the permission of the co-owner,
-    /// and the creator that is neither gets <see cref="CreatorPermission"/>.
+    /// The owner is judged by the permission of the owner and a co-owner by the permission of the co-owner.
+    /// Having created the case gives no permission on its own.
     /// </summary>
     /// <param name="userId">The id of the customer.</param>
     /// <param name="minimumPermission">The minimum permission required.</param>
@@ -53,15 +49,9 @@ public class DbCase
         if (string.IsNullOrEmpty(userId)) {
             return @case => false;
         }
-        if (minimumPermission > CreatorPermission) {
-            return @case =>
-                (@case.Owner.UserId == userId && @case.Owner.Permission >= minimumPermission) ||
-                @case.CoOwners.Any(x => x.CoOwner.UserId == userId && x.CoOwner.Permission >= minimumPermission);
-        }
         return @case =>
             (@case.Owner.UserId == userId && @case.Owner.Permission >= minimumPermission) ||
-            @case.CoOwners.Any(x => x.CoOwner.UserId == userId && x.CoOwner.Permission >= minimumPermission) ||
-            (@case.CreatedBy.Id == userId && @case.Owner.UserId != userId && !@case.CoOwners.Any(x => x.CoOwner.UserId == userId));
+            @case.CoOwners.Any(x => x.CoOwner.UserId == userId && x.CoOwner.Permission >= minimumPermission);
     }
 }
 #pragma warning restore 1591

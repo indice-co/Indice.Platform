@@ -253,7 +253,7 @@ internal abstract class BaseCaseService
         return query;
     }
 
-    /// <summary>Get the case as requested by a Customer. The customer must have at least the given permission on the case, as its owner, co-owner or creator.</summary>
+    /// <summary>Get the case as requested by a Customer. The customer must have at least the given permission on the case, as its owner or co-owner.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="customer">The customer that initiated the request.</param>
     /// <param name="minimumPermission">The minimum permission the customer needs on the case.</param>

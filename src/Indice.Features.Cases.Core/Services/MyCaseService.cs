@@ -442,7 +442,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var coOwners = await DbContext.CaseCoOwners
             .AsNoTracking()
             .Where(x => x.CaseId == caseId)
-            .OrderBy(x => x.CoOwner.AddedBy.When)
+            .OrderBy(x => x.AddedBy.When)
             .Select(x => new MyCaseCoOwner {
                 UserId = x.CoOwner.UserId,
                 FirstName = x.CoOwner.FirstName,

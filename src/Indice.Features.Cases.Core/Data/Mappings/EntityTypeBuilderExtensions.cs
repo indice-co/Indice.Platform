@@ -50,18 +50,15 @@ internal static class EntityTypeBuilderExtensions
     /// <param name="builder">The builder of the owned type.</param>
     /// <param name="navigationExpression">The navigation expression.</param>
     /// <param name="required">Define the property required or not. Default is false.</param>
-    /// <param name="prefix">The prefix of the column names. Defaults to the name of the owned type followed by the name of the navigation.</param>
     public static OwnedNavigationBuilder<TOwnerEntity, TEntity> OwnsOneAudit<TOwnerEntity, TEntity>(
     this OwnedNavigationBuilder<TOwnerEntity, TEntity> builder,
     Expression<Func<TEntity, AuditMeta?>> navigationExpression,
-    bool required = false,
-    string? prefix = null)
+    bool required = false)
     where TOwnerEntity : class
     where TEntity : class {
 
         builder.OwnsOne(navigationExpression, actionBuilder => {
-            var navigationName = ((MemberExpression)navigationExpression.Body).Member.Name;
-            prefix ??= $"{typeof(TEntity).Name}{navigationName}";
+            var prefix = $"{typeof(TEntity).Name}{((MemberExpression)navigationExpression.Body).Member.Name}";
             actionBuilder
                 .Property(p => p.Id)
                 .HasColumnName($"{prefix}{nameof(AuditMeta.Id)}")

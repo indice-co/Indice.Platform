@@ -24,6 +24,9 @@ public class DbCoownsCase
     /// <summary>
     /// The co-owner of the case
     /// </summary>
-    public CoOwnerContactMeta CoOwner { get; set; } = null!;
-
+    public ContactMeta CoOwner { get; set; } = null!;
+    /// <summary>
+    /// The back-office user that added the co-owner, and when
+    /// </summary>
+    public AuditMeta AddedBy { get; set; } = null!;
 }
